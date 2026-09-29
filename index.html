@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Race Weekend F1 Archive</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: #14171d;
+      --card-bg: #1e232d;
+      --btn-bg: #292f3d;
+      --btn-active: #333b4d;
+      --accent: #e10600;
+      --text: #ffffff;
+      --text-muted: #8e95a5;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Главная карточка-описание */
+    .bot-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .bot-card h2 {
+      margin: 0 0 10px 0;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .bot-card ul {
+      margin: 8px 0;
+      padding-left: 18px;
+      color: var(--text-muted);
+    }
+
+    /* Кнопки меню */
+    .menu-btn {
+      width: 100%;
+      background: var(--btn-bg);
+      border: 1px solid rgba(255,255,255,0.05);
+      color: var(--text);
+      padding: 15px 16px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: background 0.15s ease;
+    }
+    .menu-btn:active { background: var(--btn-active); transform: scale(0.99); }
+
+    /* Постер и инфо карточки */
+    .gp-banner {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: 12px;
+      display: block;
+      margin-bottom: 14px;
+      background: #252a36;
+    }
+    .gp-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .gp-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.45;
+      font-style: italic;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 5px;
+      background: rgba(225, 6, 0, 0.15);
+      color: #ff5555;
+    }
+
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .skeleton { text-align: center; padding: 40px 0; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ (КАТЕГОРИИ И СЕРИАЛЫ) -->
+  <div id="view-home" class="view active">
+    <div class="bot-card">
+      <h2>📌 Race Weekend F1 Archive</h2>
+      <div>Заезды любых годов, которые вы захотели видеть.</div>
+      <ul>
+        <li>Без цензуры и банов (все полные записи тут).</li>
+        <li>Максимально возможное качество картинки для Telegram.</li>
+      </ul>
+      <div style="color: var(--text-muted); font-size: 12px; margin-top: 6px;">
+        База обновляется после каждого Гран-при.
+      </div>
+    </div>
+    <div id="categories-list">
+      <div class="skeleton">Синхронизация каталога...</div>
+    </div>
+  </div>
+
+  <!-- ЭКРАН 2: ЭТАПЫ / СЕЗОНЫ СЕРИАЛА -->
+  <div id="view-titles" class="view">
+    <button class="back-btn" onclick="showView('home')">← Главное меню</button>
+    <div id="titles-list"></div>
+  </div>
+
+  <!-- ЭКРАН 3: КАРТОЧКА С ПОСТЕРОМ, ОПИСАНИЕМ И КНОПКАМИ ВЫДАЧИ -->
+  <div id="view-details" class="view">
+    <button class="back-btn" onclick="showView('titles')">← Назад к списку</button>
+    <div id="item-header"></div>
+    <div id="item-btns"></div>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    // НАСТРОЙКИ:
+    const SHEET_ID = "1-3OM9Wu1k6lrVb1HGK2I5vaRNgA4gYMP6J42s74z3No";
+    const BOT_USERNAME = "race_weekend_f1_bot";
+
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+    let dataTree = {};
+    let activeCategory = null;
+
+    function showView(name) {
+      if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-' + name).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    fetch(csvUrl)
+      .then(r => r.text())
+      .then(csvText => {
+        const rows = csvText.split('\n').slice(1);
+        dataTree = {};
+
+        rows.forEach(row => {
+          if (!row.trim()) return;
+          const cols = row.split('","').map(c => c.replace(/"/g, '').trim());
+
+          const category = cols[0] || 'Разное';
+          const title = cols[1];
+          const img = cols[2];
+          const desc = cols[3];
+          const item = cols[4];
+          const badge = cols[5];
+          const code = cols[6];
+
+          if (title && item && code) {
+            if (!dataTree[category]) dataTree[category] = {};
+            if (!dataTree[category][title]) {
+              dataTree[category][title] = { image: img, description: desc, items: [] };
+            }
+            if (!dataTree[category][title].image && img) dataTree[category][title].image = img;
+            if (!dataTree[category][title].description && desc) dataTree[category][title].description = desc;
+
+            dataTree[category][title].items.push({ item, badge, code });
+          }
+        });
+
+        // Отрисовка Экрана 1 (Главные категории / Сериалы)
+        const container = document.getElementById('categories-list');
+        container.innerHTML = '';
+
+        for (const cat in dataTree) {
+          const btn = document.createElement('div');
+          btn.className = 'menu-btn';
+          btn.innerHTML = `<span>${cat}</span><span style="opacity:0.4;">›</span>`;
+          btn.onclick = () => openCategory(cat);
+          container.appendChild(btn);
+        }
+      })
+      .catch(() => {
+        document.getElementById('categories-list').innerHTML = 
+          '<div class="skeleton">Ошибка загрузки базы данных.</div>';
+      });
+
+    // Отрисовка Экрана 2 (Этапы F1 или Сезоны сериала)
+    function openCategory(cat) {
+      activeCategory = cat;
+      const container = document.getElementById('titles-list');
+      container.innerHTML = '';
+
+      for (const t in dataTree[cat]) {
+        const btn = document.createElement('div');
+        btn.className = 'menu-btn';
+        btn.innerHTML = `<span>${t}</span><span style="opacity:0.4;">›</span>`;
+        btn.onclick = () => openDetails(t);
+        container.appendChild(btn);
+      }
+      showView('titles');
+    }
+
+    // Отрисовка Экрана 3 (Постер + Описание + Кнопки практик/гонок или серий)
+    function openDetails(titleKey) {
+      const data = dataTree[activeCategory][titleKey];
+      const headerBox = document.getElementById('item-header');
+      const btnsBox = document.getElementById('item-btns');
+
+      let bannerHtml = (data.image && data.image.startsWith('http')) 
+        ? `<img class="gp-banner" src="${data.image}" alt="${titleKey}">` 
+        : '';
+      let descHtml = data.description 
+        ? `<div class="gp-desc">${data.description}</div>` 
+        : '';
+
+      headerBox.innerHTML = `
+        ${bannerHtml}
+        <div class="gp-title">${titleKey}</div>
+        ${descHtml}
+      `;
+
+      btnsBox.innerHTML = '';
+      data.items.forEach(it => {
+        const btn = document.createElement('div');
+        btn.className = 'menu-btn';
+        btn.innerHTML = `
+          <span>${it.item}</span>
+          <span class="badge">${it.badge || 'HD'}</span>
+        `;
+        btn.onclick = () => {
+          if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+          tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${it.code}`);
+          tg.close();
+        };
+        btnsBox.appendChild(btn);
+      });
+
+      showView('details');
+    }
+  </script>
+</body>
+</html>
