@@ -28,6 +28,27 @@
     .view { display: none; }
     .view.active { display: block; }
 
+    /* Поле поиска */
+    .search-box {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      box-sizing: border-box;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    .search-box:focus {
+      border-color: var(--accent);
+    }
+    .search-box::placeholder {
+      color: var(--text-muted);
+    }
+
     /* Главная карточка-описание */
     .bot-card {
       background: var(--card-bg);
@@ -69,6 +90,19 @@
       transition: background 0.15s ease;
     }
     .menu-btn:active { background: var(--btn-active); transform: scale(0.99); }
+
+    /* Карточка результата поиска */
+    .search-result-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: left;
+    }
+    .search-result-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: normal;
+    }
 
     /* Постер и инфо карточки */
     .gp-banner {
@@ -121,22 +155,37 @@
 </head>
 <body>
 
-  <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ (КАТЕГОРИИ И СЕРИАЛЫ) -->
+  <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ И ПОИСК -->
   <div id="view-home" class="view active">
-    <div class="bot-card">
-      <h2>📌 Race Weekend F1 Archive</h2>
-      <div>Весь наш архив гонок, сериалов и прочего разложеный по полочкам .</div>
-      <ul>
-        <li>Без цензуры и банов (все полные записи тут).</li>
-        <li>Максимально возможное качество картинки для Telegram.</li>
-      </ul>
-      <div style="color: var(--text-muted); font-size: 12px; margin-top: 6px;">
-        База обновляется после каждого Гран-при.
+    <!-- Поле живого поиска -->
+    <input 
+      type="text" 
+      id="search-input" 
+      class="search-box" 
+      placeholder="🔍 Поиск по гонкам и сериалам..." 
+      oninput="handleSearch(this.value)"
+    >
+
+    <!-- Блок категорий (скрывается во время поиска) -->
+    <div id="home-default-content">
+      <div class="bot-card">
+        <h2>📌 Race Weekend F1 Archive</h2>
+        <div>Весь наш архив гонок, сериалов и прочего разложенный по полочкам.</div>
+        <ul>
+          <li>Без цензуры и банов (все полные записи тут).</li>
+          <li>Максимально возможное качество картинки для Telegram.</li>
+        </ul>
+        <div style="color: var(--text-muted); font-size: 12px; margin-top: 6px;">
+          База обновляется после каждого Гран-при.
+        </div>
+      </div>
+      <div id="categories-list">
+        <div class="skeleton">Синхронизация каталога...</div>
       </div>
     </div>
-    <div id="categories-list">
-      <div class="skeleton">Синхронизация каталога...</div>
-    </div>
+
+    <!-- Блок результатов поиска -->
+    <div id="search-results-list" style="display: none;"></div>
   </div>
 
   <!-- ЭКРАН 2: ЭТАПЫ / СЕЗОНЫ СЕРИАЛА -->
@@ -145,9 +194,9 @@
     <div id="titles-list"></div>
   </div>
 
-  <!-- ЭКРАН 3: КАРТОЧКА С ПОСТЕРОМ, ОПИСАНИЕМ И КНОПКАМИ ВЫДАЧИ -->
+  <!-- ЭКРАН 3: КАРТОЧКА С ПОСТЕРОМ И ВЫДАЧЕЙ -->
   <div id="view-details" class="view">
-    <button class="back-btn" onclick="showView('titles')">← Назад к списку</button>
+    <button class="back-btn" onclick="backFromDetails()">← Назад к списку</button>
     <div id="item-header"></div>
     <div id="item-btns"></div>
   </div>
@@ -163,7 +212,9 @@
 
     const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
     let dataTree = {};
+    let allItemsFlat = []; // Плоский список для быстрого поиска
     let activeCategory = null;
+    let cameFromSearch = false;
 
     function showView(name) {
       if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
@@ -172,11 +223,20 @@
       window.scrollTo(0, 0);
     }
 
+    function backFromDetails() {
+      if (cameFromSearch) {
+        showView('home');
+      } else {
+        showView('titles');
+      }
+    }
+
     fetch(csvUrl)
       .then(r => r.text())
       .then(csvText => {
         const rows = csvText.split('\n').slice(1);
         dataTree = {};
+        allItemsFlat = [];
 
         rows.forEach(row => {
           if (!row.trim()) return;
@@ -191,6 +251,7 @@
           const code = cols[6];
 
           if (title && item && code) {
+            // Структурируем в дерево категорий
             if (!dataTree[category]) dataTree[category] = {};
             if (!dataTree[category][title]) {
               dataTree[category][title] = { image: img, description: desc, items: [] };
@@ -199,10 +260,19 @@
             if (!dataTree[category][title].description && desc) dataTree[category][title].description = desc;
 
             dataTree[category][title].items.push({ item, badge, code });
+
+            // Сохраняем для быстрого поиска
+            allItemsFlat.push({
+              category,
+              title,
+              item,
+              badge,
+              code
+            });
           }
         });
 
-        // Отрисовка Экрана 1 (Главные категории / Сериалы)
+        // Отрисовка категорий на главном экране
         const container = document.getElementById('categories-list');
         container.innerHTML = '';
 
@@ -219,9 +289,57 @@
           '<div class="skeleton">Ошибка загрузки базы данных.</div>';
       });
 
-    // Отрисовка Экрана 2 (Этапы F1 или Сезоны сериала)
+    // Обработка живого ввода в строке поиска
+    function handleSearch(query) {
+      const q = query.trim().toLowerCase();
+      const defaultContent = document.getElementById('home-default-content');
+      const searchContainer = document.getElementById('search-results-list');
+
+      if (!q) {
+        defaultContent.style.display = 'block';
+        searchContainer.style.display = 'none';
+        searchContainer.innerHTML = '';
+        return;
+      }
+
+      defaultContent.style.display = 'none';
+      searchContainer.style.display = 'block';
+      searchContainer.innerHTML = '';
+
+      const matched = allItemsFlat.filter(entry => 
+        entry.title.toLowerCase().includes(q) || 
+        entry.item.toLowerCase().includes(q) ||
+        entry.category.toLowerCase().includes(q)
+      );
+
+      if (matched.length === 0) {
+        searchContainer.innerHTML = '<div class="skeleton">Ничего не найдено 🏎️</div>';
+        return;
+      }
+
+      matched.forEach(entry => {
+        const btn = document.createElement('div');
+        btn.className = 'menu-btn';
+        btn.innerHTML = `
+          <div class="search-result-item">
+            <span>${entry.title} — ${entry.item}</span>
+            <span class="search-result-sub">${entry.category}</span>
+          </div>
+          <span class="badge">${entry.badge || 'HD'}</span>
+        `;
+        btn.onclick = () => {
+          if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+          tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${entry.code}`);
+          tg.close();
+        };
+        searchContainer.appendChild(btn);
+      });
+    }
+
+    // Экран 2: Этапы / Сезоны
     function openCategory(cat) {
       activeCategory = cat;
+      cameFromSearch = false;
       const container = document.getElementById('titles-list');
       container.innerHTML = '';
 
@@ -235,7 +353,7 @@
       showView('titles');
     }
 
-    // Отрисовка Экрана 3 (Постер + Описание + Кнопки практик/гонок или серий)
+    // Экран 3: Карточка с постером и заездами
     function openDetails(titleKey) {
       const data = dataTree[activeCategory][titleKey];
       const headerBox = document.getElementById('item-header');
