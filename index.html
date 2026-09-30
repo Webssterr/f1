@@ -185,6 +185,35 @@
     .stat-number { font-size: 20px; font-weight: 800; color: var(--accent); }
     .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
     .skeleton { text-align: center; padding: 40px 0; color: var(--text-muted); }
+
+    /* Карточки управления элементами в админке */
+    .admin-catalog-item {
+      background: #181d26;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .admin-item-title { font-weight: 700; font-size: 14px; color: #fff; }
+    .admin-item-sub { font-size: 12px; color: var(--text-muted); }
+    .admin-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .action-btn {
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+    .edit-btn { background: #3b4559; color: #fff; }
+    .del-btn { background: rgba(225, 6, 0, 0.2); color: #ff5555; }
   </style>
 </head>
 <body>
@@ -200,7 +229,6 @@
     >
 
     <div id="home-default-content">
-      <!-- Настраиваемая приветственная карточка -->
       <div class="bot-card" id="welcome-card" style="display: none;">
         <img id="welcome-img" class="welcome-banner" src="" alt="Banner">
         <h2 id="welcome-title"></h2>
@@ -262,7 +290,6 @@
       <div class="admin-input-group">
         <label>Заголовок приветствия</label>
         <input class="admin-input" id="set-welcome-title" placeholder="📌 RACE WEEKEND F1 ARCHIVE">
-        <small>Оставь пустым, если не нужен заголовок.</small>
       </div>
 
       <div class="admin-input-group">
@@ -278,9 +305,10 @@
       <button class="submit-btn" style="background:#292f3d; border:1px solid rgba(255,255,255,0.15);" onclick="saveSettings()">💾 Сохранить оформление</button>
     </div>
 
-    <!-- Добавление записи -->
+    <!-- Форма Добавления / Редактирования -->
     <div class="bot-card">
-      <h2 style="color: var(--accent);">➕ Добавить запись в каталог</h2>
+      <h2 id="form-action-title" style="color: var(--accent);">➕ Добавить запись в каталог</h2>
+      <input type="hidden" id="adm-edit-id" value="">
       
       <div class="admin-input-group">
         <label>Категория</label>
@@ -295,7 +323,6 @@
       <div class="admin-input-group">
         <label>Ссылка на постер (URL картинки)</label>
         <input class="admin-input" id="adm-img" placeholder="https://i.postimg.cc/...">
-        <small>Отображается в карточке и как превью в списке.</small>
       </div>
 
       <div class="admin-input-group">
@@ -323,7 +350,17 @@
         <input type="number" class="admin-input" id="adm-post" placeholder="Например: 105">
       </div>
 
-      <button class="submit-btn" onclick="submitNewItem()">💾 Сохранить в D1</button>
+      <button id="adm-save-btn" class="submit-btn" onclick="submitItemForm()">💾 Сохранить в D1</button>
+      <button id="adm-cancel-btn" class="submit-btn" style="background: transparent; border: 1px solid var(--text-muted); display: none; margin-top: 6px;" onclick="cancelEditMode()">Отмена редактирования</button>
+    </div>
+
+    <!-- Управление всеми записями (Список, Редактирование, Удаление) -->
+    <div class="bot-card">
+      <h2 style="color: var(--accent);">🗂 Все записи каталога (Редактор)</h2>
+      <input type="text" id="admin-search-catalog" class="admin-input" placeholder="🔍 Найти запись для правки или удаления..." oninput="filterAdminCatalog(this.value)" style="margin-bottom: 12px;">
+      <div id="admin-catalog-list" style="max-height: 400px; overflow-y: auto;">
+        <div class="skeleton">Загрузка каталога...</div>
+      </div>
     </div>
 
     <!-- Рассылка -->
@@ -366,7 +403,6 @@
       cameFromSearch ? showView('home') : showView('titles');
     }
 
-    // Загрузка настроек приветственного экрана
     function loadSettings() {
       fetch(`${WORKER_URL}/api/settings`)
         .then(r => r.json())
@@ -398,7 +434,6 @@
             }
           }
 
-          // Предзаполнение полей в админке
           if (document.getElementById('set-welcome-title')) {
             document.getElementById('set-welcome-title').value = data.welcome_title || '';
             document.getElementById('set-welcome-text').value = data.welcome_text || '';
@@ -408,13 +443,12 @@
         .catch(() => {});
     }
 
-    // Загрузка каталога
     function loadCatalog() {
       fetch(`${WORKER_URL}/api/catalog`)
         .then(r => r.json())
         .then(rows => {
           dataTree = {};
-          allItemsFlat = [];
+          allItemsFlat = rows || [];
 
           rows.forEach(entry => {
             const cat = entry.category || 'Разное';
@@ -432,15 +466,13 @@
             if (!dataTree[cat][t].description && entry.description) dataTree[cat][t].description = entry.description;
 
             dataTree[cat][t].items.push({ 
+              id: entry.id,
               item: entry.item, 
               badge: entry.badge, 
               code: entry.code 
             });
-
-            allItemsFlat.push(entry);
           });
 
-          // Отрисовка категорий на главной
           const container = document.getElementById('categories-list');
           container.innerHTML = '';
           for (const cat in dataTree) {
@@ -455,6 +487,8 @@
             btn.onclick = () => openCategory(cat);
             container.appendChild(btn);
           }
+
+          renderAdminCatalog(allItemsFlat);
         })
         .catch(() => {
           document.getElementById('categories-list').innerHTML = 
@@ -595,9 +629,9 @@
         document.getElementById('stat-items').innerText = data.total_items;
       });
       loadSettings();
+      renderAdminCatalog(allItemsFlat);
     }
 
-    // Сохранение настроек экрана приветствия
     function saveSettings() {
       const payload = {
         welcome_title: document.getElementById('set-welcome-title').value,
@@ -624,7 +658,83 @@
       });
     }
 
-    function submitNewItem() {
+    // Рендер каталога внутри админки
+    function renderAdminCatalog(items) {
+      const container = document.getElementById('admin-catalog-list');
+      container.innerHTML = '';
+
+      if (!items || items.length === 0) {
+        container.innerHTML = '<div class="skeleton">Записей не найдено</div>';
+        return;
+      }
+
+      items.forEach(entry => {
+        const itemCard = document.createElement('div');
+        itemCard.className = 'admin-catalog-item';
+        itemCard.innerHTML = `
+          <div class="admin-item-title">${entry.title} — ${entry.item}</div>
+          <div class="admin-item-sub">Категория: ${entry.category} | Код: ${entry.code} | Post ID: ${entry.post_id}</div>
+          <div class="admin-actions">
+            <button class="action-btn edit-btn" onclick="startEditItem(${entry.id})">✏️ Изменить</button>
+            <button class="action-btn del-btn" onclick="deleteItem(${entry.id})">🗑 Удалить</button>
+          </div>
+        `;
+        container.appendChild(itemCard);
+      });
+    }
+
+    function filterAdminCatalog(query) {
+      const q = query.trim().toLowerCase();
+      if (!q) {
+        renderAdminCatalog(allItemsFlat);
+        return;
+      }
+      const filtered = allItemsFlat.filter(e => 
+        e.title.toLowerCase().includes(q) || 
+        e.item.toLowerCase().includes(q) || 
+        e.category.toLowerCase().includes(q) ||
+        e.code.toLowerCase().includes(q)
+      );
+      renderAdminCatalog(filtered);
+    }
+
+    function startEditItem(id) {
+      const entry = allItemsFlat.find(e => e.id === id);
+      if (!entry) return;
+
+      document.getElementById('adm-edit-id').value = entry.id;
+      document.getElementById('adm-cat').value = entry.category;
+      document.getElementById('adm-title').value = entry.title;
+      document.getElementById('adm-img').value = entry.image || '';
+      document.getElementById('adm-desc').value = entry.description || '';
+      document.getElementById('adm-item').value = entry.item;
+      document.getElementById('adm-badge').value = entry.badge || 'HD';
+      document.getElementById('adm-code').value = entry.code;
+      document.getElementById('adm-post').value = entry.post_id;
+
+      document.getElementById('form-action-title').innerText = `✏️ Редактирование: ${entry.item}`;
+      document.getElementById('adm-save-btn').innerText = '💾 Сохранить изменения';
+      document.getElementById('adm-cancel-btn').style.display = 'block';
+
+      // Плавная прокрутка к форме
+      document.getElementById('form-action-title').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEditMode() {
+      document.getElementById('adm-edit-id').value = '';
+      document.getElementById('adm-item').value = '';
+      document.getElementById('adm-code').value = '';
+      document.getElementById('adm-post').value = '';
+
+      document.getElementById('form-action-title').innerText = '➕ Добавить запись в каталог';
+      document.getElementById('adm-save-btn').innerText = '💾 Сохранить в D1';
+      document.getElementById('adm-cancel-btn').style.display = 'none';
+    }
+
+    function submitItemForm() {
+      const editId = document.getElementById('adm-edit-id').value;
+      const isEditing = Boolean(editId);
+
       const payload = {
         category: document.getElementById('adm-cat').value,
         title: document.getElementById('adm-title').value,
@@ -641,7 +751,10 @@
         return;
       }
 
-      fetch(`${WORKER_URL}/api/catalog/add`, {
+      const endpoint = isEditing ? '/api/catalog/update' : '/api/catalog/add';
+      if (isEditing) payload.id = editId;
+
+      fetch(`${WORKER_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -652,13 +765,33 @@
       .then(r => r.json())
       .then(res => {
         if (res.success) {
-          alert('✅ Успешно сохранено в базу D1!');
-          document.getElementById('adm-item').value = '';
-          document.getElementById('adm-code').value = '';
-          document.getElementById('adm-post').value = '';
+          alert(isEditing ? '✅ Запись успешно обновлена!' : '✅ Успешно сохранено в базу D1!');
+          cancelEditMode();
           loadCatalog();
         } else {
           alert('Ошибка сохранения: ' + res.error);
+        }
+      });
+    }
+
+    function deleteItem(id) {
+      if (!confirm('Вы уверены, что хотите удалить эту запись из базы?')) return;
+
+      fetch(`${WORKER_URL}/api/catalog/delete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Id': currentUserId
+        },
+        body: JSON.stringify({ id: id })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          alert('🗑 Запись успешно удалена!');
+          loadCatalog();
+        } else {
+          alert('Ошибка при удалении: ' + res.error);
         }
       });
     }
