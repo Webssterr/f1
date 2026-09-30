@@ -28,7 +28,6 @@
     .view { display: none; }
     .view.active { display: block; }
 
-    /* Поле поиска */
     .search-box {
       width: 100%;
       background: var(--card-bg);
@@ -40,16 +39,10 @@
       outline: none;
       box-sizing: border-box;
       margin-bottom: 14px;
-      transition: border-color 0.2s;
     }
-    .search-box:focus {
-      border-color: var(--accent);
-    }
-    .search-box::placeholder {
-      color: var(--text-muted);
-    }
+    .search-box:focus { border-color: var(--accent); }
+    .search-box::placeholder { color: var(--text-muted); }
 
-    /* Главная карточка-описание */
     .bot-card {
       background: var(--card-bg);
       border-radius: 14px;
@@ -59,19 +52,8 @@
       font-size: 14px;
       line-height: 1.5;
     }
-    .bot-card h2 {
-      margin: 0 0 10px 0;
-      font-size: 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .bot-card ul {
-      margin: 8px 0;
-      padding-left: 18px;
-      color: var(--text-muted);
-    }
+    .bot-card h2 { margin: 0 0 10px 0; font-size: 16px; text-transform: uppercase; }
 
-    /* Кнопки меню */
     .menu-btn {
       width: 100%;
       background: var(--btn-bg);
@@ -87,24 +69,19 @@
       align-items: center;
       cursor: pointer;
       box-sizing: border-box;
-      transition: background 0.15s ease;
     }
-    .menu-btn:active { background: var(--btn-active); transform: scale(0.99); }
+    .menu-btn:active { background: var(--btn-active); }
 
-    /* Карточка результата поиска */
-    .search-result-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      text-align: left;
-    }
-    .search-result-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: normal;
+    .admin-entry-btn {
+      background: rgba(225, 6, 0, 0.15);
+      border: 1px solid var(--accent);
+      color: #ff6b6b;
+      margin-top: 20px;
     }
 
-    /* Постер и инфо карточки */
+    .search-result-item { display: flex; flex-direction: column; gap: 4px; text-align: left; }
+    .search-result-sub { font-size: 12px; color: var(--text-muted); font-weight: normal; }
+
     .gp-banner {
       width: 100%;
       max-height: 220px;
@@ -114,19 +91,8 @@
       margin-bottom: 14px;
       background: #252a36;
     }
-    .gp-title {
-      font-size: 17px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-    .gp-desc {
-      font-size: 13.5px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      line-height: 1.45;
-      font-style: italic;
-    }
+    .gp-title { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+    .gp-desc { font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.45; }
 
     .badge {
       font-size: 11px;
@@ -146,18 +112,58 @@
       margin-bottom: 14px;
       padding: 0;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
     }
+
+    /* Стили для админ-панели */
+    .admin-input-group { margin-bottom: 14px; }
+    .admin-input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .admin-input-group small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .admin-input {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+      box-sizing: border-box;
+      outline: none;
+    }
+    .admin-input:focus { border-color: var(--accent); }
+    .submit-btn {
+      width: 100%;
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .stats-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .stat-item {
+      background: var(--card-bg);
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .stat-number { font-size: 20px; font-weight: 800; color: var(--accent); }
+    .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
     .skeleton { text-align: center; padding: 40px 0; color: var(--text-muted); }
   </style>
 </head>
 <body>
 
-  <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ И ПОИСК -->
+  <!-- ЭКРАН 1: ГЛАВНАЯ И ПОИСК -->
   <div id="view-home" class="view active">
-    <!-- Поле живого поиска -->
     <input 
       type="text" 
       id="search-input" 
@@ -166,39 +172,120 @@
       oninput="handleSearch(this.value)"
     >
 
-    <!-- Блок категорий (скрывается во время поиска) -->
     <div id="home-default-content">
       <div class="bot-card">
         <h2>📌 Race Weekend F1 Archive</h2>
-        <div>Весь наш архив гонок, сериалов и прочего разложенный по полочкам.</div>
-        <ul>
-          <li>Без цензуры и банов (все полные записи тут).</li>
-          <li>Максимально возможное качество картинки для Telegram.</li>
-        </ul>
-        <div style="color: var(--text-muted); font-size: 12px; margin-top: 6px;">
-          База обновляется после каждого Гран-при.
-        </div>
+        <div>Весь архив гонок и документальных сериалов прямо в Telegram.</div>
       </div>
       <div id="categories-list">
-        <div class="skeleton">Синхронизация каталога...</div>
+        <div class="skeleton">Синхронизация каталога D1...</div>
+      </div>
+      <!-- Кнопка админки (скрыта для обычных зрителей) -->
+      <div id="admin-entry-container" style="display: none;">
+        <button class="menu-btn admin-entry-btn" onclick="openAdminPanel()">
+          <span>⚙️ Панель администратора</span>
+          <span>›</span>
+        </button>
       </div>
     </div>
 
-    <!-- Блок результатов поиска -->
     <div id="search-results-list" style="display: none;"></div>
   </div>
 
-  <!-- ЭКРАН 2: ЭТАПЫ / СЕЗОНЫ СЕРИАЛА -->
+  <!-- ЭКРАН 2: ЭТАПЫ / СЕЗОНЫ -->
   <div id="view-titles" class="view">
     <button class="back-btn" onclick="showView('home')">← Главное меню</button>
     <div id="titles-list"></div>
   </div>
 
-  <!-- ЭКРАН 3: КАРТОЧКА С ПОСТЕРОМ И ВЫДАЧЕЙ -->
+  <!-- ЭКРАН 3: КАРТОЧКА ЗАЕЗДОВ -->
   <div id="view-details" class="view">
     <button class="back-btn" onclick="backFromDetails()">← Назад к списку</button>
     <div id="item-header"></div>
     <div id="item-btns"></div>
+  </div>
+
+  <!-- ЭКРАН 4: ПАНЕЛЬ УПРАВЛЕНИЯ АДМИНИСТРАТОРА -->
+  <div id="view-admin" class="view">
+    <button class="back-btn" onclick="showView('home')">← Вернуться в архив</button>
+    
+    <!-- Статистика -->
+    <div class="stats-card">
+      <div class="stat-item">
+        <div id="stat-users" class="stat-number">...</div>
+        <div class="stat-label">Подписчиков</div>
+      </div>
+      <div class="stat-item">
+        <div id="stat-active" class="stat-number">...</div>
+        <div class="stat-label">За 24 часа</div>
+      </div>
+      <div class="stat-item">
+        <div id="stat-items" class="stat-number">...</div>
+        <div class="stat-label">В архиве</div>
+      </div>
+    </div>
+
+    <!-- Форма добавления нового видео -->
+    <div class="bot-card">
+      <h2 style="color: var(--accent);">➕ Добавить запись в каталог</h2>
+      
+      <div class="admin-input-group">
+        <label>Категория</label>
+        <input class="admin-input" id="adm-cat" placeholder="🔴Сезон 2026 или 🎥Гонять чтобы выживать">
+        <small>Название главного раздела на первом экране.</small>
+      </div>
+
+      <div class="admin-input-group">
+        <label>Название события / Сезон</label>
+        <input class="admin-input" id="adm-title" placeholder="🇧🇪 Гран При Бельгии 2026 или Сезон 1">
+        <small>Название карточки внутри выбранной категории.</small>
+      </div>
+
+      <div class="admin-input-group">
+        <label>Ссылка на постер / File ID</label>
+        <input class="admin-input" id="adm-img" placeholder="https://... или file_id из Telegram">
+        <small>Картинка шапки карточки (можно оставить пустым).</small>
+      </div>
+
+      <div class="admin-input-group">
+        <label>Описание</label>
+        <textarea class="admin-input" id="adm-desc" rows="2" placeholder="Краткое описание этапа или серии..."></textarea>
+      </div>
+
+      <div class="admin-input-group">
+        <label>Название сессии / серии</label>
+        <input class="admin-input" id="adm-item" placeholder="Гонка, Квалификация или Серия 1">
+        <small>Текст на кнопке просмотра.</small>
+      </div>
+
+      <div class="admin-input-group">
+        <label>Бейдж качества</label>
+        <input class="admin-input" id="adm-badge" value="1080p" placeholder="1080p, 2K, Дубляж">
+      </div>
+
+      <div class="admin-input-group">
+        <label>Код выдачи (латиница без пробелов)</label>
+        <input class="admin-input" id="adm-code" placeholder="belgium26_r, dtss1s1">
+        <small>Уникальный системный ключ для команды /start.</small>
+      </div>
+
+      <div class="admin-input-group">
+        <label>ID сообщения из закрытого склада</label>
+        <input type="number" class="admin-input" id="adm-post" placeholder="Например: 105">
+        <small>Номер поста в закрытом канале-складе.</small>
+      </div>
+
+      <button class="submit-btn" onclick="submitNewItem()">💾 Сохранить в D1</button>
+    </div>
+
+    <!-- Блок рассылки -->
+    <div class="bot-card">
+      <h2>📢 Быстрая рассылка подписчикам</h2>
+      <div class="admin-input-group">
+        <textarea class="admin-input" id="broadcast-msg" rows="3" placeholder="Текст рассылки (поддерживается HTML)..."></textarea>
+      </div>
+      <button class="submit-btn" style="background: #292f3d; border: 1px solid rgba(255,255,255,0.2);" onclick="sendBroadcast()">🚀 Запустить рассылку</button>
+    </div>
   </div>
 
   <script>
@@ -207,14 +294,20 @@
     tg.expand();
 
     // НАСТРОЙКИ:
-    const SHEET_ID = "1-3OM9Wu1k6lrVb1HGK2I5vaRNgA4gYMP6J42s74z3No";
+    const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
     const BOT_USERNAME = "race_weekend_f1_bot";
+    const ADMIN_ID = "301211351";
 
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
     let dataTree = {};
-    let allItemsFlat = []; // Плоский список для быстрого поиска
+    let allItemsFlat = [];
     let activeCategory = null;
     let cameFromSearch = false;
+
+    // Проверка прав администратора
+    const currentUserId = tg.initDataUnsafe?.user?.id;
+    if (String(currentUserId) === String(ADMIN_ID)) {
+      document.getElementById('admin-entry-container').style.display = 'block';
+    }
 
     function showView(name) {
       if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
@@ -224,72 +317,61 @@
     }
 
     function backFromDetails() {
-      if (cameFromSearch) {
-        showView('home');
-      } else {
-        showView('titles');
-      }
+      cameFromSearch ? showView('home') : showView('titles');
     }
 
-    fetch(csvUrl)
-      .then(r => r.text())
-      .then(csvText => {
-        const rows = csvText.split('\n').slice(1);
-        dataTree = {};
-        allItemsFlat = [];
+    // Загрузка каталога из Cloudflare D1
+    function loadCatalog() {
+      fetch(`${WORKER_URL}/api/catalog`)
+        .then(r => r.json())
+        .then(rows => {
+          dataTree = {};
+          allItemsFlat = [];
 
-        rows.forEach(row => {
-          if (!row.trim()) return;
-          const cols = row.split('","').map(c => c.replace(/"/g, '').trim());
+          rows.forEach(entry => {
+            const cat = entry.category || 'Разное';
+            const t = entry.title;
 
-          const category = cols[0] || 'Разное';
-          const title = cols[1];
-          const img = cols[2];
-          const desc = cols[3];
-          const item = cols[4];
-          const badge = cols[5];
-          const code = cols[6];
-
-          if (title && item && code) {
-            // Структурируем в дерево категорий
-            if (!dataTree[category]) dataTree[category] = {};
-            if (!dataTree[category][title]) {
-              dataTree[category][title] = { image: img, description: desc, items: [] };
+            if (!dataTree[cat]) dataTree[cat] = {};
+            if (!dataTree[cat][t]) {
+              dataTree[cat][t] = { 
+                image: entry.image, 
+                description: entry.description, 
+                items: [] 
+              };
             }
-            if (!dataTree[category][title].image && img) dataTree[category][title].image = img;
-            if (!dataTree[category][title].description && desc) dataTree[category][title].description = desc;
+            if (!dataTree[cat][t].image && entry.image) dataTree[cat][t].image = entry.image;
+            if (!dataTree[cat][t].description && entry.description) dataTree[cat][t].description = entry.description;
 
-            dataTree[category][title].items.push({ item, badge, code });
-
-            // Сохраняем для быстрого поиска
-            allItemsFlat.push({
-              category,
-              title,
-              item,
-              badge,
-              code
+            dataTree[cat][t].items.push({ 
+              item: entry.item, 
+              badge: entry.badge, 
+              code: entry.code 
             });
+
+            allItemsFlat.push(entry);
+          });
+
+          // Отрисовка меню
+          const container = document.getElementById('categories-list');
+          container.innerHTML = '';
+          for (const cat in dataTree) {
+            const btn = document.createElement('div');
+            btn.className = 'menu-btn';
+            btn.innerHTML = `<span>${cat}</span><span style="opacity:0.4;">›</span>`;
+            btn.onclick = () => openCategory(cat);
+            container.appendChild(btn);
           }
+        })
+        .catch(() => {
+          document.getElementById('categories-list').innerHTML = 
+            '<div class="skeleton">Ошибка синхронизации с базой Cloudflare.</div>';
         });
+    }
 
-        // Отрисовка категорий на главном экране
-        const container = document.getElementById('categories-list');
-        container.innerHTML = '';
+    loadCatalog();
 
-        for (const cat in dataTree) {
-          const btn = document.createElement('div');
-          btn.className = 'menu-btn';
-          btn.innerHTML = `<span>${cat}</span><span style="opacity:0.4;">›</span>`;
-          btn.onclick = () => openCategory(cat);
-          container.appendChild(btn);
-        }
-      })
-      .catch(() => {
-        document.getElementById('categories-list').innerHTML = 
-          '<div class="skeleton">Ошибка загрузки базы данных.</div>';
-      });
-
-    // Обработка живого ввода в строке поиска
+    // Поиск
     function handleSearch(query) {
       const q = query.trim().toLowerCase();
       const defaultContent = document.getElementById('home-default-content');
@@ -313,7 +395,7 @@
       );
 
       if (matched.length === 0) {
-        searchContainer.innerHTML = '<div class="skeleton">Ничего не найдено 🏎️</div>';
+        searchContainer.innerHTML = '<div class="skeleton">Ничего не найдено 🏎</div>';
         return;
       }
 
@@ -336,13 +418,11 @@
       });
     }
 
-    // Экран 2: Этапы / Сезоны
     function openCategory(cat) {
       activeCategory = cat;
       cameFromSearch = false;
       const container = document.getElementById('titles-list');
       container.innerHTML = '';
-
       for (const t in dataTree[cat]) {
         const btn = document.createElement('div');
         btn.className = 'menu-btn';
@@ -353,7 +433,6 @@
       showView('titles');
     }
 
-    // Экран 3: Карточка с постером и заездами
     function openDetails(titleKey) {
       const data = dataTree[activeCategory][titleKey];
       const headerBox = document.getElementById('item-header');
@@ -389,6 +468,84 @@
       });
 
       showView('details');
+    }
+
+    // ЛОГИКА АДМИНКИ
+    function openAdminPanel() {
+      showView('admin');
+      // Запрос статистики
+      fetch(`${WORKER_URL}/api/stats`, {
+        headers: { 'X-Admin-Id': currentUserId }
+      })
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('stat-users').innerText = data.total_users;
+        document.getElementById('stat-active').innerText = data.active_24h;
+        document.getElementById('stat-items').innerText = data.total_items;
+      });
+    }
+
+    function submitNewItem() {
+      const payload = {
+        category: document.getElementById('adm-cat').value,
+        title: document.getElementById('adm-title').value,
+        image: document.getElementById('adm-img').value,
+        description: document.getElementById('adm-desc').value,
+        item: document.getElementById('adm-item').value,
+        badge: document.getElementById('adm-badge').value,
+        code: document.getElementById('adm-code').value,
+        post_id: document.getElementById('adm-post').value,
+      };
+
+      if (!payload.category || !payload.title || !payload.item || !payload.code || !payload.post_id) {
+        alert('Заполните обязательные поля (Категория, Название, Сессия, Код, Post ID)!');
+        return;
+      }
+
+      fetch(`${WORKER_URL}/api/catalog/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Id': currentUserId
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          alert('✅ Успешно сохранено в базу Cloudflare D1!');
+          document.getElementById('adm-item').value = '';
+          document.getElementById('adm-code').value = '';
+          document.getElementById('adm-post').value = '';
+          loadCatalog();
+        } else {
+          alert('Ошибка сохранения: ' + res.error);
+        }
+      });
+    }
+
+    function sendBroadcast() {
+      const msg = document.getElementById('broadcast-msg').value.trim();
+      if (!msg) return alert('Введите текст сообщения!');
+      if (!confirm('Отправить сообщение всем подписчикам?')) return;
+
+      fetch(`${WORKER_URL}/api/broadcast`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Id': currentUserId
+        },
+        body: JSON.stringify({ message: msg })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          alert(`✅ Рассылка завершена! Отправлено: ${res.sent}`);
+          document.getElementById('broadcast-msg').value = '';
+        } else {
+          alert('Ошибка рассылки');
+        }
+      });
     }
   </script>
 </body>
