@@ -52,14 +52,23 @@
       font-size: 14px;
       line-height: 1.5;
     }
-    .bot-card h2 { margin: 0 0 10px 0; font-size: 16px; text-transform: uppercase; }
+    .bot-card h2 { margin: 0 0 8px 0; font-size: 16px; text-transform: uppercase; }
+
+    .welcome-banner {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      display: none;
+    }
 
     .menu-btn {
       width: 100%;
       background: var(--btn-bg);
       border: 1px solid rgba(255,255,255,0.05);
       color: var(--text);
-      padding: 15px 16px;
+      padding: 12px 14px;
       margin-bottom: 10px;
       border-radius: 12px;
       font-size: 15px;
@@ -69,14 +78,32 @@
       align-items: center;
       cursor: pointer;
       box-sizing: border-box;
+      text-align: left;
     }
     .menu-btn:active { background: var(--btn-active); }
+
+    .menu-btn-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      overflow: hidden;
+    }
+    .menu-btn-thumb {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #252a36;
+      flex-shrink: 0;
+    }
 
     .admin-entry-btn {
       background: rgba(225, 6, 0, 0.15);
       border: 1px solid var(--accent);
       color: #ff6b6b;
       margin-top: 20px;
+      padding: 15px 16px;
     }
 
     .search-result-item { display: flex; flex-direction: column; gap: 4px; text-align: left; }
@@ -101,6 +128,7 @@
       border-radius: 5px;
       background: rgba(225, 6, 0, 0.15);
       color: #ff5555;
+      flex-shrink: 0;
     }
 
     .back-btn {
@@ -114,7 +142,6 @@
       cursor: pointer;
     }
 
-    /* Стили для админ-панели */
     .admin-input-group { margin-bottom: 14px; }
     .admin-input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
     .admin-input-group small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
@@ -173,14 +200,17 @@
     >
 
     <div id="home-default-content">
-      <div class="bot-card">
-        <h2>📌 Race Weekend F1 Archive</h2>
-        <div>Весь архив гонок и документальных сериалов прямо в Telegram.</div>
+      <!-- Настраиваемая приветственная карточка -->
+      <div class="bot-card" id="welcome-card" style="display: none;">
+        <img id="welcome-img" class="welcome-banner" src="" alt="Banner">
+        <h2 id="welcome-title"></h2>
+        <div id="welcome-text"></div>
       </div>
+
       <div id="categories-list">
         <div class="skeleton">Синхронизация каталога D1...</div>
       </div>
-      <!-- Кнопка админки (скрыта для обычных зрителей) -->
+
       <div id="admin-entry-container" style="display: none;">
         <button class="menu-btn admin-entry-btn" onclick="openAdminPanel()">
           <span>⚙️ Панель администратора</span>
@@ -205,7 +235,7 @@
     <div id="item-btns"></div>
   </div>
 
-  <!-- ЭКРАН 4: ПАНЕЛЬ УПРАВЛЕНИЯ АДМИНИСТРАТОРА -->
+  <!-- ЭКРАН 4: ПАНЕЛЬ УПРАВЛЕНИЯ -->
   <div id="view-admin" class="view">
     <button class="back-btn" onclick="showView('home')">← Вернуться в архив</button>
     
@@ -225,66 +255,84 @@
       </div>
     </div>
 
-    <!-- Форма добавления нового видео -->
+    <!-- Редактор приветственного блока -->
+    <div class="bot-card">
+      <h2 style="color: var(--accent);">🎨 Настройка главного меню</h2>
+      
+      <div class="admin-input-group">
+        <label>Заголовок приветствия</label>
+        <input class="admin-input" id="set-welcome-title" placeholder="📌 RACE WEEKEND F1 ARCHIVE">
+        <small>Оставь пустым, если не нужен заголовок.</small>
+      </div>
+
+      <div class="admin-input-group">
+        <label>Текст описания</label>
+        <textarea class="admin-input" id="set-welcome-text" rows="2" placeholder="Текст под заголовком..."></textarea>
+      </div>
+
+      <div class="admin-input-group">
+        <label>Баннер главного экрана (URL картинки)</label>
+        <input class="admin-input" id="set-welcome-img" placeholder="https://i.postimg.cc/... (или пусто)">
+      </div>
+
+      <button class="submit-btn" style="background:#292f3d; border:1px solid rgba(255,255,255,0.15);" onclick="saveSettings()">💾 Сохранить оформление</button>
+    </div>
+
+    <!-- Добавление записи -->
     <div class="bot-card">
       <h2 style="color: var(--accent);">➕ Добавить запись в каталог</h2>
       
       <div class="admin-input-group">
         <label>Категория</label>
         <input class="admin-input" id="adm-cat" placeholder="🔴Сезон 2026 или 🎥Гонять чтобы выживать">
-        <small>Название главного раздела на первом экране.</small>
       </div>
 
       <div class="admin-input-group">
         <label>Название события / Сезон</label>
         <input class="admin-input" id="adm-title" placeholder="🇧🇪 Гран При Бельгии 2026 или Сезон 1">
-        <small>Название карточки внутри выбранной категории.</small>
       </div>
 
       <div class="admin-input-group">
-        <label>Ссылка на постер / File ID</label>
-        <input class="admin-input" id="adm-img" placeholder="https://... или file_id из Telegram">
-        <small>Картинка шапки карточки (можно оставить пустым).</small>
+        <label>Ссылка на постер (URL картинки)</label>
+        <input class="admin-input" id="adm-img" placeholder="https://i.postimg.cc/...">
+        <small>Отображается в карточке и как превью в списке.</small>
       </div>
 
       <div class="admin-input-group">
         <label>Описание</label>
-        <textarea class="admin-input" id="adm-desc" rows="2" placeholder="Краткое описание этапа или серии..."></textarea>
+        <textarea class="admin-input" id="adm-desc" rows="2" placeholder="Краткое описание этапа..."></textarea>
       </div>
 
       <div class="admin-input-group">
         <label>Название сессии / серии</label>
-        <input class="admin-input" id="adm-item" placeholder="Гонка, Квалификация или Серия 1">
-        <small>Текст на кнопке просмотра.</small>
+        <input class="admin-input" id="adm-item" placeholder="Гонка, Квалификация или 1 Серия">
       </div>
 
       <div class="admin-input-group">
         <label>Бейдж качества</label>
-        <input class="admin-input" id="adm-badge" value="1080p" placeholder="1080p, 2K, Дубляж">
+        <input class="admin-input" id="adm-badge" value="1080p">
       </div>
 
       <div class="admin-input-group">
         <label>Код выдачи (латиница без пробелов)</label>
-        <input class="admin-input" id="adm-code" placeholder="belgium26_r, dtss1s1">
-        <small>Уникальный системный ключ для команды /start.</small>
+        <input class="admin-input" id="adm-code" placeholder="belgium26_r">
       </div>
 
       <div class="admin-input-group">
-        <label>ID сообщения из закрытого склада</label>
+        <label>ID сообщения на складе</label>
         <input type="number" class="admin-input" id="adm-post" placeholder="Например: 105">
-        <small>Номер поста в закрытом канале-складе.</small>
       </div>
 
       <button class="submit-btn" onclick="submitNewItem()">💾 Сохранить в D1</button>
     </div>
 
-    <!-- Блок рассылки -->
+    <!-- Рассылка -->
     <div class="bot-card">
-      <h2>📢 Быстрая рассылка подписчикам</h2>
+      <h2>📢 Рассылка подписчикам</h2>
       <div class="admin-input-group">
-        <textarea class="admin-input" id="broadcast-msg" rows="3" placeholder="Текст рассылки (поддерживается HTML)..."></textarea>
+        <textarea class="admin-input" id="broadcast-msg" rows="3" placeholder="Текст рассылки (HTML)..."></textarea>
       </div>
-      <button class="submit-btn" style="background: #292f3d; border: 1px solid rgba(255,255,255,0.2);" onclick="sendBroadcast()">🚀 Запустить рассылку</button>
+      <button class="submit-btn" style="background:#292f3d; border:1px solid rgba(255,255,255,0.2);" onclick="sendBroadcast()">🚀 Запустить рассылку</button>
     </div>
   </div>
 
@@ -293,7 +341,6 @@
     tg.ready();
     tg.expand();
 
-    // НАСТРОЙКИ:
     const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
     const BOT_USERNAME = "race_weekend_f1_bot";
     const ADMIN_ID = "301211351";
@@ -303,7 +350,6 @@
     let activeCategory = null;
     let cameFromSearch = false;
 
-    // Проверка прав администратора
     const currentUserId = tg.initDataUnsafe?.user?.id;
     if (String(currentUserId) === String(ADMIN_ID)) {
       document.getElementById('admin-entry-container').style.display = 'block';
@@ -320,7 +366,49 @@
       cameFromSearch ? showView('home') : showView('titles');
     }
 
-    // Загрузка каталога из Cloudflare D1
+    // Загрузка настроек приветственного экрана
+    function loadSettings() {
+      fetch(`${WORKER_URL}/api/settings`)
+        .then(r => r.json())
+        .then(data => {
+          const card = document.getElementById('welcome-card');
+          const title = document.getElementById('welcome-title');
+          const text = document.getElementById('welcome-text');
+          const img = document.getElementById('welcome-img');
+
+          const hasTitle = data.welcome_title && data.welcome_title.trim();
+          const hasText = data.welcome_text && data.welcome_text.trim();
+          const hasImg = data.welcome_image && data.welcome_image.trim();
+
+          if (!hasTitle && !hasText && !hasImg) {
+            card.style.display = 'none';
+          } else {
+            card.style.display = 'block';
+            title.innerText = hasTitle ? data.welcome_title : '';
+            title.style.display = hasTitle ? 'block' : 'none';
+
+            text.innerText = hasText ? data.welcome_text : '';
+            text.style.display = hasText ? 'block' : 'none';
+
+            if (hasImg) {
+              img.src = data.welcome_image;
+              img.style.display = 'block';
+            } else {
+              img.style.display = 'none';
+            }
+          }
+
+          // Предзаполнение полей в админке
+          if (document.getElementById('set-welcome-title')) {
+            document.getElementById('set-welcome-title').value = data.welcome_title || '';
+            document.getElementById('set-welcome-text').value = data.welcome_text || '';
+            document.getElementById('set-welcome-img').value = data.welcome_image || '';
+          }
+        })
+        .catch(() => {});
+    }
+
+    // Загрузка каталога
     function loadCatalog() {
       fetch(`${WORKER_URL}/api/catalog`)
         .then(r => r.json())
@@ -352,26 +440,31 @@
             allItemsFlat.push(entry);
           });
 
-          // Отрисовка меню
+          // Отрисовка категорий на главной
           const container = document.getElementById('categories-list');
           container.innerHTML = '';
           for (const cat in dataTree) {
             const btn = document.createElement('div');
             btn.className = 'menu-btn';
-            btn.innerHTML = `<span>${cat}</span><span style="opacity:0.4;">›</span>`;
+            btn.innerHTML = `
+              <div class="menu-btn-content">
+                <span>${cat}</span>
+              </div>
+              <span style="opacity:0.4;">›</span>
+            `;
             btn.onclick = () => openCategory(cat);
             container.appendChild(btn);
           }
         })
         .catch(() => {
           document.getElementById('categories-list').innerHTML = 
-            '<div class="skeleton">Ошибка синхронизации с базой Cloudflare.</div>';
+            '<div class="skeleton">Ошибка загрузки базы Cloudflare.</div>';
         });
     }
 
+    loadSettings();
     loadCatalog();
 
-    // Поиск
     function handleSearch(query) {
       const q = query.trim().toLowerCase();
       const defaultContent = document.getElementById('home-default-content');
@@ -402,10 +495,15 @@
       matched.forEach(entry => {
         const btn = document.createElement('div');
         btn.className = 'menu-btn';
+        const thumbHtml = entry.image ? `<img class="menu-btn-thumb" src="${entry.image}">` : '';
+
         btn.innerHTML = `
-          <div class="search-result-item">
-            <span>${entry.title} — ${entry.item}</span>
-            <span class="search-result-sub">${entry.category}</span>
+          <div class="menu-btn-content">
+            ${thumbHtml}
+            <div class="search-result-item">
+              <span>${entry.title} — ${entry.item}</span>
+              <span class="search-result-sub">${entry.category}</span>
+            </div>
           </div>
           <span class="badge">${entry.badge || 'HD'}</span>
         `;
@@ -423,10 +521,23 @@
       cameFromSearch = false;
       const container = document.getElementById('titles-list');
       container.innerHTML = '';
+
       for (const t in dataTree[cat]) {
+        const itemData = dataTree[cat][t];
         const btn = document.createElement('div');
         btn.className = 'menu-btn';
-        btn.innerHTML = `<span>${t}</span><span style="opacity:0.4;">›</span>`;
+
+        const thumbHtml = itemData.image 
+          ? `<img class="menu-btn-thumb" src="${itemData.image}">` 
+          : '';
+
+        btn.innerHTML = `
+          <div class="menu-btn-content">
+            ${thumbHtml}
+            <span>${t}</span>
+          </div>
+          <span style="opacity:0.4;">›</span>
+        `;
         btn.onclick = () => openDetails(t);
         container.appendChild(btn);
       }
@@ -456,7 +567,9 @@
         const btn = document.createElement('div');
         btn.className = 'menu-btn';
         btn.innerHTML = `
-          <span>${it.item}</span>
+          <div class="menu-btn-content">
+            <span>${it.item}</span>
+          </div>
           <span class="badge">${it.badge || 'HD'}</span>
         `;
         btn.onclick = () => {
@@ -470,10 +583,8 @@
       showView('details');
     }
 
-    // ЛОГИКА АДМИНКИ
     function openAdminPanel() {
       showView('admin');
-      // Запрос статистики
       fetch(`${WORKER_URL}/api/stats`, {
         headers: { 'X-Admin-Id': currentUserId }
       })
@@ -482,6 +593,34 @@
         document.getElementById('stat-users').innerText = data.total_users;
         document.getElementById('stat-active').innerText = data.active_24h;
         document.getElementById('stat-items').innerText = data.total_items;
+      });
+      loadSettings();
+    }
+
+    // Сохранение настроек экрана приветствия
+    function saveSettings() {
+      const payload = {
+        welcome_title: document.getElementById('set-welcome-title').value,
+        welcome_text: document.getElementById('set-welcome-text').value,
+        welcome_image: document.getElementById('set-welcome-img').value
+      };
+
+      fetch(`${WORKER_URL}/api/settings/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Id': currentUserId
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.success) {
+          alert('✅ Оформление главного экрана сохранено!');
+          loadSettings();
+        } else {
+          alert('Ошибка сохранения');
+        }
       });
     }
 
@@ -513,7 +652,7 @@
       .then(r => r.json())
       .then(res => {
         if (res.success) {
-          alert('✅ Успешно сохранено в базу Cloudflare D1!');
+          alert('✅ Успешно сохранено в базу D1!');
           document.getElementById('adm-item').value = '';
           document.getElementById('adm-code').value = '';
           document.getElementById('adm-post').value = '';
