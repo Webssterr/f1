@@ -28,8 +28,16 @@
     .view { display: none; }
     .view.active { display: block; }
 
+    /* Поиск и кнопка настроек */
+    .search-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
     .search-box {
-      width: 100%;
+      flex: 1;
       background: var(--card-bg);
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 12px;
@@ -38,10 +46,26 @@
       color: var(--text);
       outline: none;
       box-sizing: border-box;
-      margin-bottom: 14px;
     }
     .search-box:focus { border-color: var(--accent); }
     .search-box::placeholder { color: var(--text-muted); }
+
+    .settings-trigger-btn {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      border-radius: 12px;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .settings-trigger-btn:active { background: var(--btn-active); }
 
     .bot-card {
       background: var(--card-bg);
@@ -157,6 +181,28 @@
       outline: none;
     }
     .admin-input:focus { border-color: var(--accent); }
+    
+    /* Загрузка фото с устройства */
+    .image-field-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .image-field-wrap input { flex: 1; }
+    .device-upload-btn {
+      background: #252f3f;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .device-upload-btn:active { background: #323d50; }
+    .upload-hint { font-size: 11px; margin-top: 5px; }
+
     .submit-btn {
       width: 100%;
       background: var(--accent);
@@ -186,7 +232,6 @@
     .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
     .skeleton { text-align: center; padding: 40px 0; color: var(--text-muted); }
 
-    /* Карточки управления элементами в админке */
     .admin-catalog-item {
       background: #181d26;
       border: 1px solid rgba(255,255,255,0.08);
@@ -214,19 +259,106 @@
     }
     .edit-btn { background: #3b4559; color: #fff; }
     .del-btn { background: rgba(225, 6, 0, 0.2); color: #ff5555; }
+
+    /* МОДАЛЬНОЕ ОКНО НАСТРОЕК */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-sheet {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 520px;
+      border-radius: 20px 20px 0 0;
+      padding: 22px 20px 30px;
+      box-sizing: border-box;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      animation: modalSlideUp 0.25s ease-out;
+    }
+    @keyframes modalSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+    .modal-title-row h3 { margin: 0; font-size: 18px; font-weight: 800; }
+    .modal-close-icon {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .setting-label { font-size: 14px; font-weight: 600; }
+    .setting-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ТУМБЛЕРЫ (SWITCH) */
+    .switch-toggle {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .switch-toggle input { opacity: 0; width: 0; height: 0; }
+    .switch-slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #333946;
+      transition: .25s;
+      border-radius: 24px;
+    }
+    .switch-slider:before {
+      position: absolute; content: "";
+      height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .25s;
+      border-radius: 50%;
+    }
+    input:checked + .switch-slider { background-color: var(--accent); }
+    input:checked + .switch-slider:before { transform: translateX(20px); }
+
+    /* КОМПАКТНЫЙ РЕЖИМ */
+    body.compact-mode .menu-btn { padding: 9px 12px; margin-bottom: 8px; font-size: 14px; }
+    body.compact-mode .menu-btn-thumb { width: 30px; height: 30px; }
+    body.compact-mode .gp-banner { max-height: 150px; }
   </style>
 </head>
 <body>
 
   <!-- ЭКРАН 1: ГЛАВНАЯ И ПОИСК -->
   <div id="view-home" class="view active">
-    <input 
-      type="text" 
-      id="search-input" 
-      class="search-box" 
-      placeholder="🔍 Поиск по гонкам и сериалам..." 
-      oninput="handleSearch(this.value)"
-    >
+    
+    <!-- Строка поиска с кнопкой настроек -->
+    <div class="search-row">
+      <input 
+        type="text" 
+        id="search-input" 
+        class="search-box" 
+        placeholder="🔍 Поиск по гонкам и сериалам..." 
+        oninput="handleSearch(this.value)"
+      >
+      <button class="settings-trigger-btn" type="button" onclick="openSettingsModal()" title="Настройки">⚙️</button>
+    </div>
 
     <div id="home-default-content">
       <div class="bot-card" id="welcome-card" style="display: none;">
@@ -320,9 +452,15 @@
         <input class="admin-input" id="adm-title" placeholder="🇧🇪 Гран При Бельгии 2026 или Сезон 1">
       </div>
 
+      <!-- Постер с возможностью загрузки из памяти -->
       <div class="admin-input-group">
-        <label>Ссылка на постер (URL картинки)</label>
-        <input class="admin-input" id="adm-img" placeholder="https://i.postimg.cc/...">
+        <label>Постер к видео</label>
+        <div class="image-field-wrap">
+          <input class="admin-input" id="adm-img" placeholder="Ссылка на фото (https://...)">
+          <label for="deviceImageInput" class="device-upload-btn">📁 Фото с устройства</label>
+          <input type="file" id="deviceImageInput" accept="image/*" style="display: none;" onchange="uploadImageFromDevice(this)">
+        </div>
+        <div id="upload-status" class="upload-hint"></div>
       </div>
 
       <div class="admin-input-group">
@@ -373,6 +511,66 @@
     </div>
   </div>
 
+  <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК ПОЛЬЗОВАТЕЛЯ -->
+  <div id="settings-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
+    <div class="modal-sheet">
+      <div class="modal-title-row">
+        <h3>⚙️️ Настройки бота</h3>
+        <button class="modal-close-icon" type="button" onclick="toggleSettingsModal(false)">✕</button>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">🔔 Уведомления о видео</div>
+          <div class="setting-sub">Получать видео при выходе сессий</div>
+        </div>
+        <label class="switch-toggle">
+          <input type="checkbox" id="user-set-video" onchange="saveUserSettings()">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">📢 Новости и анонсы</div>
+          <div class="setting-sub">Расписание Гран-при и важные события</div>
+        </div>
+        <label class="switch-toggle">
+          <input type="checkbox" id="user-set-news" onchange="saveUserSettings()">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">🔕 Тихий режим</div>
+          <div class="setting-sub">Присылать сообщения без звука</div>
+        </div>
+        <label class="switch-toggle">
+          <input type="checkbox" id="user-set-silent" onchange="saveUserSettings()">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">🗂 Компактный список</div>
+          <div class="setting-sub">Уменьшенные карточки каталога</div>
+        </div>
+        <label class="switch-toggle">
+          <input type="checkbox" id="user-set-compact" onchange="toggleCompactView(this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <button type="button" class="submit-btn" style="background: #252b36; border: 1px solid rgba(255,255,255,0.1); margin-top: 0; font-size: 13px; padding: 12px;" onclick="localStorage.clear(); location.reload();">
+          🧹 Очистить локальный кэш
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
@@ -392,6 +590,10 @@
       document.getElementById('admin-entry-container').style.display = 'block';
     }
 
+    // Инициализация локальных предпочтений
+    const savedCompact = localStorage.getItem('compactView') === 'true';
+    if (savedCompact) document.body.classList.add('compact-mode');
+
     function showView(name) {
       if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -401,6 +603,106 @@
 
     function backFromDetails() {
       cameFromSearch ? showView('home') : showView('titles');
+    }
+
+    // ЛОГИКА ОКНА НАСТРОЕК
+    function openSettingsModal() {
+      toggleSettingsModal(true);
+      loadUserSettings();
+    }
+
+    function toggleSettingsModal(show) {
+      const modal = document.getElementById('settings-modal');
+      if (show) {
+        modal.classList.add('active');
+      } else {
+        modal.classList.remove('active');
+      }
+    }
+
+    function handleModalOverlayClick(e) {
+      if (e.target.id === 'settings-modal') toggleSettingsModal(false);
+    }
+
+    async function loadUserSettings() {
+      const isCompact = localStorage.getItem('compactView') === 'true';
+      document.getElementById('user-set-compact').checked = isCompact;
+
+      if (!currentUserId) return;
+      try {
+        const res = await fetch(`${WORKER_URL}/api/user/settings`, {
+          headers: { 'X-User-Id': String(currentUserId) }
+        });
+        if (res.ok) {
+          const cfg = await res.json();
+          document.getElementById('user-set-video').checked = cfg.notify_videos === 1;
+          document.getElementById('user-set-news').checked = cfg.notify_news === 1;
+          document.getElementById('user-set-silent').checked = cfg.silent_mode === 1;
+        }
+      } catch (e) {}
+    }
+
+    async function saveUserSettings() {
+      if (!currentUserId) return;
+      const payload = {
+        notify_videos: document.getElementById('user-set-video').checked,
+        notify_news: document.getElementById('user-set-news').checked,
+        silent_mode: document.getElementById('user-set-silent').checked
+      };
+
+      try {
+        await fetch(`${WORKER_URL}/api/user/settings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': String(currentUserId)
+          },
+          body: JSON.stringify(payload)
+        });
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      } catch (e) {}
+    }
+
+    function toggleCompactView(enable) {
+      localStorage.setItem('compactView', enable);
+      if (enable) {
+        document.body.classList.add('compact-mode');
+      } else {
+        document.body.classList.remove('compact-mode');
+      }
+    }
+
+    // ЗАГРУЗКА ИЗОБРАЖЕНИЯ С УСТРОЙСТВА ЧЕРЕЗ API IMGBB
+    async function uploadImageFromDevice(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const statusBox = document.getElementById('upload-status');
+      statusBox.style.color = '#ff9800';
+      statusBox.textContent = '⏳ Загрузка изображения на сервер...';
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const res = await fetch('https://api.imgbb.com/1/upload?key=6d207e02198a847aa5ad3ac50ce4cffb', {
+          method: 'POST',
+          body: formData
+        });
+        const json = await res.json();
+
+        if (json.success && json.data && json.data.url) {
+          document.getElementById('adm-img').value = json.data.url;
+          statusBox.style.color = '#4caf50';
+          statusBox.textContent = '✅ Картинка успешно загружена!';
+        } else {
+          statusBox.style.color = '#ff5555';
+          statusBox.textContent = '❌ Ошибка хостинга картинок.';
+        }
+      } catch (err) {
+        statusBox.style.color = '#ff5555';
+        statusBox.textContent = '❌ Не удалось загрузить файл.';
+      }
     }
 
     function loadSettings() {
@@ -625,7 +927,7 @@
       .then(r => r.json())
       .then(data => {
         document.getElementById('stat-users').innerText = data.total_users;
-        document.getElementById('stat-active').innerText = data.active_24h;
+        document.getElementById('stat-active').innerText = data.active_24h || data.views_today || 0;
         document.getElementById('stat-items').innerText = data.total_items;
       });
       loadSettings();
@@ -658,7 +960,6 @@
       });
     }
 
-    // Рендер каталога внутри админки
     function renderAdminCatalog(items) {
       const container = document.getElementById('admin-catalog-list');
       container.innerHTML = '';
@@ -716,7 +1017,6 @@
       document.getElementById('adm-save-btn').innerText = '💾 Сохранить изменения';
       document.getElementById('adm-cancel-btn').style.display = 'block';
 
-      // Плавная прокрутка к форме
       document.getElementById('form-action-title').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -725,6 +1025,7 @@
       document.getElementById('adm-item').value = '';
       document.getElementById('adm-code').value = '';
       document.getElementById('adm-post').value = '';
+      document.getElementById('upload-status').textContent = '';
 
       document.getElementById('form-action-title').innerText = '➕ Добавить запись в каталог';
       document.getElementById('adm-save-btn').innerText = '💾 Сохранить в D1';
@@ -799,7 +1100,7 @@
     function sendBroadcast() {
       const msg = document.getElementById('broadcast-msg').value.trim();
       if (!msg) return alert('Введите текст сообщения!');
-      if (!confirm('Отправить сообщение всем подписчикам?')) return;
+      if (!confirm('Отправить сообщение подписчикам?')) return;
 
       fetch(`${WORKER_URL}/api/broadcast`, {
         method: 'POST',
