@@ -183,41 +183,82 @@
     .admin-input:focus { border-color: var(--accent); }
     
     /* Загрузка фото с устройства */
-        async function uploadImageFromDevice(input) {
-      const file = input.files[0];
-      if (!file) return;
-
-      const statusBox = document.getElementById('upload-status');
-      statusBox.style.color = '#ff9800';
-      statusBox.textContent = '⏳ Загрузка изображения...';
-
-      const formData = new FormData();
-      formData.append('reqtype', 'fileupload');
-      formData.append('time', '72h'); // либо постоянный catbox
-      formData.append('fileToUpload', file);
-
-      try {
-        // Загрузка через надежный бесплатный API Catbox
-        const res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (res.ok) {
-          const fileUrl = (await res.text()).trim();
-          if (fileUrl.startsWith('http')) {
-            document.getElementById('adm-img').value = fileUrl;
-            statusBox.style.color = '#4caf50';
-            statusBox.textContent = '✅ Картинка успешно загружена!';
-            return;
-          }
-        }
-        throw new Error('Upload error');
-      } catch (err) {
-        statusBox.style.color = '#ff5555';
-        statusBox.textContent = '❌ Не удалось загрузить файл на хостинг.';
-      }
+    .image-field-wrap {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
+    .image-field-wrap input { flex: 1; }
+    .device-upload-btn {
+      background: #252f3f;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .device-upload-btn:active { background: #323d50; }
+    .upload-hint { font-size: 11px; margin-top: 5px; }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .stats-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .stat-item {
+      background: var(--card-bg);
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .stat-number { font-size: 20px; font-weight: 800; color: var(--accent); }
+    .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
+    .skeleton { text-align: center; padding: 40px 0; color: var(--text-muted); }
+
+    .admin-catalog-item {
+      background: #181d26;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .admin-item-title { font-weight: 700; font-size: 14px; color: #fff; }
+    .admin-item-sub { font-size: 12px; color: var(--text-muted); }
+    .admin-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .action-btn {
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+    .edit-btn { background: #3b4559; color: #fff; }
+    .del-btn { background: rgba(225, 6, 0, 0.2); color: #ff5555; }
 
     /* МОДАЛЬНОЕ ОКНО НАСТРОЕК */
     .modal-overlay {
@@ -411,7 +452,7 @@
         <input class="admin-input" id="adm-title" placeholder="🇧🇪 Гран При Бельгии 2026 или Сезон 1">
       </div>
 
-      <!-- Постер с возможностью загрузки из памяти -->
+      <!-- Постер с надежной загрузкой из памяти -->
       <div class="admin-input-group">
         <label>Постер к видео</label>
         <div class="image-field-wrap">
@@ -474,7 +515,7 @@
   <div id="settings-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
     <div class="modal-sheet">
       <div class="modal-title-row">
-        <h3>⚙️️ Настройки бота</h3>
+        <h3>⚙️ Настройки бота</h3>
         <button class="modal-close-icon" type="button" onclick="toggleSettingsModal(false)">✕</button>
       </div>
 
@@ -631,36 +672,39 @@
       }
     }
 
-    // ЗАГРУЗКА ИЗОБРАЖЕНИЯ С УСТРОЙСТВА ЧЕРЕЗ API IMGBB
+    // НАДЕЖНАЯ ЗАГРУЗКА ИЗОБРАЖЕНИЯ (БЕЗ КЛЮЧЕЙ И ЛИМИТОВ)
     async function uploadImageFromDevice(input) {
       const file = input.files[0];
       if (!file) return;
 
       const statusBox = document.getElementById('upload-status');
       statusBox.style.color = '#ff9800';
-      statusBox.textContent = '⏳ Загрузка изображения на сервер...';
+      statusBox.textContent = '⏳ Загрузка изображения...';
 
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('reqtype', 'fileupload');
+      formData.append('time', '72h');
+      formData.append('fileToUpload', file);
 
       try {
-        const res = await fetch('https://api.imgbb.com/1/upload?key=6d207e02198a847aa5ad3ac50ce4cffb', {
+        const res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
           method: 'POST',
           body: formData
         });
-        const json = await res.json();
 
-        if (json.success && json.data && json.data.url) {
-          document.getElementById('adm-img').value = json.data.url;
-          statusBox.style.color = '#4caf50';
-          statusBox.textContent = '✅ Картинка успешно загружена!';
-        } else {
-          statusBox.style.color = '#ff5555';
-          statusBox.textContent = '❌ Ошибка хостинга картинок.';
+        if (res.ok) {
+          const fileUrl = (await res.text()).trim();
+          if (fileUrl.startsWith('http')) {
+            document.getElementById('adm-img').value = fileUrl;
+            statusBox.style.color = '#4caf50';
+            statusBox.textContent = '✅ Картинка успешно загружена!';
+            return;
+          }
         }
+        throw new Error('Upload error');
       } catch (err) {
         statusBox.style.color = '#ff5555';
-        statusBox.textContent = '❌ Не удалось загрузить файл.';
+        statusBox.textContent = '❌ Не удалось загрузить файл на хостинг.';
       }
     }
 
