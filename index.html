@@ -36,7 +36,10 @@
       --success: #28a745;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     body {
       background-color: var(--bg);
@@ -63,6 +66,7 @@
       align-items: center;
       margin-bottom: 18px;
     }
+
     .brand-wrap {
       display: flex;
       align-items: center;
@@ -73,13 +77,19 @@
       color: var(--text);
       cursor: pointer;
     }
+
     .brand-square {
       width: 14px;
       height: 14px;
       background: var(--accent);
       border-radius: 4px;
     }
-    .header-btns { display: flex; gap: 8px; }
+
+    .header-btns {
+      display: flex;
+      gap: 8px;
+    }
+
     .icon-circle-btn {
       width: 40px;
       height: 40px;
@@ -93,11 +103,24 @@
       font-size: 18px;
       cursor: pointer;
     }
-    .icon-circle-btn:active { transform: scale(0.95); }
 
-    .view-screen { display: none; }
-    .view-screen.active { display: block; animation: viewIn 0.2s ease-out; }
-    @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .icon-circle-btn:active {
+      transform: scale(0.95);
+    }
+
+    .view-screen {
+      display: none;
+    }
+
+    .view-screen.active {
+      display: block;
+      animation: viewIn 0.2s ease-out;
+    }
+
+    @keyframes viewIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     .hero-card {
       background: var(--card-bg);
@@ -107,6 +130,7 @@
       margin-bottom: 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.03);
     }
+
     .hero-stage-badge {
       display: inline-flex;
       align-items: center;
@@ -118,6 +142,7 @@
       letter-spacing: 0.5px;
       margin-bottom: 12px;
     }
+
     .live-dot {
       width: 8px;
       height: 8px;
@@ -125,15 +150,33 @@
       border-radius: 50%;
       box-shadow: 0 0 8px var(--accent);
     }
+
     .timer-grid {
       display: flex;
       gap: 16px;
       align-items: baseline;
       margin-bottom: 16px;
     }
-    .t-col { display: flex; flex-direction: column; }
-    .t-val { font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -1.5px; color: var(--text); }
-    .t-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+
+    .t-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .t-val {
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -1.5px;
+      color: var(--text);
+    }
+
+    .t-lbl {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-top: 4px;
+    }
 
     .track-viewport {
       width: 100%;
@@ -144,7 +187,13 @@
       margin: 10px 0 16px 0;
       position: relative;
     }
-    .track-svg { width: 100%; height: 100%; overflow: visible; }
+
+    .track-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
     .track-road {
       stroke: var(--track-base);
       stroke-width: 12;
@@ -152,6 +201,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
+
     .track-racing-line {
       stroke: var(--accent);
       stroke-width: 3.5;
@@ -159,6 +209,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
+
     .track-car-dot {
       fill: #ffffff;
       stroke: var(--accent);
@@ -166,8 +217,19 @@
       filter: drop-shadow(0 0 8px var(--accent));
     }
 
-    .gp-title { font-size: 22px; font-weight: 900; margin: 0 0 4px 0; letter-spacing: -0.5px; color: var(--text); }
-    .gp-sub { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .gp-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin: 0 0 4px 0;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .gp-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
 
     .sessions-grid {
       display: grid;
@@ -177,6 +239,7 @@
       padding-top: 16px;
       border-top: 1px solid var(--border);
     }
+
     .sess-chip {
       background: var(--card-sub);
       border-radius: 12px;
@@ -185,14 +248,33 @@
       border: 1px solid transparent;
       transition: all 0.2s ease;
     }
-    .sess-chip.past { opacity: 0.45; }
+
+    .sess-chip.past {
+      opacity: 0.45;
+    }
+
     .sess-chip.active {
       background: var(--accent-soft);
       border-color: rgba(255, 59, 48, 0.4);
     }
-    .sess-name { font-size: 10px; color: var(--text-muted); font-weight: 700; }
-    .sess-time { font-size: 11px; font-weight: 800; margin-top: 3px; color: var(--text); }
-    .sess-chip.active .sess-name, .sess-chip.active .sess-time { color: var(--accent); }
+
+    .sess-name {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .sess-time {
+      font-size: 11px;
+      font-weight: 800;
+      margin-top: 3px;
+      color: var(--text);
+    }
+
+    .sess-chip.active .sess-name,
+    .sess-chip.active .sess-time {
+      color: var(--accent);
+    }
 
     .circuit-spec-card {
       background: var(--card-bg);
@@ -201,6 +283,7 @@
       border: 1px solid var(--border);
       margin-bottom: 16px;
     }
+
     .spec-header {
       font-size: 12px;
       font-weight: 800;
@@ -211,14 +294,28 @@
       display: flex;
       justify-content: space-between;
     }
+
     .spec-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       row-gap: 14px;
       column-gap: 16px;
     }
-    .spec-item h5 { margin: 0; font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
-    .spec-item p { margin: 4px 0 0 0; font-size: 17px; font-weight: 900; color: var(--text); }
+
+    .spec-item h5 {
+      margin: 0;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .spec-item p {
+      margin: 4px 0 0 0;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
     .spec-record {
       margin-top: 14px;
       padding-top: 12px;
@@ -228,33 +325,345 @@
       align-items: center;
     }
 
-    .sub-tabs-bar {
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 72px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-top: 1px solid var(--border);
       display: flex;
-      background: var(--card-sub);
-      padding: 4px;
-      border-radius: 14px;
-      margin-bottom: 16px;
-      border: 1px solid var(--border);
-      gap: 4px;
-    }
-    .sub-tab-btn {
-      flex: 1;
-      border: none;
-      background: none;
-      padding: 9px 0;
-      font-size: 13px;
-      font-weight: 700;
-      border-radius: 10px;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .sub-tab-btn.active {
-      background: var(--card-bg);
-      color: var(--text);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+      padding-bottom: 8px;
     }
 
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 1;
+      height: 100%;
+    }
+
+    .nav-btn.active {
+      color: var(--accent);
+    }
+
+    .nav-icon {
+      font-size: 22px;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ВЕРХНЯЯ ШАПКА -->
+  <div class="app-header">
+    <div class="brand-wrap" id="topBrandLogo">
+      <div class="brand-square"></div>
+      <span>Race Weekend F1 Archive</span>
+    </div>
+    <div class="header-btns">
+      <button class="icon-circle-btn" onclick="toggleAppTheme()">🌓</button>
+      <button class="icon-circle-btn" onclick="openSettingsModal()">⚙️</button>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
+    const BOT_USERNAME = "race_weekend_f1_bot";
+    const ADMIN_ID = "301211351";
+    const TESTER_ID = "8061233590";
+
+    function resolveTelegramUser() {
+      let uid = "";
+      if (tg?.initDataUnsafe?.user?.id) {
+        uid = String(tg.initDataUnsafe.user.id);
+      }
+      if (!uid && tg?.initData) {
+        try {
+          const p = new URLSearchParams(tg.initData);
+          const uStr = p.get('user');
+          if (uStr) {
+            const parsed = JSON.parse(decodeURIComponent(uStr));
+            if (parsed?.id) uid = String(parsed.id);
+          }
+        } catch (e) {}
+      }
+      if (uid) localStorage.setItem('f1_cached_uid', uid);
+      else uid = localStorage.getItem('f1_cached_uid') || "";
+      return uid;
+    }
+
+    const currentUserId = resolveTelegramUser();
+    const isAdmin = (currentUserId === ADMIN_ID);
+    const isTester = (isAdmin || currentUserId === TESTER_ID);
+
+    // Управление темами оформления
+    function toggleAppTheme() {
+      document.body.classList.toggle('light-theme');
+      const isLight = document.body.classList.contains('light-theme');
+      localStorage.setItem('f1_theme_light', isLight ? '1' : '0');
+    }
+
+    function applySavedUserSettings() {
+      if (localStorage.getItem('f1_theme_light') === '1') {
+        document.body.classList.add('light-theme');
+      }
+      if (localStorage.getItem('f1_lite_mode') === '1') {
+        document.body.classList.add('lite-mode');
+        const t = document.getElementById('userSettingLiteToggle');
+        if (t) t.checked = true;
+      }
+    }
+  </script>
+</body>
+</html>
+
+<!-- ================= 1. ЭКРАН: ГЛАВНАЯ ================= -->
+  <div id="view-home" class="view-screen active">
+    <div class="hero-card">
+      <div class="hero-stage-badge">
+        <span class="live-dot"></span>
+        <span id="heroStageLabel">🔴 ЗАГРУЗКА ЭТАПА...</span>
+      </div>
+
+      <div class="timer-grid">
+        <div class="t-col"><span class="t-val" id="t-d">00</span><span class="t-lbl">дней</span></div>
+        <div class="t-col"><span class="t-val" id="t-h">00</span><span class="t-lbl">часов</span></div>
+        <div class="t-col"><span class="t-val" id="t-m">00</span><span class="t-lbl">мин</span></div>
+        <div class="t-col"><span class="t-val" id="t-s">00</span><span class="t-lbl">сек</span></div>
+      </div>
+
+      <div class="track-viewport">
+        <svg class="track-svg" viewBox="0 0 500 250">
+          <path id="trackPath" class="track-road" d="" />
+          <path class="track-racing-line" d="" />
+          <circle id="carPoint" class="track-car-dot" r="6" cx="0" cy="0" style="display:none;" />
+        </svg>
+      </div>
+
+      <h2 class="gp-title" id="gpTitleDisplay">Загрузка данных этапа...</h2>
+      <div class="gp-sub" id="gpSubDisplay">Синхронизация с сервером...</div>
+
+      <!-- Сетка сессий уикенда (очищена от номеров постов — Проблема №3) -->
+      <div class="sessions-grid" id="weekendSessionsGrid">
+        <div class="sess-chip past"><div class="sess-name">П1</div><div class="sess-time">✓</div></div>
+        <div class="sess-chip past"><div class="sess-name">П2</div><div class="sess-time">✓</div></div>
+        <div class="sess-chip active"><div class="sess-name">П3</div><div class="sess-time">07:30</div></div>
+        <div class="sess-chip"><div class="sess-name">КВАЛА</div><div class="sess-time">11:00</div></div>
+        <div class="sess-chip"><div class="sess-name">ГОНКА</div><div class="sess-time">10:00</div></div>
+      </div>
+    </div>
+
+    <!-- Карточка характеристик трассы (Подготовка к Проблеме №6) -->
+    <div class="circuit-spec-card">
+      <div class="spec-header">
+        <span>Данные автодрома</span>
+        <span style="color:var(--accent);" id="specCircuitNameBadge">F1 Circuit</span>
+      </div>
+      <div class="spec-grid">
+        <div class="spec-item"><h5>Длина круга</h5><p id="specLength">—</p></div>
+        <div class="spec-item"><h5>Кругов</h5><p id="specLaps">—</p></div>
+        <div class="spec-item"><h5>Первый Гран-при</h5><p id="specFirstYear">—</p></div>
+        <div class="spec-item"><h5>Дистанция гонки</h5><p id="specDistance">—</p></div>
+      </div>
+      <div class="spec-record">
+        <div>
+          <div style="font-size:11px; color:var(--text-muted); font-weight:700;">Рекорд круга</div>
+          <div style="font-size:16px; font-weight:900; color:var(--accent);" id="specFastLap">—</div>
+        </div>
+        <div style="font-size:13px; font-weight:700; color:var(--text-muted); text-align:right;" id="specFastDriver">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 2. ЭКРАН: АРХИВ ВИДЕО (КАТАЛОГ) ================= -->
+  <div id="view-archive" class="view-screen">
+    <input type="text" class="search-input" id="archiveSearchInput" placeholder="🔍 Поиск заездов, квалификаций..." oninput="handleSearch(this.value)">
+    
+    <div id="archiveDefaultList">
+      <div id="catalogCategoriesContainer">
+        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация каталога D1...</div>
+      </div>
+    </div>
+    <div id="archiveSearchResults" style="display: none;"></div>
+  </div>
+
+  <!-- Навигационная панель снизу -->
+  <div class="bottom-nav" id="mainBottomNav" style="display:flex;">
+    <div class="nav-btn active" onclick="switchMainTab('home', this)"><span class="nav-icon">🏠</span><span>Главная</span></div>
+    <div class="nav-btn" onclick="switchMainTab('archive', this)"><span class="nav-icon">🎬</span><span>Архив</span></div>
+    <div class="nav-btn" onclick="switchMainTab('season', this)"><span class="nav-icon">🏁</span><span>Сезон</span></div>
+    <div class="nav-btn" onclick="switchMainTab('games', this)"><span class="nav-icon">🎮</span><span>Игры</span></div>
+    <div class="nav-btn" onclick="switchMainTab('news', this)"><span class="nav-icon">📢</span><span>Новости</span></div>
+  </div>
+
+  <style>
+    .search-input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      margin-bottom: 12px;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .menu-btn {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 13px 16px;
+      margin-bottom: 10px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      text-align: left;
+    }
+    .menu-btn-content { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
+    .menu-btn-thumb { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; background: #222; flex-shrink: 0; }
+  </style>
+
+  <script>
+    // Управление экранами и навигацией
+    function openViewScreen(name) {
+      document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById(`view-${name}`);
+      if (target) target.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function switchMainTab(tabName, btnEl) {
+      document.querySelectorAll('#mainBottomNav .nav-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      openViewScreen(tabName);
+    }
+
+    // Загрузка каталога с исправленной хронологической сортировкой ASC (Проблема №1)
+    let allCatalogItems = [];
+    let catalogTree = {};
+    let activeCatalogCategory = null;
+
+    async function loadCatalogData() {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/catalog`);
+        if (res.ok) {
+          allCatalogItems = await res.json();
+          // Прямая хронологическая сортировка (от старых к новым / от 1 этапа к последнему)
+          allCatalogItems.sort((a, b) => (a.id || 0) - (b.id || 0));
+          buildCatalogTree();
+          renderCatalogCategories();
+        }
+      } catch (e) {
+        console.warn("Ошибка загрузки каталога:", e);
+      }
+    }
+
+    function buildCatalogTree() {
+      catalogTree = {};
+      allCatalogItems.forEach(item => {
+        const cat = item.category || "🔴 Сезон 2026";
+        const title = item.title || "Без названия";
+        if (!catalogTree[cat]) catalogTree[cat] = {};
+        if (!catalogTree[cat][title]) catalogTree[cat][title] = [];
+        catalogTree[cat][title].push(item);
+      });
+    }
+
+    function renderCatalogCategories() {
+      const container = document.getElementById('catalogCategoriesContainer');
+      const cats = Object.keys(catalogTree);
+      if (!cats.length) {
+        container.innerHTML = `<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Архив пуст</div>`;
+        return;
+      }
+      container.innerHTML = cats.map(cat => `
+        <div class="menu-btn" onclick="openCatalogCategory('${cat}')">
+          <div class="menu-btn-content"><span style="font-size:18px;">📁</span><span>${cat}</span></div>
+          <span style="color:var(--text-muted);">›</span>
+        </div>
+      `).join('');
+    }
+  </script>
+
+<!-- ================= 3. ЭКРАН: СЕЗОН (ТАБЛИЦЫ И КАЛЕНДАРЬ) ================= -->
+  <div id="view-season" class="view-screen">
+    <div class="sub-tabs-bar">
+      <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)">Пилоты</button>
+      <button class="sub-tab-btn" onclick="switchSeasonSubTab('calendar', this)">Календарь</button>
+      <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)">Кубок</button>
+    </div>
+
+    <!-- Таблица пилотов -->
+    <div id="seasonSubStandings">
+      <div class="hero-card" id="seasonLeaderCard" style="display:none; padding:18px; margin-bottom:12px;">
+        <div style="font-size:11px; font-weight:800; color:var(--accent); text-transform:uppercase;">Лидер чемпионата</div>
+        <h3 class="leader-name" id="leaderNameDisplay" style="margin:4px 0 2px 0; font-size:20px; font-weight:900;">—</h3>
+        <div class="leader-team" id="leaderTeamDisplay" style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">—</div>
+        <div style="font-size:22px; font-weight:900; color:var(--text);"><span id="leaderPointsDisplay">0</span> PTS</div>
+      </div>
+      <div id="driversStandingsList">
+        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка зачёта пилотов...</div>
+      </div>
+    </div>
+
+    <!-- Календарь -->
+    <div id="seasonSubCalendar" style="display: none;">
+      <div id="calendarEventsList">
+        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка календаря...</div>
+      </div>
+    </div>
+
+    <!-- Кубок конструкторов -->
+    <div id="seasonSubTeams" style="display: none;">
+      <div id="constructorsStandingsList">
+        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка кубка конструкторов...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 4. ЭКРАН: НОВОСТИ ================= -->
+  <div id="view-news" class="view-screen">
+    <div id="channelNewsFeedContainer">
+      <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация ленты новостей...</div>
+    </div>
+  </div>
+
+  <!-- ================= 5. ЭКРАНЫ ДЕТАЛИЗАЦИИ КАТАЛОГА (БЕЗ МЕТОК ПОСТОВ) ================= -->
+  <div id="view-titles" class="view-screen">
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromTitles()">← Назад к категориям</button>
+    <div id="catalogTitlesList"></div>
+  </div>
+
+  <div id="view-details" class="view-screen">
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('titles')">← Назад к заездам</button>
+    <div id="catalogItemHeader"></div>
+    <div id="catalogItemButtonsList"></div>
+  </div>
+
+  <style>
     .stand-item {
       background: var(--card-bg);
       border-radius: 16px;
@@ -287,47 +696,236 @@
     .cal-card.current .cal-round { color: var(--accent); }
     .cal-info h4 { margin: 0; font-size: 15px; font-weight: 800; color: var(--text); }
     .cal-info span { font-size: 12px; color: var(--text-muted); }
+  </style>
 
-    .search-input {
-      width: 100%;
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 13px 16px;
-      font-size: 15px;
-      color: var(--text);
-      outline: none;
-      margin-bottom: 12px;
-    }
-    .search-input:focus { border-color: var(--accent); }
-    .menu-btn {
-      width: 100%;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 13px 16px;
-      margin-bottom: 10px;
-      border-radius: 16px;
-      font-size: 15px;
-      font-weight: 700;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      text-align: left;
-    }
-    .menu-btn-content { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
-    .menu-btn-thumb { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; background: #222; flex-shrink: 0; }
-    .badge {
-      font-size: 11px;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 6px;
-      background: var(--accent-soft);
-      color: var(--accent);
+  <script>
+    // Переключение подвкладок сезона
+    function switchSeasonSubTab(tabName, btnEl) {
+      const container = document.getElementById('view-season');
+      container.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+
+      document.getElementById('seasonSubStandings').style.display = (tabName === 'standings') ? 'block' : 'none';
+      document.getElementById('seasonSubCalendar').style.display = (tabName === 'calendar') ? 'block' : 'none';
+      document.getElementById('seasonSubTeams').style.display = (tabName === 'teams') ? 'block' : 'none';
     }
 
-    /* СТИЛИ ИГР */
+    function navigateBackFromTitles() {
+      openViewScreen('archive');
+    }
+
+    // Открытие списка событий/этапов в выбранной категории
+    function openCatalogCategory(cat) {
+      activeCatalogCategory = cat;
+      const titlesList = document.getElementById('catalogTitlesList');
+      const titles = Object.keys(catalogTree[cat] || {});
+
+      titlesList.innerHTML = titles.map(t => {
+        const items = catalogTree[cat][t];
+        const first = items[0] || {};
+        const thumb = first.image || "https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg";
+        return `
+          <div class="menu-btn" onclick="openCatalogDetails('${t}')">
+            <div class="menu-btn-content">
+              <img src="${thumb}" class="menu-btn-thumb">
+              <div>
+                <div style="font-weight:800; font-size:15px;">${t}</div>
+                <div style="font-size:12px; color:var(--text-muted);">${items.length} сессий</div>
+              </div>
+            </div>
+            <span style="color:var(--text-muted);">›</span>
+          </div>
+        `;
+      }).join('');
+
+      openViewScreen('titles');
+    }
+
+    // Рендер конкретных сессий этапа БЕЗ ТЕХНИЧЕСКИХ ПОДПИСЕЙ ПОСТОВ (Проблема №3)
+    function openCatalogDetails(title) {
+      const items = catalogTree[activeCatalogCategory]?.[title] || [];
+      const headerEl = document.getElementById('catalogItemHeader');
+      const btnsEl = document.getElementById('catalogItemButtonsList');
+      const first = items[0] || {};
+      const thumb = first.image || "https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg";
+
+      headerEl.innerHTML = `
+        <img src="${thumb}" style="width:100%; height:180px; object-fit:cover; border-radius:18px; margin-bottom:12px;">
+        <h2 style="margin:0 0 6px 0; font-size:22px; font-weight:900;">${title}</h2>
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">${first.description || "Записи уикенда в архиве."}</div>
+      `;
+
+      // Чистый вывод сессий без упоминания Пост #N
+      btnsEl.innerHTML = items.map(item => `
+        <div class="menu-btn" onclick="requestVideoByDeepLink('${item.code}')">
+          <div class="menu-btn-content">
+            <span style="font-size:18px;">▶️</span>
+            <div>
+              <div style="font-weight:800; font-size:15px;">${item.item}</div>
+            </div>
+          </div>
+          <span class="badge">${item.badge || '1080p'}</span>
+        </div>
+      `).join('');
+
+      openViewScreen('details');
+    }
+
+    function requestVideoByDeepLink(code) {
+      const url = `https://t.me/${BOT_USERNAME}?start=${code}`;
+      if (tg?.openTelegramLink) tg.openTelegramLink(url);
+      else window.open(url, '_blank');
+    }
+
+    function handleSearch(query) {
+      const q = query.trim().toLowerCase();
+      const def = document.getElementById('archiveDefaultList');
+      const resEl = document.getElementById('archiveSearchResults');
+
+      if (!q) {
+        def.style.display = 'block';
+        resEl.style.display = 'none';
+        return;
+      }
+
+      def.style.display = 'none';
+      resEl.style.display = 'block';
+
+      const filtered = allCatalogItems.filter(i => 
+        (i.title && i.title.toLowerCase().includes(q)) || 
+        (i.item && i.item.toLowerCase().includes(q)) ||
+        (i.category && i.category.toLowerCase().includes(q))
+      );
+
+      resEl.innerHTML = filtered.length ? filtered.map(item => `
+        <div class="menu-btn" onclick="requestVideoByDeepLink('${item.code}')">
+          <div class="menu-btn-content">
+            <span style="font-size:18px;">▶️</span>
+            <div>
+              <div style="font-weight:800;">${item.title} — ${item.item}</div>
+              <div style="font-size:12px; color:var(--text-muted);">${item.category}</div>
+            </div>
+          </div>
+          <span class="badge">${item.badge || '1080p'}</span>
+        </div>
+      `).join('') : `<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Ничего не найдено</div>`;
+    }
+  </script>
+
+<!-- ================= 4. ЭКРАН: ИГРЫ F1 (ОГНИ, ПИТ-СТОП, ПРЕДИКТЫ) ================= -->
+  <div id="view-games" class="view-screen">
+    <div class="sub-tabs-bar">
+      <button class="sub-tab-btn active" onclick="switchGameTab('reaction', this)">⚡️ Огни F1</button>
+      <button class="sub-tab-btn" onclick="switchGameTab('pitstop', this)">🛞 Пит-стоп</button>
+      <button class="sub-tab-btn" onclick="switchGameTab('vote', this)">🗳 Предикты</button>
+    </div>
+
+    <!-- Подвкладка 1: Реакция на огни -->
+    <div id="gameSubReaction">
+      <div class="hero-card">
+        <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">⚡️ Реакция на стартовые огни</h3>
+        <div style="font-size:13px; color:var(--text-muted); line-height:1.4;">
+          5 красных огней загораются по очереди.<br>Жди случайного момента их погасания и жми!
+        </div>
+
+        <div class="lights-row" style="display:flex; justify-content:center; gap:8px; margin:22px 0;">
+          <div class="f1-light" id="f1Light1" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
+          <div class="f1-light" id="f1Light2" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
+          <div class="f1-light" id="f1Light3" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
+          <div class="f1-light" id="f1Light4" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
+          <div class="f1-light" id="f1Light5" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
+        </div>
+
+        <div class="reaction-tap-area" id="reactionTapBox" style="background:var(--card-sub); border:2px dashed var(--border); border-radius:16px; padding:25px; text-align:center; font-weight:800; cursor:pointer;" onclick="processReactionTap()">
+          НАЖМИ ДЛЯ СТАРТА
+        </div>
+        <div class="reaction-res" id="reactionScoreText" style="text-align:center; font-size:18px; font-weight:900; margin-top:12px; color:var(--accent);"></div>
+      </div>
+    </div>
+
+    <!-- Подвкладка 2: Симулятор пит-стопа -->
+    <div id="gameSubPitstop" style="display: none;">
+      <div class="pitstop-box">
+        <div style="font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase;">DHL Pit Stop Challenge</div>
+        <div style="font-size:38px; font-weight:900; margin:10px 0;" id="pitstopTimerDisplay">0.000 s</div>
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;" id="pitstopInstructionText">
+          Нажми «СТАРТ ПИТ-СТОПА» и как можно быстрее обслужи все 4 колеса!
+        </div>
+
+        <div class="pit-wheels-grid">
+          <div class="pit-wheel-btn" id="pitWheelFL" onclick="tapPitWheel('FL')">
+            <span>⚙️ Переднее Левое</span>
+            <small style="color:var(--text-muted);">Нажми</small>
+          </div>
+          <div class="pit-wheel-btn" id="pitWheelFR" onclick="tapPitWheel('FR')">
+            <span>⚙️ Переднее Правое</span>
+            <small style="color:var(--text-muted);">Нажми</small>
+          </div>
+          <div class="pit-wheel-btn" id="pitWheelRL" onclick="tapPitWheel('RL')">
+            <span>⚙️ Заднее Левое</span>
+            <small style="color:var(--text-muted);">Нажми</small>
+          </div>
+          <div class="pit-wheel-btn" id="pitWheelRR" onclick="tapPitWheel('RR')">
+            <span>⚙️ Заднее Правое</span>
+            <small style="color:var(--text-muted);">Нажми</small>
+          </div>
+        </div>
+
+        <button class="btn-action" id="pitstopActionBtn" onclick="togglePitstopGame()">🚀 СТАРТ ПИТ-СТОПА</button>
+        <div id="pitstopRecordText" style="font-size:13px; color:var(--text-muted); margin-top:10px; font-weight:700;">
+          Твой лучший пит-стоп: —
+        </div>
+      </div>
+    </div>
+
+    <!-- Подвкладка 3: Предикты -->
+    <div id="gameSubVote" style="display: none;">
+      <div class="hero-card">
+        <div style="font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase; margin-bottom:6px;">Голосование уикенда</div>
+        <h3 style="margin:0 0 10px 0; font-size:18px; font-weight:900;">🗳 Прогнозы на Гран-при</h3>
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+          Выбери победителя предстоящей гонки. Голоса синхронизируются в реальном времени!
+        </div>
+
+        <div id="votingPollOptionsList">
+          <div style="text-align:center; padding:20px 0; color:var(--text-muted);">Загрузка пилотов для голосования...</div>
+        </div>
+
+        <button class="btn-action" id="submitVoteBtn" style="display:none;" onclick="submitUserVote()">Подтвердить прогноз</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= МОДАЛКА НАСТРОЕК (ПЕРСИСТЕНТНОСТЬ И ДОСТУП К АДМИНКЕ) ================= -->
+  <div id="appSettingsModal" class="modal-overlay" onclick="if(event.target.id==='appSettingsModal') toggleAppSettingsModal(false)">
+    <div class="modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:18px; font-weight:900;">⚙ Настройки</h3>
+        <button style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer;" onclick="toggleAppSettingsModal(false)">✕</button>
+      </div>
+
+      <!-- Кнопка админки видна только администратору (Проблема №2) -->
+      <div id="adminDirectEntryBlock" style="display:none; margin-bottom:14px;">
+        <button class="btn-action" style="background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent);" onclick="toggleAppSettingsModal(false); openAdminDashboardScreen();">
+          ⚙️ Открыть панель администратора
+        </button>
+      </div>
+
+      <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <div>
+          <div class="set-lbl" style="font-weight:700;">⚡️ Режим Lite</div>
+          <div class="set-sub" style="font-size:12px; color:var(--text-muted);">Отключение анимаций болида</div>
+        </div>
+        <input type="checkbox" id="userSettingLiteToggle" onchange="handleLiteModeToggle(this.checked)">
+      </div>
+
+      <button class="btn-action btn-secondary" onclick="localStorage.clear(); location.reload();">
+        🧹 Сбросить локальный кэш
+      </button>
+    </div>
+  </div>
+
+  <style>
     .pitstop-box {
       background: var(--card-sub);
       border: 1px solid var(--border);
@@ -362,7 +960,6 @@
       color: var(--success);
       background: rgba(52, 199, 89, 0.12);
     }
-
     .vote-item-card {
       background: var(--card-sub);
       border: 1px solid var(--border);
@@ -370,49 +967,6 @@
       padding: 14px;
       margin-bottom: 12px;
     }
-    .vote-bar-bg {
-      background: var(--border);
-      height: 8px;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 8px;
-    }
-    .vote-bar-fill {
-      background: var(--accent);
-      height: 100%;
-      width: 0%;
-      transition: width 0.4s ease;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 72px;
-      background: var(--nav-bg);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 1000;
-      padding-bottom: 8px;
-    }
-    .nav-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      flex: 1;
-      height: 100%;
-    }
-    .nav-btn.active { color: var(--accent); }
-    .nav-icon { font-size: 22px; margin-bottom: 2px; }
-
     .modal-overlay {
       display: none;
       position: fixed;
@@ -453,255 +1007,198 @@
       border: 1px solid var(--border);
     }
   </style>
-</head>
-<body>
 
-  <!-- ВЕРХНЯЯ ШАПКА -->
-  <div class="app-header">
-    <div class="brand-wrap" id="topBrandLogo">
-      <div class="brand-square"></div>
-      <span>Race Weekend F1 Archive</span>
-    </div>
-    <div class="header-btns">
-      <button class="icon-circle-btn" onclick="toggleAppTheme()">🌓</button>
-      <button class="icon-circle-btn" onclick="openSettingsModal()">⚙️</button>
-    </div>
-  </div>
+  <script>
+    // Переключение подвкладок игр
+    function switchGameTab(tabName, btnEl) {
+      const container = document.getElementById('view-games');
+      container.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
 
-  <!-- ================= 1. ЭКРАН: ГЛАВНАЯ (ДИНАМИЧЕСКАЯ ТРАССА И ТАЙМЕР) ================= -->
-  <div id="view-home" class="view-screen active">
-    <div class="hero-card">
-      <div class="hero-stage-badge">
-        <span class="live-dot"></span>
-        <span id="heroStageLabel">🔴 ЗАГРУЗКА ЭТАПА...</span>
-      </div>
+      document.getElementById('gameSubReaction').style.display = (tabName === 'reaction') ? 'block' : 'none';
+      document.getElementById('gameSubPitstop').style.display = (tabName === 'pitstop') ? 'block' : 'none';
+      document.getElementById('gameSubVote').style.display = (tabName === 'vote') ? 'block' : 'none';
+      if (tabName === 'vote') renderVotingDriversPoll();
+    }
 
-      <div class="timer-grid">
-        <div class="t-col"><span class="t-val" id="t-d">00</span><span class="t-lbl">дней</span></div>
-        <div class="t-col"><span class="t-val" id="t-h">00</span><span class="t-lbl">часов</span></div>
-        <div class="t-col"><span class="t-val" id="t-m">00</span><span class="t-lbl">мин</span></div>
-        <div class="t-col"><span class="t-val" id="t-s">00</span><span class="t-lbl">сек</span></div>
-      </div>
+    // Игра 1: Огни реакции
+    let reactionState = "idle", reactionStartTime = 0, reactionTimeouts = [];
+    function processReactionTap() {
+      const box = document.getElementById('reactionTapBox'), score = document.getElementById('reactionScoreText');
+      const lights = [document.getElementById('f1Light1'), document.getElementById('f1Light2'), document.getElementById('f1Light3'), document.getElementById('f1Light4'), document.getElementById('f1Light5')];
 
-      <!-- ВЕКТОР ТРАССЫ: ПУСТОЙ, ПОДТЯГИВАЕТСЯ ИЗ СЕТИ -->
-      <div class="track-viewport">
-        <svg class="track-svg" viewBox="0 0 500 250">
-          <path id="trackPath" class="track-road" d="" />
-          <path class="track-racing-line" d="" />
-          <circle id="carPoint" class="track-car-dot" r="6" cx="0" cy="0" style="display:none;" />
-        </svg>
-      </div>
+      if (reactionState === "idle" || reactionState === "done") {
+        reactionState = "starting";
+        score.innerText = "";
+        box.innerText = "ВНИМАНИЕ НА ОГНИ...";
+        lights.forEach(l => l.style.background = "#2c303d");
+        reactionTimeouts.forEach(t => clearTimeout(t));
+        reactionTimeouts = [];
 
-      <h2 class="gp-title" id="gpTitleDisplay">Загрузка данных этапа...</h2>
-      <div class="gp-sub" id="gpSubDisplay">Синхронизация с сервером...</div>
+        lights.forEach((l, idx) => {
+          reactionTimeouts.push(setTimeout(() => {
+            if (reactionState === "starting") l.style.background = "var(--accent)";
+          }, (idx + 1) * 1000));
+        });
 
-      <!-- СЕТКА СЕССИЙ УИКЕНДА -->
-      <div class="sessions-grid" id="weekendSessionsGrid">
-        <div class="sess-chip past"><div class="sess-name">02 ОКТ • П1</div><div class="sess-time">✓ Завершено</div></div>
-        <div class="sess-chip past"><div class="sess-name">02 ОКТ • П2</div><div class="sess-time">✓ Завершено</div></div>
-        <div class="sess-chip active"><div class="sess-name">03 ОКТ • П3</div><div class="sess-time">07:30</div></div>
-        <div class="sess-chip"><div class="sess-name">03 ОКТ • КВАЛА</div><div class="sess-time">11:00</div></div>
-        <div class="sess-chip"><div class="sess-name">04 ОКТ • ГОНКА</div><div class="sess-time">10:00</div></div>
-      </div>
-    </div>
+        const randomOutDelay = 5000 + Math.floor(Math.random() * 1800) + 1200;
+        reactionTimeouts.push(setTimeout(() => {
+          if (reactionState === "starting") {
+            reactionState = "ready";
+            reactionStartTime = performance.now();
+            lights.forEach(l => l.style.background = "#2c303d");
+            box.innerText = "ГАСНУТ ОГНИ! ЖМИ!";
+          }
+        }, randomOutDelay));
+      } else if (reactionState === "starting") {
+        reactionTimeouts.forEach(t => clearTimeout(t));
+        reactionState = "done";
+        box.innerText = "ФАЛЬСТАРТ!";
+        score.innerText = "Штраф 5 секунд!";
+      } else if (reactionState === "ready") {
+        const reactionTimeMs = Math.round(performance.now() - reactionStartTime);
+        reactionState = "done";
+        box.innerText = "ОТЛИЧНЫЙ СТАРТ!";
+        score.innerHTML = `${reactionTimeMs} ms`;
+      }
+    }
 
-    <!-- КАРТОЧКА ХАРАКТЕРИСТИК ТРАССЫ -->
-    <div class="circuit-spec-card">
-      <div class="spec-header">
-        <span>Данные автодрома</span>
-        <span style="color:var(--accent);" id="specCircuitNameBadge">F1 Circuit</span>
-      </div>
-      <div class="spec-grid">
-        <div class="spec-item">
-          <h5>Длина круга</h5>
-          <p id="specLength">—</p>
-        </div>
-        <div class="spec-item">
-          <h5>Кругов</h5>
-          <p id="specLaps">—</p>
-        </div>
-        <div class="spec-item">
-          <h5>Первый Гран-при</h5>
-          <p id="specFirstYear">—</p>
-        </div>
-        <div class="spec-item">
-          <h5>Дистанция гонки</h5>
-          <p id="specDistance">—</p>
-        </div>
-      </div>
-      <div class="spec-record">
-        <div>
-          <div style="font-size:11px; color:var(--text-muted); font-weight:700;">Рекорд круга</div>
-          <div style="font-size:16px; font-weight:900; color:var(--accent);" id="specFastLap">—</div>
-        </div>
-        <div style="font-size:13px; font-weight:700; color:var(--text-muted); text-align:right;" id="specFastDriver">—</div>
-      </div>
-    </div>
-  </div>
+    // Игра 2: Симулятор пит-стопа
+    let isPitstopRunning = false, pitstopStartTime = 0, pitstopAnimId = null, wheelsServiced = { FL: false, FR: false, RL: false, RR: false };
+    function togglePitstopGame() {
+      const btn = document.getElementById('pitstopActionBtn');
+      const timerDisplay = document.getElementById('pitstopTimerDisplay');
+      const instruction = document.getElementById('pitstopInstructionText');
 
-  <!-- ================= 2. ЭКРАН: АРХИВ ВИДЕО (КАТАЛОГ D1) ================= -->
-  <div id="view-archive" class="view-screen">
-    <input type="text" class="search-input" id="archiveSearchInput" placeholder="🔍 Поиск заездов, квалификаций, сериалов..." oninput="handleSearch(this.value)">
+      if (isPitstopRunning) { resetPitstopState(); return; }
 
-    <div id="archiveDefaultList">
-      <div id="catalogCategoriesContainer">
-        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация каталога D1...</div>
-      </div>
-    </div>
-    <div id="archiveSearchResults" style="display: none;"></div>
-  </div>
+      isPitstopRunning = true;
+      wheelsServiced = { FL: false, FR: false, RL: false, RR: false };
+      ['FL', 'FR', 'RL', 'RR'].forEach(pos => {
+        const wEl = document.getElementById(`pitWheel${pos}`);
+        wEl.classList.remove('done');
+        wEl.querySelector('small').innerText = "Крути!";
+      });
 
-  <!-- ================= 3. ЭКРАН: СЕЗОН (JOLPICA API) ================= -->
-  <div id="view-season" class="view-screen">
-    <div class="sub-tabs-bar">
-      <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)">Пилоты</button>
-      <button class="sub-tab-btn" onclick="switchSeasonSubTab('calendar', this)">Календарь</button>
-      <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)">Кубок</button>
-    </div>
+      btn.innerText = "❌ СБРОСИТЬ";
+      instruction.innerText = "Быстро жми по всем 4 колесам!";
+      pitstopStartTime = performance.now();
 
-    <!-- ТАБЛИЦА ПИЛОТОВ -->
-    <div id="seasonSubStandings">
-      <div class="leader-card" id="seasonLeaderCard" style="display:none; background:var(--card-bg); border-radius:20px; padding:18px; border:1px solid var(--border); margin-bottom:12px;">
-        <div style="font-size:11px; font-weight:800; color:var(--accent); text-transform:uppercase;">Лидер чемпионата</div>
-        <h3 class="leader-name" id="leaderNameDisplay" style="margin:4px 0 2px 0; font-size:20px; font-weight:900;">—</h3>
-        <div class="leader-team" id="leaderTeamDisplay" style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">—</div>
-        <div style="font-size:22px; font-weight:900; color:var(--text);"><span id="leaderPointsDisplay">0</span> PTS</div>
-      </div>
+      function updatePitTimer() {
+        if (!isPitstopRunning) return;
+        timerDisplay.innerText = `${((performance.now() - pitstopStartTime) / 1000).toFixed(3)} s`;
+        pitstopAnimId = requestAnimationFrame(updatePitTimer);
+      }
+      pitstopAnimId = requestAnimationFrame(updatePitTimer);
+    }
 
-      <div id="driversStandingsList">
-        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка зачёта пилотов из API...</div>
-      </div>
-    </div>
+    function tapPitWheel(pos) {
+      if (!isPitstopRunning || wheelsServiced[pos]) return;
+      wheelsServiced[pos] = true;
+      const wEl = document.getElementById(`pitWheel${pos}`);
+      wEl.classList.add('done');
+      wEl.querySelector('small').innerText = "✓ Готово";
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+      if (Object.values(wheelsServiced).every(v => v === true)) finishPitstopChallenge();
+    }
 
-    <!-- КАЛЕНДАРЬ -->
-    <div id="seasonSubCalendar" style="display: none;">
-      <div id="calendarEventsList">
-        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка календаря...</div>
-      </div>
-    </div>
+    function finishPitstopChallenge() {
+      isPitstopRunning = false;
+      cancelAnimationFrame(pitstopAnimId);
+      const totalTime = ((performance.now() - pitstopStartTime) / 1000).toFixed(3);
+      document.getElementById('pitstopTimerDisplay').innerText = `${totalTime} s`;
+      document.getElementById('pitstopActionBtn').innerText = "🔄 ПОВТОРИТЬ ПИТ-СТОП";
+      const best = parseFloat(localStorage.getItem('f1_best_pitstop') || "999");
+      if (parseFloat(totalTime) < best) {
+        localStorage.setItem('f1_best_pitstop', totalTime);
+        document.getElementById('pitstopRecordText').innerText = `🏆 Новый рекорд: ${totalTime} s!`;
+      } else {
+        document.getElementById('pitstopRecordText').innerText = `Лучший результат: ${best.toFixed(3)} s`;
+      }
+    }
 
-    <!-- КУБОК КОНСТРУКТОРОВ -->
-    <div id="seasonSubTeams" style="display: none;">
-      <div id="constructorsStandingsList">
-        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка кубка конструкторов...</div>
-      </div>
-    </div>
-  </div>
+    function resetPitstopState() {
+      isPitstopRunning = false;
+      cancelAnimationFrame(pitstopAnimId);
+      document.getElementById('pitstopTimerDisplay').innerText = "0.000 s";
+      document.getElementById('pitstopActionBtn').innerText = "🚀 СТАРТ ПИТ-СТОПА";
+      ['FL', 'FR', 'RL', 'RR'].forEach(pos => {
+        const wEl = document.getElementById(`pitWheel${pos}`);
+        wEl.classList.remove('done');
+        wEl.querySelector('small').innerText = "Нажми";
+      });
+    }
 
-  <!-- ================= 4. ЭКРАН: ИГРЫ F1 (3 ПОДВКЛАДКИ) ================= -->
-  <div id="view-games" class="view-screen">
-    <div class="sub-tabs-bar">
-      <button class="sub-tab-btn active" onclick="switchGameTab('reaction', this)">⚡️ Огни F1</button>
-      <button class="sub-tab-btn" onclick="switchGameTab('pitstop', this)">🛞 Пит-стоп</button>
-      <button class="sub-tab-btn" onclick="switchGameTab('vote', this)">🗳 Предикты</button>
-    </div>
+    // Игра 3: Предикты
+    let selectedDriverPrediction = null;
+    function renderVotingDriversPoll() {
+      const container = document.getElementById('votingPollOptionsList');
+      const submitBtn = document.getElementById('submitVoteBtn');
+      if (!container) return;
 
-    <!-- ПОДВКЛАДКА 1: РЕАКЦИЯ НА ОГНИ -->
-    <div id="gameSubReaction">
-      <div class="hero-card">
-        <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">⚡️ Реакция на стартовые огни</h3>
-        <div style="font-size:13px; color:var(--text-muted); line-height:1.4;">
-          5 красных огней загораются по очереди.<br>Жди случайного момента их погасания и жми!
-        </div>
+      const candidates = window.f1LoadedDrivers && window.f1LoadedDrivers.length > 0 ? window.f1LoadedDrivers.slice(0, 6) : [
+        { name: "Max Verstappen", team: "Red Bull Racing" },
+        { name: "Lando Norris", team: "McLaren" },
+        { name: "Charles Leclerc", team: "Ferrari" },
+        { name: "Oscar Piastri", team: "McLaren" }
+      ];
 
-        <div class="lights-row" style="display:flex; justify-content:center; gap:8px; margin:22px 0;">
-          <div class="f1-light" id="f1Light1" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-          <div class="f1-light" id="f1Light2" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-          <div class="f1-light" id="f1Light3" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-          <div class="f1-light" id="f1Light4" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-          <div class="f1-light" id="f1Light5" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-        </div>
+      const userSavedVote = localStorage.getItem('f1_my_vote_winner');
+      if (userSavedVote) {
+        container.innerHTML = `<div style="background:var(--accent-soft); border:1px solid var(--accent); border-radius:16px; padding:16px; text-align:center;"><div style="font-size:12px; font-weight:800; color:var(--accent);">ПРОГНОЗ ПРИНЯТ:</div><div style="font-size:18px; font-weight:900; margin-top:4px;">${userSavedVote}</div></div>`;
+        if (submitBtn) submitBtn.style.display = 'none';
+        return;
+      }
 
-        <div class="reaction-tap-area" id="reactionTapBox" style="background:var(--card-sub); border:2px dashed var(--border); border-radius:16px; padding:25px; text-align:center; font-weight:800; cursor:pointer;" onclick="processReactionTap()">
-          НАЖМИ ДЛЯ СТАРТА
-        </div>
-        <div class="reaction-res" id="reactionScoreText" style="text-align:center; font-size:18px; font-weight:900; margin-top:12px; color:var(--accent);"></div>
-      </div>
-    </div>
-
-    <!-- ПОДВКЛАДКА 2: СИМУЛЯТОР ПИТ-СТОПА -->
-    <div id="gameSubPitstop" style="display: none;">
-      <div class="pitstop-box">
-        <div style="font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase;">DHL Pit Stop Challenge</div>
-        <div style="font-size:38px; font-weight:900; margin:10px 0;" id="pitstopTimerDisplay">0.000 s</div>
-        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;" id="pitstopInstructionText">
-          Нажми «СТАРТ ПИТ-СТОПА» и как можно быстрее обслужи все 4 колеса!
-        </div>
-
-        <div class="pit-wheels-grid">
-          <div class="pit-wheel-btn" id="pitWheelFL" onclick="tapPitWheel('FL')">
-            <span>⚙️ Переднее Левое</span>
-            <small style="color:var(--text-muted);">Нажми</small>
-          </div>
-          <div class="pit-wheel-btn" id="pitWheelFR" onclick="tapPitWheel('FR')">
-            <span>⚙️ Переднее Правое</span>
-            <small style="color:var(--text-muted);">Нажми</small>
-          </div>
-          <div class="pit-wheel-btn" id="pitWheelRL" onclick="tapPitWheel('RL')">
-            <span>⚙️ Заднее Левое</span>
-            <small style="color:var(--text-muted);">Нажми</small>
-          </div>
-          <div class="pit-wheel-btn" id="pitWheelRR" onclick="tapPitWheel('RR')">
-            <span>⚙️ Заднее Правое</span>
-            <small style="color:var(--text-muted);">Нажми</small>
+      container.innerHTML = candidates.map((c, i) => `
+        <div class="vote-item-card" id="voteCard_${i}" onclick="selectVoteDriver('${c.name}', ${i})" style="cursor:pointer;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="font-weight:800; font-size:15px;">${c.name}</div><div style="font-size:12px; color:var(--text-muted);">${c.team}</div></div>
+            <div id="voteRadio_${i}" style="width:20px; height:20px; border-radius:50%; border:2px solid var(--border);"></div>
           </div>
         </div>
+      `).join('');
+      if (submitBtn) submitBtn.style.display = 'block';
+    }
 
-        <button class="btn-action" id="pitstopActionBtn" onclick="togglePitstopGame()">🚀 СТАРТ ПИТ-СТОПА</button>
-        <div id="pitstopRecordText" style="font-size:13px; color:var(--text-muted); margin-top:10px; font-weight:700;">
-          Твой лучший пит-стоп: —
-        </div>
-      </div>
-    </div>
+    function selectVoteDriver(driverName, idx) {
+      selectedDriverPrediction = driverName;
+      document.querySelectorAll('#votingPollOptionsList .vote-item-card').forEach(el => { el.style.borderColor = "var(--border)"; el.style.background = "var(--card-sub)"; });
+      document.querySelectorAll('[id^="voteRadio_"]').forEach(el => { el.style.borderColor = "var(--border)"; el.style.background = "none"; });
+      const card = document.getElementById(`voteCard_${idx}`), radio = document.getElementById(`voteRadio_${idx}`);
+      if (card && radio) { card.style.borderColor = "var(--accent)"; card.style.background = "var(--accent-soft)"; radio.style.borderColor = "var(--accent)"; radio.style.background = "var(--accent)"; }
+    }
 
-    <!-- ПОДВКЛАДКА 3: ПРЕДИКТЫ И ГОЛОСОВАНИЕ -->
-    <div id="gameSubVote" style="display: none;">
-      <div class="hero-card">
-        <div style="font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase; margin-bottom:6px;">Голосование уикенда</div>
-        <h3 style="margin:0 0 10px 0; font-size:18px; font-weight:900;">🗳 Прогнозы на Гран-при</h3>
-        <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
-          Выбери победителя предстоящей гонки. Голоса синхронизируются в реальном времени!
-        </div>
+    async function submitUserVote() {
+      if (!selectedDriverPrediction) { alert("Выберите гонщика!"); return; }
+      localStorage.setItem('f1_my_vote_winner', selectedDriverPrediction);
+      renderVotingDriversPoll();
+      if (tg?.showPopup) tg.showPopup({ title: "Голос учтен!", message: `Вы поставили на победу: ${selectedDriverPrediction}`, buttons: [{ type: "ok" }] });
+    }
 
-        <div id="votingPollOptionsList">
-          <div style="text-align:center; padding:20px 0; color:var(--text-muted);">Загрузка пилотов для голосования...</div>
-        </div>
+    // Модальное окно настроек и Lite-режим (Проблема №4)
+    function toggleAppSettingsModal(show) { document.getElementById('appSettingsModal').classList.toggle('active', show); }
+    function openSettingsModal() { toggleAppSettingsModal(true); }
+    function handleLiteModeToggle(enabled) {
+      document.body.classList.toggle('lite-mode', enabled);
+      localStorage.setItem('f1_lite_mode', enabled ? '1' : '0');
+    }
+  </script>
 
-        <button class="btn-action" id="submitVoteBtn" style="display:none;" onclick="submitUserVote()">Подтвердить прогноз</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= 5. ЭКРАН: НОВОСТИ ================= -->
-  <div id="view-news" class="view-screen">
-    <div id="channelNewsFeedContainer">
-      <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация ленты...</div>
-    </div>
-  </div>
-
-  <!-- ДЕТАЛИЗАЦИЯ КАТАЛОГА -->
-  <div id="view-titles" class="view-screen">
-    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromTitles()">← Назад к категориям</button>
-    <div id="catalogTitlesList"></div>
-  </div>
-
-  <div id="view-details" class="view-screen">
-    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('titles')">← Назад к заездам</button>
-    <div id="catalogItemHeader"></div>
-    <div id="catalogItemButtonsList"></div>
-  </div>
-
-  <!-- ================= 6. ПАНЕЛЬ АДМИНИСТРАТОРА (ДОСТУПНА ТОЛЬКО ТЕБЕ) ================= -->
+<!-- ================= 6. ЭКРАН: ПАНЕЛЬ АДМИНИСТРАТОРА (ДОСТУП ТОЛЬКО ТЕБЕ — ПРОБЛЕМА №2) ================= -->
   <div id="view-admin" class="view-screen">
     <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromAdmin()">← Выйти из админки</button>
 
-    <!-- РУЧНОЙ ВЫБОР ТРАССЫ ИЗ СЕТИ -->
+    <!-- Ручной выбор трассы из сети -->
     <div class="hero-card" style="border-color: rgba(255,59,48,0.4);">
       <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🏎 Загрузка трассы из сети</h3>
       <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Воркер скачает точный GeoJSON автодрома и закэширует его:</div>
 
       <select id="admActiveCircuitSelect" class="search-input">
-        <option value="sepang">Малайзия — Сепанг</option>
+        <option value="sepang">Малайзия — Сепанг (Исправленная схема)</option>
+        <option value="silverstone">Великобритания — Сильверстоун</option>
+        <option value="spa">Бельгия — Спа</option>
+        <option value="monza">Италия — Монца</option>
         <option value="marina_bay">Сингапур — Марина-Бей</option>
         <option value="americas">США — Остин (COTA)</option>
         <option value="rodriguez">Мексика — Мехико</option>
@@ -709,17 +1206,12 @@
         <option value="vegas">Лас-Вегас</option>
         <option value="losail">Катар — Лусаил</option>
         <option value="yas_marina">Абу-Даби — Яс-Марина</option>
-        <option value="albert_park">Австралия — Мельбурн</option>
-        <option value="monaco">Монако</option>
-        <option value="silverstone">Великобритания — Сильверстоун</option>
-        <option value="spa">Бельгия — Спа</option>
-        <option value="monza">Италия — Монца</option>
       </select>
 
       <button class="btn-action" onclick="applyAdminManualCircuit()">🌐 Загрузить геометрию трассы</button>
     </div>
 
-    <!-- КНОПКА ГЛОБАЛЬНОГО РЕЛИЗА ДЛЯ ВСЕХ -->
+    <!-- Кнопка глобального релиз-статуса -->
     <div class="hero-card">
       <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🚀 Глобальный релиз</h3>
       <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
@@ -728,7 +1220,7 @@
       <button class="btn-action" id="adminToggleVersionBtn" onclick="toggleGlobalSystemVersion()">Выкатить v2 для всех пользователей</button>
     </div>
 
-    <!-- ДОБАВЛЕНИЕ ЗАПИСЕЙ В КАТАЛОГ D1 -->
+    <!-- Добавление записей в каталог D1 -->
     <div class="hero-card">
       <h3 id="adminFormHeaderTitle" style="margin:0 0 12px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
       <input type="hidden" id="adminEditRecordId" value="">
@@ -758,112 +1250,67 @@
     </div>
   </div>
 
-  <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (ПО УМОЛЧАНИЮ СКРЫТА ДЛЯ ОБЫЧНЫХ ЮЗЕРОВ) -->
-  <div class="bottom-nav" id="mainBottomNav" style="display:none;">
-    <div class="nav-btn active" onclick="switchMainTab('home', this)">
-      <span class="nav-icon">🏠</span>
-      <span>Главная</span>
-    </div>
-    <div class="nav-btn" onclick="switchMainTab('archive', this)">
-      <span class="nav-icon">🎬</span>
-      <span>Архив</span>
-    </div>
-    <div class="nav-btn" onclick="switchMainTab('season', this)">
-      <span class="nav-icon">🏁</span>
-      <span>Сезон</span>
-    </div>
-    <div class="nav-btn" onclick="switchMainTab('games', this)">
-      <span class="nav-icon">🎮</span>
-      <span>Игры</span>
-    </div>
-    <div class="nav-btn" onclick="switchMainTab('news', this)">
-      <span class="nav-icon">📢</span>
-      <span>Новости</span>
-    </div>
-  </div>
-
-  <!-- МОДАЛКА НАСТРОЕК -->
-  <div id="appSettingsModal" class="modal-overlay" onclick="if(event.target.id==='appSettingsModal') toggleAppSettingsModal(false)">
-    <div class="modal-sheet">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h3 style="margin:0; font-size:18px; font-weight:900;">⚙ Настройки</h3>
-        <button style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer;" onclick="toggleAppSettingsModal(false)">✕</button>
-      </div>
-
-      <div id="adminDirectEntryBlock" style="display:none; margin-bottom:14px;">
-        <button class="btn-action" style="background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent);" onclick="toggleAppSettingsModal(false); openAdminDashboardScreen();">
-          ⚙️ Открыть панель администратора
-        </button>
-      </div>
-
-      <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <div>
-          <div class="set-lbl" style="font-weight:700;">⚡️ Режим Lite</div>
-          <div class="set-sub" style="font-size:12px; color:var(--text-muted);">Отключение анимаций болида</div>
-        </div>
-        <input type="checkbox" id="userSettingLiteToggle" onchange="handleLiteModeToggle(this.checked)">
-      </div>
-
-      <button class="btn-action btn-secondary" onclick="localStorage.clear(); location.reload();">
-        🧹 Сбросить локальный кэш
-      </button>
-    </div>
-  </div>
-
   <script>
-    /* ==========================================================================
-       ЧАСТЬ 3: ИНИЦИАЛИЗАЦИЯ TELEGRAM, ТРАССЫ ИЗ СЕТИ И СКВОЗНОЙ ТАЙМЕР
-       ========================================================================== */
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
-    }
-
-    const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
-    const BOT_USERNAME = "race_weekend_f1_bot";
-    const ADMIN_ID = "301211351";
-    const TESTER_ID = "8061233590";
-
-    function resolveTelegramUser() {
-      let uid = "";
-      if (tg?.initDataUnsafe?.user?.id) {
-        uid = String(tg.initDataUnsafe.user.id);
+    // ==========================================================================
+    // БАЗА ДАННЫХ АВТОДРОМОВ И ГЕОМЕТРИИ (ИСПРАВЛЕННЫЙ СЕПАНГ — ПРОБЛЕМА №5)
+    // ==========================================================================
+    const circuitDatabase = {
+      "sepang": {
+        name: "Международный автодром Сепанг",
+        country: "Малайзия",
+        length: "5.543 км",
+        laps: "56",
+        firstYear: "1999",
+        distance: "310.417 км",
+        fastLap: "1:34.080",
+        fastDriver: "Себастьян Феттель (2017)",
+        path: "M 333,142 C 334,129 335,116 337,103 C 337,94 339,84 338,75 C 338,73 337,71 335,70 C 334,69 332,69 330,69 C 328,69 327,70 325,71 C 324,72 323,73 323,75 C 322,79 325,82 326,85 C 326,87 326,88 325,90 C 325,91 324,91 322,92 C 321,92 319,92 318,91 C 316,91 314,88 312,87 C 309,85 306,83 303,82 C 299,81 296,80 293,81 C 288,81 283,81 278,83 C 274,84 270,86 266,88 C 263,91 257,98 255,102 C 250,118 246,129 240,145 C 235,158 229,170 224,183 C 224,184 223,186 224,187 C 225,188 227,190 228,190 C 241,192 254,194 267,196 C 272,198 279,199 283,203 C 286,206 288,208 290,212 C 292,217 293,221 292,226 C 292,231 290,236 287,240 C 284,244 278,247 276,252 C 274,256 273,261 274,265 C 275,270 277,274 280,277 C 295,290 309,302 325,317 C 327,318 330,320 331,319 C 337,316 343,314 348,311 C 350,311 350,308 350,306 C 352,273 355,242 359,210 C 360,208 361,206 363,205 C 365,205 367,207 368,209 C 371,214 373,220 377,224 C 380,227 386,228 389,228 C 397,229 403,227 410,225 C 414,224 419,220 421,217 C 423,214 425,209 423,206 C 422,203 419,199 416,198 C 413,194 388,162 386,159 C 384,156 383,151 384,148 C 385,145 388,139 390,135 C 392,131 394,127 394,123 C 395,116 394,108 391,102 C 389,98 385,94 380,91 C 378,89 375,89 373,90 C 371,91 370,93 369,95 C 359,157 349,216 338,278 C 338,281 334,284 332,284 C 330,285 328,284 326,283 C 325,282 324,281 323,279 C 323,277 323,275 323,273 C 326,229 330,185 333,142 Z"
+      },
+      "silverstone": {
+        name: "Автодром Сильверстоун", country: "Великобритания", length: "5.891 км", laps: "52", firstYear: "1950", distance: "306.198 км", fastLap: "1:27.097", fastDriver: "Макс Ферстаппен (2020)"
+      },
+      "spa": {
+        name: "Спа-Франкоршам", country: "Бельгия", length: "7.004 км", laps: "44", firstYear: "1950", distance: "308.052 км", fastLap: "1:44.701", fastDriver: "Серхио Перес (2024)"
+      },
+      "monza": {
+        name: "Автодром Национале Монца", country: "Италия", length: "5.793 км", laps: "53", firstYear: "1950", distance: "306.720 км", fastLap: "1:20.901", fastDriver: "Ландо Норрис (2025)"
+      },
+      "marina_bay": {
+        name: "Городской автодром Марина-Бей", country: "Сингапур", length: "4.940 км", laps: "62", firstYear: "2008", distance: "306.143 км", fastLap: "1:34.486", fastDriver: "Льюис Хэмилтон (2023)"
+      },
+      "americas": {
+        name: "Трасса Америк (COTA)", country: "США", length: "5.513 км", laps: "56", firstYear: "2012", distance: "308.405 км", fastLap: "1:36.169", fastDriver: "Шарль Леклер (2019)"
+      },
+      "rodriguez": {
+        name: "Автодром имени братьев Родригес", country: "Мексика", length: "4.304 км", laps: "71", firstYear: "1963", distance: "305.584 км", fastLap: "1:17.774", fastDriver: "Валттери Боттас (2021)"
+      },
+      "interlagos": {
+        name: "Интерлагос им. Жозе Карлуса Пасе", country: "Бразилия", length: "4.309 км", laps: "71", firstYear: "1973", distance: "305.879 км", fastLap: "1:10.540", fastDriver: "Валттери Боттас (2018)"
+      },
+      "vegas": {
+        name: "Городская трасса Лас-Вегас-Стрип", country: "США", length: "6.201 км", laps: "50", firstYear: "2023", distance: "309.950 км", fastLap: "1:33.033", fastDriver: "Льюис Хэмилтон (2023)"
+      },
+      "losail": {
+        name: "Международный автодром Лусаил", country: "Катар", length: "5.419 км", laps: "57", firstYear: "2021", distance: "308.611 км", fastLap: "1:23.196", fastDriver: "Макс Ферстаппен (2023)"
+      },
+      "yas_marina": {
+        name: "Яс-Марина", country: "ОАЭ", length: "5.281 км", laps: "58", firstYear: "2009", distance: "306.183 км", fastLap: "1:26.103", fastDriver: "Макс Ферстаппен (2021)"
       }
-      if (!uid && tg?.initData) {
-        try {
-          const p = new URLSearchParams(tg.initData);
-          const uStr = p.get('user');
-          if (uStr) {
-            const parsed = JSON.parse(decodeURIComponent(uStr));
-            if (parsed?.id) uid = String(parsed.id);
-          }
-        } catch (e) {}
-      }
-      if (uid) localStorage.setItem('f1_cached_uid', uid);
-      else uid = localStorage.getItem('f1_cached_uid') || "";
-      return uid;
-    }
+    };
 
-    const currentUserId = resolveTelegramUser();
-    const isAdmin = (currentUserId === ADMIN_ID);
-    const isTester = (isAdmin || currentUserId === TESTER_ID);
-
-    // Локальная память загруженных из сети трасс
     const circuitsPathMemory = {};
-
-    // 1. ДИНАМИЧЕСКАЯ ЗАГРУЗКА ТРАССЫ И АНИМАЦИЯ БОЛИДА
     let trackAnimFrameId = null;
 
+    // 1. Динамическая отрисовка трассы, анимация болида и заполнение инфо-блоков (Проблема №6)
     async function runCarAnimationOnTrack(circuitKey = "sepang") {
       const pathEl = document.getElementById('trackPath');
       const racingLine = document.querySelector('.track-racing-line');
       const carDot = document.getElementById('carPoint');
       if (!pathEl || !carDot) return;
 
-      let pathD = circuitsPathMemory[circuitKey];
+      const circuitInfo = circuitDatabase[circuitKey];
+      let pathD = circuitInfo?.path || circuitsPathMemory[circuitKey];
 
-      // Если трассы нет в памяти — запрашиваем у воркера из сети / D1
       if (!pathD) {
         try {
           const res = await fetch(`${WORKER_URL}/api/circuits/${circuitKey}`);
@@ -874,12 +1321,9 @@
               circuitsPathMemory[circuitKey] = pathD;
             }
           }
-        } catch (e) {
-          console.warn("Не удалось подтянуть геометрию трассы из сети:", e);
-        }
+        } catch (e) {}
       }
 
-      // Резервный контур, если нет интернета
       if (!pathD) {
         pathD = "M 235,215 L 235,55 Q 235,35 255,35 Q 275,35 275,55 L 275,190 Q 275,205 295,205 L 340,205 Q 365,205 380,185 L 420,135 Q 440,110 415,85 L 370,55 Q 340,35 315,60 L 290,95 Q 275,115 250,115 L 210,115 Q 185,115 175,90 L 165,55 Q 150,30 120,45 L 80,70 Q 55,85 65,115 L 90,150 Q 110,180 150,180 L 210,180 Q 235,180 235,215 Z";
       }
@@ -887,16 +1331,21 @@
       pathEl.setAttribute('d', pathD);
       if (racingLine) racingLine.setAttribute('d', pathD);
 
-      let totalLength = 0;
-      try {
-        totalLength = pathEl.getTotalLength();
-      } catch (err) {
-        totalLength = 1000;
+      // Заполняем характеристики автодрома данными без прочерков (Проблема №6)
+      if (circuitInfo) {
+        document.getElementById('specLength').innerText = circuitInfo.length;
+        document.getElementById('specLaps').innerText = circuitInfo.laps;
+        document.getElementById('specFirstYear').innerText = circuitInfo.firstYear;
+        document.getElementById('specDistance').innerText = circuitInfo.distance;
+        document.getElementById('specFastLap').innerText = circuitInfo.fastLap;
+        document.getElementById('specFastDriver').innerText = circuitInfo.fastDriver;
       }
+
+      let totalLength = 0;
+      try { totalLength = pathEl.getTotalLength(); } catch (err) { totalLength = 1000; }
 
       carDot.style.display = 'block';
       let currentDistance = 0;
-
       if (trackAnimFrameId) cancelAnimationFrame(trackAnimFrameId);
 
       function animStep() {
@@ -908,51 +1357,33 @@
         }
         trackAnimFrameId = requestAnimationFrame(animStep);
       }
-
       trackAnimFrameId = requestAnimationFrame(animStep);
     }
 
-    // 2. УМНЫЙ СКВОЗНОЙ ТАЙМЕР ВСЕХ СЕССИЙ УИКЕНДА
+    // 2. Сквозной таймер сессий
     let sessionTimerInterval = null;
-
-    function startWeekendSessionTimer(customSessions = null) {
-      // Базовые сессии Гран-при Малайзии (Октябрь 2026: месяц 9 в JS)
-      const defaultSessions = [
+    function startWeekendSessionTimer() {
+      const sessions = [
         { id: "fp3", name: "до третьей практики", time: new Date(2026, 9, 3, 7, 30, 0).getTime() },
         { id: "quali", name: "до квалификации", time: new Date(2026, 9, 3, 11, 0, 0).getTime() },
         { id: "race", name: "до старта гонки", time: new Date(2026, 9, 4, 10, 0, 0).getTime() }
       ];
-
-      const sessions = customSessions || defaultSessions;
 
       if (sessionTimerInterval) clearInterval(sessionTimerInterval);
 
       function updateTimerTick() {
         const now = Date.now();
         const nextSession = sessions.find(s => s.time > now);
-
         const labelEl = document.getElementById('heroStageLabel');
-        const td = document.getElementById('t-d');
-        const th = document.getElementById('t-h');
-        const tm = document.getElementById('t-m');
-        const ts = document.getElementById('t-s');
+        const td = document.getElementById('t-d'), th = document.getElementById('t-h'), tm = document.getElementById('t-m'), ts = document.getElementById('t-s');
 
         if (!nextSession) {
           if (labelEl) labelEl.innerText = "🏁 УИКЕНД ЗАВЕРШЕН";
-          if (td) td.innerText = "00";
-          if (th) th.innerText = "00";
-          if (tm) tm.innerText = "00";
-          if (ts) ts.innerText = "00";
-          updateSessionChips('finished');
+          if (td) td.innerText = "00"; if (th) th.innerText = "00"; if (tm) tm.innerText = "00"; if (ts) ts.innerText = "00";
           return;
         }
 
-        if (labelEl) {
-          labelEl.innerText = `🔴 ${nextSession.name.toUpperCase()}`;
-        }
-
-        updateSessionChips(nextSession.id);
-
+        if (labelEl) labelEl.innerText = `🔴 ${nextSession.name.toUpperCase()}`;
         const diff = Math.max(0, nextSession.time - now);
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -964,385 +1395,28 @@
         if (tm) tm.innerText = String(m).padStart(2, '0');
         if (ts) ts.innerText = String(s).padStart(2, '0');
       }
-
-      function updateSessionChips(activeId) {
-        const chips = document.querySelectorAll('#weekendSessionsGrid .sess-chip');
-        if (!chips || chips.length < 5) return;
-
-        chips.forEach(c => {
-          c.classList.remove('active');
-          c.classList.remove('past');
-        });
-
-        if (activeId === 'fp3') {
-          chips[0].classList.add('past');
-          chips[1].classList.add('past');
-          chips[2].classList.add('active');
-        } else if (activeId === 'quali') {
-          chips[0].classList.add('past');
-          chips[1].classList.add('past');
-          chips[2].classList.add('past');
-          chips[3].classList.add('active');
-        } else if (activeId === 'race') {
-          chips[0].classList.add('past');
-          chips[1].classList.add('past');
-          chips[2].classList.add('past');
-          chips[3].classList.add('past');
-          chips[4].classList.add('active');
-        } else if (activeId === 'finished') {
-          chips.forEach(c => c.classList.add('past'));
-        }
-      }
-
       updateTimerTick();
       sessionTimerInterval = setInterval(updateTimerTick, 1000);
     }
 
-    /* ==========================================================================
-       ЧАСТЬ 4: ЛОГИКА ИГР F1 (РЕАКЦИЯ, СИМУЛЯТОР ПИТ-СТОПА, ГОЛОСОВАНИЕ)
-       ========================================================================== */
-
-    // 1. ПЕРЕКЛЮЧАТЕЛЬ ПОДВКЛАДОК ВНУТРИ "ИГРЫ"
-    function switchGameTab(tabName, btnEl) {
-      const container = document.getElementById('view-games');
-      container.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
-
-      document.getElementById('gameSubReaction').style.display = (tabName === 'reaction') ? 'block' : 'none';
-      document.getElementById('gameSubPitstop').style.display = (tabName === 'pitstop') ? 'block' : 'none';
-      document.getElementById('gameSubVote').style.display = (tabName === 'vote') ? 'block' : 'none';
-
-      if (tabName === 'vote') {
-        renderVotingDriversPoll();
-      }
-    }
-
-    // 2. ИГРА 1: РЕАКЦИЯ НА 5 КРАСНЫХ ОГНЕЙ F1
-    let reactionState = "idle"; // "idle" | "starting" | "ready" | "done"
-    let reactionStartTime = 0;
-    let reactionTimeouts = [];
-
-    function processReactionTap() {
-      const box = document.getElementById('reactionTapBox');
-      const score = document.getElementById('reactionScoreText');
-      const lights = [
-        document.getElementById('f1Light1'),
-        document.getElementById('f1Light2'),
-        document.getElementById('f1Light3'),
-        document.getElementById('f1Light4'),
-        document.getElementById('f1Light5')
-      ];
-
-      if (reactionState === "idle" || reactionState === "done") {
-        // Сброс и подготовка к старту
-        reactionState = "starting";
-        score.innerText = "";
-        box.innerText = "ВНИМАНИЕ НА ОГНИ...";
-        box.style.borderColor = "var(--border)";
-        lights.forEach(l => l.style.background = "#2c303d");
-
-        reactionTimeouts.forEach(t => clearTimeout(t));
-        reactionTimeouts = [];
-
-        // Поочередно зажигаем 5 красных огней с интервалом в 1 сек
-        lights.forEach((l, idx) => {
-          reactionTimeouts.push(setTimeout(() => {
-            if (reactionState === "starting") {
-              l.style.background = "var(--accent)";
-              l.style.boxShadow = "0 0 12px var(--accent)";
-            }
-          }, (idx + 1) * 1000));
-        });
-
-        // Случайный интервал выключения (от 1.2 до 3.0 секунд после 5-го огня)
-        const randomOutDelay = 5000 + Math.floor(Math.random() * 1800) + 1200;
-        reactionTimeouts.push(setTimeout(() => {
-          if (reactionState === "starting") {
-            reactionState = "ready";
-            reactionStartTime = performance.now();
-            lights.forEach(l => {
-              l.style.background = "#2c303d";
-              l.style.boxShadow = "none";
-            });
-            box.innerText = "ГАСНУТ ОГНИ! ЖМИ!";
-            box.style.borderColor = "var(--success)";
-          }
-        }, randomOutDelay));
-
-      } else if (reactionState === "starting") {
-        // Фальстарт! Нажали до того как огни погасли
-        reactionTimeouts.forEach(t => clearTimeout(t));
-        reactionTimeouts = [];
-        reactionState = "done";
-        lights.forEach(l => {
-          l.style.background = "#2c303d";
-          l.style.boxShadow = "none";
-        });
-        box.innerText = "ФАЛЬСТАРТ!";
-        box.style.borderColor = "var(--accent)";
-        score.innerText = "Штраф 5 секунд! Слишком рано.";
-
-      } else if (reactionState === "ready") {
-        // Успешный клик — замер реакции
-        const reactionTimeMs = Math.round(performance.now() - reactionStartTime);
-        reactionState = "done";
-        box.innerText = "ОТЛИЧНЫЙ СТАРТ!";
-        box.style.borderColor = "var(--border)";
-
-        let grade = "Уровень пилота F1!";
-        if (reactionTimeMs > 350) grade = "Немного зазевался на решетке";
-        else if (reactionTimeMs < 200) grade = "Нереальная реакция!";
-
-        score.innerHTML = `${reactionTimeMs} ms <br><span style="font-size:13px; color:var(--text-muted);">${grade}</span>`;
-      }
-    }
-
-    // 3. ИГРА 2: СИМУЛЯТОР ПИТ-СТОПА (PIT STOP CHALLENGE)
-    let isPitstopRunning = false;
-    let pitstopStartTime = 0;
-    let pitstopAnimId = null;
-    let wheelsServiced = { FL: false, FR: false, RL: false, RR: false };
-
-    function togglePitstopGame() {
-      const btn = document.getElementById('pitstopActionBtn');
-      const timerDisplay = document.getElementById('pitstopTimerDisplay');
-      const instruction = document.getElementById('pitstopInstructionText');
-
-      if (isPitstopRunning) {
-        resetPitstopState();
-        return;
-      }
-
-      // Старт пит-стопа
-      isPitstopRunning = true;
-      wheelsServiced = { FL: false, FR: false, RL: false, RR: false };
-
-      ['FL', 'FR', 'RL', 'RR'].forEach(pos => {
-        const wEl = document.getElementById(`pitWheel${pos}`);
-        wEl.classList.remove('done');
-        wEl.querySelector('small').innerText = "Крути!";
-        wEl.querySelector('small').style.color = "var(--accent)";
-      });
-
-      btn.innerText = "❌ СБРОСИТЬ";
-      instruction.innerText = "Быстро жми по всем 4 колесам!";
-      pitstopStartTime = performance.now();
-
-      function updatePitTimer() {
-        if (!isPitstopRunning) return;
-        const elapsed = (performance.now() - pitstopStartTime) / 1000;
-        timerDisplay.innerText = `${elapsed.toFixed(3)} s`;
-        pitstopAnimId = requestAnimationFrame(updatePitTimer);
-      }
-      pitstopAnimId = requestAnimationFrame(updatePitTimer);
-    }
-
-    function tapPitWheel(pos) {
-      if (!isPitstopRunning || wheelsServiced[pos]) return;
-
-      wheelsServiced[pos] = true;
-      const wEl = document.getElementById(`pitWheel${pos}`);
-      wEl.classList.add('done');
-      wEl.querySelector('small').innerText = "✓ Готово";
-      wEl.querySelector('small').style.color = "var(--success)";
-
-      if (tg?.HapticFeedback) {
-        tg.HapticFeedback.impactOccurred('medium');
-      }
-
-      // Проверка: все ли 4 колеса обслужены
-      const allDone = Object.values(wheelsServiced).every(v => v === true);
-      if (allDone) {
-        finishPitstopChallenge();
-      }
-    }
-
-    function finishPitstopChallenge() {
-      isPitstopRunning = false;
-      cancelAnimationFrame(pitstopAnimId);
-      const totalTime = ((performance.now() - pitstopStartTime) / 1000).toFixed(3);
-
-      const timerDisplay = document.getElementById('pitstopTimerDisplay');
-      const instruction = document.getElementById('pitstopInstructionText');
-      const btn = document.getElementById('pitstopActionBtn');
-      const recordEl = document.getElementById('pitstopRecordText');
-
-      timerDisplay.innerText = `${totalTime} s`;
-      btn.innerText = "🔄 ПОВТОРИТЬ ПИТ-СТОП";
-
-      // Сохраняем лучший результат
-      const best = parseFloat(localStorage.getItem('f1_best_pitstop') || "999");
-      if (parseFloat(totalTime) < best) {
-        localStorage.setItem('f1_best_pitstop', totalTime);
-        recordEl.innerText = `🏆 Новый рекорд: ${totalTime} s!`;
-        instruction.innerText = "Механики Red Bull завидуют такой скорости!";
-      } else {
-        recordEl.innerText = `Твой лучший пит-стоп: ${best.toFixed(3)} s`;
-        instruction.innerText = `Пит-стоп завершен за ${totalTime} сек.`;
-      }
-    }
-
-    function resetPitstopState() {
-      isPitstopRunning = false;
-      cancelAnimationFrame(pitstopAnimId);
-      document.getElementById('pitstopTimerDisplay').innerText = "0.000 s";
-      document.getElementById('pitstopActionBtn').innerText = "🚀 СТАРТ ПИТ-СТОПА";
-      document.getElementById('pitstopInstructionText').innerText = "Нажми «СТАРТ ПИТ-СТОПА» и как можно быстрее обслужи все 4 колеса!";
-
-      ['FL', 'FR', 'RL', 'RR'].forEach(pos => {
-        const wEl = document.getElementById(`pitWheel${pos}`);
-        wEl.classList.remove('done');
-        wEl.querySelector('small').innerText = "Нажми";
-        wEl.querySelector('small').style.color = "var(--text-muted)";
-      });
-    }
-
-    // 4. ИГРА 3: ГОЛОСОВАНИЕ И ПРЕДИКТЫ (СВЯЗКА С D1)
-    let selectedDriverPrediction = null;
-
-    function renderVotingDriversPoll() {
-      const container = document.getElementById('votingPollOptionsList');
-      const submitBtn = document.getElementById('submitVoteBtn');
-      if (!container) return;
-
-      // Берем актуальный пелотон из памяти или фоллбэка
-      const candidates = window.f1LoadedDrivers && window.f1LoadedDrivers.length > 0 
-        ? window.f1LoadedDrivers.slice(0, 10) 
-        : [
-            { name: "Max Verstappen", team: "Red Bull Racing" },
-            { name: "Lando Norris", team: "McLaren F1 Team" },
-            { name: "Charles Leclerc", team: "Scuderia Ferrari" },
-            { name: "Oscar Piastri", team: "McLaren F1 Team" },
-            { name: "George Russell", team: "Mercedes-AMG Petronas F1 Team" },
-            { name: "Lewis Hamilton", team: "Scuderia Ferrari" }
-          ];
-
-      const userSavedVote = localStorage.getItem('f1_my_vote_winner');
-
-      if (userSavedVote) {
-        container.innerHTML = `
-          <div style="background:var(--accent-soft); border:1px solid var(--accent); border-radius:16px; padding:16px; text-align:center;">
-            <div style="font-size:12px; font-weight:800; color:var(--accent);">ТВОЙ ПРОГНОЗ ПРИНЯТ:</div>
-            <div style="font-size:18px; font-weight:900; margin-top:4px;">${userSavedVote}</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">Очки начислятся в таблицу лидеров сразу после финиша гонки.</div>
-          </div>
-        `;
-        if (submitBtn) submitBtn.style.display = 'none';
-        return;
-      }
-
-      container.innerHTML = candidates.map((c, i) => `
-        <div class="vote-item-card" id="voteCard_${i}" onclick="selectVoteDriver('${c.name}', ${i})" style="cursor:pointer;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-weight:800; font-size:15px;">${c.name}</div>
-              <div style="font-size:12px; color:var(--text-muted);">${c.team}</div>
-            </div>
-            <div id="voteRadio_${i}" style="width:20px; height:20px; border-radius:50%; border:2px solid var(--border);"></div>
-          </div>
-        </div>
-      `).join('');
-
-      if (submitBtn) submitBtn.style.display = 'block';
-    }
-
-    function selectVoteDriver(driverName, idx) {
-      selectedDriverPrediction = driverName;
-      document.querySelectorAll('#votingPollOptionsList .vote-item-card').forEach(el => {
-        el.style.borderColor = "var(--border)";
-        el.style.background = "var(--card-sub)";
-      });
-      document.querySelectorAll('[id^="voteRadio_"]').forEach(el => {
-        el.style.borderColor = "var(--border)";
-        el.style.background = "none";
-      });
-
-      const card = document.getElementById(`voteCard_${idx}`);
-      const radio = document.getElementById(`voteRadio_${idx}`);
-      if (card && radio) {
-        card.style.borderColor = "var(--accent)";
-        card.style.background = "var(--accent-soft)";
-        radio.style.borderColor = "var(--accent)";
-        radio.style.background = "var(--accent)";
-      }
-    }
-
-    async function submitUserVote() {
-      if (!selectedDriverPrediction) {
-        alert("Пожалуйста, выберите гонщика!");
-        return;
-      }
-
-      localStorage.setItem('f1_my_vote_winner', selectedDriverPrediction);
-
-      // Сохраняем голос в D1 через Worker
-      try {
-        await fetch(`${WORKER_URL}/api/predictions/vote`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: currentUserId,
-            winner: selectedDriverPrediction,
-            timestamp: Date.now()
-          })
-        });
-      } catch (e) {}
-
-      renderVotingDriversPoll();
-      if (tg?.showPopup) {
-        tg.showPopup({ title: "Голос учтен!", message: `Вы поставили на победу: ${selectedDriverPrediction}`, buttons: [{ type: "ok" }] });
-      }
-    }
-
-    /* ==========================================================================
-       ЧАСТЬ 5: ДАННЫЕ F1 LIVE, КАТАЛОГ D1, НАВИГАЦИЯ И УПРАВЛЕНИЕ РЕЛИЗОМ
-       ========================================================================== */
-
-    let allCatalogItems = [];
-    let catalogTree = {};
-    let activeCatalogCategory = null;
-    let globalAppVersion = "v1";
-
-    // 1. ЗАГРУЗКА ЖИВЫХ ДАННЫХ СЕЗОНА ЧЕРЕЗ WORKER КЭШ (JOLPICA / OPENF1)
+    // 3. Загрузка живых данных сезона
     async function loadF1SeasonData() {
       try {
         const res = await fetch(`${WORKER_URL}/api/season/live`);
         if (!res.ok) throw new Error("API offline");
         const data = await res.json();
 
-        // 1.1 Таблица пилотов
         if (data.drivers && data.drivers.length > 0) {
           window.f1LoadedDrivers = data.drivers;
           renderDriversStandings(data.drivers);
         }
-
-        // 1.2 Кубок конструкторов
         if (data.constructors && data.constructors.length > 0) {
           renderConstructorsStandings(data.constructors);
         }
-
-        // 1.3 Календарь и авто-определение текущей трассы
         if (data.races && data.races.length > 0) {
           renderCalendarEvents(data.races);
-
-          const now = Date.now();
-          const activeRace = data.races.find(r => {
-            const raceEnd = new Date(r.raceTime).getTime() + (3 * 3600000);
-            return raceEnd > now;
-          }) || data.races[data.races.length - 1];
-
-          if (activeRace) {
-            document.getElementById('gpTitleDisplay').innerText = activeRace.name;
-            document.getElementById('gpSubDisplay').innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
-            document.getElementById('specCircuitNameBadge').innerText = activeRace.circuit;
-
-            // Запускаем трассу и машинку
-            const trackKey = activeRace.circuitId || "sepang";
-            runCarAnimationOnTrack(trackKey);
-          }
         }
       } catch (err) {
-        console.warn("Сбой загрузки F1 Live, подключаем резерв:", err);
         fallbackSeasonRender();
       }
     }
@@ -1363,10 +1437,7 @@
       listEl.innerHTML = drivers.map(d => `
         <div class="stand-item">
           <div class="stand-pos ${parseInt(d.pos) <= 3 ? 'top' : ''}">${d.pos}</div>
-          <div class="stand-details">
-            <div class="stand-name">${d.name}</div>
-            <div class="stand-team">${d.team}</div>
-          </div>
+          <div class="stand-details"><div class="stand-name">${d.name}</div><div class="stand-team">${d.team}</div></div>
           <div class="stand-pts">${d.points} PTS</div>
         </div>
       `).join('');
@@ -1375,13 +1446,10 @@
     function renderConstructorsStandings(constructors) {
       const listEl = document.getElementById('constructorsStandingsList');
       if (!listEl) return;
-
       listEl.innerHTML = constructors.map(c => `
         <div class="stand-item">
           <div class="stand-pos ${parseInt(c.pos) <= 3 ? 'top' : ''}">${c.pos}</div>
-          <div class="stand-details">
-            <div class="stand-name">${c.team}</div>
-          </div>
+          <div class="stand-details"><div class="stand-name">${c.team}</div></div>
           <div class="stand-pts">${c.points} PTS</div>
         </div>
       `).join('');
@@ -1390,21 +1458,16 @@
     function renderCalendarEvents(races) {
       const listEl = document.getElementById('calendarEventsList');
       if (!listEl) return;
-
       const now = Date.now();
       listEl.innerHTML = races.map(r => {
         const rTime = new Date(r.raceTime).getTime();
         const isPast = (rTime + (3 * 3600000)) < now;
         const isCurrent = !isPast && (rTime - 604800000) < now;
-
         return `
           <div class="cal-card ${isPast ? 'past' : ''} ${isCurrent ? 'current' : ''}">
             <div style="display:flex; align-items:center; gap:12px;">
               <div class="cal-round">${r.round}</div>
-              <div class="cal-info">
-                <h4>${r.name}</h4>
-                <span>${r.circuit} • ${r.date}</span>
-              </div>
+              <div class="cal-info"><h4>${r.name}</h4><span>${r.circuit} • ${r.date}</span></div>
             </div>
             <div style="font-size:12px; font-weight:800; color:${isCurrent ? 'var(--accent)' : 'var(--text-muted)'};">
               ${isPast ? 'Завершен' : (isCurrent ? 'Текущий' : 'Скоро')}
@@ -1419,219 +1482,24 @@
       document.getElementById('gpTitleDisplay').innerText = "Гран-при Малайзии";
       document.getElementById('gpSubDisplay').innerText = "Международный автодром Сепанг";
       document.getElementById('specCircuitNameBadge').innerText = "Sepang Circuit";
-      document.getElementById('specLength').innerText = "5.543 км";
-      document.getElementById('specLaps').innerText = "56";
-      document.getElementById('specFirstYear').innerText = "1999";
-      document.getElementById('specDistance').innerText = "310.408 км";
-      document.getElementById('specFastLap').innerText = "1:34.015";
-      document.getElementById('specFastDriver').innerText = "Хуан Пабло Монтойя (2004)";
     }
 
-    function switchSeasonSubTab(tabName, btnEl) {
-      const container = document.getElementById('view-season');
-      container.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
-
-      document.getElementById('seasonSubStandings').style.display = (tabName === 'standings') ? 'block' : 'none';
-      document.getElementById('seasonSubCalendar').style.display = (tabName === 'calendar') ? 'block' : 'none';
-      document.getElementById('seasonSubTeams').style.display = (tabName === 'teams') ? 'block' : 'none';
-    }
-
-    // 2. КАТАЛОГ ВИДЕОАРХИВА ИЗ БАЗЫ D1
-    async function loadCatalogData() {
-      try {
-        const res = await fetch(`${WORKER_URL}/api/catalog`);
-        if (res.ok) {
-          allCatalogItems = await res.json();
-          buildCatalogTree();
-          renderCatalogCategories();
-        }
-      } catch (e) {
-        console.warn("Каталог временно недоступен:", e);
-      }
-    }
-
-    function buildCatalogTree() {
-      catalogTree = {};
-      allCatalogItems.forEach(item => {
-        const cat = item.category || "🔴 Сезон 2026";
-        const title = item.title || "Без названия";
-        if (!catalogTree[cat]) catalogTree[cat] = {};
-        if (!catalogTree[cat][title]) catalogTree[cat][title] = [];
-        catalogTree[cat][title].push(item);
-      });
-    }
-
-    function renderCatalogCategories() {
-      const container = document.getElementById('catalogCategoriesContainer');
-      const cats = Object.keys(catalogTree);
-
-      if (!cats.length) {
-        container.innerHTML = `<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Архив пуст</div>`;
-        return;
-      }
-
-      container.innerHTML = cats.map(cat => `
-        <div class="menu-btn" onclick="openCatalogCategory('${cat}')">
-          <div class="menu-btn-content">
-            <span style="font-size:18px;">📁</span>
-            <span>${cat}</span>
-          </div>
-          <span style="color:var(--text-muted);">›</span>
-        </div>
-      `).join('');
-    }
-
-    function openCatalogCategory(cat) {
-      activeCatalogCategory = cat;
-      const titlesList = document.getElementById('catalogTitlesList');
-      const titles = Object.keys(catalogTree[cat] || {});
-
-      titlesList.innerHTML = titles.map(t => {
-        const items = catalogTree[cat][t];
-        const first = items[0] || {};
-        const thumb = first.image && first.image.startsWith("data:image") ? first.image : (first.image || "https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg");
-
-        return `
-          <div class="menu-btn" onclick="openCatalogDetails('${t}')">
-            <div class="menu-btn-content">
-              <img src="${thumb}" class="menu-btn-thumb" onerror="this.src='https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg'">
-              <div>
-                <div style="font-weight:800; font-size:15px;">${t}</div>
-                <div style="font-size:12px; color:var(--text-muted);">${items.length} сессий</div>
-              </div>
-            </div>
-            <span style="color:var(--text-muted);">›</span>
-          </div>
-        `;
-      }).join('');
-
-      openViewScreen('titles');
-    }
-
-    function openCatalogDetails(title) {
-      const items = catalogTree[activeCatalogCategory]?.[title] || [];
-      const headerEl = document.getElementById('catalogItemHeader');
-      const btnsEl = document.getElementById('catalogItemButtonsList');
-      const first = items[0] || {};
-      const thumb = first.image && first.image.startsWith("data:image") ? first.image : (first.image || "https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg");
-
-      headerEl.innerHTML = `
-        <img src="${thumb}" style="width:100%; height:180px; object-fit:cover; border-radius:18px; margin-bottom:12px;" onerror="this.src='https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg'">
-        <h2 style="margin:0 0 6px 0; font-size:22px; font-weight:900;">${title}</h2>
-        <div style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">${first.description || "Записи всех сессий этапа в архиве бота."}</div>
-      `;
-
-      btnsEl.innerHTML = items.map(item => `
-        <div class="menu-btn" onclick="requestVideoByDeepLink('${item.code}')">
-          <div class="menu-btn-content">
-            <span style="font-size:18px;">▶️</span>
-            <div>
-              <div style="font-weight:800;">${item.item}</div>
-              <div style="font-size:12px; color:var(--text-muted);">Пост #${item.post_id}</div>
-            </div>
-          </div>
-          <span class="badge">${item.badge || '1080p'}</span>
-        </div>
-      `).join('');
-
-      openViewScreen('details');
-    }
-
-    function requestVideoByDeepLink(code) {
-      if (tg?.openTelegramLink) {
-        tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${code}`);
-      } else {
-        window.open(`https://t.me/${BOT_USERNAME}?start=${code}`, '_blank');
-      }
-    }
-
-    function handleSearch(query) {
-      const q = query.trim().toLowerCase();
-      const def = document.getElementById('archiveDefaultList');
-      const resEl = document.getElementById('archiveSearchResults');
-
-      if (!q) {
-        def.style.display = 'block';
-        resEl.style.display = 'none';
-        return;
-      }
-
-      def.style.display = 'none';
-      resEl.style.display = 'block';
-
-      const filtered = allCatalogItems.filter(i => 
-        (i.title && i.title.toLowerCase().includes(q)) || 
-        (i.item && i.item.toLowerCase().includes(q)) ||
-        (i.category && i.category.toLowerCase().includes(q))
-      );
-
-      if (!filtered.length) {
-        resEl.innerHTML = `<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Ничего не найдено</div>`;
-        return;
-      }
-
-      resEl.innerHTML = filtered.map(item => `
-        <div class="menu-btn" onclick="requestVideoByDeepLink('${item.code}')">
-          <div class="menu-btn-content">
-            <span style="font-size:18px;">▶️</span>
-            <div>
-              <div style="font-weight:800;">${item.title} — ${item.item}</div>
-              <div style="font-size:12px; color:var(--text-muted);">${item.category}</div>
-            </div>
-          </div>
-          <span class="badge">${item.badge || '1080p'}</span>
-        </div>
-      `).join('');
-    }
-
-    function navigateBackFromTitles() {
-      openViewScreen('archive');
-    }
-
-    // 3. НАВИГАЦИЯ ПО ЭКРАНАМ И УПРАВЛЕНИЕ РЕЛИЗОМ (V1 / V2)
-    function openViewScreen(screenName) {
-      document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
-      const target = document.getElementById(`view-${screenName}`);
-      if (target) target.classList.add('active');
-      window.scrollTo(0, 0);
-    }
-
-    function switchMainTab(tabName, btnEl) {
-      document.querySelectorAll('#mainBottomNav .nav-btn').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
-      openViewScreen(tabName);
-    }
+    // 4. Панель администратора и управление версиями релиза
+    let globalAppVersion = "v1";
 
     async function checkReleaseAccess() {
       try {
         const res = await fetch(`${WORKER_URL}/api/system/version`);
-        if (res.ok) {
-          const data = await res.json();
-          globalAppVersion = data.version || "v1";
-        }
+        if (res.ok) { const data = await res.json(); globalAppVersion = data.version || "v1"; }
       } catch (e) {}
 
-      const curVerEl = document.getElementById('adminCurVerText');
-      const toggleBtn = document.getElementById('adminToggleVersionBtn');
-
-      if (curVerEl) curVerEl.innerText = globalAppVersion.toUpperCase();
-      if (toggleBtn) {
-        toggleBtn.innerText = (globalAppVersion === 'v2') 
-          ? "Откатить на V1 (Архив)" 
-          : "Выкатить v2 для всех пользователей";
-      }
-
-      // ПРАВИЛО ДОСТУПА:
-      // Если V2 выкачен для всех — открываем полный UI.
-      // Если V1 — полный интерфейс виден ТОЛЬКО ТЕБЕ (ADMIN_ID) и ТЕСТЕРУ (TESTER_ID).
+      document.getElementById('adminCurVerText').innerText = globalAppVersion.toUpperCase();
       const hasFullAccess = (globalAppVersion === "v2") || isTester;
 
       if (hasFullAccess) {
         document.getElementById('mainBottomNav').style.display = 'flex';
         openViewScreen('home');
       } else {
-        // Обычные пользователи на v1 видят только видеоархив
         document.getElementById('mainBottomNav').style.display = 'none';
         openViewScreen('archive');
       }
@@ -1644,47 +1512,31 @@
     async function toggleGlobalSystemVersion() {
       if (!isAdmin) return;
       const nextVer = (globalAppVersion === 'v2') ? 'v1' : 'v2';
-
       try {
         const res = await fetch(`${WORKER_URL}/api/system/set_version`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
+          method: "POST", headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
           body: JSON.stringify({ version: nextVer })
         });
-        if (res.ok) {
-          globalAppVersion = nextVer;
-          checkReleaseAccess();
-          alert(`Глобальный релиз переключен на: ${nextVer.toUpperCase()}`);
-        }
-      } catch (e) {
-        alert("Ошибка сети при смене версии");
-      }
+        if (res.ok) { globalAppVersion = nextVer; checkReleaseAccess(); alert(`Релиз переключен на: ${nextVer.toUpperCase()}`); }
+      } catch (e) { alert("Ошибка сети"); }
     }
 
-    // 4. ПАНЕЛЬ АДМИНИСТРАТОРА И ЗАГРУЗКА ТРАСС ВРУЧНУЮ
-    function openAdminDashboardScreen() {
-      openViewScreen('admin');
-    }
-
-    function navigateBackFromAdmin() {
-      openViewScreen('home');
-    }
+    function openAdminDashboardScreen() { openViewScreen('admin'); }
+    function navigateBackFromAdmin() { openViewScreen('home'); }
 
     function applyAdminManualCircuit() {
       const selected = document.getElementById('admActiveCircuitSelect').value;
       runCarAnimationOnTrack(selected);
-      alert(`Трасса [${selected}] загружена из сети и установлена!`);
+      alert(`Трасса [${selected}] загружена!`);
     }
 
     function handleImageFileUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(evt) {
-        const base64 = evt.target.result;
-        document.getElementById('admFormImg').value = base64;
-        document.getElementById('admImgPreviewEl').src = base64;
+        document.getElementById('admFormImg').value = evt.target.result;
+        document.getElementById('admImgPreviewEl').src = evt.target.result;
         document.getElementById('admImgPreviewBox').style.display = 'block';
       };
       reader.readAsDataURL(file);
@@ -1692,7 +1544,6 @@
 
     async function submitCatalogRecordForm() {
       if (!isAdmin) return;
-
       const payload = {
         category: document.getElementById('admFormCat').value.trim(),
         title: document.getElementById('admFormTitle').value.trim(),
@@ -1703,27 +1554,14 @@
         code: document.getElementById('admFormCode').value.trim(),
         post_id: parseInt(document.getElementById('admFormPostId').value) || 0
       };
-
-      if (!payload.title || !payload.code) {
-        alert("Заполните Название и Код!");
-        return;
-      }
-
+      if (!payload.title || !payload.code) { alert("Заполните Название и Код!"); return; }
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog/add`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
+          method: "POST", headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
           body: JSON.stringify(payload)
         });
-
-        if (res.ok) {
-          alert("Запись успешно сохранена в D1!");
-          cancelCatalogEditMode();
-          loadCatalogData();
-        }
-      } catch (e) {
-        alert("Ошибка сохранения: " + e.message);
-      }
+        if (res.ok) { alert("Запись сохранена!"); loadCatalogData(); cancelCatalogEditMode(); }
+      } catch (e) { alert("Ошибка сохранения"); }
     }
 
     function cancelCatalogEditMode() {
@@ -1735,52 +1573,18 @@
       document.getElementById('admFormCode').value = "";
       document.getElementById('admFormPostId').value = "";
       document.getElementById('admImgPreviewBox').style.display = 'none';
-      document.getElementById('adminCancelEditBtn').style.display = 'none';
     }
 
-    // 5. НАСТРОЙКИ, ТЕМА И ИНИЦИАЛИЗАЦИЯ
-    function toggleAppSettingsModal(show) {
-      const modal = document.getElementById('appSettingsModal');
-      if (modal) modal.classList.toggle('active', show);
-    }
-
-    function openSettingsModal() {
-      toggleAppSettingsModal(true);
-    }
-
-    function toggleAppTheme() {
-      document.body.classList.toggle('light-theme');
-      const isLight = document.body.classList.contains('light-theme');
-      localStorage.setItem('f1_theme_light', isLight ? '1' : '0');
-    }
-
-    function handleLiteModeToggle(enabled) {
-      document.body.classList.toggle('lite-mode', enabled);
-      localStorage.setItem('f1_lite_mode', enabled ? '1' : '0');
-    }
-
-    // СТАРТ ПРИЛОЖЕНИЯ
+    // 5. Инициализация всего приложения при старте
     window.addEventListener('DOMContentLoaded', () => {
-      // Восстановление настроек
-      if (localStorage.getItem('f1_theme_light') === '1') {
-        document.body.classList.add('light-theme');
-      }
-      if (localStorage.getItem('f1_lite_mode') === '1') {
-        document.body.classList.add('lite-mode');
-        const t = document.getElementById('userSettingLiteToggle');
-        if (t) t.checked = true;
-      }
-
-      // Проверка прав доступа и релиза (v1/v2)
+      applySavedUserSettings();
       checkReleaseAccess();
-
-      // Запуск умного сквозного таймера
       startWeekendSessionTimer();
-
-      // Загрузка официальных данных F1 и каталога D1
-      loadF1SeasonData();
+      runCarAnimationOnTrack("sepang"); // Правильная геометрия Сепанга
       loadCatalogData();
+      loadF1SeasonData();
     });
   </script>
 </body>
 </html>
+  
