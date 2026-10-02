@@ -1367,32 +1367,58 @@
       `).join('');
     }
 
-    async function loadF1SeasonData() {
-      // Моментальный рендер без ожидания сети
-      renderDriversList(DEFAULT_DRIVERS_DATA);
-      renderCalendarList(DEFAULT_RACES_CALENDAR);
-      renderConstructorsList(DEFAULT_DRIVERS_DATA);
-
-      // Фоновая синхронизация с Cloudflare
+        async function loadF1SeasonData() {
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-        const response = await fetch(`${WORKER_URL}/api/season/live`, { signal: controller.signal });
-        clearTimeout(timeoutId);
+        const response = await fetch(`${WORKER_URL}/api/season/live`);
         const data = await response.json();
 
+        // 1. Личный зачёт пилотов (полный пелотон из API)
         if (data.drivers && data.drivers.length > 0) {
           renderDriversList(data.drivers);
-          renderConstructorsList(data.drivers);
         }
+
+        // 2. Кубок конструкторов (напрямую из официального зачета API)
+        if (data.constructors && data.constructors.length > 0) {
+          const teamsListEl = document.getElementById('constructorsStandingsList');
+          teamsListEl.innerHTML = data.constructors.map(t => `
+            <div class="stand-item">
+              <div class="stand-pos ${parseInt(t.pos) <= 3 ? 'top' : ''}">${t.pos}</div>
+              <div class="stand-details">
+                <div class="stand-name">${t.team}</div>
+              </div>
+              <div class="stand-pts">${t.points}</div>
+            </div>
+          `).join('');
+        }
+
+        // 3. Календарь и авто-определение текущего этапа
         if (data.races && data.races.length > 0) {
           renderCalendarList(data.races);
+
+          // Ищем этап, гонка которого еще не финишировала
+          const now = Date.now();
+          const activeRace = data.races.find(r => {
+            const raceEnd = new Date(r.raceTime).getTime() + (3 * 3600000);
+            return raceEnd > now;
+          }) || data.races[data.races.length - 1];
+
+          if (activeRace) {
+            // Обновляем главную страницу живыми данными этапа
+            document.getElementById('gpTitleDisplay').innerText = activeRace.name;
+            document.getElementById('gpSubDisplay').innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
+            
+            // Если в словаре есть SVG этой трассы — переключаем анимацию
+            const circuitKey = activeRace.circuitId || "sepang";
+            if (CIRCUITS_SVG_DATABASE[circuitKey]) {
+              runCarAnimationOnTrack(circuitKey);
+            }
+          }
         }
       } catch (e) {
-        console.log("Использована локальная база 22 пилотов");
+        console.warn("Фоллбэк на локальные данные:", e);
       }
     }
+
 
     // 4. КАТАЛОГ D1
     async function loadCatalogDatabase() {
