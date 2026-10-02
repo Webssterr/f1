@@ -178,6 +178,7 @@
       margin-top: 4px;
     }
 
+    /* Стиль центрированного вьюпорта трассы */
     .track-viewport {
       width: 100%;
       height: 200px;
@@ -325,6 +326,36 @@
       align-items: center;
     }
 
+    /* Премиальные красивые кнопки-переключатели (Пилоты/Календарь/Кубок и Игры) */
+    .sub-tabs-bar {
+      display: flex;
+      background: var(--card-sub);
+      padding: 4px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      gap: 4px;
+    }
+
+    .sub-tab-btn {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 10px 0;
+      font-size: 13px;
+      font-weight: 800;
+      border-radius: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sub-tab-btn.active {
+      background: var(--card-bg);
+      color: var(--text);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
     .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -361,6 +392,53 @@
       font-size: 22px;
       margin-bottom: 2px;
     }
+
+    /* Модальное окно настроек */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-sheet {
+      background: var(--card-bg);
+      color: var(--text);
+      width: 100%;
+      max-width: 520px;
+      border-radius: 24px 24px 0 0;
+      padding: 24px 20px 32px 20px;
+      border-top: 1px solid var(--border);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .btn-action {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .btn-secondary {
+      background: var(--card-sub);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
@@ -377,6 +455,35 @@
     </div>
   </div>
 
+  <!-- МОДАЛКА НАСТРОЕК С ДОСТУПОМ К АДМИНКЕ -->
+  <div id="appSettingsModal" class="modal-overlay" onclick="if(event.target.id==='appSettingsModal') toggleAppSettingsModal(false)">
+    <div class="modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:18px; font-weight:900;">⚙ Настройки</h3>
+        <button style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer;" onclick="toggleAppSettingsModal(false)">✕</button>
+      </div>
+
+      <!-- Кнопка админки для администратора -->
+      <div id="adminDirectEntryBlock" style="display:none; margin-bottom:14px;">
+        <button class="btn-action" style="background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent);" onclick="toggleAppSettingsModal(false); openAdminDashboardScreen();">
+          ⚙️ Открыть панель администратора
+        </button>
+      </div>
+
+      <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <div>
+          <div class="set-lbl" style="font-weight:700;">⚡️ Режим Lite</div>
+          <div class="set-sub" style="font-size:12px; color:var(--text-muted);">Отключение анимаций болида</div>
+        </div>
+        <input type="checkbox" id="userSettingLiteToggle" onchange="handleLiteModeToggle(this.checked)">
+      </div>
+
+      <button class="btn-action btn-secondary" onclick="localStorage.clear(); location.reload();">
+        🧹 Сбросить локальный кэш
+      </button>
+    </div>
+  </div>
+
   <script>
     const tg = window.Telegram?.WebApp;
     if (tg) {
@@ -384,7 +491,7 @@
       tg.expand();
     }
 
-    const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
+    const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev"; //[cite: 1]
     const BOT_USERNAME = "race_weekend_f1_bot";
     const ADMIN_ID = "301211351";
     const TESTER_ID = "8061233590";
@@ -413,14 +520,27 @@
     const isAdmin = (currentUserId === ADMIN_ID);
     const isTester = (isAdmin || currentUserId === TESTER_ID);
 
-    // Управление темами оформления
     function toggleAppTheme() {
       document.body.classList.toggle('light-theme');
       const isLight = document.body.classList.contains('light-theme');
       localStorage.setItem('f1_theme_light', isLight ? '1' : '0');
     }
 
-    function applySavedUserSettings() {
+    function toggleAppSettingsModal(show) {
+      const modal = document.getElementById('appSettingsModal');
+      if (modal) modal.classList.toggle('active', show);
+    }
+
+    function openSettingsModal() {
+      toggleAppSettingsModal(true);
+    }
+
+    function handleLiteModeToggle(enabled) {
+      document.body.classList.toggle('lite-mode', enabled);
+      localStorage.setItem('f1_lite_mode', enabled ? '1' : '0');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('f1_theme_light') === '1') {
         document.body.classList.add('light-theme');
       }
@@ -429,7 +549,7 @@
         const t = document.getElementById('userSettingLiteToggle');
         if (t) t.checked = true;
       }
-    }
+    });
   </script>
 </body>
 </html>
@@ -449,6 +569,7 @@
         <div class="t-col"><span class="t-val" id="t-s">00</span><span class="t-lbl">сек</span></div>
       </div>
 
+      <!-- Контейнер трассы -->
       <div class="track-viewport">
         <svg class="track-svg" viewBox="0 0 500 250">
           <path id="trackPath" class="track-road" d="" />
@@ -504,7 +625,7 @@
     <div id="archiveSearchResults" style="display: none;"></div>
   </div>
 
-  <!-- Навигационная панель снизу -->
+  <!-- Нижняя панель навигации -->
   <div class="bottom-nav" id="mainBottomNav" style="display:flex;">
     <div class="nav-btn active" onclick="switchMainTab('home', this)"><span class="nav-icon">🏠</span><span>Главная</span></div>
     <div class="nav-btn" onclick="switchMainTab('archive', this)"><span class="nav-icon">🎬</span><span>Архив</span></div>
@@ -561,14 +682,14 @@
       openViewScreen(tabName);
     }
 
-    // Загрузка каталога с исправленной хронологической сортировкой ASC (Проблема №1)
+    // Загрузка каталога из воркера с исправленной хронологической сортировкой ASC (Проблема №1)[cite: 1]
     let allCatalogItems = [];
     let catalogTree = {};
     let activeCatalogCategory = null;
 
     async function loadCatalogData() {
       try {
-        const res = await fetch(`${WORKER_URL}/api/catalog`);
+        const res = await fetch(`${WORKER_URL}/api/catalog`); //[cite: 1]
         if (res.ok) {
           allCatalogItems = await res.json();
           // Прямая хронологическая сортировка (от старых к новым / от 1 этапа к последнему)
@@ -608,7 +729,7 @@
     }
   </script>
 
-<!-- ================= 3. ЭКРАН: СЕЗОН (ТАБЛИЦЫ И КАЛЕНДАРЬ) ================= -->
+  <!-- ================= 3. ЭКРАН: СЕЗОН (ПИЛОТЫ, КАЛЕНДАРЬ, КУБОК) ================= -->
   <div id="view-season" class="view-screen">
     <div class="sub-tabs-bar">
       <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)">Пилоты</button>
@@ -644,7 +765,7 @@
     </div>
   </div>
 
-  <!-- ================= 4. ЭКРАН: НОВОСТИ ================= -->
+  <!-- ================= 4. ЭКРАН: НОВОСТИ (ЛЕНТА КАНАЛА) ================= -->
   <div id="view-news" class="view-screen">
     <div id="channelNewsFeedContainer">
       <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация ленты новостей...</div>
@@ -696,6 +817,14 @@
     .cal-card.current .cal-round { color: var(--accent); }
     .cal-info h4 { margin: 0; font-size: 15px; font-weight: 800; color: var(--text); }
     .cal-info span { font-size: 12px; color: var(--text-muted); }
+
+    .news-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
   </style>
 
   <script>
@@ -714,7 +843,7 @@
       openViewScreen('archive');
     }
 
-    // Открытие списка событий/этапов в выбранной категории
+    // Открытие списка заездов в выбранной категории каталога
     function openCatalogCategory(cat) {
       activeCatalogCategory = cat;
       const titlesList = document.getElementById('catalogTitlesList');
@@ -777,6 +906,29 @@
       else window.open(url, '_blank');
     }
 
+    // Загрузка новостей с эндпоинта воркера /api/feed[cite: 1]
+    async function loadChannelNewsFeed() {
+      const container = document.getElementById('channelNewsFeedContainer');
+      if (!container) return;
+      try {
+        const res = await fetch(`${WORKER_URL}/api/feed`);
+        if (res.ok) {
+          const posts = await res.json();
+          if (posts && posts.length > 0) {
+            container.innerHTML = posts.map(p => `
+              <div class="news-card">
+                ${p.image ? `<img src="${p.image}" style="width:100%; height:160px; object-fit:cover; border-radius:14px; margin-bottom:12px;">` : ''}
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">${new Date(p.date * 1000).toLocaleDateString()}</div>
+                <div style="font-size:14px; line-height:1.5; white-space:pre-wrap;">${p.text}</div>
+              </div>
+            `).join('');
+            return;
+          }
+        }
+      } catch (e) {}
+      container.innerHTML = `<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Лента новостей пуста</div>`;
+    }
+
     function handleSearch(query) {
       const q = query.trim().toLowerCase();
       const def = document.getElementById('archiveDefaultList');
@@ -812,7 +964,7 @@
     }
   </script>
 
-<!-- ================= 4. ЭКРАН: ИГРЫ F1 (ОГНИ, ПИТ-СТОП, ПРЕДИКТЫ) ================= -->
+  <!-- ================= 4. ЭКРАН: ИГРЫ F1 (ОГНИ, ПИТ-СТОП, ПРЕДИКТЫ) ================= -->
   <div id="view-games" class="view-screen">
     <div class="sub-tabs-bar">
       <button class="sub-tab-btn active" onclick="switchGameTab('reaction', this)">⚡️ Огни F1</button>
@@ -966,45 +1118,6 @@
       border-radius: 16px;
       padding: 14px;
       margin-bottom: 12px;
-    }
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
-      z-index: 9999;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal-sheet {
-      background: var(--card-bg);
-      color: var(--text);
-      width: 100%;
-      max-width: 520px;
-      border-radius: 24px 24px 0 0;
-      padding: 24px 20px 32px 20px;
-      border-top: 1px solid var(--border);
-      max-height: 85vh;
-      overflow-y: auto;
-    }
-    .btn-action {
-      width: 100%;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 14px;
-      border-radius: 14px;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 12px;
-    }
-    .btn-secondary {
-      background: var(--card-sub);
-      color: var(--text);
-      border: 1px solid var(--border);
     }
   </style>
 
@@ -1176,29 +1289,41 @@
       if (tg?.showPopup) tg.showPopup({ title: "Голос учтен!", message: `Вы поставили на победу: ${selectedDriverPrediction}`, buttons: [{ type: "ok" }] });
     }
 
-    // Модальное окно настроек и Lite-режим (Проблема №4)
-    function toggleAppSettingsModal(show) { document.getElementById('appSettingsModal').classList.toggle('active', show); }
-    function openSettingsModal() { toggleAppSettingsModal(true); }
+    // Сохранение и персистентность Lite-режима (Проблема №4)
     function handleLiteModeToggle(enabled) {
       document.body.classList.toggle('lite-mode', enabled);
       localStorage.setItem('f1_lite_mode', enabled ? '1' : '0');
     }
   </script>
 
-<!-- ================= 6. ЭКРАН: ПАНЕЛЬ АДМИНИСТРАТОРА (ДОСТУП ТОЛЬКО ТЕБЕ — ПРОБЛЕМА №2) ================= -->
+  <!-- ================= 5. ЭКРАН: ПАНЕЛЬ АДМИНИСТРАТОРА (ДОСТУП ТОЛЬКО ТЕБЕ — ПРОБЛЕМА №2) ================= -->
   <div id="view-admin" class="view-screen">
     <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromAdmin()">← Выйти из админки</button>
 
-    <!-- Ручной выбор трассы из сети -->
+    <!-- Ручной выбор трассы из сети (все реальные трассы из CIRCUIT_FILE_MAPPING воркера) -->
     <div class="hero-card" style="border-color: rgba(255,59,48,0.4);">
-      <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🏎 Загрузка трассы из сети</h3>
-      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Воркер скачает точный GeoJSON автодрома и закэширует его:</div>
+      <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🏎 Выбор геометрии трассы</h3>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Воркер загрузит точный GeoJSON автодрома из официального репозитория[cite: 1]:</div>
 
       <select id="admActiveCircuitSelect" class="search-input">
-        <option value="sepang">Малайзия — Сепанг (Исправленная схема)</option>
+        <option value="sepang">Малайзия — Сепанг</option>
+        <option value="bahrain">Бахрейн — Сахир</option>
+        <option value="jeddah">Саудовская Аравия — Джидда</option>
+        <option value="albert_park">Австралия — Мельбурн</option>
+        <option value="suzuka">Япония — Сузука</option>
+        <option value="shanghai">Китай — Шанхай</option>
+        <option value="miami">США — Майами</option>
+        <option value="imola">Италия — Имола</option>
+        <option value="monaco">Монако</option>
+        <option value="catalunya">Испания — Барселона</option>
+        <option value="villeneuve">Канада — Монреаль</option>
+        <option value="red_bull_ring">Австрия — Шпильберг</option>
         <option value="silverstone">Великобритания — Сильверстоун</option>
-        <option value="spa">Бельгия — Спа</option>
+        <option value="hungaroring">Венгрия — Хунгароринг</option>
+        <option value="spa">Бельгия — Спа-Франкоршам</option>
+        <option value="zandvoort">Нидерланды — Зандворт</option>
         <option value="monza">Италия — Монца</option>
+        <option value="baku">Азербайджан — Баку</option>
         <option value="marina_bay">Сингапур — Марина-Бей</option>
         <option value="americas">США — Остин (COTA)</option>
         <option value="rodriguez">Мексика — Мехико</option>
@@ -1220,7 +1345,7 @@
       <button class="btn-action" id="adminToggleVersionBtn" onclick="toggleGlobalSystemVersion()">Выкатить v2 для всех пользователей</button>
     </div>
 
-    <!-- Добавление записей в каталог D1 -->
+    <!-- Добавление и редакция записей в каталог D1 -->
     <div class="hero-card">
       <h3 id="adminFormHeaderTitle" style="margin:0 0 12px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
       <input type="hidden" id="adminEditRecordId" value="">
@@ -1252,56 +1377,26 @@
 
   <script>
     // ==========================================================================
-    // БАЗА ДАННЫХ АВТОДРОМОВ И ГЕОМЕТРИИ (ИСПРАВЛЕННЫЙ СЕПАНГ — ПРОБЛЕМА №5)
+    // БАЗА ДАННЫХ АВТОДРОМОВ И МЕТАДАННЫХ БЕЗ ПРОЧЕРКОВ (ПРОБЛЕМА №5 И №6)
     // ==========================================================================
     const circuitDatabase = {
       "sepang": {
-        name: "Международный автодром Сепанг",
-        country: "Малайзия",
-        length: "5.543 км",
-        laps: "56",
-        firstYear: "1999",
-        distance: "310.417 км",
-        fastLap: "1:34.080",
-        fastDriver: "Себастьян Феттель (2017)",
+        name: "Международный автодром Сепанг", country: "Малайзия", length: "5.543 км", laps: "56", firstYear: "1999", distance: "310.417 км", fastLap: "1:34.080", fastDriver: "Себастьян Феттель (2017)",
         path: "M 333,142 C 334,129 335,116 337,103 C 337,94 339,84 338,75 C 338,73 337,71 335,70 C 334,69 332,69 330,69 C 328,69 327,70 325,71 C 324,72 323,73 323,75 C 322,79 325,82 326,85 C 326,87 326,88 325,90 C 325,91 324,91 322,92 C 321,92 319,92 318,91 C 316,91 314,88 312,87 C 309,85 306,83 303,82 C 299,81 296,80 293,81 C 288,81 283,81 278,83 C 274,84 270,86 266,88 C 263,91 257,98 255,102 C 250,118 246,129 240,145 C 235,158 229,170 224,183 C 224,184 223,186 224,187 C 225,188 227,190 228,190 C 241,192 254,194 267,196 C 272,198 279,199 283,203 C 286,206 288,208 290,212 C 292,217 293,221 292,226 C 292,231 290,236 287,240 C 284,244 278,247 276,252 C 274,256 273,261 274,265 C 275,270 277,274 280,277 C 295,290 309,302 325,317 C 327,318 330,320 331,319 C 337,316 343,314 348,311 C 350,311 350,308 350,306 C 352,273 355,242 359,210 C 360,208 361,206 363,205 C 365,205 367,207 368,209 C 371,214 373,220 377,224 C 380,227 386,228 389,228 C 397,229 403,227 410,225 C 414,224 419,220 421,217 C 423,214 425,209 423,206 C 422,203 419,199 416,198 C 413,194 388,162 386,159 C 384,156 383,151 384,148 C 385,145 388,139 390,135 C 392,131 394,127 394,123 C 395,116 394,108 391,102 C 389,98 385,94 380,91 C 378,89 375,89 373,90 C 371,91 370,93 369,95 C 359,157 349,216 338,278 C 338,281 334,284 332,284 C 330,285 328,284 326,283 C 325,282 324,281 323,279 C 323,277 323,275 323,273 C 326,229 330,185 333,142 Z"
       },
-      "silverstone": {
-        name: "Автодром Сильверстоун", country: "Великобритания", length: "5.891 км", laps: "52", firstYear: "1950", distance: "306.198 км", fastLap: "1:27.097", fastDriver: "Макс Ферстаппен (2020)"
-      },
-      "spa": {
-        name: "Спа-Франкоршам", country: "Бельгия", length: "7.004 км", laps: "44", firstYear: "1950", distance: "308.052 км", fastLap: "1:44.701", fastDriver: "Серхио Перес (2024)"
-      },
-      "monza": {
-        name: "Автодром Национале Монца", country: "Италия", length: "5.793 км", laps: "53", firstYear: "1950", distance: "306.720 км", fastLap: "1:20.901", fastDriver: "Ландо Норрис (2025)"
-      },
-      "marina_bay": {
-        name: "Городской автодром Марина-Бей", country: "Сингапур", length: "4.940 км", laps: "62", firstYear: "2008", distance: "306.143 км", fastLap: "1:34.486", fastDriver: "Льюис Хэмилтон (2023)"
-      },
-      "americas": {
-        name: "Трасса Америк (COTA)", country: "США", length: "5.513 км", laps: "56", firstYear: "2012", distance: "308.405 км", fastLap: "1:36.169", fastDriver: "Шарль Леклер (2019)"
-      },
-      "rodriguez": {
-        name: "Автодром имени братьев Родригес", country: "Мексика", length: "4.304 км", laps: "71", firstYear: "1963", distance: "305.584 км", fastLap: "1:17.774", fastDriver: "Валттери Боттас (2021)"
-      },
-      "interlagos": {
-        name: "Интерлагос им. Жозе Карлуса Пасе", country: "Бразилия", length: "4.309 км", laps: "71", firstYear: "1973", distance: "305.879 км", fastLap: "1:10.540", fastDriver: "Валттери Боттас (2018)"
-      },
-      "vegas": {
-        name: "Городская трасса Лас-Вегас-Стрип", country: "США", length: "6.201 км", laps: "50", firstYear: "2023", distance: "309.950 км", fastLap: "1:33.033", fastDriver: "Льюис Хэмилтон (2023)"
-      },
-      "losail": {
-        name: "Международный автодром Лусаил", country: "Катар", length: "5.419 км", laps: "57", firstYear: "2021", distance: "308.611 км", fastLap: "1:23.196", fastDriver: "Макс Ферстаппен (2023)"
-      },
-      "yas_marina": {
-        name: "Яс-Марина", country: "ОАЭ", length: "5.281 км", laps: "58", firstYear: "2009", distance: "306.183 км", fastLap: "1:26.103", fastDriver: "Макс Ферстаппен (2021)"
-      }
+      "bahrain": { name: "Международный автодром Бахрейн", country: "Бахрейн", length: "5.412 км", laps: "57", firstYear: "2004", distance: "308.238 км", fastLap: "1:31.447", fastDriver: "Педро де ла Роса (2005)" },
+      "silverstone": { name: "Автодром Сильверстоун", country: "Великобритания", length: "5.891 км", laps: "52", firstYear: "1950", distance: "306.198 км", fastLap: "1:27.097", fastDriver: "Макс Ферстаппен (2020)" },
+      "spa": { name: "Спа-Франкоршам", country: "Бельгия", length: "7.004 км", laps: "44", firstYear: "1950", distance: "308.052 км", fastLap: "1:44.701", fastDriver: "Серхио Перес (2024)" },
+      "monza": { name: "Автодром Национале Монца", country: "Италия", length: "5.793 км", laps: "53", firstYear: "1950", distance: "306.720 км", fastLap: "1:20.901", fastDriver: "Ландо Норрис (2025)" },
+      "marina_bay": { name: "Городской автодром Марина-Бей", country: "Сингапур", length: "4.940 км", laps: "62", firstYear: "2008", distance: "306.143 км", fastLap: "1:34.486", fastDriver: "Льюис Хэмилтон (2023)" },
+      "americas": { name: "Трасса Америк (COTA)", country: "США", length: "5.513 км", laps: "56", firstYear: "2012", distance: "308.405 км", fastLap: "1:36.169", fastDriver: "Шарль Леклер (2019)" },
+      "monaco": { name: "Городская трасса Монако", country: "Монако", length: "3.337 км", laps: "78", firstYear: "1950", distance: "260.286 км", fastLap: "1:12.909", fastDriver: "Льюис Хэмилтон (2021)" }
     };
 
     const circuitsPathMemory = {};
     let trackAnimFrameId = null;
 
-    // 1. Динамическая отрисовка трассы, анимация болида и заполнение инфо-блоков (Проблема №6)
+    // Центрирование и отрисовка геометрии трассы
     async function runCarAnimationOnTrack(circuitKey = "sepang") {
       const pathEl = document.getElementById('trackPath');
       const racingLine = document.querySelector('.track-racing-line');
@@ -1313,7 +1408,7 @@
 
       if (!pathD) {
         try {
-          const res = await fetch(`${WORKER_URL}/api/circuits/${circuitKey}`);
+          const res = await fetch(`${WORKER_URL}/api/circuits/${circuitKey}`);[cite: 1]
           if (res.ok) {
             const data = await res.json();
             if (data && data.path) {
@@ -1331,7 +1426,7 @@
       pathEl.setAttribute('d', pathD);
       if (racingLine) racingLine.setAttribute('d', pathD);
 
-      // Заполняем характеристики автодрома данными без прочерков (Проблема №6)
+      // Заполняем характеристики автодрома без прочерков (Проблема №6)
       if (circuitInfo) {
         document.getElementById('specLength').innerText = circuitInfo.length;
         document.getElementById('specLaps').innerText = circuitInfo.laps;
@@ -1339,6 +1434,7 @@
         document.getElementById('specDistance').innerText = circuitInfo.distance;
         document.getElementById('specFastLap').innerText = circuitInfo.fastLap;
         document.getElementById('specFastDriver').innerText = circuitInfo.fastDriver;
+        document.getElementById('specCircuitNameBadge').innerText = circuitInfo.name;
       }
 
       let totalLength = 0;
@@ -1360,7 +1456,7 @@
       trackAnimFrameId = requestAnimationFrame(animStep);
     }
 
-    // 2. Сквозной таймер сессий
+    // Сквозной таймер сессий уикенда
     let sessionTimerInterval = null;
     function startWeekendSessionTimer() {
       const sessions = [
@@ -1399,10 +1495,10 @@
       sessionTimerInterval = setInterval(updateTimerTick, 1000);
     }
 
-    // 3. Загрузка живых данных сезона
+    // Загрузка живых данных сезона
     async function loadF1SeasonData() {
       try {
-        const res = await fetch(`${WORKER_URL}/api/season/live`);
+        const res = await fetch(`${WORKER_URL}/api/season/live`);[cite: 1]
         if (!res.ok) throw new Error("API offline");
         const data = await res.json();
 
@@ -1481,15 +1577,14 @@
       runCarAnimationOnTrack("sepang");
       document.getElementById('gpTitleDisplay').innerText = "Гран-при Малайзии";
       document.getElementById('gpSubDisplay').innerText = "Международный автодром Сепанг";
-      document.getElementById('specCircuitNameBadge').innerText = "Sepang Circuit";
     }
 
-    // 4. Панель администратора и управление версиями релиза
+    // Проверка прав и доступа к версии релиза (v1/v2)
     let globalAppVersion = "v1";
 
     async function checkReleaseAccess() {
       try {
-        const res = await fetch(`${WORKER_URL}/api/system/version`);
+        const res = await fetch(`${WORKER_URL}/api/system/version`);[cite: 1]
         if (res.ok) { const data = await res.json(); globalAppVersion = data.version || "v1"; }
       } catch (e) {}
 
@@ -1514,7 +1609,7 @@
       const nextVer = (globalAppVersion === 'v2') ? 'v1' : 'v2';
       try {
         const res = await fetch(`${WORKER_URL}/api/system/set_version`, {
-          method: "POST", headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
+          method: "POST", headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },[cite: 1]
           body: JSON.stringify({ version: nextVer })
         });
         if (res.ok) { globalAppVersion = nextVer; checkReleaseAccess(); alert(`Релиз переключен на: ${nextVer.toUpperCase()}`); }
@@ -1557,7 +1652,7 @@
       if (!payload.title || !payload.code) { alert("Заполните Название и Код!"); return; }
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog/add`, {
-          method: "POST", headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
+          method: "POST", headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },[cite: 1]
           body: JSON.stringify(payload)
         });
         if (res.ok) { alert("Запись сохранена!"); loadCatalogData(); cancelCatalogEditMode(); }
@@ -1575,16 +1670,16 @@
       document.getElementById('admImgPreviewBox').style.display = 'none';
     }
 
-    // 5. Инициализация всего приложения при старте
+    // Инициализация при полной загрузке приложения
     window.addEventListener('DOMContentLoaded', () => {
       applySavedUserSettings();
       checkReleaseAccess();
       startWeekendSessionTimer();
-      runCarAnimationOnTrack("sepang"); // Правильная геометрия Сепанга
+      runCarAnimationOnTrack("sepang"); // Точный Сепанг по центру
       loadCatalogData();
       loadF1SeasonData();
+      loadChannelNewsFeed();
     });
   </script>
 </body>
 </html>
-  
