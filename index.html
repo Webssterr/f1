@@ -7,16 +7,34 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     /* =========================================================
-       1. СТИЛИ V1 (КЛАССИКА ДЛЯ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ)
+       1. ЦВЕТОВАЯ ПАЛИТРА И ПЕРЕМЕННЫЕ (СВЕТЛАЯ / ТЕМНАЯ ТЕМА)
        ========================================================= */
     :root {
-      --bg: #14171d;
-      --card-bg: #1e232d;
-      --btn-bg: #292f3d;
-      --btn-active: #333b4d;
-      --accent: #e10600;
+      --bg: #f4f5f8;
+      --card-bg: #ffffff;
+      --card-sub: #f8f9fc;
+      --border: #e6e8ee;
+      --text: #111317;
+      --text-muted: #7e8494;
+      --accent: #ff3b30;
+      --accent-soft: rgba(255, 59, 48, 0.12);
+      --nav-bg: rgba(255, 255, 255, 0.95);
+      --track-base: #e2e5ec;
+      --input-bg: #ffffff;
+    }
+
+    body.dark-theme {
+      --bg: #0e1015;
+      --card-bg: #161820;
+      --card-sub: #1d202b;
+      --border: rgba(255, 255, 255, 0.08);
       --text: #ffffff;
-      --text-muted: #8e95a5;
+      --text-muted: #8c92a4;
+      --accent: #ff3b30;
+      --accent-soft: rgba(255, 59, 48, 0.18);
+      --nav-bg: rgba(22, 24, 32, 0.95);
+      --track-base: #282c37;
+      --input-bg: #1c1f2a;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -24,318 +42,208 @@
     body {
       background-color: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       margin: 0;
-      padding: 16px;
+      padding: 16px 16px 95px 16px;
       -webkit-font-smoothing: antialiased;
       user-select: none;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    .view { display: none; }
-    .view.active { display: block; }
-
-    .header-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 14px;
+    /* УПРОЩЕННЫЙ LITE-РЕЖИМ */
+    body.lite-mode * {
+      animation: none !important;
+      transition: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      box-shadow: none !important;
     }
 
-    .search-box {
-      flex: 1;
-      background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      padding: 13px 16px;
-      font-size: 15px;
-      color: var(--text);
-      outline: none;
-    }
-    .search-box:focus { border-color: var(--accent); }
-    .search-box::placeholder { color: var(--text-muted); }
-
-    .icon-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .bot-card {
-      background: var(--card-bg);
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(255,255,255,0.06);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    .bot-card h2 { margin: 0 0 8px 0; font-size: 16px; text-transform: uppercase; }
-
-    .menu-btn {
-      width: 100%;
-      background: var(--btn-bg);
-      border: 1px solid rgba(255,255,255,0.05);
-      color: var(--text);
-      padding: 12px 14px;
-      margin-bottom: 10px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      text-align: left;
-    }
-    .menu-btn:active { background: var(--btn-active); }
-    .menu-btn-content { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
-    .menu-btn-thumb { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; background: #252a36; flex-shrink: 0; }
-
-    .admin-entry-btn {
-      background: rgba(225, 6, 0, 0.15) !important;
-      border: 1px solid var(--accent) !important;
-      color: #ff6b6b !important;
-      margin-top: 20px;
-    }
-
-    .badge {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 6px;
-      border-radius: 5px;
-      background: rgba(225, 6, 0, 0.15);
-      color: #ff5555;
-      flex-shrink: 0;
-    }
-
-    .back-btn {
-      background: transparent;
-      border: none;
-      color: var(--accent);
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 14px;
-      padding: 0;
-      cursor: pointer;
-    }
-
-    /* =========================================================
-       2. СТИЛИ V2 GRIDLAP (ДЛЯ БЕТА-ТЕСТИРОВАНИЯ)
-       ========================================================= */
-    #root-v2 {
-      display: none;
-      --g-bg: #f4f5f8;
-      --g-card: #ffffff;
-      --g-card-sub: #f8f9fc;
-      --g-border: #e6e8ee;
-      --g-text: #111317;
-      --g-muted: #7e8494;
-      --g-accent: #ff3b30;
-      --g-accent-soft: rgba(255, 59, 48, 0.1);
-      --g-nav: rgba(255, 255, 255, 0.95);
-      --g-dot: #d1d5db;
-    }
-
-    body.v2-dark #root-v2 {
-      --g-bg: #0e1015;
-      --g-card: #161820;
-      --g-card-sub: #1d202b;
-      --g-border: rgba(255, 255, 255, 0.08);
-      --g-text: #ffffff;
-      --g-muted: #8c92a4;
-      --g-accent: #ff3b30;
-      --g-accent-soft: rgba(255, 59, 48, 0.15);
-      --g-nav: rgba(22, 24, 32, 0.95);
-      --g-dot: #2c303e;
-    }
-
-    body.active-v2 {
-      background: var(--g-bg) !important;
-      color: var(--g-text) !important;
-      padding-bottom: 90px;
-    }
-    body.active-v2 #root-v1 { display: none !important; }
-    body.active-v2 #root-v2 { display: block !important; }
-
-    .g-header {
+    /* ШАПКА */
+    .app-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 18px;
     }
-    .g-brand {
+    .brand-wrap {
       display: flex;
       align-items: center;
       gap: 8px;
       font-size: 20px;
       font-weight: 900;
       letter-spacing: -0.5px;
+      color: var(--text);
+      cursor: pointer;
     }
-    .g-brand-badge {
+    .brand-square {
       width: 14px;
       height: 14px;
-      background: var(--g-accent);
+      background: var(--accent);
       border-radius: 4px;
     }
-    .g-circle-btn {
+    .header-btns { display: flex; gap: 8px; }
+    .icon-circle-btn {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: var(--g-card);
-      border: 1px solid var(--g-border);
-      color: var(--g-text);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
       cursor: pointer;
     }
+    .icon-circle-btn:active { transform: scale(0.95); }
 
-    .g-view { display: none; }
-    .g-view.active { display: block; animation: gFade 0.2s ease-in-out; }
-    @keyframes gFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .view-screen { display: none; }
+    .view-screen.active { display: block; animation: viewIn 0.2s ease-out; }
+    @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    .g-hero-card {
-      background: var(--g-card);
+    /* ГЛАВНАЯ КАРТОЧКА ГРАН-ПРИ И ТАЙМЕР */
+    .hero-card {
+      background: var(--card-bg);
       border-radius: 24px;
       padding: 22px 20px;
-      border: 1px solid var(--g-border);
+      border: 1px solid var(--border);
       margin-bottom: 16px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.03);
     }
-    .g-stage-badge {
+    .hero-stage-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       font-size: 12px;
-      font-weight: 700;
-      color: var(--g-accent);
+      font-weight: 800;
+      color: var(--accent);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 12px;
     }
-    .g-live-dot {
+    .live-dot {
       width: 8px;
       height: 8px;
-      background: var(--g-accent);
+      background: var(--accent);
       border-radius: 50%;
-      box-shadow: 0 0 8px var(--g-accent);
+      box-shadow: 0 0 8px var(--accent);
     }
-    .g-timer-row {
+    .timer-grid {
       display: flex;
       gap: 16px;
       align-items: baseline;
       margin-bottom: 16px;
     }
-    .g-t-col { display: flex; flex-direction: column; }
-    .g-t-val { font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -1.5px; }
-    .g-t-lbl { font-size: 12px; color: var(--g-muted); font-weight: 600; margin-top: 4px; }
+    .t-col { display: flex; flex-direction: column; }
+    .t-val { font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -1.5px; color: var(--text); }
+    .t-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
 
-    .g-track-viewport {
+    /* SVG ТРАССЫ */
+    .track-viewport {
       width: 100%;
-      height: 160px;
+      height: 170px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 10px 0 16px 0;
       position: relative;
     }
-    .g-track-svg { width: 100%; height: 100%; }
-    .g-track-road {
-      stroke: var(--g-dot);
+    .track-svg { width: 100%; height: 100%; max-height: 165px; }
+    .track-road {
+      stroke: var(--track-base);
       stroke-width: 14;
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    .g-track-line {
-      stroke: var(--g-accent);
+    .track-racing-line {
+      stroke: var(--accent);
       stroke-width: 4;
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    .g-car-dot {
+    .track-car-dot {
       fill: #ffffff;
-      stroke: var(--g-accent);
+      stroke: var(--accent);
       stroke-width: 3;
-      filter: drop-shadow(0 0 5px var(--g-accent));
+      filter: drop-shadow(0 0 6px var(--accent));
     }
 
-    .g-timeline-grid {
+    .gp-title { font-size: 22px; font-weight: 900; margin: 0 0 4px 0; letter-spacing: -0.5px; color: var(--text); }
+    .gp-sub { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+    /* СЕТКА СЕССИЙ УИКЕНДА */
+    .sessions-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
       margin-top: 18px;
       padding-top: 16px;
-      border-top: 1px solid var(--g-border);
+      border-top: 1px solid var(--border);
     }
-    .g-chip {
-      background: var(--g-card-sub);
+    .sess-chip {
+      background: var(--card-sub);
       border-radius: 12px;
-      padding: 10px 4px;
+      padding: 10px 2px;
       text-align: center;
+      border: 1px solid transparent;
     }
-    .g-chip.active {
-      background: var(--g-accent-soft);
-      border: 1px solid rgba(255, 59, 48, 0.2);
+    .sess-chip.past { opacity: 0.45; }
+    .sess-chip.active {
+      background: var(--accent-soft);
+      border-color: rgba(255, 59, 48, 0.25);
     }
-    .g-chip-name { font-size: 11px; color: var(--g-muted); font-weight: 600; }
-    .g-chip-time { font-size: 12px; font-weight: 800; margin-top: 3px; }
-    .g-chip.active .g-chip-name, .g-chip.active .g-chip-time { color: var(--g-accent); }
+    .sess-name { font-size: 10.5px; color: var(--text-muted); font-weight: 700; }
+    .sess-time { font-size: 11.5px; font-weight: 800; margin-top: 3px; color: var(--text); }
+    .sess-chip.active .sess-name, .sess-chip.active .sess-time { color: var(--accent); }
 
-    .g-elev-card {
-      background: var(--g-card);
+    /* РЕЛЬЕФ ВЫСОТ */
+    .elev-card {
+      background: var(--card-bg);
       border-radius: 20px;
       padding: 16px;
-      border: 1px solid var(--g-border);
+      border: 1px solid var(--border);
       margin-bottom: 16px;
     }
-    .g-elev-header {
+    .elev-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
       font-size: 12px;
       font-weight: 800;
-      color: var(--g-muted);
+      color: var(--text-muted);
       text-transform: uppercase;
     }
-    .g-elev-stats { display: flex; justify-content: space-between; margin-bottom: 12px; }
-    .g-el-box h4 { margin: 0; font-size: 20px; font-weight: 900; }
-    .g-el-box span { font-size: 11px; color: var(--g-muted); }
-    .g-elev-chart {
+    .elev-stats { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .el-box h4 { margin: 0; font-size: 20px; font-weight: 900; color: var(--text); }
+    .el-box span { font-size: 11px; color: var(--text-muted); }
+    .elev-chart {
       width: 100%;
       height: 42px;
       display: flex;
       align-items: flex-end;
       gap: 4px;
     }
-    .g-bar {
+    .el-bar {
       flex: 1;
-      background: var(--g-accent-soft);
+      background: var(--accent-soft);
       border-radius: 3px 3px 0 0;
-      border-top: 2px solid var(--g-accent);
+      border-top: 2px solid var(--accent);
     }
 
-    .g-sub-nav {
+    /* ВКЛАДКИ СЕЗОНА */
+    .sub-tabs-bar {
       display: flex;
-      background: var(--g-card-sub);
+      background: var(--card-sub);
       padding: 4px;
       border-radius: 14px;
       margin-bottom: 16px;
-      border: 1px solid var(--g-border);
+      border: 1px solid var(--border);
     }
-    .g-sub-btn {
+    .sub-tab-btn {
       flex: 1;
       border: none;
       background: none;
@@ -343,16 +251,16 @@
       font-size: 13px;
       font-weight: 700;
       border-radius: 10px;
-      color: var(--g-muted);
+      color: var(--text-muted);
       cursor: pointer;
     }
-    .g-sub-btn.active {
-      background: var(--g-card);
-      color: var(--g-text);
+    .sub-tab-btn.active {
+      background: var(--card-bg);
+      color: var(--text);
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 
-    .g-leader-card {
+    .leader-card {
       background: linear-gradient(135deg, #1f232d 0%, #111317 100%);
       color: #fff;
       border-radius: 24px;
@@ -361,7 +269,7 @@
       position: relative;
       overflow: hidden;
     }
-    .g-leader-bg-num {
+    .leader-bg-num {
       position: absolute;
       right: -8px;
       bottom: -20px;
@@ -371,39 +279,58 @@
       line-height: 1;
       pointer-events: none;
     }
-    .g-leader-badge { font-size: 11px; font-weight: 800; color: var(--g-accent); text-transform: uppercase; margin-bottom: 8px; }
-    .g-leader-name { font-size: 24px; font-weight: 900; margin: 0 0 4px 0; }
-    .g-leader-team { font-size: 13px; color: #a0a6b5; margin-bottom: 16px; }
-    .g-leader-pts-row { display: flex; align-items: baseline; gap: 8px; }
-    .g-leader-pts { font-size: 38px; font-weight: 900; }
-    .g-leader-wins { font-size: 12px; color: #a0a6b5; }
+    .leader-badge { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+    .leader-name { font-size: 24px; font-weight: 900; margin: 0 0 4px 0; }
+    .leader-team { font-size: 13px; color: #a0a6b5; margin-bottom: 16px; }
+    .leader-pts-row { display: flex; align-items: baseline; gap: 8px; }
+    .leader-pts { font-size: 38px; font-weight: 900; }
+    .leader-wins { font-size: 12px; color: #a0a6b5; }
 
-    .g-stand-item {
-      background: var(--g-card);
+    .stand-item {
+      background: var(--card-bg);
       border-radius: 16px;
       padding: 12px 16px;
       display: flex;
       align-items: center;
-      border: 1px solid var(--g-border);
+      border: 1px solid var(--border);
       margin-bottom: 8px;
     }
-    .g-stand-pos { font-size: 16px; font-weight: 900; width: 32px; color: var(--g-muted); }
-    .g-stand-pos.top { color: var(--g-accent); }
-    .g-stand-details { flex: 1; }
-    .g-stand-name { font-size: 15px; font-weight: 800; }
-    .g-stand-team { font-size: 12px; color: var(--g-muted); }
-    .g-stand-pts { font-size: 16px; font-weight: 900; }
+    .stand-pos { font-size: 16px; font-weight: 900; width: 32px; color: var(--text-muted); }
+    .stand-pos.top { color: var(--accent); }
+    .stand-details { flex: 1; }
+    .stand-name { font-size: 15px; font-weight: 800; color: var(--text); }
+    .stand-team { font-size: 12px; color: var(--text-muted); }
+    .stand-pts { font-size: 16px; font-weight: 900; color: var(--text); }
 
-    .g-game-card {
-      background: var(--g-card);
+    .cal-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      transition: opacity 0.2s;
+    }
+    .cal-card.past { opacity: 0.5; background: var(--card-sub); }
+    .cal-card.current { border: 2px solid var(--accent); background: var(--card-bg); opacity: 1; }
+    .cal-round { font-size: 16px; font-weight: 900; width: 30px; color: var(--text-muted); }
+    .cal-card.current .cal-round { color: var(--accent); }
+    .cal-info h4 { margin: 0; font-size: 15px; font-weight: 800; color: var(--text); }
+    .cal-info span { font-size: 12px; color: var(--text-muted); }
+
+    /* ИГРЫ */
+    .game-card {
+      background: var(--card-bg);
       border-radius: 24px;
       padding: 22px;
-      border: 1px solid var(--g-border);
+      border: 1px solid var(--border);
       margin-bottom: 16px;
       text-align: center;
     }
-    .g-lights-row { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
-    .g-light {
+    .lights-row { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
+    .f1-light {
       width: 34px;
       height: 34px;
       border-radius: 50%;
@@ -411,50 +338,92 @@
       border: 2px solid #111;
       transition: background 0.1s;
     }
-    .g-light.on { background: #ff2200; box-shadow: 0 0 16px #ff2200; }
-    .g-reaction-tap {
-      background: var(--g-card-sub);
-      border: 2px dashed var(--g-border);
+    .f1-light.on { background: #ff2200; box-shadow: 0 0 16px #ff2200; }
+    .reaction-tap-area {
+      background: var(--card-sub);
+      border: 2px dashed var(--border);
       border-radius: 18px;
       padding: 34px 10px;
       font-size: 16px;
       font-weight: 800;
+      color: var(--text);
       cursor: pointer;
     }
-    .g-reaction-res { font-size: 28px; font-weight: 900; color: var(--g-accent); margin-top: 14px; }
+    .reaction-res { font-size: 28px; font-weight: 900; color: var(--accent); margin-top: 14px; }
 
-    .g-bottom-nav {
+    /* КАТАЛОГ И ПОИСК АРХИВА */
+    .search-input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      margin-bottom: 12px;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .menu-btn {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 13px 16px;
+      margin-bottom: 10px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      text-align: left;
+    }
+    .menu-btn-content { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
+    .menu-btn-thumb { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; background: #222; flex-shrink: 0; }
+    .badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    /* НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (ПОРЯДОК: Главная, Архив, Сезон, Игры, Новости) */
+    .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; right: 0;
       height: 72px;
-      background: var(--g-nav);
+      background: var(--nav-bg);
       backdrop-filter: blur(15px);
-      border-top: 1px solid var(--g-border);
+      -webkit-backdrop-filter: blur(15px);
+      border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
       align-items: center;
       z-index: 1000;
       padding-bottom: 8px;
+      transition: background 0.25s, border-color 0.25s;
     }
-    .g-nav-btn {
+    .nav-btn {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: var(--g-muted);
+      color: var(--text-muted);
       font-size: 11px;
       font-weight: 700;
       cursor: pointer;
       flex: 1;
       height: 100%;
     }
-    .g-nav-btn.active { color: var(--g-accent); }
-    .g-nav-icon { font-size: 22px; margin-bottom: 2px; }
+    .nav-btn.active { color: var(--accent); }
+    .nav-icon { font-size: 22px; margin-bottom: 2px; }
 
-    /* =========================================================
-       3. МОДАЛКА НАСТРОЕК
-       ========================================================= */
-    .app-modal-overlay {
+    /* МОДАЛКА НАСТРОЕК */
+    .modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -464,321 +433,395 @@
       align-items: flex-end;
       justify-content: center;
     }
-    .app-modal-overlay.active { display: flex; }
-    .app-modal-sheet {
-      background: #171a21;
-      color: #fff;
+    .modal-overlay.active { display: flex; }
+    .modal-sheet {
+      background: var(--card-bg);
+      color: var(--text);
       width: 100%;
       max-width: 520px;
       border-radius: 24px 24px 0 0;
       padding: 24px 20px 32px 20px;
-      border-top: 1px solid rgba(255,255,255,0.12);
+      border-top: 1px solid var(--border);
       max-height: 85vh;
       overflow-y: auto;
     }
-    .modal-row {
+    .setting-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 14px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid var(--border);
     }
-    .modal-label { font-size: 15px; font-weight: 700; }
-    .modal-sub { font-size: 12px; color: #8e95a5; margin-top: 2px; }
+    .set-lbl { font-size: 15px; font-weight: 700; }
+    .set-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-    .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
+    .switch-toggle { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+    .switch-toggle input { opacity: 0; width: 0; height: 0; }
+    .switch-slider {
       position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
       background: #333946; border-radius: 26px; transition: .25s;
     }
-    .slider:before {
+    .switch-slider:before {
       position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
       background: #fff; border-radius: 50%; transition: .25s;
     }
-    input:checked + .slider { background-color: var(--accent); }
-    input:checked + .slider:before { transform: translateX(20px); }
+    input:checked + .switch-slider { background-color: var(--accent); }
+    input:checked + .switch-slider:before { transform: translateX(20px); }
 
-    .modal-btn {
+    .btn-action {
       width: 100%;
       background: var(--accent);
       color: #fff;
       border: none;
-      padding: 13px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 700;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 800;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 12px;
+    }
+    .btn-secondary {
+      background: var(--card-sub);
+      color: var(--text);
+      border: 1px solid var(--border);
     }
   </style>
 </head>
 <body>
 
-  <!-- ================= КОНТЕЙНЕР V1 (ДЛЯ ВСЕХ) ================= -->
-  <div id="root-v1">
-    <div id="v1-home" class="view active">
-      <div class="header-row">
-        <input type="text" class="search-box" id="v1-search" placeholder="🔍 Поиск по гонкам и сериалам..." oninput="handleSearch(this.value)">
-        <button class="icon-btn" onclick="openSettings()">⚙️</button>
-      </div>
-
-      <div id="v1-default-body">
-        <div class="bot-card" id="welcome-card" style="display: none;">
-          <h2 id="welcome-title"></h2>
-          <div id="welcome-text"></div>
-        </div>
-
-        <div id="v1-categories-list">
-          <div style="text-align:center; padding:30px; color:var(--text-muted);">Синхронизация каталога D1...</div>
-        </div>
-
-        <!-- КНОПКА АДМИНКИ В V1 -->
-        <div id="v1-admin-btn-box" style="display: none;">
-          <button class="menu-btn admin-entry-btn" onclick="openAdminScreen()">
-            <span>⚙️ Панель администратора</span>
-            <span>›</span>
-          </button>
-        </div>
-      </div>
-      <div id="v1-search-results" style="display: none;"></div>
+  <!-- ШАПКА -->
+  <div class="app-header">
+    <div class="brand-wrap" id="topBrandLogo">
+      <div class="brand-square"></div>
+      <span>GRIDLAP • F1</span>
+    </div>
+    <div class="header-btns">
+      <button class="icon-circle-btn" onclick="toggleAppTheme()">🌓</button>
+      <button class="icon-circle-btn" onclick="openSettingsModal()">⚙️</button>
     </div>
   </div>
 
-  <!-- ================= КОНТЕЙНЕР V2 GRIDLAP (ДЛЯ БЕТА-ТЕСТЕРА) ================= -->
-  <div id="root-v2">
-    <div class="g-header">
-      <div class="g-brand" id="v2BrandLogo">
-        <div class="g-brand-badge"></div>
-        <span>GRIDLAP • F1</span>
-      </div>
-      <div style="display:flex; gap:8px;">
-        <button class="g-circle-btn" onclick="toggleV2Theme()">🌓</button>
-        <button class="g-circle-btn" onclick="openSettings()">⚙️</button>
-      </div>
-    </div>
-
-    <!-- ТАБ 1: ГЛАВНАЯ -->
-    <div id="v2-tab-home" class="g-view active">
-      <div class="g-hero-card">
-        <div class="g-stage-badge">
-          <span class="g-live-dot"></span>
-          <span>До квалификации</span>
-        </div>
-
-        <div class="g-timer-row">
-          <div class="g-t-col"><span class="g-t-val" id="g-td">01</span><span class="g-t-lbl">день</span></div>
-          <div class="g-t-col"><span class="g-t-val" id="g-th">18</span><span class="g-t-lbl">часов</span></div>
-          <div class="g-t-col"><span class="g-t-val" id="g-tm">49</span><span class="g-t-lbl">мин</span></div>
-          <div class="g-t-col"><span class="g-t-val" id="g-ts">15</span><span class="g-t-lbl">сек</span></div>
-        </div>
-
-        <div class="g-track-viewport">
-          <svg class="g-track-svg" viewBox="0 0 500 250">
-            <path id="gTrackPath" class="g-track-road" d="M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z" />
-            <path class="g-track-line" d="M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z" />
-            <circle id="gCarPoint" class="g-car-dot" r="6" cx="80" cy="180" />
-          </svg>
-        </div>
-
-        <h2 style="margin:0 0 4px 0; font-size:22px; font-weight:900;">Гран-при Бахрейна</h2>
-        <div style="font-size:13px; color:var(--g-muted);">Этап 16 • Сахир • 5,412 км</div>
-
-        <div class="g-timeline-grid">
-          <div class="g-chip"><div class="g-chip-name">ПТ • П1</div><div class="g-chip-time">14:30</div></div>
-          <div class="g-chip"><div class="g-chip-name">ПТ • П2</div><div class="g-chip-time">18:00</div></div>
-          <div class="g-chip active"><div class="g-chip-name">СБ • КВАЛА</div><div class="g-chip-time">19:00</div></div>
-          <div class="g-chip"><div class="g-chip-name">ВС • ГОНКА</div><div class="g-chip-time">18:00</div></div>
-        </div>
+  <!-- ================= 1. ЭКРАН: ГЛАВНАЯ (СЕПАНГ, МАЛАЙЗИЯ) ================= -->
+  <div id="view-home" class="view-screen active">
+    <div class="hero-card">
+      <div class="hero-stage-badge">
+        <span class="live-dot"></span>
+        <span>🔴 До третьей практики</span>
       </div>
 
-      <div class="g-elev-card">
-        <div class="g-elev-header">
-          <span>Профиль высот по ходу круга</span>
-          <span style="color:var(--g-accent);">38 м сейчас</span>
-        </div>
-        <div class="g-elev-stats">
-          <div class="g-el-box"><h4>26 м</h4><span>перепад</span></div>
-          <div class="g-el-box"><h4>48 м</h4><span>набор за круг</span></div>
-          <div class="g-el-box"><h4>25...51</h4><span>м над морем</span></div>
-        </div>
-        <div class="g-elev-chart">
-          <div class="g-bar" style="height:35%;"></div>
-          <div class="g-bar" style="height:45%;"></div>
-          <div class="g-bar" style="height:70%;"></div>
-          <div class="g-bar" style="height:90%;"></div>
-          <div class="g-bar" style="height:60%;"></div>
-          <div class="g-bar" style="height:40%;"></div>
-          <div class="g-bar" style="height:55%;"></div>
-          <div class="g-bar" style="height:80%;"></div>
-          <div class="g-bar" style="height:65%;"></div>
-          <div class="g-bar" style="height:40%;"></div>
-        </div>
+      <div class="timer-grid">
+        <div class="t-col"><span class="t-val" id="t-d">00</span><span class="t-lbl">дней</span></div>
+        <div class="t-col"><span class="t-val" id="t-h">19</span><span class="t-lbl">часов</span></div>
+        <div class="t-col"><span class="t-val" id="t-m">26</span><span class="t-lbl">мин</span></div>
+        <div class="t-col"><span class="t-val" id="t-s">40</span><span class="t-lbl">сек</span></div>
+      </div>
+
+      <!-- ВЕКТОР ТРАССЫ СЕПАНГ -->
+      <div class="track-viewport">
+        <svg class="track-svg" viewBox="0 0 500 250">
+          <path id="trackPath" class="track-road" d="M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z" />
+          <path class="track-racing-line" d="M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z" />
+          <circle id="carPoint" class="track-car-dot" r="6" cx="80" cy="180" />
+        </svg>
+      </div>
+
+      <h2 class="gp-title">Гран-при Бахрейна, Малайзия</h2>
+      <div class="gp-sub">Этап 16 • Сепанг • 5,543 км</div>
+
+      <!-- СЕТКА УИКЕНДА: П1 и П2 завершены, П3 следующая -->
+      <div class="sessions-grid">
+        <div class="sess-chip past"><div class="sess-name">ПТ • П1</div><div class="sess-time">✓ Завершено</div></div>
+        <div class="sess-chip past"><div class="sess-name">ПТ • П2</div><div class="sess-time">✓ Завершено</div></div>
+        <div class="sess-chip active"><div class="sess-name">СБ • П3</div><div class="sess-time">13:30</div></div>
+        <div class="sess-chip"><div class="sess-name">СБ • КВАЛА</div><div class="sess-time">17:00</div></div>
+        <div class="sess-chip"><div class="sess-name">ВС • ГОНКА</div><div class="sess-time">16:00</div></div>
       </div>
     </div>
 
-    <!-- ТАБ 2: СЕЗОН -->
-    <div id="v2-tab-season" class="g-view">
-      <div class="g-sub-nav">
-        <button class="g-sub-btn active" onclick="switchV2SubSeason('standings', this)">Пилоты</button>
-        <button class="g-sub-btn" onclick="switchV2SubSeason('calendar', this)">Календарь</button>
-        <button class="g-sub-btn" onclick="switchV2SubSeason('teams', this)">Кубок конструкторов</button>
+    <!-- РЕЛЬЕФ ВЫСОТ -->
+    <div class="elev-card">
+      <div class="elev-head">
+        <span>Профиль высот по ходу круга</span>
+        <span style="color:var(--accent);">26 м сейчас</span>
       </div>
-
-      <div id="v2-sub-standings">
-        <div class="g-leader-card">
-          <div class="g-leader-bg-num">01</div>
-          <div class="g-leader-badge">Лидер сезона 2026</div>
-          <h3 class="g-leader-name">Kimi Antonelli</h3>
-          <div class="g-leader-team">Mercedes-AMG Petronas F1 Team</div>
-          <div class="g-leader-pts-row">
-            <span class="g-leader-pts">302</span>
-            <span class="g-leader-wins">8 побед • +66 к P2</span>
-          </div>
-        </div>
-
-        <div class="g-stand-item"><div class="g-stand-pos top">02</div><div class="g-stand-details"><div class="g-stand-name">George Russell</div><div class="g-stand-team">Mercedes-AMG</div></div><div class="g-stand-pts">236</div></div>
-        <div class="g-stand-item"><div class="g-stand-pos top">03</div><div class="g-stand-details"><div class="g-stand-name">Lewis Hamilton</div><div class="g-stand-team">Ferrari</div></div><div class="g-stand-pts">199</div></div>
-        <div class="g-stand-item"><div class="g-stand-pos">04</div><div class="g-stand-details"><div class="g-stand-name">Lando Norris</div><div class="g-stand-team">McLaren</div></div><div class="g-stand-pts">186</div></div>
-        <div class="g-stand-item"><div class="g-stand-pos">05</div><div class="g-stand-details"><div class="g-stand-name">Charles Leclerc</div><div class="g-stand-team">Ferrari</div></div><div class="g-stand-pts">174</div></div>
+      <div class="elev-stats">
+        <div class="el-box"><h4>21 м</h4><span>перепад</span></div>
+        <div class="el-box"><h4>42 м</h4><span>набор за круг</span></div>
+        <div class="el-box"><h4>18...39</h4><span>м над морем</span></div>
       </div>
-
-      <div id="v2-sub-calendar" style="display: none;">
-        <div class="g-stand-item" style="border:2px solid var(--g-accent);"><div class="g-stand-pos top">16</div><div class="g-stand-details"><div class="g-stand-name">Гран-при Бахрейна</div><div class="g-stand-team">2-4 октября • Сахир</div></div><span class="badge">СЛЕДУЮЩИЙ</span></div>
-        <div class="g-stand-item"><div class="g-stand-pos">17</div><div class="g-stand-details"><div class="g-stand-name">Сингапур</div><div class="g-stand-team">11 октября • Марина Бей</div></div><span class="badge" style="background:#fff3cd; color:#856404;">СПРИНТ</span></div>
-        <div class="g-stand-item"><div class="g-stand-pos">18</div><div class="g-stand-details"><div class="g-stand-name">США</div><div class="g-stand-team">25 октября • Остин</div></div><span style="font-size:12px; color:var(--g-muted);">25 окт</span></div>
+      <div class="elev-chart">
+        <div class="el-bar" style="height:35%;"></div>
+        <div class="el-bar" style="height:50%;"></div>
+        <div class="el-bar" style="height:75%;"></div>
+        <div class="el-bar" style="height:90%;"></div>
+        <div class="el-bar" style="height:60%;"></div>
+        <div class="el-bar" style="height:45%;"></div>
+        <div class="el-bar" style="height:55%;"></div>
+        <div class="el-bar" style="height:80%;"></div>
+        <div class="el-bar" style="height:65%;"></div>
+        <div class="el-bar" style="height:40%;"></div>
       </div>
-
-      <div id="v2-sub-teams" style="display: none;">
-        <div class="g-stand-item"><div class="g-stand-pos top">01</div><div class="g-stand-details"><div class="g-stand-name">Mercedes-AMG</div><div class="g-stand-team">Russell / Antonelli</div></div><div class="g-stand-pts">538</div></div>
-        <div class="g-stand-item"><div class="g-stand-pos top">02</div><div class="g-stand-details"><div class="g-stand-name">Ferrari</div><div class="g-stand-team">Hamilton / Leclerc</div></div><div class="g-stand-pts">373</div></div>
-        <div class="g-stand-item"><div class="g-stand-pos top">03</div><div class="g-stand-details"><div class="g-stand-name">McLaren</div><div class="g-stand-team">Norris / Piastri</div></div><div class="g-stand-pts">347</div></div>
-      </div>
-    </div>
-
-    <!-- ТАБ 3: ИГРЫ -->
-    <div id="v2-tab-games" class="g-view">
-      <div class="g-game-card">
-        <h3 style="margin:0 0 6px 0;">⚡️ Тест реакции: Стартовые огни</h3>
-        <div style="font-size:12px; color:var(--g-muted);">Жди, пока загорятся все 5 огней и погаснут. Как погаснут — моментально жми!</div>
-        
-        <div class="g-lights-row">
-          <div class="g-light" id="gl1"></div>
-          <div class="g-light" id="gl2"></div>
-          <div class="g-light" id="gl3"></div>
-          <div class="g-light" id="gl4"></div>
-          <div class="g-light" id="gl5"></div>
-        </div>
-
-        <div class="g-reaction-tap" id="gTapArea" onclick="handleReactionTap()">
-          НАЖМИ ДЛЯ СТАРТА
-        </div>
-        <div class="g-reaction-res" id="gReactionRes"></div>
-      </div>
-    </div>
-
-    <!-- ТАБ 4: АРХИВ ВИДЕО -->
-    <div id="v2-tab-archive" class="g-view">
-      <input type="text" class="search-box" style="margin-bottom:12px; background:var(--g-card); border-color:var(--g-border); color:var(--g-text);" placeholder="🔍 Поиск видео в архиве..." oninput="handleSearch(this.value)">
-      <div id="v2-categories-list"></div>
-    </div>
-
-    <!-- ТАБ 5: НОВОСТИ КАНАЛА -->
-    <div id="v2-tab-news" class="g-view">
-      <div id="v2-news-list"><div style="text-align:center; padding:30px; color:var(--g-muted);">Загрузка ленты @raceweekendf1...</div></div>
-    </div>
-
-    <div class="g-bottom-nav">
-      <div class="g-nav-btn active" onclick="switchV2Tab('home', this)"><span class="g-nav-icon">🏠</span><span>Главная</span></div>
-      <div class="g-nav-btn" onclick="switchV2Tab('season', this)"><span class="g-nav-icon">🏁</span><span>Сезон</span></div>
-      <div class="g-nav-btn" onclick="switchV2Tab('games', this)"><span class="g-nav-icon">🎮</span><span>Игры</span></div>
-      <div class="g-nav-btn" onclick="switchV2Tab('archive', this)"><span class="g-nav-icon">🎬</span><span>Архив</span></div>
-      <div class="g-nav-btn" onclick="switchV2Tab('news', this)"><span class="g-nav-icon">📢</span><span>Новости</span></div>
     </div>
   </div>
 
-  <!-- ================= ОБЩИЕ ЭКРАНЫ КАТАЛОГА ================= -->
-  <div id="screen-titles" class="view">
-    <button class="back-btn" onclick="backFromTitles()">← Назад к каталогу</button>
-    <div id="titles-list"></div>
+  <!-- ================= 2. ЭКРАН: АРХИВ ВИДЕО (КАТАЛОГ D1) ================= -->
+  <div id="view-archive" class="view-screen">
+    <input type="text" class="search-input" id="archiveSearchInput" placeholder="🔍 Поиск заездов, квалификаций, сериалов..." oninput="handleSearch(this.value)">
+
+    <div id="archiveDefaultList">
+      <div id="catalogCategoriesContainer">
+        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация архива...</div>
+      </div>
+    </div>
+    <div id="archiveSearchResults" style="display: none;"></div>
   </div>
 
-  <div id="screen-details" class="view">
-    <button class="back-btn" onclick="showScreen('titles')">← Назад к заездам</button>
-    <div id="details-header"></div>
-    <div id="details-btns"></div>
-  </div>
+  <!-- ================= 3. ЭКРАН: СЕЗОН (ПИЛОТЫ, КАЛЕНДАРЬ, КОНСТРУКТОРЫ) ================= -->
+  <div id="view-season" class="view-screen">
+    <div class="sub-tabs-bar">
+      <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)">Пилоты</button>
+      <button class="sub-tab-btn" onclick="switchSeasonSubTab('calendar', this)">Календарь</button>
+      <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)">Кубок конструкторов</button>
+    </div>
 
-  <!-- ЭКРАН АДМИН-ПАНЕЛИ -->
-  <div id="screen-admin" class="view">
-    <button class="back-btn" onclick="backFromAdmin()">← Закрыть админку</button>
-    <div class="bot-card">
-      <h3 style="margin-top:0; color:var(--accent);">➕ Добавить запись в базу D1</h3>
-      <input class="search-box" style="margin-bottom:8px;" id="adm-cat" placeholder="Категория (🔴Сезон 2026)">
-      <input class="search-box" style="margin-bottom:8px;" id="adm-title" placeholder="Гран-при / Событие">
-      <input class="search-box" style="margin-bottom:8px;" id="adm-img" placeholder="Ссылка на постер">
-      <textarea class="search-box" style="margin-bottom:8px;" id="adm-desc" rows="2" placeholder="Описание этапа..."></textarea>
-      <input class="search-box" style="margin-bottom:8px;" id="adm-item" placeholder="Сессия (Гонка, Квалификация)">
-      <input class="search-box" style="margin-bottom:8px;" id="adm-badge" value="1080p">
-      <input class="search-box" style="margin-bottom:8px;" id="adm-code" placeholder="Код выдачи (bahrain26_r)">
-      <input type="number" class="search-box" style="margin-bottom:8px;" id="adm-post" placeholder="ID поста на складе">
-      <button class="modal-btn" onclick="submitItemForm()">💾 Сохранить в D1</button>
+    <!-- ТАБЛИЦА ПИЛОТОВ -->
+    <div id="seasonSubStandings">
+      <div class="leader-card">
+        <div class="leader-bg-num">01</div>
+        <div class="leader-badge">Лидер сезона 2026</div>
+        <h3 class="leader-name" id="leaderNameDisplay">Kimi Antonelli</h3>
+        <div class="leader-team" id="leaderTeamDisplay">Mercedes-AMG Petronas F1 Team</div>
+        <div class="leader-pts-row">
+          <span class="leader-pts" id="leaderPointsDisplay">302</span>
+          <span class="leader-wins" id="leaderWinsDisplay">8 побед • лидер чемпионата</span>
+        </div>
+      </div>
+
+      <div id="driversStandingsList">
+        <div style="text-align:center; padding:25px 0; color:var(--text-muted); font-size:13px;">Загрузка личного зачета...</div>
+      </div>
+    </div>
+
+    <!-- КАЛЕНДАРЬ ЭТАПОВ (С АВТО-СКРОЛЛОМ И СВЕТЛЫМИ/ТЕМНЫМИ КАРТОЧКАМИ) -->
+    <div id="seasonSubCalendar" style="display: none;">
+      <div id="calendarEventsList">
+        <div style="text-align:center; padding:25px 0; color:var(--text-muted); font-size:13px;">Загрузка расписания гонок...</div>
+      </div>
+    </div>
+
+    <!-- КУБОК КОНСТРУКТОРОВ -->
+    <div id="seasonSubTeams" style="display: none;">
+      <div id="constructorsStandingsList">
+        <div style="text-align:center; padding:25px 0; color:var(--text-muted); font-size:13px;">Загрузка позиций команд...</div>
+      </div>
     </div>
   </div>
 
-  <!-- МОДАЛКА НАСТРОЕК -->
-  <div id="settings-modal" class="app-modal-overlay" onclick="if(event.target.id==='settings-modal') closeSettings()">
-    <div class="app-modal-sheet">
+  <!-- ================= 4. ЭКРАН: ИГРЫ F1 (ТРЕНАЖЕР РЕАКЦИИ) ================= -->
+  <div id="view-games" class="view-screen">
+    <div class="game-card">
+      <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">⚡️ Реакция на стартовые огни F1</h3>
+      <div style="font-size:13px; color:var(--text-muted); line-height:1.4;">
+        Загораются 5 красных огней по очереди.<br>Жди случайного момента их выключения и жми!
+      </div>
+
+      <div class="lights-row">
+        <div class="f1-light" id="f1Light1"></div>
+        <div class="f1-light" id="f1Light2"></div>
+        <div class="f1-light" id="f1Light3"></div>
+        <div class="f1-light" id="f1Light4"></div>
+        <div class="f1-light" id="f1Light5"></div>
+      </div>
+
+      <div class="reaction-tap-area" id="reactionTapBox" onclick="processReactionTap()">
+        НАЖМИ ДЛЯ СТАРТА
+      </div>
+      <div class="reaction-res" id="reactionScoreText"></div>
+    </div>
+  </div>
+
+  <!-- ================= 5. ЭКРАН: НОВОСТИ КАНАЛА ================= -->
+  <div id="view-news" class="view-screen">
+    <div id="channelNewsFeedContainer">
+      <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация с каналом @raceweekendf1...</div>
+    </div>
+  </div>
+
+  <!-- ================= ОБЩИЕ ЭКРАНЫ ДЕТАЛИЗАЦИИ КАТАЛОГА ================= -->
+  <div id="view-titles" class="view-screen">
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromTitles()">← Назад к категориям</button>
+    <div id="catalogTitlesList"></div>
+  </div>
+
+  <div id="view-details" class="view-screen">
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('titles')">← Назад к сессиям</button>
+    <div id="catalogItemHeader"></div>
+    <div id="catalogItemButtonsList"></div>
+  </div>
+
+  <!-- ================= 6. ПЕРСОНАЛЬНАЯ СТРАНИЦА АДМИНИСТРАТОРА ================= -->
+  <div id="view-admin" class="view-screen">
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromAdmin()">← Выйти из админки</button>
+
+    <!-- СТАТИСТИКА ПО ЗАПРОСУ -->
+    <div class="hero-card" style="border-color: rgba(255,59,48,0.3);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="margin:0; font-size:17px; font-weight:900;">📊 Статистика бота и архива</h3>
+        <button class="icon-circle-btn" style="width:34px; height:34px; font-size:14px;" onclick="loadAdminLiveStats()">🔄</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-bottom:14px;">
+        <div class="sess-chip"><div class="sess-name">Пользователей</div><div class="sess-time" id="statTotalUsers">—</div></div>
+        <div class="sess-chip"><div class="sess-name">Активны (24ч)</div><div class="sess-time" id="statActive24">—</div></div>
+        <div class="sess-chip"><div class="sess-name">Просмотров сегодня</div><div class="sess-time" id="statViewsToday">—</div></div>
+        <div class="sess-chip"><div class="sess-name">Выдано видео</div><div class="sess-time" id="statVideoClicks">—</div></div>
+      </div>
+    </div>
+
+    <!-- УПРАВЛЕНИЕ ВЕРСИЯМИ -->
+    <div class="hero-card">
+      <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🚀 Глобальный релиз</h3>
+      <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+        Текущая версия для всех подписчиков: <b id="adminCurVerText" style="color:var(--accent);">V1</b>
+      </div>
+      <button class="btn-action" id="adminToggleVersionBtn" onclick="toggleGlobalSystemVersion()">Выкатить v2 для всех пользователей</button>
+    </div>
+
+    <!-- УПРАВЛЕНИЕ ЗАПИСЯМИ D1 (ДОБАВЛЕНИЕ / РЕДАКТИРОВАНИЕ) -->
+    <div class="hero-card">
+      <h3 id="adminFormHeaderTitle" style="margin:0 0 12px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
+      <input type="hidden" id="adminEditRecordId" value="">
+
+      <input class="search-input" id="admFormCat" placeholder="Категория (🔴Сезон 2026)">
+      <input class="search-input" id="admFormTitle" placeholder="Событие (Гран-при Бахрейна)">
+      <input class="search-input" id="admFormImg" placeholder="Ссылка на постер (https://...)">
+      <textarea class="search-input" id="admFormDesc" rows="2" placeholder="Описание заезда..."></textarea>
+      <input class="search-input" id="admFormItem" placeholder="Сессия (Гонка, Квалификация, П1)">
+      <input class="search-input" id="admFormBadge" value="1080p">
+      <input class="search-input" id="admFormCode" placeholder="Код выдачи (bahrain26_race)">
+      <input type="number" class="search-input" id="admFormPostId" placeholder="ID поста на канале-складе">
+
+      <button class="btn-action" id="adminSubmitRecordBtn" onclick="submitCatalogRecordForm()">💾 Сохранить запись</button>
+      <button class="btn-action btn-secondary" id="adminCancelEditBtn" style="display:none; margin-top:8px;" onclick="cancelCatalogEditMode()">Отмена</button>
+    </div>
+
+    <!-- СПИСОК СУЩЕСТВУЮЩИХ ЗАПИСЕЙ С КНОПКАМИ УДАЛЕНИЯ -->
+    <div class="hero-card">
+      <h3 style="margin:0 0 12px 0; font-size:17px; font-weight:900;">🗑 Управление каталогом</h3>
+      <div id="adminCatalogRecordsManageList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- ================= НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (GRIDLAP) ================= -->
+  <!-- ПОРЯДОК: Главная, Архив, Сезон, Игры, Новости -->
+  <div class="bottom-nav">
+    <div class="nav-btn active" onclick="switchMainTab('home', this)">
+      <span class="nav-icon">🏠</span>
+      <span>Главная</span>
+    </div>
+    <div class="nav-btn" onclick="switchMainTab('archive', this)">
+      <span class="nav-icon">🎬</span>
+      <span>Архив</span>
+    </div>
+    <div class="nav-btn" onclick="switchMainTab('season', this)">
+      <span class="nav-icon">🏁</span>
+      <span>Сезон</span>
+    </div>
+    <div class="nav-btn" onclick="switchMainTab('games', this)">
+      <span class="nav-icon">🎮</span>
+      <span>Игры</span>
+    </div>
+    <div class="nav-btn" onclick="switchMainTab('news', this)">
+      <span class="nav-icon">📢</span>
+      <span>Новости</span>
+    </div>
+  </div>
+
+  <!-- ================= МОДАЛЬНОЕ ОКНО НАСТРОЕК ================= -->
+  <div id="appSettingsModal" class="modal-overlay" onclick="if(event.target.id==='appSettingsModal') toggleAppSettingsModal(false)">
+    <div class="modal-sheet">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h3 style="margin:0;">⚙️ Настройки</h3>
-        <button style="background:none; border:none; color:#8e95a5; font-size:20px; cursor:pointer;" onclick="closeSettings()">✕</button>
+        <h3 style="margin:0; font-size:18px; font-weight:900;">⚙️ Настройки</h3>
+        <button style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer;" onclick="toggleAppSettingsModal(false)">✕</button>
       </div>
 
-      <div class="modal-row" id="beta-tester-row" style="display:none; background:rgba(225,6,0,0.1); padding:10px; border-radius:12px; border:1px solid var(--accent); margin-bottom:10px;">
+      <!-- ЗАКРЫТЫЙ БЕТА-ТУМБЛЕР (ТОЛЬКО ДЛЯ АДМИНА И ТЕСТЕРА) -->
+      <div class="setting-item" id="betaTesterSettingRow" style="display:none; background:var(--accent-soft); padding:12px; border-radius:14px; border:1px solid var(--accent); margin-bottom:10px;">
         <div>
-          <div class="modal-label" style="color:#ff6b6b;">🧪 Режим бета-теста (v2)</div>
-          <div class="modal-sub">Включение нового дизайна Gridlap</div>
+          <div class="set-lbl" style="color:var(--accent);">🧪 Режим бета-теста (v2)</div>
+          <div class="set-sub">Новый Gridlap дизайн, таймеры и интерактив</div>
         </div>
-        <label class="switch">
-          <input type="checkbox" id="user-set-beta" onchange="toggleBetaMode(this.checked)">
-          <span class="slider"></span>
+        <label class="switch-toggle">
+          <input type="checkbox" id="userSettingBetaToggle" onchange="handleBetaModeToggle(this.checked)">
+          <span class="switch-slider"></span>
         </label>
       </div>
 
-      <div class="modal-row">
+      <!-- УПРОЩЕННЫЙ РЕЖИМ ДЛЯ СЛАБЫХ УСТРОЙСТВ -->
+      <div class="setting-item">
         <div>
-          <div class="modal-label">🔔 Уведомления о видео</div>
-          <div class="modal-sub">Присылать заезды при публикации</div>
+          <div class="set-lbl">⚡️ Упрощенный режим (Lite)</div>
+          <div class="set-sub">Отключение анимаций для слабых телефонов</div>
         </div>
-        <label class="switch">
-          <input type="checkbox" id="user-set-video" checked>
-          <span class="slider"></span>
+        <label class="switch-toggle">
+          <input type="checkbox" id="userSettingLiteToggle" onchange="handleLiteModeToggle(this.checked)">
+          <span class="switch-slider"></span>
         </label>
       </div>
 
-      <div class="modal-row">
+      <!-- УВЕДОМЛЕНИЯ О ВИДЕО -->
+      <div class="setting-item">
         <div>
-          <div class="modal-label">📢 Новости и анонсы</div>
-          <div class="modal-sub">Расписание и важные события</div>
+          <div class="set-lbl">🔔 Уведомления о видео</div>
+          <div class="set-sub">Присылать заезды при публикации</div>
         </div>
-        <label class="switch">
-          <input type="checkbox" id="user-set-news" checked>
-          <span class="slider"></span>
+        <label class="switch-toggle">
+          <input type="checkbox" id="userSettingVideoNotify" checked onchange="saveUserSettingsToServer()">
+          <span class="switch-slider"></span>
         </label>
       </div>
 
-      <div id="admin-modal-btn-wrap" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">
-        <button class="modal-btn" style="background:#252a36;" onclick="closeSettings(); openAdminScreen();">⚙️ Открыть панель администратора</button>
+      <!-- НОВОСТИ И АНОНСЫ -->
+      <div class="setting-item">
+        <div>
+          <div class="set-lbl">📢 Новости и анонсы</div>
+          <div class="set-sub">Расписание и важные события канала</div>
+        </div>
+        <label class="switch-toggle">
+          <input type="checkbox" id="userSettingNewsNotify" checked onchange="saveUserSettingsToServer()">
+          <span class="switch-slider"></span>
+        </label>
       </div>
 
-      <button class="modal-btn" style="background:#222733; margin-top:16px;" onclick="localStorage.clear(); location.reload();">🧹 Очистить локальный кэш</button>
+      <!-- ТИХИЙ РЕЖИМ -->
+      <div class="setting-item">
+        <div>
+          <div class="set-lbl">🔕 Тихий режим</div>
+          <div class="set-sub">Присылать сообщения без звука</div>
+        </div>
+        <label class="switch-toggle">
+          <input type="checkbox" id="userSettingSilentNotify" onchange="saveUserSettingsToServer()">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <!-- КРАСИВАЯ КНОПКА АДМИН-ПАНЕЛИ (ТОЛЬКО ДЛЯ АДМИНИСТРАТОРА) -->
+      <div id="adminDirectEntryBlock" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+        <button class="btn-action" style="background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent);" onclick="toggleAppSettingsModal(false); openAdminDashboardScreen();">
+          ⚙️ Открыть панель администратора
+        </button>
+      </div>
+
+      <button class="btn-action btn-secondary" onclick="localStorage.clear(); location.reload();">
+        🧹 Очистить локальный кэш
+      </button>
     </div>
   </div>
 
-<script>
-    // =========================================================================
-    // ЧАСТЬ 2: ЛОГИКА АВТОРИЗАЦИИ, КАТАЛОГА D1 И СИСТЕМЫ GRIDLAP
-    // =========================================================================
+  <script>
+    /* ==========================================================================
+       ЧАСТЬ 3: ИНТЕРАКТИВ, ВЕКТОРНЫЕ ТРАССЫ, ТАЙМЕР И ИГРЫ
+       ========================================================================== */
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.ready();
@@ -790,419 +833,869 @@
     const ADMIN_ID = "301211351";
     const TESTER_ID = "8061233590";
 
-    // НАДЕЖНОЕ ИЗВЛЕЧЕНИЕ ID (прямой разбор + initDataUnsafe + fallback из localStorage)
-    function extractTelegramUserId() {
+    // 1. ОПРЕДЕЛЕНИЕ TELEGRAM USER ID И ПРАВ
+    function resolveTelegramUser() {
       let uid = "";
       if (tg?.initDataUnsafe?.user?.id) {
         uid = String(tg.initDataUnsafe.user.id);
       }
       if (!uid && tg?.initData) {
         try {
-          const params = new URLSearchParams(tg.initData);
-          const userStr = params.get('user');
-          if (userStr) {
-            const parsed = JSON.parse(decodeURIComponent(userStr));
-            if (parsed && parsed.id) uid = String(parsed.id);
+          const p = new URLSearchParams(tg.initData);
+          const uStr = p.get('user');
+          if (uStr) {
+            const parsed = JSON.parse(decodeURIComponent(uStr));
+            if (parsed?.id) uid = String(parsed.id);
           }
         } catch (e) {}
       }
-      if (uid) {
-        localStorage.setItem('f1_cached_uid', uid);
-      } else {
-        uid = localStorage.getItem('f1_cached_uid') || "";
-      }
+      if (uid) localStorage.setItem('f1_cached_uid', uid);
+      else uid = localStorage.getItem('f1_cached_uid') || "";
       return uid;
     }
 
-    const currentUserId = extractTelegramUserId();
+    const currentUserId = resolveTelegramUser();
     const isAdmin = (currentUserId === ADMIN_ID);
     const isTester = (isAdmin || currentUserId === TESTER_ID);
 
-    let dataTree = {};
-    let allItemsFlat = [];
-    let activeCategory = null;
+    // 2. БАЗА ВЕКТОРНЫХ КООРДИНАТ ДЛЯ ТРАСС КАЛЕНДАРЯ (ПО ТВОИМ СКРИНШОТАМ)
+    const CIRCUITS_SVG_DATABASE = {
+      // 16. Сепанг (Малайзия) — текущий этап
+      "sepang": "M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z",
+      // 1. Австралия (Альберт-Парк)
+      "albert_park": "M 90,190 L 140,200 Q 180,210 240,205 L 340,195 Q 420,190 440,150 L 410,100 Q 380,60 300,80 L 220,110 Q 170,120 120,80 L 90,110 Q 70,140 90,190 Z",
+      // 2. Китай (Шанхай)
+      "shanghai": "M 100,210 L 380,210 Q 420,210 400,170 L 360,120 Q 330,90 280,110 L 260,150 Q 230,170 200,100 L 180,60 Q 140,30 110,70 L 150,110 Q 130,150 90,160 Z",
+      // 3. Япония (Сузука) — восьмерка
+      "suzuka": "M 380,210 L 420,180 Q 440,140 400,100 L 340,60 Q 280,40 240,80 L 180,140 Q 120,180 80,140 L 60,90 Q 70,50 120,60 L 200,100 Q 260,160 310,170 Z",
+      // 4. Майами
+      "miami": "M 80,190 L 360,200 Q 420,200 440,150 L 420,70 Q 390,50 350,60 L 180,90 Q 130,90 100,120 L 70,150 Z",
+      // 5. Канада (Монреаль)
+      "villeneuve": "M 60,120 L 150,60 Q 260,30 380,40 L 440,70 Q 450,110 410,130 L 250,170 Q 150,200 80,190 Z",
+      // 6. Монако
+      "monaco": "M 80,190 L 150,150 Q 220,120 280,80 L 380,60 Q 430,70 420,110 L 360,130 Q 310,140 280,180 L 210,210 Q 140,230 80,190 Z",
+      // 7. Испания (Барселона)
+      "catalunya": "M 100,200 L 380,200 Q 430,190 410,140 L 360,90 Q 300,50 240,70 L 180,100 Q 120,120 80,160 Z",
+      // 8. Австрия (Шпильберг)
+      "red_bull_ring": "M 90,210 L 390,190 Q 420,180 390,140 L 300,80 Q 260,50 220,70 L 170,120 Q 110,160 90,210 Z",
+      // 9. Великобритания (Сильверстоун)
+      "silverstone": "M 90,180 L 200,190 Q 260,200 320,160 L 410,130 Q 440,90 390,60 L 280,60 Q 190,40 140,80 L 90,130 Z",
+      // 10. Бельгия (Спа-Франкоршам)
+      "spa": "M 70,190 L 130,210 Q 180,220 250,170 L 360,140 Q 430,120 410,70 L 330,50 Q 260,40 210,80 L 120,110 Q 60,140 70,190 Z",
+      // 17. Сингапур (Марина-Бей)
+      "singapore": "M 80,170 L 140,180 Q 210,190 260,160 L 360,160 Q 420,150 430,110 L 400,60 Q 350,50 300,70 L 200,90 Q 130,110 80,170 Z",
+      // 18. США (Остин, COTA)
+      "cota": "M 80,200 L 220,210 Q 300,210 380,170 L 430,110 Q 440,60 380,50 L 280,80 Q 190,100 130,70 L 70,120 Z",
+      // 19. Мексика (Мехико)
+      "rodriguez": "M 70,180 L 380,190 Q 430,190 420,140 L 360,90 Q 320,50 270,70 L 190,90 Q 120,100 70,150 Z",
+      // 20. Бразилия (Интерлагос)
+      "interlagos": "M 90,190 L 240,200 Q 330,210 390,170 L 410,110 Q 400,60 340,60 L 250,80 Q 160,110 110,80 L 70,130 Z",
+      // 21. Лас-Вегас (Стрип)
+      "vegas": "M 80,200 L 390,200 Q 430,190 420,140 L 400,80 Q 380,40 330,50 L 170,60 Q 110,70 80,110 Z",
+      // 22. Катар (Лусаил)
+      "losail": "M 90,200 L 360,200 Q 420,190 420,130 L 380,70 Q 330,40 270,60 L 180,80 Q 110,100 80,150 Z",
+      // 23. Абу-Даби (Яс-Марина)
+      "yas_marina": "M 80,190 L 370,190 Q 420,180 410,130 L 380,80 Q 340,40 290,60 L 190,80 Q 120,100 70,140 Z"
+    };
 
-    // ГАРАНТИРОВАННОЕ ВКЛЮЧЕНИЕ ЭЛЕМЕНТОВ УПРАВЛЕНИЯ
-    function applyUserPermissions() {
+    // 3. ТАЙМЕР ОБРАТНОГО ОТСЧЁТА ДО СУББОТНЕЙ ПРАКТИКИ 3
+    function startWeekendSessionTimer() {
+      // Суббота, 13:30 (МСК / UTC+3)
+      const now = new Date();
+      const targetFP3 = new Date(now);
+      const dayOfWeek = now.getDay(); // 5 - пятница
+
+      if (dayOfWeek === 5) {
+        targetFP3.setDate(now.getDate() + 1); // Суббота
+      }
+      targetFP3.setHours(13, 30, 0, 0);
+
+      function updateClock() {
+        const diff = Math.max(0, targetFP3 - new Date());
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / 1000 / 60) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        const td = document.getElementById('t-d');
+        const th = document.getElementById('t-h');
+        const tm = document.getElementById('t-m');
+        const ts = document.getElementById('t-s');
+
+        if (td) td.innerText = String(d).padStart(2, '0');
+        if (th) th.innerText = String(h).padStart(2, '0');
+        if (tm) tm.innerText = String(m).padStart(2, '0');
+        if (ts) ts.innerText = String(s).padStart(2, '0');
+      }
+
+      updateClock();
+      setInterval(updateClock, 1000);
+    }
+
+    // 4. НЕПРЕРЫВНАЯ АНИМАЦИЯ БОЛИДА ПО ТРАЕКТОРИИ ТРАССЫ
+    let trackAnimInterval = null;
+    function runCarAnimationOnTrack(circuitKey = "sepang") {
+      const pathEl = document.getElementById('trackPath');
+      const carDot = document.getElementById('carPoint');
+      if (!pathEl || !carDot) return;
+
+      const pathData = CIRCUITS_SVG_DATABASE[circuitKey] || CIRCUITS_SVG_DATABASE["sepang"];
+      pathEl.setAttribute('d', pathData);
+
+      const racingLine = document.querySelector('.track-racing-line');
+      if (racingLine) racingLine.setAttribute('d', pathData);
+
+      const pathLength = pathEl.getTotalLength();
+      let currentDistance = 0;
+
+      if (trackAnimInterval) clearInterval(trackAnimInterval);
+      trackAnimInterval = setInterval(() => {
+        if (document.body.classList.contains('lite-mode')) return;
+        currentDistance = (currentDistance + 2.5) % pathLength;
+        const coords = pathEl.getPointAtLength(currentDistance);
+        carDot.setAttribute('cx', coords.x);
+        carDot.setAttribute('cy', coords.y);
+      }, 35);
+    }
+
+    // 5. ТРЕНАЖЁР РЕАКЦИИ: СТАРТОВЫЕ ОГНИ F1
+    let reactionStatus = 'idle'; // idle | starting | ready
+    let reactionStartTime = 0;
+    let reactionTimeoutId = null;
+
+    function processReactionTap() {
+      const tapBox = document.getElementById('reactionTapBox');
+      const scoreTxt = document.getElementById('reactionScoreText');
+
+      if (reactionStatus === 'idle') {
+        scoreTxt.innerText = '';
+        tapBox.innerText = 'ВНИМАНИЕ...';
+        reactionStatus = 'starting';
+
+        let lightStep = 1;
+        const lightsInterval = setInterval(() => {
+          if (lightStep <= 5) {
+            const l = document.getElementById(`f1Light${lightStep}`);
+            if (l) l.classList.add('on');
+            lightStep++;
+          } else {
+            clearInterval(lightsInterval);
+            // Случайная задержка перед выключением огней (1.0 - 3.2 сек)
+            const randomDelay = 1000 + Math.random() * 2200;
+            reactionTimeoutId = setTimeout(() => {
+              for (let i = 1; i <= 5; i++) {
+                const l = document.getElementById(`f1Light${i}`);
+                if (l) l.classList.remove('on');
+              }
+              reactionStatus = 'ready';
+              reactionStartTime = performance.now();
+              tapBox.innerText = 'ЖМИ СЕЙЧАС!';
+            }, randomDelay);
+          }
+        }, 750);
+
+      } else if (reactionStatus === 'starting') {
+        clearTimeout(reactionTimeoutId);
+        for (let i = 1; i <= 5; i++) {
+          const l = document.getElementById(`f1Light${i}`);
+          if (l) l.classList.remove('on');
+        }
+        reactionStatus = 'idle';
+        tapBox.innerText = 'ФАЛЬСТАРТ! Нажми для повтора';
+        scoreTxt.innerText = '❌ Слишком рано';
+
+      } else if (reactionStatus === 'ready') {
+        const reactionMs = Math.round(performance.now() - reactionStartTime);
+        reactionStatus = 'idle';
+        tapBox.innerText = 'СЫГРАТЬ ЕЩЁ РАЗ';
+        scoreTxt.innerText = `⏱ ${reactionMs} мс`;
+      }
+    }
+
+    /* ==========================================================================
+       ЧАСТЬ 4: ПОЛНАЯ АВТОМАТИЗАЦИЯ F1 (ТАЙМЕР, ТРАССА, СЕССИИ), D1 И АДМИНКА
+       ========================================================================== */
+
+    let allCatalogItems = [];
+    let catalogTree = {};
+    let activeCatalogCategory = null;
+    let liveCountdownInterval = null;
+
+    // Сопоставление названий трасс и автодромов из API с нашей SVG-базой
+    const CIRCUIT_NAME_MAP = {
+      "sepang": "sepang",
+      "malaysia": "sepang",
+      "albert_park": "albert_park",
+      "melbourne": "albert_park",
+      "australia": "albert_park",
+      "shanghai": "shanghai",
+      "china": "shanghai",
+      "suzuka": "suzuka",
+      "japan": "suzuka",
+      "miami": "miami",
+      "villeneuve": "villeneuve",
+      "canada": "villeneuve",
+      "monreal": "villeneuve",
+      "monaco": "monaco",
+      "monte_carlo": "monaco",
+      "catalunya": "catalunya",
+      "barcelona": "catalunya",
+      "spain": "catalunya",
+      "red_bull_ring": "red_bull_ring",
+      "spielberg": "red_bull_ring",
+      "austria": "red_bull_ring",
+      "silverstone": "silverstone",
+      "britain": "silverstone",
+      "spa": "spa",
+      "belgium": "spa",
+      "hungaroring": "hungaroring",
+      "hungary": "hungaroring",
+      "zandvoort": "zandvoort",
+      "netherlands": "zandvoort",
+      "monza": "monza",
+      "italy": "monza",
+      "madrid": "madrid",
+      "ifema": "madrid",
+      "baku": "baku",
+      "azerbaijan": "baku",
+      "marina_bay": "singapore",
+      "singapore": "singapore",
+      "cota": "cota",
+      "americas": "cota",
+      "austin": "cota",
+      "united_states": "cota",
+      "rodriguez": "rodriguez",
+      "mexico": "rodriguez",
+      "interlagos": "interlagos",
+      "brazil": "interlagos",
+      "sao_paulo": "interlagos",
+      "vegas": "vegas",
+      "las_vegas": "vegas",
+      "losail": "losail",
+      "lusail": "losail",
+      "qatar": "losail",
+      "yas_marina": "yas_marina",
+      "abu_dhabi": "yas_marina"
+    };
+
+    function resolveCircuitKey(circuitName, raceName) {
+      const query = `${circuitName || ''} ${raceName || ''}`.toLowerCase();
+      for (const [pattern, key] of Object.entries(CIRCUIT_NAME_MAP)) {
+        if (query.includes(pattern)) return key;
+      }
+      return "sepang";
+    }
+
+    // 1. НАСТРОЙКИ И ТЕМА
+    function initThemeAndPreferences() {
+      const savedTheme = localStorage.getItem('f1_theme_mode') || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+      }
+
+      const isLite = localStorage.getItem('f1_lite_mode') === 'true';
+      if (isLite) {
+        document.body.classList.add('lite-mode');
+        const liteCheck = document.getElementById('userSettingLiteToggle');
+        if (liteCheck) liteCheck.checked = true;
+      }
+
       if (isAdmin) {
-        const v1BtnBox = document.getElementById('v1-admin-btn-box');
-        if (v1BtnBox) v1BtnBox.style.display = 'block';
-
-        const modalBtnWrap = document.getElementById('admin-modal-btn-wrap');
-        if (modalBtnWrap) modalBtnWrap.style.display = 'block';
+        const adminBtn = document.getElementById('adminDirectEntryBlock');
+        if (adminBtn) adminBtn.style.display = 'block';
       }
 
       if (isTester) {
-        const betaRow = document.getElementById('beta-tester-row');
+        const betaRow = document.getElementById('betaTesterSettingRow');
         if (betaRow) betaRow.style.display = 'flex';
+        const betaToggle = document.getElementById('userSettingBetaToggle');
+        if (betaToggle) betaToggle.checked = (localStorage.getItem('f1_beta_v2') === 'true');
       }
     }
 
-    // Тройной клик по логотипу в шапке для экстренного ручного входа
-    let logoClickCount = 0;
-    let logoTimer = null;
-    document.addEventListener('DOMContentLoaded', () => {
-      const v2Logo = document.getElementById('v2BrandLogo');
-      if (v2Logo) {
-        v2Logo.addEventListener('click', () => {
-          logoClickCount++;
-          clearTimeout(logoTimer);
-          logoTimer = setTimeout(() => { logoClickCount = 0; }, 1000);
-          if (logoClickCount >= 3) {
-            const secretId = prompt("Секретный ключ администратора (Telegram ID):");
-            if (secretId === ADMIN_ID) {
-              localStorage.setItem('f1_cached_uid', secretId);
-              alert("✅ Доступ администратора активирован!");
-              location.reload();
-            }
-          }
-        });
-      }
-    });
-
-    // ОПРЕДЕЛЕНИЕ РЕЖИМА (V1 ИЛИ V2)
-    // По умолчанию для всех подписчиков строго V1
-    const isBetaActive = (localStorage.getItem('f1_beta_v2') === 'true') && isTester;
-    if (isBetaActive) {
-      document.body.classList.add('active-v2');
-      const betaCheck = document.getElementById('user-set-beta');
-      if (betaCheck) betaCheck.checked = true;
-      initV2Systems();
+    function toggleAppTheme() {
+      const isDark = document.body.classList.toggle('dark-theme');
+      localStorage.setItem('f1_theme_mode', isDark ? 'dark' : 'light');
     }
 
-    function toggleBetaMode(enable) {
-      localStorage.setItem('f1_beta_v2', enable ? 'true' : 'false');
+    function handleLiteModeToggle(enabled) {
+      if (enabled) document.body.classList.add('lite-mode');
+      else document.body.classList.remove('lite-mode');
+      localStorage.setItem('f1_lite_mode', enabled ? 'true' : 'false');
+    }
+
+    function handleBetaModeToggle(enabled) {
+      localStorage.setItem('f1_beta_v2', enabled ? 'true' : 'false');
       location.reload();
     }
 
-    function toggleV2Theme() {
-      document.body.classList.toggle('v2-dark');
+    function openSettingsModal() {
+      document.getElementById('appSettingsModal').classList.add('active');
     }
 
-    // 1. СИНХРОНИЗАЦИЯ КАТАЛОГА ИЗ D1
-    function loadCatalog() {
-      fetch(`${WORKER_URL}/api/catalog`)
-        .then(r => r.json())
-        .then(rows => {
-          dataTree = {};
-          allItemsFlat = rows || [];
+    function toggleAppSettingsModal(show) {
+      const modal = document.getElementById('appSettingsModal');
+      if (show) modal.classList.add('active');
+      else modal.classList.remove('active');
+    }
 
-          rows.forEach(e => {
-            const cat = e.category || 'Архив';
-            const t = e.title;
-            if (!dataTree[cat]) dataTree[cat] = {};
-            if (!dataTree[cat][t]) dataTree[cat][t] = { image: e.image, description: e.description, items: [] };
-            dataTree[cat][t].items.push(e);
+    // Тройной клик по шапке для ручной авторизации админа
+    let brandClickCount = 0;
+    let brandClickTimer = null;
+    document.getElementById('topBrandLogo')?.addEventListener('click', () => {
+      brandClickCount++;
+      clearTimeout(brandClickTimer);
+      brandClickTimer = setTimeout(() => { brandClickCount = 0; }, 1000);
+      if (brandClickCount >= 3) {
+        const enteredId = prompt("Введите Telegram ID администратора:");
+        if (enteredId === ADMIN_ID) {
+          localStorage.setItem('f1_cached_uid', enteredId);
+          alert("✅ Доступ администратора активирован!");
+          location.reload();
+        }
+      }
+    });
+
+    // 2. НАВИГАЦИЯ ПО ТАБАМ
+    function switchMainTab(tabName, btnEl) {
+      if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+
+      document.querySelectorAll('.view-screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById('view-' + tabName);
+      if (target) target.classList.add('active');
+      window.scrollTo(0, 0);
+
+      if (tabName === 'season') {
+        setTimeout(scrollToCurrentCalendarStage, 250);
+      }
+    }
+
+    function openViewScreen(screenName) {
+      document.querySelectorAll('.view-screen').forEach(s => s.classList.remove('active'));
+      const screen = document.getElementById('view-' + screenName);
+      if (screen) screen.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function switchSeasonSubTab(subTab, btn) {
+      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.getElementById('seasonSubStandings').style.display = subTab === 'standings' ? 'block' : 'none';
+      document.getElementById('seasonSubCalendar').style.display = subTab === 'calendar' ? 'block' : 'none';
+      document.getElementById('seasonSubTeams').style.display = subTab === 'teams' ? 'block' : 'none';
+
+      if (subTab === 'calendar') {
+        setTimeout(scrollToCurrentCalendarStage, 150);
+      }
+    }
+
+    function scrollToCurrentCalendarStage() {
+      const currentCard = document.querySelector('.cal-card.current');
+      if (currentCard) {
+        currentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    // 3. АВТОМАТИЧЕСКИЙ РАСЧЕТ И ОБНОВЛЕНИЕ ГЛАВНОГО ЭКРАНА
+    function setupDynamicRaceWeekend(activeRace) {
+      if (!activeRace) return;
+
+      // 1. Обновляем текстовые данные этапа
+      const gpTitleEl = document.querySelector('.gp-title');
+      const gpSubEl = document.querySelector('.gp-sub');
+      if (gpTitleEl) gpTitleEl.innerText = activeRace.name;
+      if (gpSubEl) gpSubEl.innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
+
+      // 2. Подбираем и переключаем трассу в SVG
+      const circuitKey = resolveCircuitKey(activeRace.circuit, activeRace.name);
+      runCarAnimationOnTrack(circuitKey);
+
+      // 3. Собираем сессии уикенда с точными датами
+      const raceDate = new Date(activeRace.race);
+      const isSprintWeekend = Boolean(activeRace.sprint);
+
+      // Формируем примерное расписание сессий уикенда относительно дня гонки
+      const fp1Date = activeRace.fp1 ? new Date(activeRace.fp1) : new Date(raceDate.getTime() - 2 * 86400000 + 4 * 3600000);
+      const fp2Date = activeRace.fp2 ? new Date(activeRace.fp2) : new Date(raceDate.getTime() - 2 * 86400000 + 7 * 3600000);
+      const fp3Date = activeRace.fp3 ? new Date(activeRace.fp3) : new Date(raceDate.getTime() - 1 * 86400000 + 3.5 * 3600000);
+      const qualiDate = activeRace.quali ? new Date(activeRace.quali) : new Date(raceDate.getTime() - 1 * 86400000 + 7 * 3600000);
+
+      const sessions = isSprintWeekend ? [
+        { key: 'fp1', label: 'ПТ • П1', time: fp1Date, title: 'До первой практики' },
+        { key: 'sq', label: 'ПТ • СПРИНТ КВАЛА', time: fp2Date, title: 'До спринт-квалификации' },
+        { key: 'sprint', label: 'СБ • СПРИНТ', time: fp3Date, title: 'До спринта' },
+        { key: 'quali', label: 'СБ • КВАЛА', time: qualiDate, title: 'До квалификации' },
+        { key: 'race', label: 'ВС • ГОНКА', time: raceDate, title: 'До гонки' }
+      ] : [
+        { key: 'fp1', label: 'ПТ • П1', time: fp1Date, title: 'До первой практики' },
+        { key: 'fp2', label: 'ПТ • П2', time: fp2Date, title: 'До второй практики' },
+        { key: 'fp3', label: 'СБ • П3', time: fp3Date, title: 'До третьей практики' },
+        { key: 'quali', label: 'СБ • КВАЛА', time: qualiDate, title: 'До квалификации' },
+        { key: 'race', label: 'ВС • ГОНКА', time: raceDate, title: 'До гонки' }
+      ];
+
+      const now = new Date();
+      let nextSession = null;
+
+      // 4. Генерируем чипы сессий и определяем текущую активную цель для таймера
+      const sessionsGridEl = document.querySelector('.sessions-grid');
+      if (sessionsGridEl) {
+        sessionsGridEl.innerHTML = sessions.map(sess => {
+          const isPast = (now > new Date(sess.time.getTime() + 2 * 3600000));
+          const isTarget = (!nextSession && !isPast);
+          if (isTarget) nextSession = sess;
+
+          let chipClass = 'sess-chip';
+          let timeText = sess.time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+          if (isPast) {
+            chipClass += ' past';
+            timeText = '✓ Прошла';
+          } else if (isTarget) {
+            chipClass += ' active';
+          }
+
+          return `
+            <div class="${chipClass}">
+              <div class="sess-name">${sess.label}</div>
+              <div class="sess-time">${timeText}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      if (!nextSession) nextSession = sessions[sessions.length - 1];
+
+      // 5. Обновляем бейдж статуса над таймером
+      const badgeEl = document.querySelector('.hero-stage-badge span:last-child');
+      if (badgeEl) badgeEl.innerText = `🔴 ${nextSession.title}`;
+
+      // 6. Запускаем динамический отсчёт до целевой сессии
+      if (liveCountdownInterval) clearInterval(liveCountdownInterval);
+      const targetTime = nextSession.time.getTime();
+
+      function refreshCountdown() {
+        const diff = Math.max(0, targetTime - Date.now());
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / 1000 / 60) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        const td = document.getElementById('t-d');
+        const th = document.getElementById('t-h');
+        const tm = document.getElementById('t-m');
+        const ts = document.getElementById('t-s');
+
+        if (td) td.innerText = String(d).padStart(2, '0');
+        if (th) th.innerText = String(h).padStart(2, '0');
+        if (tm) tm.innerText = String(m).padStart(2, '0');
+        if (ts) ts.innerText = String(s).padStart(2, '0');
+      }
+
+      refreshCountdown();
+      liveCountdownInterval = setInterval(refreshCountdown, 1000);
+    }
+
+    // 4. ПОЛНАЯ АВТО-СИНХРОНИЗАЦИЯ С F1 API
+    async function fetchLiveF1SeasonData() {
+      try {
+        const response = await fetch(`${WORKER_URL}/api/season/live`);
+        const data = await response.json();
+
+        // 1. Личный зачет пилотов
+        if (data.drivers && data.drivers.length > 0) {
+          const leader = data.drivers[0];
+          document.getElementById('leaderNameDisplay').innerText = leader.name;
+          document.getElementById('leaderTeamDisplay').innerText = leader.team;
+          document.getElementById('leaderPointsDisplay').innerText = leader.points;
+          document.getElementById('leaderWinsDisplay').innerText = `${leader.wins || 0} побед • лидер чемпионата`;
+
+          const driversListEl = document.getElementById('driversStandingsList');
+          driversListEl.innerHTML = data.drivers.slice(1).map(d => `
+            <div class="stand-item">
+              <div class="stand-pos ${parseInt(d.pos) <= 3 ? 'top' : ''}">${String(d.pos).padStart(2, '0')}</div>
+              <div class="stand-details">
+                <div class="stand-name">${d.name}</div>
+                <div class="stand-team">${d.team}</div>
+              </div>
+              <div class="stand-pts">${d.points}</div>
+            </div>
+          `).join('');
+        }
+
+        // 2. Определение текущего активного этапа сезона
+        let currentActiveRace = null;
+        const now = new Date();
+
+        if (data.races && data.races.length > 0) {
+          // Ищем этап, гонка которого еще не закончилась (+3 часа после старта)
+          currentActiveRace = data.races.find(r => {
+            const raceEndTime = new Date(r.race).getTime() + (3 * 3600000);
+            return raceEndTime > now.getTime();
+          }) || data.races[0];
+
+          // Настраиваем главный экран под найденный активный этап
+          setupDynamicRaceWeekend(currentActiveRace);
+
+          // 3. Рендер календаря всех этапов сезона
+          const calEl = document.getElementById('calendarEventsList');
+          calEl.innerHTML = data.races.map((r, idx) => {
+            const roundNum = parseInt(r.round) || (idx + 1);
+            const rEnd = new Date(r.race).getTime() + (3 * 3600000);
+            const isCurrent = (r.round === currentActiveRace.round);
+            const isPast = (now.getTime() > rEnd && !isCurrent);
+
+            let statusBadge = '';
+            let cardClass = 'cal-card';
+
+            if (isCurrent) {
+              cardClass += ' current';
+              statusBadge = '<span class="badge">ТЕКУЩИЙ ЭТАП</span>';
+            } else if (isPast) {
+              cardClass += ' past';
+              statusBadge = '<span style="font-size:11px; font-weight:800; color:var(--text-muted);">ЗАВЕРШЕН</span>';
+            } else {
+              statusBadge = `<span style="font-size:12px; color:var(--text-muted);">${r.date.slice(5)}</span>`;
+            }
+
+            return `
+              <div class="${cardClass}" id="cal-round-${roundNum}">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <div class="cal-round">${String(roundNum).padStart(2, '0')}</div>
+                  <div class="cal-info">
+                    <h4>${r.name}</h4>
+                    <span>${r.circuit}</span>
+                  </div>
+                </div>
+                ${statusBadge}
+              </div>
+            `;
+          }).join('');
+        }
+
+        // 4. Кубок конструкторов (авто-расчет очков команд)
+        if (data.drivers && data.drivers.length > 0) {
+          const teamsMap = {};
+          data.drivers.forEach(d => {
+            const team = d.team || 'Other';
+            teamsMap[team] = (teamsMap[team] || 0) + parseFloat(d.points || 0);
           });
 
-          const buildButtonsHtml = () => {
-            let html = '';
-            for (const c in dataTree) {
-              html += `
-                <div class="menu-btn" onclick="openCategory('${c}')">
-                  <div class="menu-btn-content"><span>${c}</span></div>
-                  <span style="opacity:0.4;">›</span>
-                </div>
-              `;
-            }
-            return html;
-          };
+          const sortedTeams = Object.keys(teamsMap)
+            .map(t => ({ team: t, points: teamsMap[t] }))
+            .sort((a, b) => b.points - a.points);
 
-          const v1CatList = document.getElementById('v1-categories-list');
-          if (v1CatList) v1CatList.innerHTML = buildButtonsHtml();
+          const teamsListEl = document.getElementById('constructorsStandingsList');
+          teamsListEl.innerHTML = sortedTeams.map((t, idx) => `
+            <div class="stand-item">
+              <div class="stand-pos ${idx < 3 ? 'top' : ''}">${String(idx + 1).padStart(2, '0')}</div>
+              <div class="stand-details">
+                <div class="stand-name">${t.team}</div>
+              </div>
+              <div class="stand-pts">${Math.round(t.points)}</div>
+            </div>
+          `).join('');
+        }
 
-          const v2CatList = document.getElementById('v2-categories-list');
-          if (v2CatList) v2CatList.innerHTML = buildButtonsHtml();
-        })
-        .catch(() => {
-          const v1CatList = document.getElementById('v1-categories-list');
-          if (v1CatList) v1CatList.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">Ошибка синхронизации базы D1.</div>';
-        });
+      } catch (err) {
+        console.warn("Ошибка подгрузки F1 данных, fallback...", err);
+      }
     }
 
-    function openCategory(cat) {
-      activeCategory = cat;
-      const c = document.getElementById('titles-list');
-      c.innerHTML = '';
-      for (const t in dataTree[cat]) {
-        const item = dataTree[cat][t];
-        const img = item.image ? `<img class="menu-btn-thumb" src="${item.image}">` : '';
+    // 5. КАТАЛОГ ВИДЕОАРХИВА (D1)
+    async function loadCatalogDatabase() {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/catalog`);
+        const rows = await res.json();
+        allCatalogItems = rows || [];
+        catalogTree = {};
+
+        rows.forEach(item => {
+          const cat = item.category || 'Архив';
+          const title = item.title;
+          if (!catalogTree[cat]) catalogTree[cat] = {};
+          if (!catalogTree[cat][title]) catalogTree[cat][title] = { image: item.image, description: item.description, items: [] };
+          catalogTree[cat][title].items.push(item);
+        });
+
+        let html = '';
+        for (const catName in catalogTree) {
+          html += `
+            <div class="menu-btn" onclick="openCatalogCategory('${catName}')">
+              <div class="menu-btn-content"><span>${catName}</span></div>
+              <span style="opacity:0.4;">›</span>
+            </div>
+          `;
+        }
+        document.getElementById('catalogCategoriesContainer').innerHTML = html;
+
+        if (isAdmin) renderAdminCatalogList();
+      } catch (e) {
+        document.getElementById('catalogCategoriesContainer').innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Ошибка синхронизации D1.</div>';
+      }
+    }
+
+    function openCatalogCategory(categoryName) {
+      activeCatalogCategory = categoryName;
+      const listEl = document.getElementById('catalogTitlesList');
+      listEl.innerHTML = '';
+
+      for (const titleKey in catalogTree[categoryName]) {
+        const itemObj = catalogTree[categoryName][titleKey];
+        const thumb = itemObj.image ? `<img class="menu-btn-thumb" src="${itemObj.image}">` : '';
         const btn = document.createElement('div');
         btn.className = 'menu-btn';
-        btn.innerHTML = `<div class="menu-btn-content">${img}<span>${t}</span></div><span>›</span>`;
-        btn.onclick = () => openDetails(t);
-        c.appendChild(btn);
+        btn.innerHTML = `<div class="menu-btn-content">${thumb}<span>${titleKey}</span></div><span>›</span>`;
+        btn.onclick = () => openCatalogDetails(titleKey);
+        listEl.appendChild(btn);
       }
-      showScreen('titles');
+      openViewScreen('titles');
     }
 
-    function openDetails(titleKey) {
-      const data = dataTree[activeCategory][titleKey];
-      const header = document.getElementById('details-header');
-      const btns = document.getElementById('details-btns');
+    function openCatalogDetails(titleKey) {
+      const data = catalogTree[activeCatalogCategory][titleKey];
+      const header = document.getElementById('catalogItemHeader');
+      const btnsBox = document.getElementById('catalogItemButtonsList');
 
       header.innerHTML = `
-        ${data.image ? `<img src="${data.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; margin-bottom:12px;">` : ''}
-        <h2 style="margin:0 0 8px 0;">${titleKey}</h2>
-        ${data.description ? `<div style="color:var(--text-muted); font-size:14px; margin-bottom:14px;">${data.description}</div>` : ''}
+        ${data.image ? `<img src="${data.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:18px; margin-bottom:12px;">` : ''}
+        <h2 style="margin:0 0 6px 0; font-size:22px; font-weight:900;">${titleKey}</h2>
+        ${data.description ? `<div style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">${data.description}</div>` : ''}
       `;
 
-      btns.innerHTML = '';
+      btnsBox.innerHTML = '';
       data.items.forEach(it => {
-        const btn = document.createElement('div');
-        btn.className = 'menu-btn';
-        btn.innerHTML = `<span>${it.item}</span><span class="badge">${it.badge || 'HD'}</span>`;
-        btn.onclick = () => {
+        const b = document.createElement('div');
+        b.className = 'menu-btn';
+        b.innerHTML = `<span>${it.item}</span><span class="badge">${it.badge || '1080p'}</span>`;
+        b.onclick = () => {
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
           tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${it.code}`);
           tg?.close();
         };
-        btns.appendChild(btn);
+        btnsBox.appendChild(b);
       });
-      showScreen('details');
+      openViewScreen('details');
     }
 
-    function showScreen(name) {
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      const el = document.getElementById('screen-' + name);
-      if (el) el.classList.add('active');
-      window.scrollTo(0, 0);
+    function navigateBackFromTitles() {
+      openViewScreen('archive');
     }
 
-    function backFromTitles() {
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      if (document.body.classList.contains('active-v2')) {
-        switchV2Tab('archive', document.querySelectorAll('.g-nav-btn')[3]);
-      } else {
-        document.getElementById('v1-home').classList.add('active');
-      }
-    }
-
-    function backFromAdmin() {
-      backFromTitles();
-    }
-
-    function handleSearch(q) {
-      const query = q.trim().toLowerCase();
-      const def = document.getElementById('v1-default-body');
-      const res = document.getElementById('v1-search-results');
+    function handleSearch(queryText) {
+      const query = queryText.trim().toLowerCase();
+      const def = document.getElementById('archiveDefaultList');
+      const res = document.getElementById('archiveSearchResults');
       if (!query) {
-        if (def) def.style.display = 'block';
-        if (res) res.style.display = 'none';
+        def.style.display = 'block';
+        res.style.display = 'none';
         return;
       }
-      if (def) def.style.display = 'none';
-      if (res) {
-        res.style.display = 'block';
-        res.innerHTML = '';
-      }
+      def.style.display = 'none';
+      res.style.display = 'block';
+      res.innerHTML = '';
 
-      const matched = allItemsFlat.filter(e => e.title.toLowerCase().includes(query) || e.item.toLowerCase().includes(query));
+      const matched = allCatalogItems.filter(e => e.title.toLowerCase().includes(query) || e.item.toLowerCase().includes(query));
       if (!matched.length) {
-        if (res) res.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">Ничего не найдено 🏎</div>';
+        res.innerHTML = '<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Ничего не найдено 🏎</div>';
         return;
       }
 
       matched.forEach(e => {
         const b = document.createElement('div');
         b.className = 'menu-btn';
-        b.innerHTML = `<span>${e.title} — ${e.item}</span><span class="badge">${e.badge || 'HD'}</span>`;
+        b.innerHTML = `<span>${e.title} — ${e.item}</span><span class="badge">${e.badge || '1080p'}</span>`;
         b.onclick = () => {
           tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${e.code}`);
           tg?.close();
         };
-        if (res) res.appendChild(b);
+        res.appendChild(b);
       });
     }
 
-    // 2. СИСТЕМЫ И ИНТЕРАКТИВ GRIDLAP (V2)
-    function initV2Systems() {
-      // Динамический таймер
-      const target = new Date();
-      target.setDate(target.getDate() + 1);
-      target.setHours(19, 0, 0, 0);
-
-      setInterval(() => {
-        const diff = Math.max(0, target - new Date());
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const m = Math.floor((diff / 1000 / 60) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-
-        const td = document.getElementById('g-td');
-        const th = document.getElementById('g-th');
-        const tm = document.getElementById('g-tm');
-        const ts = document.getElementById('g-ts');
-
-        if (td) td.innerText = String(d).padStart(2, '0');
-        if (th) th.innerText = String(h).padStart(2, '0');
-        if (tm) tm.innerText = String(m).padStart(2, '0');
-        if (ts) ts.innerText = String(s).padStart(2, '0');
-      }, 1000);
-
-      // Анимация болида на трассе
-      const path = document.getElementById('gTrackPath');
-      const car = document.getElementById('gCarPoint');
-      if (path && car) {
-        let prog = 0;
-        const len = path.getTotalLength();
-        setInterval(() => {
-          prog = (prog + 2) % len;
-          const pt = path.getPointAtLength(prog);
-          car.setAttribute('cx', pt.x);
-          car.setAttribute('cy', pt.y);
-        }, 35);
-      }
-
-      loadV2News();
-    }
-
-    function switchV2Tab(tab, el) {
-      if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-      document.querySelectorAll('.g-nav-btn').forEach(i => i.classList.remove('active'));
-      el.classList.add('active');
-
-      document.getElementById('v2-tab-home').classList.remove('active');
-      document.getElementById('v2-tab-season').classList.remove('active');
-      document.getElementById('v2-tab-games').classList.remove('active');
-      document.getElementById('v2-tab-archive').classList.remove('active');
-      document.getElementById('v2-tab-news').classList.remove('active');
-
-      document.getElementById('v2-tab-' + tab).classList.add('active');
-      window.scrollTo(0, 0);
-    }
-
-    function switchV2SubSeason(sub, el) {
-      document.querySelectorAll('.g-sub-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-      document.getElementById('v2-sub-standings').style.display = sub === 'standings' ? 'block' : 'none';
-      document.getElementById('v2-sub-calendar').style.display = sub === 'calendar' ? 'block' : 'none';
-      document.getElementById('v2-sub-teams').style.display = sub === 'teams' ? 'block' : 'none';
-    }
-
-    // Тренажер стартовых огней F1
-    let reactionState = 'idle';
-    let reactionStart = 0;
-    let reactionTimer = null;
-
-    function handleReactionTap() {
-      const area = document.getElementById('gTapArea');
-      const res = document.getElementById('gReactionRes');
-
-      if (reactionState === 'idle') {
-        res.innerText = '';
-        area.innerText = 'ВНИМАНИЕ...';
-        reactionState = 'waiting';
-        let step = 1;
-        const intv = setInterval(() => {
-          if (step <= 5) {
-            const light = document.getElementById(`gl${step}`);
-            if (light) light.classList.add('on');
-            step++;
-          } else {
-            clearInterval(intv);
-            const delay = 1000 + Math.random() * 2500;
-            reactionTimer = setTimeout(() => {
-              for (let i = 1; i <= 5; i++) {
-                const light = document.getElementById(`gl${i}`);
-                if (light) light.classList.remove('on');
-              }
-              reactionState = 'ready';
-              reactionStart = performance.now();
-              area.innerText = 'ЖМИ СЕЙЧАС!';
-            }, delay);
-          }
-        }, 800);
-      } else if (reactionState === 'waiting') {
-        clearTimeout(reactionTimer);
-        for (let i = 1; i <= 5; i++) {
-          const light = document.getElementById(`gl${i}`);
-          if (light) light.classList.remove('on');
-        }
-        reactionState = 'idle';
-        area.innerText = 'ФАЛЬСТАРТ! Жми для повтора';
-        res.innerText = '❌ Слишком рано';
-      } else if (reactionState === 'ready') {
-        const ms = Math.round(performance.now() - reactionStart);
-        reactionState = 'idle';
-        area.innerText = 'СЫГРАТЬ ЕЩЁ РАЗ';
-        res.innerText = `⏱ ${ms} мс`;
-      }
-    }
-
-    // Лента новостей канала
-    async function loadV2News() {
+    // 6. ЛЕНТА НОВОСТЕЙ КАНАЛА
+    async function loadChannelNewsFeed() {
       try {
         const res = await fetch(`${WORKER_URL}/api/feed`);
         const posts = await res.json();
-        const list = document.getElementById('v2-news-list');
+        const container = document.getElementById('channelNewsFeedContainer');
         if (!posts || !posts.length) {
-          if (list) list.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">Постов пока нет</div>';
+          container.innerHTML = '<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Постов пока нет</div>';
           return;
         }
-        if (list) {
-          list.innerHTML = posts.map(p => `
-            <div style="background:var(--g-card); border-radius:18px; padding:16px; margin-bottom:12px; border:1px solid var(--g-border);">
-              ${p.image ? `<img src="${p.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; margin-bottom:8px;">` : ''}
-              <div style="font-size:11px; color:var(--g-muted); margin-bottom:4px;">📅 ${new Date(p.date * 1000).toLocaleString('ru-RU')}</div>
-              <div style="font-size:14px; line-height:1.45; color:var(--g-text);">${p.text || ''}</div>
+
+        container.innerHTML = posts.map(p => {
+          const dateStr = new Date(p.date * 1000).toLocaleString('ru-RU', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+          return `
+            <div class="hero-card" style="padding:16px; margin-bottom:14px;">
+              ${p.image ? `<img src="${p.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:14px; margin-bottom:10px;" loading="lazy">` : ''}
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-bottom:6px;">📅 ${dateStr}</div>
+              <div style="font-size:14px; line-height:1.5; white-space:pre-wrap; word-break:break-word;">${p.text || ''}</div>
             </div>
-          `).join('');
-        }
+          `;
+        }).join('');
       } catch (e) {}
     }
 
-    // 3. ОКНО НАСТРОЕК И ПАНЕЛЬ АДМИНИСТРАТОРА
-    function openSettings() {
-      applyUserPermissions();
-      document.getElementById('settings-modal').classList.add('active');
+    // 7. ПАНЕЛЬ АДМИНИСТРАТОРА
+    function openAdminDashboardScreen() {
+      openViewScreen('admin');
+      loadAdminLiveStats();
     }
 
-    function closeSettings() {
-      document.getElementById('settings-modal').classList.remove('active');
+    function navigateBackFromAdmin() {
+      openViewScreen('home');
     }
 
-    function openAdminScreen() {
-      showScreen('admin');
+    async function loadAdminLiveStats() {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/stats`, {
+          headers: { 'X-Admin-Id': ADMIN_ID }
+        });
+        const stats = await res.json();
+        document.getElementById('statTotalUsers').innerText = stats.total_users || 0;
+        document.getElementById('statActive24').innerText = stats.active_24h || 0;
+        document.getElementById('statViewsToday').innerText = stats.views_today || 0;
+        document.getElementById('statVideoClicks').innerText = stats.video_clicks || 0;
+
+        const curVer = stats.current_version || 'v1';
+        document.getElementById('adminCurVerText').innerText = curVer.toUpperCase();
+        document.getElementById('adminToggleVersionBtn').innerText = curVer === 'v2' 
+          ? 'Откатить релиз до v1 для всех' 
+          : 'Выкатить v2 для всех пользователей';
+      } catch (e) {}
     }
 
-    function submitItemForm() {
+    async function toggleGlobalSystemVersion() {
+      const cur = document.getElementById('adminCurVerText').innerText.toLowerCase();
+      const target = cur === 'v2' ? 'v1' : 'v2';
+      if (!confirm(`Вы действительно хотите переключить версию для всех пользователей на ${target.toUpperCase()}?`)) return;
+
+      const res = await fetch(`${WORKER_URL}/api/system/set_version`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+        body: JSON.stringify({ version: target })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ Глобальная версия переключена на ${target.toUpperCase()}!`);
+        loadAdminLiveStats();
+      }
+    }
+
+    function renderAdminCatalogList() {
+      const box = document.getElementById('adminCatalogRecordsManageList');
+      if (!box) return;
+      box.innerHTML = allCatalogItems.map(item => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:10px 14px; border-radius:12px; border:1px solid var(--border);">
+          <div style="font-size:13px; font-weight:700;">
+            ${item.title} — ${item.item}
+            <div style="font-size:11px; color:var(--text-muted);">Код: ${item.code} | ID: ${item.post_id}</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="editCatalogRecord(${item.id})">✏️</button>
+            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px; color:var(--accent);" onclick="deleteCatalogRecord(${item.id})">🗑</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function editCatalogRecord(id) {
+      const record = allCatalogItems.find(r => r.id === id);
+      if (!record) return;
+
+      document.getElementById('adminEditRecordId').value = record.id;
+      document.getElementById('admFormCat').value = record.category;
+      document.getElementById('admFormTitle').value = record.title;
+      document.getElementById('admFormImg').value = record.image || '';
+      document.getElementById('admFormDesc').value = record.description || '';
+      document.getElementById('admFormItem').value = record.item;
+      document.getElementById('admFormBadge').value = record.badge || '1080p';
+      document.getElementById('admFormCode').value = record.code;
+      document.getElementById('admFormPostId').value = record.post_id;
+
+      document.getElementById('adminFormHeaderTitle').innerText = '✏️ Редактировать запись';
+      document.getElementById('adminSubmitRecordBtn').innerText = '💾 Обновить запись';
+      document.getElementById('adminCancelEditBtn').style.display = 'block';
+      window.scrollTo(0, document.getElementById('adminFormHeaderTitle').offsetTop - 30);
+    }
+
+    function cancelCatalogEditMode() {
+      document.getElementById('adminEditRecordId').value = '';
+      document.getElementById('admFormCat').value = '';
+      document.getElementById('admFormTitle').value = '';
+      document.getElementById('admFormImg').value = '';
+      document.getElementById('admFormDesc').value = '';
+      document.getElementById('admFormItem').value = '';
+      document.getElementById('admFormBadge').value = '1080p';
+      document.getElementById('admFormCode').value = '';
+      document.getElementById('admFormPostId').value = '';
+
+      document.getElementById('adminFormHeaderTitle').innerText = '➕ Добавить запись в базу D1';
+      document.getElementById('adminSubmitRecordBtn').innerText = '💾 Сохранить запись';
+      document.getElementById('adminCancelEditBtn').style.display = 'none';
+    }
+
+    async function submitCatalogRecordForm() {
+      const editId = document.getElementById('adminEditRecordId').value;
       const payload = {
-        category: document.getElementById('adm-cat').value,
-        title: document.getElementById('adm-title').value,
-        image: document.getElementById('adm-img').value,
-        description: document.getElementById('adm-desc').value,
-        item: document.getElementById('adm-item').value,
-        badge: document.getElementById('adm-badge').value,
-        code: document.getElementById('adm-code').value,
-        post_id: document.getElementById('adm-post').value,
+        category: document.getElementById('admFormCat').value,
+        title: document.getElementById('admFormTitle').value,
+        image: document.getElementById('admFormImg').value,
+        description: document.getElementById('admFormDesc').value,
+        item: document.getElementById('admFormItem').value,
+        badge: document.getElementById('admFormBadge').value,
+        code: document.getElementById('admFormCode').value,
+        post_id: document.getElementById('admFormPostId').value,
       };
 
       if (!payload.category || !payload.title || !payload.item || !payload.code || !payload.post_id) {
-        alert('Заполните обязательные поля (Категория, Название, Сессия, Код, Post ID)!');
+        alert('Заполните все обязательные поля!');
         return;
       }
 
-      fetch(`${WORKER_URL}/api/catalog/add`, {
+      if (editId) {
+        await fetch(`${WORKER_URL}/api/catalog/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+          body: JSON.stringify({ id: editId })
+        });
+      }
+
+      const res = await fetch(`${WORKER_URL}/api/catalog/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
         body: JSON.stringify(payload)
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          alert('✅ Запись успешно добавлена в D1!');
-          loadCatalog();
-          backFromAdmin();
-        } else {
-          alert('Ошибка сохранения: ' + (res.error || 'D1 Error'));
-        }
       });
+      const data = await res.json();
+      if (data.success) {
+        alert(editId ? '✅ Запись успешно обновлена!' : '✅ Запись успешно создана в D1!');
+        cancelCatalogEditMode();
+        loadCatalogDatabase();
+      }
     }
 
-    // Инициализация при старте
-    applyUserPermissions();
-    loadCatalog();
+    async function deleteCatalogRecord(id) {
+      if (!confirm('Удалить эту запись из архива?')) return;
+      const res = await fetch(`${WORKER_URL}/api/catalog/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+        body: JSON.stringify({ id })
+      });
+      const data = await res.json();
+      if (data.success) {
+        loadCatalogDatabase();
+      }
+    }
+
+    // 8. СТАРТ ПРИЛОЖЕНИЯ
+    initThemeAndPreferences();
+    fetchLiveF1SeasonData();
+    loadCatalogDatabase();
+    loadChannelNewsFeed();
   </script>
 </body>
 </html>
