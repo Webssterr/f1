@@ -29,7 +29,6 @@
       user-select: none;
     }
 
-    /* LITE РЕЖИМ ДЛЯ СЛАБЫХ УСТРОЙСТВ */
     body.lite-mode * {
       animation: none !important;
       transition: none !important;
@@ -37,14 +36,10 @@
       -webkit-backdrop-filter: none !important;
       box-shadow: none !important;
     }
-    body.lite-mode .track-svg-path {
-      stroke-dasharray: none !important;
-    }
 
     .view { display: none; }
     .view.active { display: block; }
 
-    /* Поиск и шестеренка */
     .search-row {
       display: flex;
       gap: 10px;
@@ -156,7 +151,7 @@
       cursor: pointer;
     }
 
-    /* ВИЗУАЛ V2: ТАЙМЕР И GRIDLAP ВЕРСТКА */
+    /* V2 ДИЗАЙН */
     .v2-header {
       display: flex;
       justify-content: space-between;
@@ -172,8 +167,6 @@
       border-radius: 18px;
       padding: 20px;
       margin-bottom: 16px;
-      position: relative;
-      overflow: hidden;
     }
     .timer-label {
       font-size: 12px;
@@ -181,9 +174,6 @@
       font-weight: 700;
       color: var(--accent);
       margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
     .timer-digits {
       display: flex;
@@ -197,16 +187,13 @@
 
     .track-preview-box {
       width: 100%;
-      height: 150px;
+      height: 140px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 10px 0;
     }
-    .track-svg {
-      width: 100%;
-      max-height: 140px;
-    }
+    .track-svg { width: 100%; max-height: 130px; }
     .track-svg-path {
       stroke: var(--accent);
       stroke-width: 4;
@@ -216,18 +203,6 @@
       filter: drop-shadow(0 0 6px rgba(225,6,0,0.4));
     }
 
-    .gp-info-row {
-      margin-top: 14px;
-      border-top: 1px solid var(--border);
-      padding-top: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-    }
-    .gp-name-big { font-size: 18px; font-weight: 800; }
-    .gp-sub-info { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-    /* ТАБЛИЦА ПИЛОТОВ V2 */
     .standings-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -249,7 +224,6 @@
     .driver-team { font-size: 11px; color: var(--text-muted); }
     .driver-points { font-size: 16px; font-weight: 800; }
 
-    /* ЛЕНТА НОВОСТЕЙ КАНАЛА */
     .news-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -267,12 +241,11 @@
     .news-date { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
     .news-text { font-size: 13.5px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
 
-    /* НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (BOTTOM BAR) */
     .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; right: 0;
       height: var(--nav-height);
-      background: rgba(18, 21, 28, 0.94);
+      background: rgba(18, 21, 28, 0.95);
       backdrop-filter: blur(12px);
       border-top: 1px solid var(--border);
       display: flex;
@@ -295,7 +268,7 @@
     .nav-item.active { color: var(--accent); }
     .nav-icon { font-size: 20px; margin-bottom: 3px; }
 
-    /* МОДАЛКА НАСТРОЕК */
+    /* МОДАЛЬНОЕ ОКНО */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -382,13 +355,13 @@
 </head>
 <body>
 
-  <!-- ================= V2 НАВИГАЦИОННЫЙ ХЕДЕР ================= -->
+  <!-- V2 ХЕДЕР -->
   <div id="v2-header-block" class="v2-header" style="display: none;">
     <div class="v2-logo">RACE <span>WEEKEND</span></div>
     <button class="icon-btn" onclick="openSettingsModal()">⚙️</button>
   </div>
 
-  <!-- ================= РЕЖИМ V1 (СТАРЫЙ НАДЁЖНЫЙ КАТАЛОГ) ================= -->
+  <!-- РЕЖИМ V1 -->
   <div id="container-v1">
     <div id="view-v1-home" class="view active">
       <div class="search-row">
@@ -407,6 +380,7 @@
           <div class="skeleton">Синхронизация каталога D1...</div>
         </div>
 
+        <!-- КНОПКА АДМИН-ПАНЕЛИ -->
         <div id="admin-entry-container" style="display: none;">
           <button class="menu-btn" style="border: 1px solid var(--accent); color: #ff6b6b; margin-top: 20px;" onclick="openAdminPanel()">
             <span>⚙️ Панель администратора</span>
@@ -418,10 +392,8 @@
     </div>
   </div>
 
-  <!-- ================= РЕЖИМ V2 (СОВРЕМЕННЫЙ GRIDLAP-МАКЕТ) ================= -->
+  <!-- РЕЖИМ V2 -->
   <div id="container-v2" style="display: none;">
-    
-    <!-- ТАБ 1: ГЛАВНАЯ (ТАЙМЕР И СЛЕДУЮЩИЙ ЭТАП) -->
     <div id="tab-v2-main" class="view active">
       <div class="timer-hero">
         <div class="timer-label">🔴 До первой практики</div>
@@ -433,16 +405,15 @@
         </div>
 
         <div class="track-preview-box">
-          <!-- Контур трассы Сепанг -->
           <svg class="track-svg" viewBox="0 0 500 280">
             <path class="track-svg-path" d="M 60,180 L 150,180 Q 180,180 200,160 L 280,70 Q 300,50 330,60 L 440,110 Q 460,120 440,140 L 330,170 Q 300,180 280,210 L 230,250 Q 210,260 180,240 L 100,195 Z" />
           </svg>
         </div>
 
-        <div class="gp-info-row">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid var(--border); padding-top: 12px;">
           <div>
-            <div class="gp-name-big">Гран-при Бахрейна</div>
-            <div class="gp-sub-info">Этап 16 • Сахир • 5,412 км</div>
+            <div style="font-size: 18px; font-weight: 800;">Гран-при Бахрейна</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Сахир • 5,412 км</div>
           </div>
           <span class="badge">LIVE СКОРО</span>
         </div>
@@ -457,7 +428,6 @@
       </div>
     </div>
 
-    <!-- ТАБ 2: СЕЗОН И ТАБЛИЦЫ ПИЛОТОВ -->
     <div id="tab-v2-season" class="view">
       <div class="standings-card">
         <h2 style="margin: 0 0 12px 0;">Личный зачёт пилотов 2026</h2>
@@ -484,18 +454,15 @@
       </div>
     </div>
 
-    <!-- ТАБ 3: АРХИВ ВИДЕО (ИНТЕГРИРОВАННЫЙ КАТАЛОГ D1) -->
     <div id="tab-v2-archive" class="view">
       <input type="text" class="search-box" style="margin-bottom: 12px;" placeholder="🔍 Поиск видео в архиве..." oninput="handleSearch(this.value)">
       <div id="v2-categories-container"></div>
     </div>
 
-    <!-- ТАБ 4: ЖИВАЯ ЛЕНТА НОВОСТЕЙ КАНАЛА -->
     <div id="tab-v2-news" class="view">
-      <div id="news-feed-list"><div class="skeleton">Загрузка постов из @raceweekendf1...</div></div>
+      <div id="news-feed-list"><div class="skeleton">Загрузка постов...</div></div>
     </div>
 
-    <!-- НИЖНЯЯ ПАНЕЛЬ V2 -->
     <div class="bottom-nav">
       <div class="nav-item active" onclick="switchV2Tab('main', this)"><span class="nav-icon">🏠</span><span>Главная</span></div>
       <div class="nav-item" onclick="switchV2Tab('season', this)"><span class="nav-icon">🏎</span><span>Сезон</span></div>
@@ -504,7 +471,7 @@
     </div>
   </div>
 
-  <!-- ОБЩИЕ ЭКРАНЫ: ПРОСМОТР СЕРИЙ И ДЕТАЛЕЙ -->
+  <!-- ОБЩИЕ ЭКРАНЫ -->
   <div id="view-titles" class="view">
     <button class="back-btn" onclick="backFromTitles()">← Назад</button>
     <div id="titles-list"></div>
@@ -520,7 +487,6 @@
   <div id="view-admin" class="view">
     <button class="back-btn" onclick="closeAdminPanel()">← Вернуться в архив</button>
     
-    <!-- Глобальный переключатель версий -->
     <div class="bot-card" style="border-color: var(--accent);">
       <h2 style="color: var(--accent);">🚀 Управление версиями системы</h2>
       <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
@@ -529,7 +495,6 @@
       <button class="submit-btn" id="adm-toggle-version-btn" onclick="toggleGlobalVersion()">Выкатить v2 для всех</button>
     </div>
 
-    <!-- Добавление/Редактирование видео -->
     <div class="bot-card">
       <h2 id="form-action-title" style="color: var(--accent);">➕ Добавить запись в каталог</h2>
       <input type="hidden" id="adm-edit-id" value="">
@@ -554,7 +519,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА НАСТРОЕК С БЕТА-ТУМБЛЕРОМ И LITE-РЕЖИМОМ -->
+  <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК -->
   <div id="settings-modal" class="modal-overlay" onclick="if(event.target.id==='settings-modal') toggleSettingsModal(false)">
     <div class="modal-sheet">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -562,7 +527,6 @@
         <button style="background: none; border: none; color: #888; font-size: 20px; cursor: pointer;" onclick="toggleSettingsModal(false)">✕</button>
       </div>
 
-      <!-- Закрытый пункт для тестеров и админа -->
       <div class="setting-row" id="beta-tester-row" style="display: none; background: rgba(225, 6, 0, 0.08); padding: 10px; border-radius: 10px; border: 1px solid var(--accent); margin-bottom: 10px;">
         <div>
           <div class="setting-label" style="color: #ff5555;">🧪 Режим бета-теста (v2)</div>
@@ -574,7 +538,6 @@
         </label>
       </div>
 
-      <!-- Lite-режим для оптимизации -->
       <div class="setting-row">
         <div>
           <div class="setting-label">⚡️ Упрощённый режим (Lite)</div>
@@ -633,20 +596,33 @@
 
     const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
     const BOT_USERNAME = "race_weekend_f1_bot";
-    const ADMIN_ID = 301211351;
-    const currentUserId = tg?.initDataUnsafe?.user?.id || null;
+    const ADMIN_ID = "301211351";
+    const TESTER_ID = "8061233590";
+    const currentUserId = String(tg?.initDataUnsafe?.user?.id || '');
 
     let dataTree = {};
     let allItemsFlat = [];
     let activeCategory = null;
-    let cameFromSearch = false;
     let systemState = { global_version: 'v1', is_tester: false, is_admin: false, beta_opt_in: false, lite_mode: false };
 
-    // 1. ИНИЦИАЛИЗАЦИЯ И ОПРЕДЕЛЕНИЕ РЕЖИМА (V1 / V2)
+    // Проверка прав администратора и тестера напрямую
+    const isAdmin = (currentUserId === ADMIN_ID);
+    const isTester = (isAdmin || currentUserId === TESTER_ID);
+
+    if (isAdmin) {
+      const admBtn = document.getElementById('admin-entry-container');
+      if (admBtn) admBtn.style.display = 'block';
+    }
+
+    if (isTester) {
+      const betaRow = document.getElementById('beta-tester-row');
+      if (betaRow) betaRow.style.display = 'flex';
+    }
+
     async function initApp() {
       try {
         const res = await fetch(`${WORKER_URL}/api/system/version`, {
-          headers: { 'X-User-Id': String(currentUserId || '') }
+          headers: { 'X-User-Id': currentUserId }
         });
         if (res.ok) systemState = await res.json();
       } catch (e) {}
@@ -657,18 +633,11 @@
         document.getElementById('user-set-lite').checked = true;
       }
 
-      // Показ закрытого пункта настроек для тестера и админа
-      if (systemState.is_tester || systemState.is_admin) {
-        document.getElementById('beta-tester-row').style.display = 'flex';
-        document.getElementById('user-set-beta').checked = systemState.beta_opt_in;
-      }
+      const betaActive = (systemState.beta_opt_in || localStorage.getItem('beta_v2') === 'true');
+      document.getElementById('user-set-beta').checked = betaActive;
 
-      if (systemState.is_admin) {
-        document.getElementById('admin-entry-container').style.display = 'block';
-      }
-
-      // Определение активного макета (v1 или v2)
-      const shouldUseV2 = (systemState.global_version === 'v2') || (systemState.beta_opt_in && (systemState.is_tester || systemState.is_admin));
+      // Переключение между v1 и v2
+      const shouldUseV2 = (systemState.global_version === 'v2') || (betaActive && isTester);
       renderLayout(shouldUseV2);
 
       loadCatalog();
@@ -705,9 +674,7 @@
       window.scrollTo(0, 0);
     }
 
-    // 2. ДИНАМИЧЕСКИЙ ТАЙМЕР ОБРАТНОГО ОТСЧЕТА
     function startTimer() {
-      // Пример целевого времени ближайшей сессии (ПТ 14:30)
       const target = new Date();
       target.setDate(target.getDate() + 1);
       target.setHours(14, 30, 0, 0);
@@ -728,7 +695,6 @@
       setInterval(update, 1000);
     }
 
-    // 3. ЖИВАЯ ЛЕНТА НОВОСТЕЙ КАНАЛА
     async function loadNewsFeed() {
       try {
         const res = await fetch(`${WORKER_URL}/api/feed`);
@@ -754,7 +720,6 @@
       } catch (e) {}
     }
 
-    // 4. КАТАЛОГ И НАВИГАЦИЯ
     function loadCatalog() {
       fetch(`${WORKER_URL}/api/catalog`)
         .then(r => r.json())
@@ -772,8 +737,7 @@
             dataTree[cat][t].items.push({ id: entry.id, item: entry.item, badge: entry.badge, code: entry.code });
           });
 
-          // Рендер для v1 и v2 вкладки архива
-          const makeButtons = () => {
+          const renderButtons = () => {
             let html = '';
             for (const cat in dataTree) {
               html += `
@@ -786,8 +750,8 @@
             return html;
           };
 
-          document.getElementById('categories-list').innerHTML = makeButtons();
-          document.getElementById('v2-categories-container').innerHTML = makeButtons();
+          document.getElementById('categories-list').innerHTML = renderButtons();
+          document.getElementById('v2-categories-container').innerHTML = renderButtons();
         })
         .catch(() => {
           document.getElementById('categories-list').innerHTML = '<div class="skeleton">Ошибка синхронизации.</div>';
@@ -854,7 +818,6 @@
 
     function backFromDetails() { showView('titles'); }
 
-    // 5. НАСТРОЙКИ, БЕТА И LITE-РЕЖИМ
     function openSettingsModal() {
       document.getElementById('settings-modal').classList.add('active');
       loadUserSettings();
@@ -867,7 +830,7 @@
     async function loadUserSettings() {
       if (!currentUserId) return;
       try {
-        const res = await fetch(`${WORKER_URL}/api/user/settings`, { headers: { 'X-User-Id': String(currentUserId) } });
+        const res = await fetch(`${WORKER_URL}/api/user/settings`, { headers: { 'X-User-Id': currentUserId } });
         if (res.ok) {
           const cfg = await res.json();
           document.getElementById('user-set-video').checked = cfg.notify_videos === 1;
@@ -889,7 +852,7 @@
       try {
         await fetch(`${WORKER_URL}/api/user/settings`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-User-Id': String(currentUserId) },
+          headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUserId },
           body: JSON.stringify(payload)
         });
       } catch (e) {}
@@ -903,13 +866,13 @@
     }
 
     async function toggleBetaOptIn(enabled) {
+      localStorage.setItem('beta_v2', enabled);
       await saveUserSettings();
       location.reload();
     }
 
-    // 6. УПРАВЛЕНИЕ АДМИНКОЙ
     function openAdminPanel() {
-      document.getElementById('adm-cur-version').innerText = systemState.global_version.toUpperCase();
+      document.getElementById('adm-cur-version').innerText = (systemState.global_version || 'V1').toUpperCase();
       document.getElementById('adm-toggle-version-btn').innerText = 
         systemState.global_version === 'v2' ? '⏪ Откатить на v1 для всех' : '🚀 Выкатить v2 для всех пользователей';
       showView('admin');
@@ -927,7 +890,7 @@
       try {
         const res = await fetch(`${WORKER_URL}/api/system/set_version`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': String(ADMIN_ID) },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
           body: JSON.stringify({ version: nextVer })
         });
         if (res.ok) {
@@ -937,7 +900,6 @@
       } catch (e) { alert('Ошибка связи с сервером'); }
     }
 
-    // 7. ЗАГРУЗКА КАРТИНКИ С УСТРОЙСТВА
     async function uploadImageFromDevice(input) {
       const file = input.files[0];
       if (!file) return;
@@ -988,7 +950,7 @@
 
       fetch(`${WORKER_URL}/api/catalog/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Id': String(ADMIN_ID) },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
         body: JSON.stringify(payload)
       })
       .then(r => r.json())
