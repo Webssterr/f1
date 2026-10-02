@@ -7,13 +7,15 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg: #14171d;
-      --card-bg: #1e232d;
-      --btn-bg: #292f3d;
-      --btn-active: #333b4d;
+      --bg: #0f1115;
+      --card-bg: #171a21;
+      --btn-bg: #222733;
+      --btn-active: #2c3342;
       --accent: #e10600;
       --text: #ffffff;
       --text-muted: #8e95a5;
+      --border: rgba(255, 255, 255, 0.08);
+      --nav-height: 64px;
     }
 
     body {
@@ -22,24 +24,37 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       margin: 0;
       padding: 16px;
+      padding-bottom: 80px;
       -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    /* LITE РЕЖИМ ДЛЯ СЛАБЫХ УСТРОЙСТВ */
+    body.lite-mode * {
+      animation: none !important;
+      transition: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      box-shadow: none !important;
+    }
+    body.lite-mode .track-svg-path {
+      stroke-dasharray: none !important;
     }
 
     .view { display: none; }
     .view.active { display: block; }
 
-    /* Поиск и кнопка настроек */
+    /* Поиск и шестеренка */
     .search-row {
       display: flex;
       gap: 10px;
       align-items: center;
       margin-bottom: 14px;
     }
-
     .search-box {
       flex: 1;
       background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 13px 16px;
       font-size: 15px;
@@ -50,9 +65,9 @@
     .search-box:focus { border-color: var(--accent); }
     .search-box::placeholder { color: var(--text-muted); }
 
-    .settings-trigger-btn {
+    .icon-btn {
       background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid var(--border);
       color: var(--text);
       border-radius: 12px;
       width: 48px;
@@ -63,16 +78,14 @@
       font-size: 20px;
       cursor: pointer;
       flex-shrink: 0;
-      transition: background 0.2s;
     }
-    .settings-trigger-btn:active { background: var(--btn-active); }
 
     .bot-card {
       background: var(--card-bg);
       border-radius: 14px;
       padding: 16px;
       margin-bottom: 16px;
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
       font-size: 14px;
       line-height: 1.5;
     }
@@ -90,7 +103,7 @@
     .menu-btn {
       width: 100%;
       background: var(--btn-bg);
-      border: 1px solid rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.04);
       color: var(--text);
       padding: 12px 14px;
       margin-bottom: 10px;
@@ -122,29 +135,6 @@
       flex-shrink: 0;
     }
 
-    .admin-entry-btn {
-      background: rgba(225, 6, 0, 0.15);
-      border: 1px solid var(--accent);
-      color: #ff6b6b;
-      margin-top: 20px;
-      padding: 15px 16px;
-    }
-
-    .search-result-item { display: flex; flex-direction: column; gap: 4px; text-align: left; }
-    .search-result-sub { font-size: 12px; color: var(--text-muted); font-weight: normal; }
-
-    .gp-banner {
-      width: 100%;
-      max-height: 220px;
-      object-fit: cover;
-      border-radius: 12px;
-      display: block;
-      margin-bottom: 14px;
-      background: #252a36;
-    }
-    .gp-title { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
-    .gp-desc { font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.45; }
-
     .badge {
       font-size: 11px;
       font-weight: 700;
@@ -166,101 +156,146 @@
       cursor: pointer;
     }
 
-    .admin-input-group { margin-bottom: 14px; }
-    .admin-input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-    .admin-input-group small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-    .admin-input {
-      width: 100%;
-      background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
-      color: var(--text);
-      box-sizing: border-box;
-      outline: none;
-    }
-    .admin-input:focus { border-color: var(--accent); }
-    
-    /* Загрузка фото с устройства */
-    .image-field-wrap {
+    /* ВИЗУАЛ V2: ТАЙМЕР И GRIDLAP ВЕРСТКА */
+    .v2-header {
       display: flex;
-      gap: 8px;
+      justify-content: space-between;
       align-items: center;
+      margin-bottom: 16px;
     }
-    .image-field-wrap input { flex: 1; }
-    .device-upload-btn {
-      background: #252f3f;
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff;
-      padding: 10px 12px;
-      border-radius: 10px;
+    .v2-logo { font-size: 20px; font-weight: 900; letter-spacing: 0.5px; }
+    .v2-logo span { color: var(--accent); }
+
+    .timer-hero {
+      background: linear-gradient(180deg, #1b202a 0%, #13161c 100%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .timer-label {
       font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .device-upload-btn:active { background: #323d50; }
-    .upload-hint { font-size: 11px; margin-top: 5px; }
-
-    .submit-btn {
-      width: 100%;
-      background: var(--accent);
-      border: none;
-      color: #fff;
-      padding: 14px;
-      font-size: 15px;
+      text-transform: uppercase;
       font-weight: 700;
-      border-radius: 12px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    .stats-card {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .stat-item {
-      background: var(--card-bg);
-      padding: 12px;
-      border-radius: 10px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .stat-number { font-size: 20px; font-weight: 800; color: var(--accent); }
-    .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
-    .skeleton { text-align: center; padding: 40px 0; color: var(--text-muted); }
-
-    .admin-catalog-item {
-      background: #181d26;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      padding: 12px;
+      color: var(--accent);
       margin-bottom: 10px;
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: 6px;
     }
-    .admin-item-title { font-weight: 700; font-size: 14px; color: #fff; }
-    .admin-item-sub { font-size: 12px; color: var(--text-muted); }
-    .admin-actions {
+    .timer-digits {
       display: flex;
-      gap: 8px;
-      margin-top: 6px;
+      gap: 14px;
+      align-items: baseline;
+      margin-bottom: 16px;
     }
-    .action-btn {
-      padding: 7px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-    }
-    .edit-btn { background: #3b4559; color: #fff; }
-    .del-btn { background: rgba(225, 6, 0, 0.2); color: #ff5555; }
+    .digit-group { display: flex; flex-direction: column; }
+    .digit-val { font-size: 38px; font-weight: 900; line-height: 1; }
+    .digit-lbl { font-size: 11px; color: var(--text-muted); text-transform: lowercase; margin-top: 4px; }
 
-    /* МОДАЛЬНОЕ ОКНО НАСТРОЕК */
+    .track-preview-box {
+      width: 100%;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .track-svg {
+      width: 100%;
+      max-height: 140px;
+    }
+    .track-svg-path {
+      stroke: var(--accent);
+      stroke-width: 4;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 6px rgba(225,6,0,0.4));
+    }
+
+    .gp-info-row {
+      margin-top: 14px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .gp-name-big { font-size: 18px; font-weight: 800; }
+    .gp-sub-info { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ТАБЛИЦА ПИЛОТОВ V2 */
+    .standings-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .standings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .standings-row:last-child { border-bottom: none; }
+    .driver-rank { font-size: 16px; font-weight: 800; width: 26px; color: var(--accent); }
+    .driver-info { flex: 1; margin-left: 8px; }
+    .driver-name { font-size: 14px; font-weight: 700; }
+    .driver-team { font-size: 11px; color: var(--text-muted); }
+    .driver-points { font-size: 16px; font-weight: 800; }
+
+    /* ЛЕНТА НОВОСТЕЙ КАНАЛА */
+    .news-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .news-img {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .news-date { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+    .news-text { font-size: 13.5px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+
+    /* НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (BOTTOM BAR) */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--nav-height);
+      background: rgba(18, 21, 28, 0.94);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      height: 100%;
+    }
+    .nav-item.active { color: var(--accent); }
+    .nav-icon { font-size: 20px; margin-bottom: 3px; }
+
+    /* МОДАЛКА НАСТРОЕК */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -279,27 +314,9 @@
       border-radius: 20px 20px 0 0;
       padding: 22px 20px 30px;
       box-sizing: border-box;
-      border-top: 1px solid rgba(255,255,255,0.12);
-      animation: modalSlideUp 0.25s ease-out;
-    }
-    @keyframes modalSlideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-    .modal-title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-    .modal-title-row h3 { margin: 0; font-size: 18px; font-weight: 800; }
-    .modal-close-icon {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 22px;
-      cursor: pointer;
-      line-height: 1;
+      border-top: 1px solid var(--border);
+      max-height: 85vh;
+      overflow-y: auto;
     }
     .setting-row {
       display: flex;
@@ -311,7 +328,6 @@
     .setting-label { font-size: 14px; font-weight: 600; }
     .setting-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-    /* ТУМБЛЕРЫ (SWITCH) */
     .switch-toggle {
       position: relative;
       display: inline-block;
@@ -337,192 +353,243 @@
     input:checked + .switch-slider { background-color: var(--accent); }
     input:checked + .switch-slider:before { transform: translateX(20px); }
 
-    /* КОМПАКТНЫЙ РЕЖИМ */
-    body.compact-mode .menu-btn { padding: 9px 12px; margin-bottom: 8px; font-size: 14px; }
-    body.compact-mode .menu-btn-thumb { width: 30px; height: 30px; }
-    body.compact-mode .gp-banner { max-height: 150px; }
+    .submit-btn {
+      width: 100%;
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .admin-input {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+      box-sizing: border-box;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .skeleton { text-align: center; padding: 30px 0; color: var(--text-muted); font-size: 13px; }
   </style>
 </head>
 <body>
 
-  <!-- ЭКРАН 1: ГЛАВНАЯ И ПОИСК -->
-  <div id="view-home" class="view active">
-    
-    <!-- Строка поиска с кнопкой настроек -->
-    <div class="search-row">
-      <input 
-        type="text" 
-        id="search-input" 
-        class="search-box" 
-        placeholder="🔍 Поиск по гонкам и сериалам..." 
-        oninput="handleSearch(this.value)"
-      >
-      <button class="settings-trigger-btn" type="button" onclick="openSettingsModal()" title="Настройки">⚙️</button>
-    </div>
-
-    <div id="home-default-content">
-      <div class="bot-card" id="welcome-card" style="display: none;">
-        <img id="welcome-img" class="welcome-banner" src="" alt="Banner">
-        <h2 id="welcome-title"></h2>
-        <div id="welcome-text"></div>
-      </div>
-
-      <div id="categories-list">
-        <div class="skeleton">Синхронизация каталога D1...</div>
-      </div>
-
-      <div id="admin-entry-container" style="display: none;">
-        <button class="menu-btn admin-entry-btn" onclick="openAdminPanel()">
-          <span>⚙️ Панель администратора</span>
-          <span>›</span>
-        </button>
-      </div>
-    </div>
-
-    <div id="search-results-list" style="display: none;"></div>
+  <!-- ================= V2 НАВИГАЦИОННЫЙ ХЕДЕР ================= -->
+  <div id="v2-header-block" class="v2-header" style="display: none;">
+    <div class="v2-logo">RACE <span>WEEKEND</span></div>
+    <button class="icon-btn" onclick="openSettingsModal()">⚙️</button>
   </div>
 
-  <!-- ЭКРАН 2: ЭТАПЫ / СЕЗОНЫ -->
+  <!-- ================= РЕЖИМ V1 (СТАРЫЙ НАДЁЖНЫЙ КАТАЛОГ) ================= -->
+  <div id="container-v1">
+    <div id="view-v1-home" class="view active">
+      <div class="search-row">
+        <input type="text" id="search-input" class="search-box" placeholder="🔍 Поиск по гонкам и сериалам..." oninput="handleSearch(this.value)">
+        <button class="icon-btn" onclick="openSettingsModal()">⚙️</button>
+      </div>
+
+      <div id="home-default-content">
+        <div class="bot-card" id="welcome-card" style="display: none;">
+          <img id="welcome-img" class="welcome-banner" src="" alt="Banner">
+          <h2 id="welcome-title"></h2>
+          <div id="welcome-text"></div>
+        </div>
+
+        <div id="categories-list">
+          <div class="skeleton">Синхронизация каталога D1...</div>
+        </div>
+
+        <div id="admin-entry-container" style="display: none;">
+          <button class="menu-btn" style="border: 1px solid var(--accent); color: #ff6b6b; margin-top: 20px;" onclick="openAdminPanel()">
+            <span>⚙️ Панель администратора</span>
+            <span>›</span>
+          </button>
+        </div>
+      </div>
+      <div id="search-results-list" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- ================= РЕЖИМ V2 (СОВРЕМЕННЫЙ GRIDLAP-МАКЕТ) ================= -->
+  <div id="container-v2" style="display: none;">
+    
+    <!-- ТАБ 1: ГЛАВНАЯ (ТАЙМЕР И СЛЕДУЮЩИЙ ЭТАП) -->
+    <div id="tab-v2-main" class="view active">
+      <div class="timer-hero">
+        <div class="timer-label">🔴 До первой практики</div>
+        <div class="timer-digits">
+          <div class="digit-group"><span class="digit-val" id="t-days">01</span><span class="digit-lbl">день</span></div>
+          <div class="digit-group"><span class="digit-val" id="t-hours">18</span><span class="digit-lbl">часов</span></div>
+          <div class="digit-group"><span class="digit-val" id="t-mins">45</span><span class="digit-lbl">мин</span></div>
+          <div class="digit-group"><span class="digit-val" id="t-secs">10</span><span class="digit-lbl">сек</span></div>
+        </div>
+
+        <div class="track-preview-box">
+          <!-- Контур трассы Сепанг -->
+          <svg class="track-svg" viewBox="0 0 500 280">
+            <path class="track-svg-path" d="M 60,180 L 150,180 Q 180,180 200,160 L 280,70 Q 300,50 330,60 L 440,110 Q 460,120 440,140 L 330,170 Q 300,180 280,210 L 230,250 Q 210,260 180,240 L 100,195 Z" />
+          </svg>
+        </div>
+
+        <div class="gp-info-row">
+          <div>
+            <div class="gp-name-big">Гран-при Бахрейна</div>
+            <div class="gp-sub-info">Этап 16 • Сахир • 5,412 км</div>
+          </div>
+          <span class="badge">LIVE СКОРО</span>
+        </div>
+      </div>
+
+      <div class="bot-card">
+        <h2 style="color: var(--accent);">🏁 Расписание заездов (UTC+3)</h2>
+        <div class="standings-row"><div>ПТ • Практика 1</div><b>14:30</b></div>
+        <div class="standings-row"><div>ПТ • Практика 2</div><b>18:00</b></div>
+        <div class="standings-row"><div>СБ • Квалификация</div><b>19:00</b></div>
+        <div class="standings-row" style="color: var(--accent);"><div>ВС • ГОНКА</div><b>18:00</b></div>
+      </div>
+    </div>
+
+    <!-- ТАБ 2: СЕЗОН И ТАБЛИЦЫ ПИЛОТОВ -->
+    <div id="tab-v2-season" class="view">
+      <div class="standings-card">
+        <h2 style="margin: 0 0 12px 0;">Личный зачёт пилотов 2026</h2>
+        <div class="standings-row">
+          <div class="driver-rank">01</div>
+          <div class="driver-info"><div class="driver-name">Kimi Antonelli</div><div class="driver-team">Mercedes-AMG</div></div>
+          <div class="driver-points">302</div>
+        </div>
+        <div class="standings-row">
+          <div class="driver-rank">02</div>
+          <div class="driver-info"><div class="driver-name">George Russell</div><div class="driver-team">Mercedes-AMG</div></div>
+          <div class="driver-points">236</div>
+        </div>
+        <div class="standings-row">
+          <div class="driver-rank">03</div>
+          <div class="driver-info"><div class="driver-name">Lewis Hamilton</div><div class="driver-team">Ferrari</div></div>
+          <div class="driver-points">199</div>
+        </div>
+        <div class="standings-row">
+          <div class="driver-rank">04</div>
+          <div class="driver-info"><div class="driver-name">Lando Norris</div><div class="driver-team">McLaren</div></div>
+          <div class="driver-points">186</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ТАБ 3: АРХИВ ВИДЕО (ИНТЕГРИРОВАННЫЙ КАТАЛОГ D1) -->
+    <div id="tab-v2-archive" class="view">
+      <input type="text" class="search-box" style="margin-bottom: 12px;" placeholder="🔍 Поиск видео в архиве..." oninput="handleSearch(this.value)">
+      <div id="v2-categories-container"></div>
+    </div>
+
+    <!-- ТАБ 4: ЖИВАЯ ЛЕНТА НОВОСТЕЙ КАНАЛА -->
+    <div id="tab-v2-news" class="view">
+      <div id="news-feed-list"><div class="skeleton">Загрузка постов из @raceweekendf1...</div></div>
+    </div>
+
+    <!-- НИЖНЯЯ ПАНЕЛЬ V2 -->
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="switchV2Tab('main', this)"><span class="nav-icon">🏠</span><span>Главная</span></div>
+      <div class="nav-item" onclick="switchV2Tab('season', this)"><span class="nav-icon">🏎</span><span>Сезон</span></div>
+      <div class="nav-item" onclick="switchV2Tab('archive', this)"><span class="nav-icon">🎬</span><span>Архив</span></div>
+      <div class="nav-item" onclick="switchV2Tab('news', this)"><span class="nav-icon">📢</span><span>Новости</span></div>
+    </div>
+  </div>
+
+  <!-- ОБЩИЕ ЭКРАНЫ: ПРОСМОТР СЕРИЙ И ДЕТАЛЕЙ -->
   <div id="view-titles" class="view">
-    <button class="back-btn" onclick="showView('home')">← Главное меню</button>
+    <button class="back-btn" onclick="backFromTitles()">← Назад</button>
     <div id="titles-list"></div>
   </div>
 
-  <!-- ЭКРАН 3: КАРТОЧКА ЗАЕЗДОВ -->
   <div id="view-details" class="view">
-    <button class="back-btn" onclick="backFromDetails()">← Назад к списку</button>
+    <button class="back-btn" onclick="backFromDetails()">← Назад к сессиям</button>
     <div id="item-header"></div>
     <div id="item-btns"></div>
   </div>
 
-  <!-- ЭКРАН 4: ПАНЕЛЬ УПРАВЛЕНИЯ -->
+  <!-- ПАНЕЛЬ АДМИНИСТРАТОРА -->
   <div id="view-admin" class="view">
-    <button class="back-btn" onclick="showView('home')">← Вернуться в архив</button>
+    <button class="back-btn" onclick="closeAdminPanel()">← Вернуться в архив</button>
     
-    <!-- Статистика -->
-    <div class="stats-card">
-      <div class="stat-item">
-        <div id="stat-users" class="stat-number">...</div>
-        <div class="stat-label">Подписчиков</div>
+    <!-- Глобальный переключатель версий -->
+    <div class="bot-card" style="border-color: var(--accent);">
+      <h2 style="color: var(--accent);">🚀 Управление версиями системы</h2>
+      <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+        Текущий релиз для всех пользователей: <b id="adm-cur-version" style="color: #fff;">...</b>
       </div>
-      <div class="stat-item">
-        <div id="stat-active" class="stat-number">...</div>
-        <div class="stat-label">За 24 часа</div>
-      </div>
-      <div class="stat-item">
-        <div id="stat-items" class="stat-number">...</div>
-        <div class="stat-label">В архиве</div>
-      </div>
+      <button class="submit-btn" id="adm-toggle-version-btn" onclick="toggleGlobalVersion()">Выкатить v2 для всех</button>
     </div>
 
-    <!-- Редактор приветственного блока -->
-    <div class="bot-card">
-      <h2 style="color: var(--accent);">🎨 Настройка главного меню</h2>
-      
-      <div class="admin-input-group">
-        <label>Заголовок приветствия</label>
-        <input class="admin-input" id="set-welcome-title" placeholder="📌 RACE WEEKEND F1 ARCHIVE">
-      </div>
-
-      <div class="admin-input-group">
-        <label>Текст описания</label>
-        <textarea class="admin-input" id="set-welcome-text" rows="2" placeholder="Текст под заголовком..."></textarea>
-      </div>
-
-      <div class="admin-input-group">
-        <label>Баннер главного экрана (URL картинки)</label>
-        <input class="admin-input" id="set-welcome-img" placeholder="https://i.postimg.cc/... (или пусто)">
-      </div>
-
-      <button class="submit-btn" style="background:#292f3d; border:1px solid rgba(255,255,255,0.15);" onclick="saveSettings()">💾 Сохранить оформление</button>
-    </div>
-
-    <!-- Форма Добавления / Редактирования -->
+    <!-- Добавление/Редактирование видео -->
     <div class="bot-card">
       <h2 id="form-action-title" style="color: var(--accent);">➕ Добавить запись в каталог</h2>
       <input type="hidden" id="adm-edit-id" value="">
+      <input class="admin-input" id="adm-cat" placeholder="Категория (🔴Сезон 2026)">
+      <input class="admin-input" id="adm-title" placeholder="Событие (🇧🇪 Гран При Бельгии 2026)">
       
-      <div class="admin-input-group">
-        <label>Категория</label>
-        <input class="admin-input" id="adm-cat" placeholder="🔴Сезон 2026 или 🎥Гонять чтобы выживать">
+      <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+        <input class="admin-input" id="adm-img" placeholder="Ссылка на фото" style="margin: 0;">
+        <label for="deviceImageInput" style="background: #252f3f; border: 1px solid var(--border); padding: 10px; border-radius: 10px; font-size: 12px; cursor: pointer; white-space: nowrap;">📁 Фото</label>
+        <input type="file" id="deviceImageInput" accept="image/*" style="display: none;" onchange="uploadImageFromDevice(this)">
       </div>
+      <div id="upload-status" style="font-size: 11px; margin-bottom: 8px;"></div>
 
-      <div class="admin-input-group">
-        <label>Название события / Сезон</label>
-        <input class="admin-input" id="adm-title" placeholder="🇧🇪 Гран При Бельгии 2026 или Сезон 1">
-      </div>
-
-      <!-- Постер с надежной загрузкой из памяти -->
-      <div class="admin-input-group">
-        <label>Постер к видео</label>
-        <div class="image-field-wrap">
-          <input class="admin-input" id="adm-img" placeholder="Ссылка на фото (https://...)">
-          <label for="deviceImageInput" class="device-upload-btn">📁 Фото с устройства</label>
-          <input type="file" id="deviceImageInput" accept="image/*" style="display: none;" onchange="uploadImageFromDevice(this)">
-        </div>
-        <div id="upload-status" class="upload-hint"></div>
-      </div>
-
-      <div class="admin-input-group">
-        <label>Описание</label>
-        <textarea class="admin-input" id="adm-desc" rows="2" placeholder="Краткое описание этапа..."></textarea>
-      </div>
-
-      <div class="admin-input-group">
-        <label>Название сессии / серии</label>
-        <input class="admin-input" id="adm-item" placeholder="Гонка, Квалификация или 1 Серия">
-      </div>
-
-      <div class="admin-input-group">
-        <label>Бейдж качества</label>
-        <input class="admin-input" id="adm-badge" value="1080p">
-      </div>
-
-      <div class="admin-input-group">
-        <label>Код выдачи (латиница без пробелов)</label>
-        <input class="admin-input" id="adm-code" placeholder="belgium26_r">
-      </div>
-
-      <div class="admin-input-group">
-        <label>ID сообщения на складе</label>
-        <input type="number" class="admin-input" id="adm-post" placeholder="Например: 105">
-      </div>
+      <textarea class="admin-input" id="adm-desc" rows="2" placeholder="Описание этапа..."></textarea>
+      <input class="admin-input" id="adm-item" placeholder="Название сессии (Гонка, Квалификация)">
+      <input class="admin-input" id="adm-badge" value="1080p">
+      <input class="admin-input" id="adm-code" placeholder="Код выдачи (belgium26_r)">
+      <input type="number" class="admin-input" id="adm-post" placeholder="ID поста на складе (105)">
 
       <button id="adm-save-btn" class="submit-btn" onclick="submitItemForm()">💾 Сохранить в D1</button>
-      <button id="adm-cancel-btn" class="submit-btn" style="background: transparent; border: 1px solid var(--text-muted); display: none; margin-top: 6px;" onclick="cancelEditMode()">Отмена редактирования</button>
-    </div>
-
-    <!-- Управление всеми записями (Список, Редактирование, Удаление) -->
-    <div class="bot-card">
-      <h2 style="color: var(--accent);">🗂 Все записи каталога (Редактор)</h2>
-      <input type="text" id="admin-search-catalog" class="admin-input" placeholder="🔍 Найти запись для правки или удаления..." oninput="filterAdminCatalog(this.value)" style="margin-bottom: 12px;">
-      <div id="admin-catalog-list" style="max-height: 400px; overflow-y: auto;">
-        <div class="skeleton">Загрузка каталога...</div>
-      </div>
-    </div>
-
-    <!-- Рассылка -->
-    <div class="bot-card">
-      <h2>📢 Рассылка подписчикам</h2>
-      <div class="admin-input-group">
-        <textarea class="admin-input" id="broadcast-msg" rows="3" placeholder="Текст рассылки (HTML)..."></textarea>
-      </div>
-      <button class="submit-btn" style="background:#292f3d; border:1px solid rgba(255,255,255,0.2);" onclick="sendBroadcast()">🚀 Запустить рассылку</button>
+      <button id="adm-cancel-btn" class="submit-btn" style="background: transparent; border: 1px solid var(--text-muted); display: none;" onclick="cancelEditMode()">Отмена</button>
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК ПОЛЬЗОВАТЕЛЯ -->
-  <div id="settings-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
+  <!-- МОДАЛКА НАСТРОЕК С БЕТА-ТУМБЛЕРОМ И LITE-РЕЖИМОМ -->
+  <div id="settings-modal" class="modal-overlay" onclick="if(event.target.id==='settings-modal') toggleSettingsModal(false)">
     <div class="modal-sheet">
-      <div class="modal-title-row">
-        <h3>⚙️ Настройки бота</h3>
-        <button class="modal-close-icon" type="button" onclick="toggleSettingsModal(false)">✕</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0;">⚙️ Настройки бота</h3>
+        <button style="background: none; border: none; color: #888; font-size: 20px; cursor: pointer;" onclick="toggleSettingsModal(false)">✕</button>
+      </div>
+
+      <!-- Закрытый пункт для тестеров и админа -->
+      <div class="setting-row" id="beta-tester-row" style="display: none; background: rgba(225, 6, 0, 0.08); padding: 10px; border-radius: 10px; border: 1px solid var(--accent); margin-bottom: 10px;">
+        <div>
+          <div class="setting-label" style="color: #ff5555;">🧪 Режим бета-теста (v2)</div>
+          <div class="setting-sub">Новый Gridlap макет, таймеры и лента</div>
+        </div>
+        <label class="switch-toggle">
+          <input type="checkbox" id="user-set-beta" onchange="toggleBetaOptIn(this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <!-- Lite-режим для оптимизации -->
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">⚡️ Упрощённый режим (Lite)</div>
+          <div class="setting-sub">Отключает анимации для слабых телефонов</div>
+        </div>
+        <label class="switch-toggle">
+          <input type="checkbox" id="user-set-lite" onchange="toggleLiteMode(this.checked)">
+          <span class="switch-slider"></span>
+        </label>
       </div>
 
       <div class="setting-row">
         <div>
           <div class="setting-label">🔔 Уведомления о видео</div>
-          <div class="setting-sub">Получать видео при выходе сессий</div>
+          <div class="setting-sub">Новые серии и заезды при публикации</div>
         </div>
         <label class="switch-toggle">
           <input type="checkbox" id="user-set-video" onchange="saveUserSettings()">
@@ -533,7 +600,7 @@
       <div class="setting-row">
         <div>
           <div class="setting-label">📢 Новости и анонсы</div>
-          <div class="setting-sub">Расписание Гран-при и важные события</div>
+          <div class="setting-sub">Расписание Гран-при и события</div>
         </div>
         <label class="switch-toggle">
           <input type="checkbox" id="user-set-news" onchange="saveUserSettings()">
@@ -552,19 +619,8 @@
         </label>
       </div>
 
-      <div class="setting-row">
-        <div>
-          <div class="setting-label">🗂 Компактный список</div>
-          <div class="setting-sub">Уменьшенные карточки каталога</div>
-        </div>
-        <label class="switch-toggle">
-          <input type="checkbox" id="user-set-compact" onchange="toggleCompactView(this.checked)">
-          <span class="switch-slider"></span>
-        </label>
-      </div>
-
-      <div style="margin-top: 20px;">
-        <button type="button" class="submit-btn" style="background: #252b36; border: 1px solid rgba(255,255,255,0.1); margin-top: 0; font-size: 13px; padding: 12px;" onclick="localStorage.clear(); location.reload();">
+      <div style="margin-top: 18px;">
+        <button type="button" class="submit-btn" style="background: #20242e; border: 1px solid var(--border); font-size: 13px;" onclick="localStorage.clear(); location.reload();">
           🧹 Очистить локальный кэш
         </button>
       </div>
@@ -572,67 +628,246 @@
   </div>
 
   <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
 
     const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
     const BOT_USERNAME = "race_weekend_f1_bot";
-    const ADMIN_ID = "301211351";
+    const ADMIN_ID = 301211351;
+    const currentUserId = tg?.initDataUnsafe?.user?.id || null;
 
     let dataTree = {};
     let allItemsFlat = [];
     let activeCategory = null;
     let cameFromSearch = false;
+    let systemState = { global_version: 'v1', is_tester: false, is_admin: false, beta_opt_in: false, lite_mode: false };
 
-    const currentUserId = tg.initDataUnsafe?.user?.id;
-    if (String(currentUserId) === String(ADMIN_ID)) {
-      document.getElementById('admin-entry-container').style.display = 'block';
+    // 1. ИНИЦИАЛИЗАЦИЯ И ОПРЕДЕЛЕНИЕ РЕЖИМА (V1 / V2)
+    async function initApp() {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/system/version`, {
+          headers: { 'X-User-Id': String(currentUserId || '') }
+        });
+        if (res.ok) systemState = await res.json();
+      } catch (e) {}
+
+      // Проверка Lite-режима
+      if (systemState.lite_mode || localStorage.getItem('liteMode') === 'true') {
+        document.body.classList.add('lite-mode');
+        document.getElementById('user-set-lite').checked = true;
+      }
+
+      // Показ закрытого пункта настроек для тестера и админа
+      if (systemState.is_tester || systemState.is_admin) {
+        document.getElementById('beta-tester-row').style.display = 'flex';
+        document.getElementById('user-set-beta').checked = systemState.beta_opt_in;
+      }
+
+      if (systemState.is_admin) {
+        document.getElementById('admin-entry-container').style.display = 'block';
+      }
+
+      // Определение активного макета (v1 или v2)
+      const shouldUseV2 = (systemState.global_version === 'v2') || (systemState.beta_opt_in && (systemState.is_tester || systemState.is_admin));
+      renderLayout(shouldUseV2);
+
+      loadCatalog();
+      loadSettings();
+      if (shouldUseV2) {
+        loadNewsFeed();
+        startTimer();
+      }
     }
 
-    // Инициализация локальных предпочтений
-    const savedCompact = localStorage.getItem('compactView') === 'true';
-    if (savedCompact) document.body.classList.add('compact-mode');
+    function renderLayout(useV2) {
+      if (useV2) {
+        document.getElementById('container-v1').style.display = 'none';
+        document.getElementById('container-v2').style.display = 'block';
+        document.getElementById('v2-header-block').style.display = 'flex';
+      } else {
+        document.getElementById('container-v1').style.display = 'block';
+        document.getElementById('container-v2').style.display = 'none';
+        document.getElementById('v2-header-block').style.display = 'none';
+      }
+    }
+
+    function switchV2Tab(tabName, el) {
+      if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      document.querySelectorAll('.bottom-nav .nav-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+
+      document.getElementById('tab-v2-main').classList.remove('active');
+      document.getElementById('tab-v2-season').classList.remove('active');
+      document.getElementById('tab-v2-archive').classList.remove('active');
+      document.getElementById('tab-v2-news').classList.remove('active');
+
+      document.getElementById(`tab-v2-${tabName}`).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    // 2. ДИНАМИЧЕСКИЙ ТАЙМЕР ОБРАТНОГО ОТСЧЕТА
+    function startTimer() {
+      // Пример целевого времени ближайшей сессии (ПТ 14:30)
+      const target = new Date();
+      target.setDate(target.getDate() + 1);
+      target.setHours(14, 30, 0, 0);
+
+      function update() {
+        const diff = Math.max(0, target - new Date());
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / 1000 / 60) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        document.getElementById('t-days').innerText = String(d).padStart(2, '0');
+        document.getElementById('t-hours').innerText = String(h).padStart(2, '0');
+        document.getElementById('t-mins').innerText = String(m).padStart(2, '0');
+        document.getElementById('t-secs').innerText = String(s).padStart(2, '0');
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    // 3. ЖИВАЯ ЛЕНТА НОВОСТЕЙ КАНАЛА
+    async function loadNewsFeed() {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/feed`);
+        const posts = await res.json();
+        const container = document.getElementById('news-feed-list');
+
+        if (!posts || posts.length === 0) {
+          container.innerHTML = '<div class="skeleton">Постов пока нет. Они появятся здесь сразу после публикации в канале @raceweekendf1</div>';
+          return;
+        }
+
+        container.innerHTML = posts.map(p => {
+          const d = new Date(p.date * 1000).toLocaleString('ru-RU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+          const imgHtml = p.image ? `<img src="${p.image}" class="news-img" loading="lazy">` : '';
+          return `
+            <div class="news-card">
+              ${imgHtml}
+              <div class="news-date">📅 ${d}</div>
+              <div class="news-text">${p.text || ''}</div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {}
+    }
+
+    // 4. КАТАЛОГ И НАВИГАЦИЯ
+    function loadCatalog() {
+      fetch(`${WORKER_URL}/api/catalog`)
+        .then(r => r.json())
+        .then(rows => {
+          dataTree = {};
+          allItemsFlat = rows || [];
+
+          rows.forEach(entry => {
+            const cat = entry.category || 'Разное';
+            const t = entry.title;
+            if (!dataTree[cat]) dataTree[cat] = {};
+            if (!dataTree[cat][t]) dataTree[cat][t] = { image: entry.image, description: entry.description, items: [] };
+            if (!dataTree[cat][t].image && entry.image) dataTree[cat][t].image = entry.image;
+            if (!dataTree[cat][t].description && entry.description) dataTree[cat][t].description = entry.description;
+            dataTree[cat][t].items.push({ id: entry.id, item: entry.item, badge: entry.badge, code: entry.code });
+          });
+
+          // Рендер для v1 и v2 вкладки архива
+          const makeButtons = () => {
+            let html = '';
+            for (const cat in dataTree) {
+              html += `
+                <div class="menu-btn" onclick="openCategory('${cat}')">
+                  <div class="menu-btn-content"><span>${cat}</span></div>
+                  <span style="opacity:0.4;">›</span>
+                </div>
+              `;
+            }
+            return html;
+          };
+
+          document.getElementById('categories-list').innerHTML = makeButtons();
+          document.getElementById('v2-categories-container').innerHTML = makeButtons();
+        })
+        .catch(() => {
+          document.getElementById('categories-list').innerHTML = '<div class="skeleton">Ошибка синхронизации.</div>';
+        });
+    }
+
+    function openCategory(cat) {
+      activeCategory = cat;
+      const container = document.getElementById('titles-list');
+      container.innerHTML = '';
+
+      for (const t in dataTree[cat]) {
+        const it = dataTree[cat][t];
+        const thumbHtml = it.image ? `<img class="menu-btn-thumb" src="${it.image}">` : '';
+        const btn = document.createElement('div');
+        btn.className = 'menu-btn';
+        btn.innerHTML = `<div class="menu-btn-content">${thumbHtml}<span>${t}</span></div><span style="opacity:0.4;">›</span>`;
+        btn.onclick = () => openDetails(t);
+        container.appendChild(btn);
+      }
+      showView('titles');
+    }
+
+    function openDetails(titleKey) {
+      const data = dataTree[activeCategory][titleKey];
+      const headerBox = document.getElementById('item-header');
+      const btnsBox = document.getElementById('item-btns');
+
+      headerBox.innerHTML = `
+        ${data.image ? `<img src="${data.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; margin-bottom:12px;">` : ''}
+        <div style="font-size:17px; font-weight:800; margin-bottom:8px;">${titleKey}</div>
+        ${data.description ? `<div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">${data.description}</div>` : ''}
+      `;
+
+      btnsBox.innerHTML = '';
+      data.items.forEach(it => {
+        const btn = document.createElement('div');
+        btn.className = 'menu-btn';
+        btn.innerHTML = `<div class="menu-btn-content"><span>${it.item}</span></div><span class="badge">${it.badge || 'HD'}</span>`;
+        btn.onclick = () => {
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+          tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${it.code}`);
+          tg?.close();
+        };
+        btnsBox.appendChild(btn);
+      });
+      showView('details');
+    }
 
     function showView(name) {
-      if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById('view-' + name).classList.add('active');
       window.scrollTo(0, 0);
     }
 
-    function backFromDetails() {
-      cameFromSearch ? showView('home') : showView('titles');
-    }
-
-    // ЛОГИКА ОКНА НАСТРОЕК
-    function openSettingsModal() {
-      toggleSettingsModal(true);
-      loadUserSettings();
-    }
-
-    function toggleSettingsModal(show) {
-      const modal = document.getElementById('settings-modal');
-      if (show) {
-        modal.classList.add('active');
+    function backFromTitles() {
+      if (document.getElementById('container-v2').style.display !== 'none') {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('tab-v2-archive').classList.add('active');
       } else {
-        modal.classList.remove('active');
+        showView('v1-home');
       }
     }
 
-    function handleModalOverlayClick(e) {
-      if (e.target.id === 'settings-modal') toggleSettingsModal(false);
+    function backFromDetails() { showView('titles'); }
+
+    // 5. НАСТРОЙКИ, БЕТА И LITE-РЕЖИМ
+    function openSettingsModal() {
+      document.getElementById('settings-modal').classList.add('active');
+      loadUserSettings();
+    }
+    function toggleSettingsModal(show) {
+      if (show) document.getElementById('settings-modal').classList.add('active');
+      else document.getElementById('settings-modal').classList.remove('active');
     }
 
     async function loadUserSettings() {
-      const isCompact = localStorage.getItem('compactView') === 'true';
-      document.getElementById('user-set-compact').checked = isCompact;
-
       if (!currentUserId) return;
       try {
-        const res = await fetch(`${WORKER_URL}/api/user/settings`, {
-          headers: { 'X-User-Id': String(currentUserId) }
-        });
+        const res = await fetch(`${WORKER_URL}/api/user/settings`, { headers: { 'X-User-Id': String(currentUserId) } });
         if (res.ok) {
           const cfg = await res.json();
           document.getElementById('user-set-video').checked = cfg.notify_videos === 1;
@@ -647,32 +882,62 @@
       const payload = {
         notify_videos: document.getElementById('user-set-video').checked,
         notify_news: document.getElementById('user-set-news').checked,
-        silent_mode: document.getElementById('user-set-silent').checked
+        silent_mode: document.getElementById('user-set-silent').checked,
+        lite_mode: document.getElementById('user-set-lite').checked,
+        beta_opt_in: document.getElementById('user-set-beta').checked
       };
-
       try {
         await fetch(`${WORKER_URL}/api/user/settings`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-User-Id': String(currentUserId)
-          },
+          headers: { 'Content-Type': 'application/json', 'X-User-Id': String(currentUserId) },
           body: JSON.stringify(payload)
         });
-        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
       } catch (e) {}
     }
 
-    function toggleCompactView(enable) {
-      localStorage.setItem('compactView', enable);
-      if (enable) {
-        document.body.classList.add('compact-mode');
-      } else {
-        document.body.classList.remove('compact-mode');
-      }
+    function toggleLiteMode(enabled) {
+      localStorage.setItem('liteMode', enabled);
+      if (enabled) document.body.classList.add('lite-mode');
+      else document.body.classList.remove('lite-mode');
+      saveUserSettings();
     }
 
-    // НАДЕЖНАЯ ЗАГРУЗКА ИЗОБРАЖЕНИЯ (БЕЗ КЛЮЧЕЙ И ЛИМИТОВ)
+    async function toggleBetaOptIn(enabled) {
+      await saveUserSettings();
+      location.reload();
+    }
+
+    // 6. УПРАВЛЕНИЕ АДМИНКОЙ
+    function openAdminPanel() {
+      document.getElementById('adm-cur-version').innerText = systemState.global_version.toUpperCase();
+      document.getElementById('adm-toggle-version-btn').innerText = 
+        systemState.global_version === 'v2' ? '⏪ Откатить на v1 для всех' : '🚀 Выкатить v2 для всех пользователей';
+      showView('admin');
+    }
+    function closeAdminPanel() { showView('v1-home'); }
+
+    async function toggleGlobalVersion() {
+      const nextVer = systemState.global_version === 'v2' ? 'v1' : 'v2';
+      const confirmText = nextVer === 'v2'
+        ? "Вы уверены, что хотите включить новый макет v2 ДЛЯ ВСЕХ пользователей?"
+        : "Откатить интерфейс на v1 для всех пользователей?";
+
+      if (!confirm(confirmText)) return;
+
+      try {
+        const res = await fetch(`${WORKER_URL}/api/system/set_version`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': String(ADMIN_ID) },
+          body: JSON.stringify({ version: nextVer })
+        });
+        if (res.ok) {
+          alert(`✅ Успешно! Версия ${nextVer.toUpperCase()} активирована.`);
+          location.reload();
+        }
+      } catch (e) { alert('Ошибка связи с сервером'); }
+    }
+
+    // 7. ЗАГРУЗКА КАРТИНКИ С УСТРОЙСТВА
     async function uploadImageFromDevice(input) {
       const file = input.files[0];
       if (!file) return;
@@ -687,358 +952,24 @@
       formData.append('fileToUpload', file);
 
       try {
-        const res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
-          method: 'POST',
-          body: formData
-        });
-
+        const res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', { method: 'POST', body: formData });
         if (res.ok) {
           const fileUrl = (await res.text()).trim();
           if (fileUrl.startsWith('http')) {
             document.getElementById('adm-img').value = fileUrl;
             statusBox.style.color = '#4caf50';
-            statusBox.textContent = '✅ Картинка успешно загружена!';
+            statusBox.textContent = '✅ Картинка успешно прикреплена!';
             return;
           }
         }
-        throw new Error('Upload error');
+        throw new Error();
       } catch (err) {
         statusBox.style.color = '#ff5555';
-        statusBox.textContent = '❌ Не удалось загрузить файл на хостинг.';
+        statusBox.textContent = '❌ Сбой загрузки.';
       }
-    }
-
-    function loadSettings() {
-      fetch(`${WORKER_URL}/api/settings`)
-        .then(r => r.json())
-        .then(data => {
-          const card = document.getElementById('welcome-card');
-          const title = document.getElementById('welcome-title');
-          const text = document.getElementById('welcome-text');
-          const img = document.getElementById('welcome-img');
-
-          const hasTitle = data.welcome_title && data.welcome_title.trim();
-          const hasText = data.welcome_text && data.welcome_text.trim();
-          const hasImg = data.welcome_image && data.welcome_image.trim();
-
-          if (!hasTitle && !hasText && !hasImg) {
-            card.style.display = 'none';
-          } else {
-            card.style.display = 'block';
-            title.innerText = hasTitle ? data.welcome_title : '';
-            title.style.display = hasTitle ? 'block' : 'none';
-
-            text.innerText = hasText ? data.welcome_text : '';
-            text.style.display = hasText ? 'block' : 'none';
-
-            if (hasImg) {
-              img.src = data.welcome_image;
-              img.style.display = 'block';
-            } else {
-              img.style.display = 'none';
-            }
-          }
-
-          if (document.getElementById('set-welcome-title')) {
-            document.getElementById('set-welcome-title').value = data.welcome_title || '';
-            document.getElementById('set-welcome-text').value = data.welcome_text || '';
-            document.getElementById('set-welcome-img').value = data.welcome_image || '';
-          }
-        })
-        .catch(() => {});
-    }
-
-    function loadCatalog() {
-      fetch(`${WORKER_URL}/api/catalog`)
-        .then(r => r.json())
-        .then(rows => {
-          dataTree = {};
-          allItemsFlat = rows || [];
-
-          rows.forEach(entry => {
-            const cat = entry.category || 'Разное';
-            const t = entry.title;
-
-            if (!dataTree[cat]) dataTree[cat] = {};
-            if (!dataTree[cat][t]) {
-              dataTree[cat][t] = { 
-                image: entry.image, 
-                description: entry.description, 
-                items: [] 
-              };
-            }
-            if (!dataTree[cat][t].image && entry.image) dataTree[cat][t].image = entry.image;
-            if (!dataTree[cat][t].description && entry.description) dataTree[cat][t].description = entry.description;
-
-            dataTree[cat][t].items.push({ 
-              id: entry.id,
-              item: entry.item, 
-              badge: entry.badge, 
-              code: entry.code 
-            });
-          });
-
-          const container = document.getElementById('categories-list');
-          container.innerHTML = '';
-          for (const cat in dataTree) {
-            const btn = document.createElement('div');
-            btn.className = 'menu-btn';
-            btn.innerHTML = `
-              <div class="menu-btn-content">
-                <span>${cat}</span>
-              </div>
-              <span style="opacity:0.4;">›</span>
-            `;
-            btn.onclick = () => openCategory(cat);
-            container.appendChild(btn);
-          }
-
-          renderAdminCatalog(allItemsFlat);
-        })
-        .catch(() => {
-          document.getElementById('categories-list').innerHTML = 
-            '<div class="skeleton">Ошибка загрузки базы Cloudflare.</div>';
-        });
-    }
-
-    loadSettings();
-    loadCatalog();
-
-    function handleSearch(query) {
-      const q = query.trim().toLowerCase();
-      const defaultContent = document.getElementById('home-default-content');
-      const searchContainer = document.getElementById('search-results-list');
-
-      if (!q) {
-        defaultContent.style.display = 'block';
-        searchContainer.style.display = 'none';
-        searchContainer.innerHTML = '';
-        return;
-      }
-
-      defaultContent.style.display = 'none';
-      searchContainer.style.display = 'block';
-      searchContainer.innerHTML = '';
-
-      const matched = allItemsFlat.filter(entry => 
-        entry.title.toLowerCase().includes(q) || 
-        entry.item.toLowerCase().includes(q) ||
-        entry.category.toLowerCase().includes(q)
-      );
-
-      if (matched.length === 0) {
-        searchContainer.innerHTML = '<div class="skeleton">Ничего не найдено 🏎</div>';
-        return;
-      }
-
-      matched.forEach(entry => {
-        const btn = document.createElement('div');
-        btn.className = 'menu-btn';
-        const thumbHtml = entry.image ? `<img class="menu-btn-thumb" src="${entry.image}">` : '';
-
-        btn.innerHTML = `
-          <div class="menu-btn-content">
-            ${thumbHtml}
-            <div class="search-result-item">
-              <span>${entry.title} — ${entry.item}</span>
-              <span class="search-result-sub">${entry.category}</span>
-            </div>
-          </div>
-          <span class="badge">${entry.badge || 'HD'}</span>
-        `;
-        btn.onclick = () => {
-          if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-          tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${entry.code}`);
-          tg.close();
-        };
-        searchContainer.appendChild(btn);
-      });
-    }
-
-    function openCategory(cat) {
-      activeCategory = cat;
-      cameFromSearch = false;
-      const container = document.getElementById('titles-list');
-      container.innerHTML = '';
-
-      for (const t in dataTree[cat]) {
-        const itemData = dataTree[cat][t];
-        const btn = document.createElement('div');
-        btn.className = 'menu-btn';
-
-        const thumbHtml = itemData.image 
-          ? `<img class="menu-btn-thumb" src="${itemData.image}">` 
-          : '';
-
-        btn.innerHTML = `
-          <div class="menu-btn-content">
-            ${thumbHtml}
-            <span>${t}</span>
-          </div>
-          <span style="opacity:0.4;">›</span>
-        `;
-        btn.onclick = () => openDetails(t);
-        container.appendChild(btn);
-      }
-      showView('titles');
-    }
-
-    function openDetails(titleKey) {
-      const data = dataTree[activeCategory][titleKey];
-      const headerBox = document.getElementById('item-header');
-      const btnsBox = document.getElementById('item-btns');
-
-      let bannerHtml = (data.image && data.image.startsWith('http')) 
-        ? `<img class="gp-banner" src="${data.image}" alt="${titleKey}">` 
-        : '';
-      let descHtml = data.description 
-        ? `<div class="gp-desc">${data.description}</div>` 
-        : '';
-
-      headerBox.innerHTML = `
-        ${bannerHtml}
-        <div class="gp-title">${titleKey}</div>
-        ${descHtml}
-      `;
-
-      btnsBox.innerHTML = '';
-      data.items.forEach(it => {
-        const btn = document.createElement('div');
-        btn.className = 'menu-btn';
-        btn.innerHTML = `
-          <div class="menu-btn-content">
-            <span>${it.item}</span>
-          </div>
-          <span class="badge">${it.badge || 'HD'}</span>
-        `;
-        btn.onclick = () => {
-          if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-          tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${it.code}`);
-          tg.close();
-        };
-        btnsBox.appendChild(btn);
-      });
-
-      showView('details');
-    }
-
-    function openAdminPanel() {
-      showView('admin');
-      fetch(`${WORKER_URL}/api/stats`, {
-        headers: { 'X-Admin-Id': currentUserId }
-      })
-      .then(r => r.json())
-      .then(data => {
-        document.getElementById('stat-users').innerText = data.total_users;
-        document.getElementById('stat-active').innerText = data.active_24h || data.views_today || 0;
-        document.getElementById('stat-items').innerText = data.total_items;
-      });
-      loadSettings();
-      renderAdminCatalog(allItemsFlat);
-    }
-
-    function saveSettings() {
-      const payload = {
-        welcome_title: document.getElementById('set-welcome-title').value,
-        welcome_text: document.getElementById('set-welcome-text').value,
-        welcome_image: document.getElementById('set-welcome-img').value
-      };
-
-      fetch(`${WORKER_URL}/api/settings/update`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Id': currentUserId
-        },
-        body: JSON.stringify(payload)
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          alert('✅ Оформление главного экрана сохранено!');
-          loadSettings();
-        } else {
-          alert('Ошибка сохранения');
-        }
-      });
-    }
-
-    function renderAdminCatalog(items) {
-      const container = document.getElementById('admin-catalog-list');
-      container.innerHTML = '';
-
-      if (!items || items.length === 0) {
-        container.innerHTML = '<div class="skeleton">Записей не найдено</div>';
-        return;
-      }
-
-      items.forEach(entry => {
-        const itemCard = document.createElement('div');
-        itemCard.className = 'admin-catalog-item';
-        itemCard.innerHTML = `
-          <div class="admin-item-title">${entry.title} — ${entry.item}</div>
-          <div class="admin-item-sub">Категория: ${entry.category} | Код: ${entry.code} | Post ID: ${entry.post_id}</div>
-          <div class="admin-actions">
-            <button class="action-btn edit-btn" onclick="startEditItem(${entry.id})">✏️ Изменить</button>
-            <button class="action-btn del-btn" onclick="deleteItem(${entry.id})">🗑 Удалить</button>
-          </div>
-        `;
-        container.appendChild(itemCard);
-      });
-    }
-
-    function filterAdminCatalog(query) {
-      const q = query.trim().toLowerCase();
-      if (!q) {
-        renderAdminCatalog(allItemsFlat);
-        return;
-      }
-      const filtered = allItemsFlat.filter(e => 
-        e.title.toLowerCase().includes(q) || 
-        e.item.toLowerCase().includes(q) || 
-        e.category.toLowerCase().includes(q) ||
-        e.code.toLowerCase().includes(q)
-      );
-      renderAdminCatalog(filtered);
-    }
-
-    function startEditItem(id) {
-      const entry = allItemsFlat.find(e => e.id === id);
-      if (!entry) return;
-
-      document.getElementById('adm-edit-id').value = entry.id;
-      document.getElementById('adm-cat').value = entry.category;
-      document.getElementById('adm-title').value = entry.title;
-      document.getElementById('adm-img').value = entry.image || '';
-      document.getElementById('adm-desc').value = entry.description || '';
-      document.getElementById('adm-item').value = entry.item;
-      document.getElementById('adm-badge').value = entry.badge || 'HD';
-      document.getElementById('adm-code').value = entry.code;
-      document.getElementById('adm-post').value = entry.post_id;
-
-      document.getElementById('form-action-title').innerText = `✏️ Редактирование: ${entry.item}`;
-      document.getElementById('adm-save-btn').innerText = '💾 Сохранить изменения';
-      document.getElementById('adm-cancel-btn').style.display = 'block';
-
-      document.getElementById('form-action-title').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function cancelEditMode() {
-      document.getElementById('adm-edit-id').value = '';
-      document.getElementById('adm-item').value = '';
-      document.getElementById('adm-code').value = '';
-      document.getElementById('adm-post').value = '';
-      document.getElementById('upload-status').textContent = '';
-
-      document.getElementById('form-action-title').innerText = '➕ Добавить запись в каталог';
-      document.getElementById('adm-save-btn').innerText = '💾 Сохранить в D1';
-      document.getElementById('adm-cancel-btn').style.display = 'none';
     }
 
     function submitItemForm() {
-      const editId = document.getElementById('adm-edit-id').value;
-      const isEditing = Boolean(editId);
-
       const payload = {
         category: document.getElementById('adm-cat').value,
         title: document.getElementById('adm-title').value,
@@ -1051,78 +982,69 @@
       };
 
       if (!payload.category || !payload.title || !payload.item || !payload.code || !payload.post_id) {
-        alert('Заполните обязательные поля (Категория, Название, Сессия, Код, Post ID)!');
+        alert('Заполните обязательные поля!');
         return;
       }
 
-      const endpoint = isEditing ? '/api/catalog/update' : '/api/catalog/add';
-      if (isEditing) payload.id = editId;
-
-      fetch(`${WORKER_URL}${endpoint}`, {
+      fetch(`${WORKER_URL}/api/catalog/add`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Id': currentUserId
-        },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Id': String(ADMIN_ID) },
         body: JSON.stringify(payload)
       })
       .then(r => r.json())
       .then(res => {
         if (res.success) {
-          alert(isEditing ? '✅ Запись успешно обновлена!' : '✅ Успешно сохранено в базу D1!');
-          cancelEditMode();
+          alert('✅ Успешно добавлено в D1!');
           loadCatalog();
-        } else {
-          alert('Ошибка сохранения: ' + res.error);
+          closeAdminPanel();
         }
       });
     }
 
-    function deleteItem(id) {
-      if (!confirm('Вы уверены, что хотите удалить эту запись из базы?')) return;
+    function handleSearch(query) {
+      const q = query.trim().toLowerCase();
+      const defaultContent = document.getElementById('home-default-content');
+      const searchContainer = document.getElementById('search-results-list');
 
-      fetch(`${WORKER_URL}/api/catalog/delete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Id': currentUserId
-        },
-        body: JSON.stringify({ id: id })
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          alert('🗑 Запись успешно удалена!');
-          loadCatalog();
-        } else {
-          alert('Ошибка при удалении: ' + res.error);
-        }
+      if (!q) {
+        defaultContent.style.display = 'block';
+        searchContainer.style.display = 'none';
+        return;
+      }
+      defaultContent.style.display = 'none';
+      searchContainer.style.display = 'block';
+      searchContainer.innerHTML = '';
+
+      const matched = allItemsFlat.filter(e => e.title.toLowerCase().includes(q) || e.item.toLowerCase().includes(q));
+      if (matched.length === 0) {
+        searchContainer.innerHTML = '<div class="skeleton">Ничего не найдено 🏎</div>';
+        return;
+      }
+
+      matched.forEach(e => {
+        const btn = document.createElement('div');
+        btn.className = 'menu-btn';
+        btn.innerHTML = `<div class="menu-btn-content"><span>${e.title} — ${e.item}</span></div><span class="badge">${e.badge || 'HD'}</span>`;
+        btn.onclick = () => {
+          tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${e.code}`);
+          tg?.close();
+        };
+        searchContainer.appendChild(btn);
       });
     }
 
-    function sendBroadcast() {
-      const msg = document.getElementById('broadcast-msg').value.trim();
-      if (!msg) return alert('Введите текст сообщения!');
-      if (!confirm('Отправить сообщение подписчикам?')) return;
-
-      fetch(`${WORKER_URL}/api/broadcast`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Id': currentUserId
-        },
-        body: JSON.stringify({ message: msg })
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          alert(`✅ Рассылка завершена! Отправлено: ${res.sent}`);
-          document.getElementById('broadcast-msg').value = '';
-        } else {
-          alert('Ошибка рассылки');
+    function loadSettings() {
+      fetch(`${WORKER_URL}/api/settings`).then(r => r.json()).then(data => {
+        const card = document.getElementById('welcome-card');
+        if (data.welcome_title || data.welcome_text) {
+          card.style.display = 'block';
+          document.getElementById('welcome-title').innerText = data.welcome_title || '';
+          document.getElementById('welcome-text').innerText = data.welcome_text || '';
         }
-      });
+      }).catch(() => {});
     }
+
+    initApp();
   </script>
 </body>
 </html>
