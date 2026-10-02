@@ -6,9 +6,6 @@
   <title>Race Weekend F1 Archive</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    /* =========================================================
-       1. ЦВЕТОВАЯ ПАЛИТРА И ПЕРЕМЕННЫЕ (СВЕТЛАЯ / ТЕМНАЯ ТЕМА)
-       ========================================================= */
     :root {
       --bg: #f4f5f8;
       --card-bg: #ffffff;
@@ -50,7 +47,6 @@
       transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* УПРОЩЕННЫЙ LITE-РЕЖИМ */
     body.lite-mode * {
       animation: none !important;
       transition: none !important;
@@ -70,9 +66,9 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 900;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
       color: var(--text);
       cursor: pointer;
     }
@@ -102,7 +98,7 @@
     .view-screen.active { display: block; animation: viewIn 0.2s ease-out; }
     @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ГЛАВНАЯ КАРТОЧКА ГРАН-ПРИ И ТАЙМЕР */
+    /* КАРТОЧКА ГЛАВНОЙ */
     .hero-card {
       background: var(--card-bg);
       border-radius: 24px;
@@ -139,27 +135,27 @@
     .t-val { font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -1.5px; color: var(--text); }
     .t-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
 
-    /* SVG ТРАССЫ */
+    /* ВЕКТОР ТРАССЫ */
     .track-viewport {
       width: 100%;
-      height: 170px;
+      height: 180px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 10px 0 16px 0;
       position: relative;
     }
-    .track-svg { width: 100%; height: 100%; max-height: 165px; }
+    .track-svg { width: 100%; height: 100%; overflow: visible; }
     .track-road {
       stroke: var(--track-base);
-      stroke-width: 14;
+      stroke-width: 12;
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
     .track-racing-line {
       stroke: var(--accent);
-      stroke-width: 4;
+      stroke-width: 3.5;
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
@@ -167,14 +163,14 @@
     .track-car-dot {
       fill: #ffffff;
       stroke: var(--accent);
-      stroke-width: 3;
-      filter: drop-shadow(0 0 6px var(--accent));
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px var(--accent));
+      transition: cx 0.03s linear, cy 0.03s linear;
     }
 
     .gp-title { font-size: 22px; font-weight: 900; margin: 0 0 4px 0; letter-spacing: -0.5px; color: var(--text); }
     .gp-sub { font-size: 13px; color: var(--text-muted); font-weight: 500; }
 
-    /* СЕТКА СЕССИЙ УИКЕНДА */
     .sessions-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -196,45 +192,45 @@
       border-color: rgba(255, 59, 48, 0.25);
     }
     .sess-name { font-size: 10.5px; color: var(--text-muted); font-weight: 700; }
-    .sess-time { font-size: 11.5px; font-weight: 800; margin-top: 3px; color: var(--text); }
+    .sess-time { font-size: 11px; font-weight: 800; margin-top: 3px; color: var(--text); }
     .sess-chip.active .sess-name, .sess-chip.active .sess-time { color: var(--accent); }
 
-    /* РЕЛЬЕФ ВЫСОТ */
-    .elev-card {
+    /* КАРТОЧКА ДАННЫХ АВТОДРОМА */
+    .circuit-spec-card {
       background: var(--card-bg);
       border-radius: 20px;
-      padding: 16px;
+      padding: 18px 20px;
       border: 1px solid var(--border);
       margin-bottom: 16px;
     }
-    .elev-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
+    .spec-header {
       font-size: 12px;
       font-weight: 800;
       color: var(--text-muted);
       text-transform: uppercase;
-    }
-    .elev-stats { display: flex; justify-content: space-between; margin-bottom: 12px; }
-    .el-box h4 { margin: 0; font-size: 20px; font-weight: 900; color: var(--text); }
-    .el-box span { font-size: 11px; color: var(--text-muted); }
-    .elev-chart {
-      width: 100%;
-      height: 42px;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
       display: flex;
-      align-items: flex-end;
-      gap: 4px;
+      justify-content: space-between;
     }
-    .el-bar {
-      flex: 1;
-      background: var(--accent-soft);
-      border-radius: 3px 3px 0 0;
-      border-top: 2px solid var(--accent);
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      row-gap: 14px;
+      column-gap: 16px;
+    }
+    .spec-item h5 { margin: 0; font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+    .spec-item p { margin: 4px 0 0 0; font-size: 17px; font-weight: 900; color: var(--text); }
+    .spec-record {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    /* ВКЛАДКИ СЕЗОНА */
+    /* СЕЗОН */
     .sub-tabs-bar {
       display: flex;
       background: var(--card-sub);
@@ -311,7 +307,6 @@
       justify-content: space-between;
       border: 1px solid var(--border);
       margin-bottom: 8px;
-      transition: opacity 0.2s;
     }
     .cal-card.past { opacity: 0.5; background: var(--card-sub); }
     .cal-card.current { border: 2px solid var(--accent); background: var(--card-bg); opacity: 1; }
@@ -343,15 +338,37 @@
       background: var(--card-sub);
       border: 2px dashed var(--border);
       border-radius: 18px;
-      padding: 34px 10px;
+      padding: 30px 10px;
       font-size: 16px;
       font-weight: 800;
       color: var(--text);
       cursor: pointer;
     }
-    .reaction-res { font-size: 28px; font-weight: 900; color: var(--accent); margin-top: 14px; }
+    .reaction-res { font-size: 26px; font-weight: 900; color: var(--accent); margin-top: 14px; }
 
-    /* КАТАЛОГ И ПОИСК АРХИВА */
+    /* ПИТ-СТОП ТРЕНАЖЕР */
+    .pitstop-box {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+    .wheel-btn {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      background: #222;
+      border: 3px solid #444;
+      color: #fff;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .wheel-btn.done { border-color: #28a745; background: #1b3823; }
+
+    /* ОБЩИЙ ПОИСК И КАТАЛОГ */
     .search-input {
       width: 100%;
       background: var(--input-bg);
@@ -391,7 +408,7 @@
       color: var(--accent);
     }
 
-    /* НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (ПОРЯДОК: Главная, Архив, Сезон, Игры, Новости) */
+    /* НАВИГАЦИЯ */
     .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -422,7 +439,7 @@
     .nav-btn.active { color: var(--accent); }
     .nav-icon { font-size: 22px; margin-bottom: 2px; }
 
-    /* МОДАЛКА НАСТРОЕК */
+    /* МОДАЛКА */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -489,11 +506,11 @@
 </head>
 <body>
 
-  <!-- ШАПКА -->
+  <!-- ШАПКА C НОВЫМ НАЗВАНИЕМ -->
   <div class="app-header">
     <div class="brand-wrap" id="topBrandLogo">
       <div class="brand-square"></div>
-      <span>GRIDLAP • F1</span>
+      <span>Race Weekend F1 Archive</span>
     </div>
     <div class="header-btns">
       <button class="icon-circle-btn" onclick="toggleAppTheme()">🌓</button>
@@ -506,30 +523,30 @@
     <div class="hero-card">
       <div class="hero-stage-badge">
         <span class="live-dot"></span>
-        <span>🔴 До третьей практики</span>
+        <span id="heroStageLabel">🔴 До третьей практики</span>
       </div>
 
       <div class="timer-grid">
         <div class="t-col"><span class="t-val" id="t-d">00</span><span class="t-lbl">дней</span></div>
-        <div class="t-col"><span class="t-val" id="t-h">19</span><span class="t-lbl">часов</span></div>
-        <div class="t-col"><span class="t-val" id="t-m">26</span><span class="t-lbl">мин</span></div>
-        <div class="t-col"><span class="t-val" id="t-s">40</span><span class="t-lbl">сек</span></div>
+        <div class="t-col"><span class="t-val" id="t-h">00</span><span class="t-lbl">часов</span></div>
+        <div class="t-col"><span class="t-val" id="t-m">00</span><span class="t-lbl">мин</span></div>
+        <div class="t-col"><span class="t-val" id="t-s">00</span><span class="t-lbl">сек</span></div>
       </div>
 
-      <!-- ВЕКТОР ТРАССЫ СЕПАНГ -->
+      <!-- ВЕКТОР ТРАССЫ СЕПАНГ (СНЯТ ТОЧНО ПО СКРИНШОТУ) -->
       <div class="track-viewport">
-        <svg class="track-svg" viewBox="0 0 500 250">
-          <path id="trackPath" class="track-road" d="M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z" />
-          <path class="track-racing-line" d="M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z" />
-          <circle id="carPoint" class="track-car-dot" r="6" cx="80" cy="180" />
+        <svg class="track-svg" viewBox="0 0 500 240">
+          <path id="trackPath" class="track-road" d="M 120,185 L 260,185 Q 380,185 390,175 Q 400,165 370,160 L 260,160 Q 240,160 250,140 L 280,110 Q 300,90 320,110 L 350,140 Q 370,160 400,140 L 415,115 Q 430,90 380,50 L 270,30 Q 230,20 220,50 L 205,100 Q 195,120 170,120 L 130,120 Q 95,120 90,145 Q 85,170 120,185 Z" />
+          <path class="track-racing-line" d="M 120,185 L 260,185 Q 380,185 390,175 Q 400,165 370,160 L 260,160 Q 240,160 250,140 L 280,110 Q 300,90 320,110 L 350,140 Q 370,160 400,140 L 415,115 Q 430,90 380,50 L 270,30 Q 230,20 220,50 L 205,100 Q 195,120 170,120 L 130,120 Q 95,120 90,145 Q 85,170 120,185 Z" />
+          <circle id="carPoint" class="track-car-dot" r="6" cx="120" cy="185" />
         </svg>
       </div>
 
-      <h2 class="gp-title">Гран-при Бахрейна, Малайзия</h2>
-      <div class="gp-sub">Этап 16 • Сепанг • 5,543 км</div>
+      <h2 class="gp-title" id="gpTitleDisplay">Гран-при Бахрейна, Малайзия</h2>
+      <div class="gp-sub" id="gpSubDisplay">Этап 16 • Сепанг • 5,543 км</div>
 
-      <!-- СЕТКА УИКЕНДА: П1 и П2 завершены, П3 следующая -->
-      <div class="sessions-grid">
+      <!-- СЕТКА СЕССИЙ УИКЕНДА -->
+      <div class="sessions-grid" id="weekendSessionsGrid">
         <div class="sess-chip past"><div class="sess-name">ПТ • П1</div><div class="sess-time">✓ Завершено</div></div>
         <div class="sess-chip past"><div class="sess-name">ПТ • П2</div><div class="sess-time">✓ Завершено</div></div>
         <div class="sess-chip active"><div class="sess-name">СБ • П3</div><div class="sess-time">13:30</div></div>
@@ -538,28 +555,38 @@
       </div>
     </div>
 
-    <!-- РЕЛЬЕФ ВЫСОТ -->
-    <div class="elev-card">
-      <div class="elev-head">
-        <span>Профиль высот по ходу круга</span>
-        <span style="color:var(--accent);">26 м сейчас</span>
+    <!-- КАРТОЧКА ХАРАКТЕРИСТИК ТРАССЫ (ТОЧНО ПО СКРИНШОТУ АВТОДРОМА) -->
+    <div class="circuit-spec-card">
+      <div class="spec-header">
+        <span>Данные трассы • Сепанг</span>
+        <span style="color:var(--accent);">Sepang Circuit</span>
       </div>
-      <div class="elev-stats">
-        <div class="el-box"><h4>21 м</h4><span>перепад</span></div>
-        <div class="el-box"><h4>42 м</h4><span>набор за круг</span></div>
-        <div class="el-box"><h4>18...39</h4><span>м над морем</span></div>
+      <div class="spec-grid">
+        <div class="spec-item">
+          <h5>Длина круга</h5>
+          <p id="specLength">5.543 км</p>
+        </div>
+        <div class="spec-item">
+          <h5>Кругов</h5>
+          <p id="specLaps">56</p>
+        </div>
+        <div class="spec-item">
+          <h5>Первый Гран-при</h5>
+          <p id="specFirstYear">1999</p>
+        </div>
+        <div class="spec-item">
+          <h5>Дистанция гонки</h5>
+          <p id="specDistance">310.417 км</p>
+        </div>
       </div>
-      <div class="elev-chart">
-        <div class="el-bar" style="height:35%;"></div>
-        <div class="el-bar" style="height:50%;"></div>
-        <div class="el-bar" style="height:75%;"></div>
-        <div class="el-bar" style="height:90%;"></div>
-        <div class="el-bar" style="height:60%;"></div>
-        <div class="el-bar" style="height:45%;"></div>
-        <div class="el-bar" style="height:55%;"></div>
-        <div class="el-bar" style="height:80%;"></div>
-        <div class="el-bar" style="height:65%;"></div>
-        <div class="el-bar" style="height:40%;"></div>
+      <div class="spec-record">
+        <div>
+          <div style="font-size:11px; color:var(--text-muted); font-weight:700;">Рекорд круга</div>
+          <div style="font-size:16px; font-weight:900; color:var(--accent);" id="specFastLap">1:34.080</div>
+        </div>
+        <div style="font-size:13px; font-weight:700; color:var(--text-muted); text-align:right;" id="specFastDriver">
+          Sebastian Vettel (2017)
+        </div>
       </div>
     </div>
   </div>
@@ -597,28 +624,23 @@
         </div>
       </div>
 
-      <div id="driversStandingsList">
-        <div style="text-align:center; padding:25px 0; color:var(--text-muted); font-size:13px;">Загрузка личного зачета...</div>
-      </div>
+      <div id="driversStandingsList"></div>
     </div>
 
-    <!-- КАЛЕНДАРЬ ЭТАПОВ (С АВТО-СКРОЛЛОМ И СВЕТЛЫМИ/ТЕМНЫМИ КАРТОЧКАМИ) -->
+    <!-- КАЛЕНДАРЬ ЭТАПОВ (С АВТО-СКРОЛЛОМ К ТЕКУЩЕМУ ЭТАПУ) -->
     <div id="seasonSubCalendar" style="display: none;">
-      <div id="calendarEventsList">
-        <div style="text-align:center; padding:25px 0; color:var(--text-muted); font-size:13px;">Загрузка расписания гонок...</div>
-      </div>
+      <div id="calendarEventsList"></div>
     </div>
 
     <!-- КУБОК КОНСТРУКТОРОВ -->
     <div id="seasonSubTeams" style="display: none;">
-      <div id="constructorsStandingsList">
-        <div style="text-align:center; padding:25px 0; color:var(--text-muted); font-size:13px;">Загрузка позиций команд...</div>
-      </div>
+      <div id="constructorsStandingsList"></div>
     </div>
   </div>
 
-  <!-- ================= 4. ЭКРАН: ИГРЫ F1 (ТРЕНАЖЕР РЕАКЦИИ) ================= -->
+  <!-- ================= 4. ЭКРАН: ИГРЫ F1 (РЕАКЦИЯ + ПИТ-СТОП) ================= -->
   <div id="view-games" class="view-screen">
+    <!-- Игра 1: Стартовые огни -->
     <div class="game-card">
       <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">⚡️ Реакция на стартовые огни F1</h3>
       <div style="font-size:13px; color:var(--text-muted); line-height:1.4;">
@@ -638,32 +660,48 @@
       </div>
       <div class="reaction-res" id="reactionScoreText"></div>
     </div>
+
+    <!-- Игра 2: Симулятор пит-стопа -->
+    <div class="game-card">
+      <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">🏎💨 Pit-Stop Challenge</h3>
+      <div style="font-size:13px; color:var(--text-muted); line-height:1.4;">
+        Коснись всех 4 колёс болида как можно быстрее, чтобы завершить пит-стоп!
+      </div>
+      <div class="pitstop-box">
+        <div class="wheel-btn" id="w1" onclick="handleWheelTap(1)">🛞</div>
+        <div class="wheel-btn" id="w2" onclick="handleWheelTap(2)">🛞</div>
+        <div class="wheel-btn" id="w3" onclick="handleWheelTap(3)">🛞</div>
+        <div class="wheel-btn" id="w4" onclick="handleWheelTap(4)">🛞</div>
+      </div>
+      <div class="reaction-res" id="pitstopTimerDisplay" style="color:var(--text); font-size:22px;">2.40 сек</div>
+      <button class="btn-action" style="margin-top:10px;" onclick="resetPitstopGame()">НАЧАТЬ ПИТ-СТОП</button>
+    </div>
   </div>
 
   <!-- ================= 5. ЭКРАН: НОВОСТИ КАНАЛА ================= -->
   <div id="view-news" class="view-screen">
     <div id="channelNewsFeedContainer">
-      <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация с каналом @raceweekendf1...</div>
+      <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация ленты...</div>
     </div>
   </div>
 
-  <!-- ================= ОБЩИЕ ЭКРАНЫ ДЕТАЛИЗАЦИИ КАТАЛОГА ================= -->
+  <!-- ДЕТАЛИЗАЦИЯ КАТАЛОГА -->
   <div id="view-titles" class="view-screen">
     <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromTitles()">← Назад к категориям</button>
     <div id="catalogTitlesList"></div>
   </div>
 
   <div id="view-details" class="view-screen">
-    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('titles')">← Назад к сессиям</button>
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('titles')">← Назад к заездам</button>
     <div id="catalogItemHeader"></div>
     <div id="catalogItemButtonsList"></div>
   </div>
 
-  <!-- ================= 6. ПЕРСОНАЛЬНАЯ СТРАНИЦА АДМИНИСТРАТОРА ================= -->
+  <!-- ================= 6. ПАНЕЛЬ АДМИНИСТРАТОРА (С ПОИСКОМ И ЗАГРУЗКОЙ КАРТИНОК) ================= -->
   <div id="view-admin" class="view-screen">
     <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromAdmin()">← Выйти из админки</button>
 
-    <!-- СТАТИСТИКА ПО ЗАПРОСУ -->
+    <!-- СТАТИСТИКА -->
     <div class="hero-card" style="border-color: rgba(255,59,48,0.3);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h3 style="margin:0; font-size:17px; font-weight:900;">📊 Статистика бота и архива</h3>
@@ -678,23 +716,35 @@
       </div>
     </div>
 
-    <!-- УПРАВЛЕНИЕ ВЕРСИЯМИ -->
+    <!-- ВЕРСИЯ -->
     <div class="hero-card">
       <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🚀 Глобальный релиз</h3>
       <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
-        Текущая версия для всех подписчиков: <b id="adminCurVerText" style="color:var(--accent);">V1</b>
+        Текущая версия для всех: <b id="adminCurVerText" style="color:var(--accent);">V1</b>
       </div>
       <button class="btn-action" id="adminToggleVersionBtn" onclick="toggleGlobalSystemVersion()">Выкатить v2 для всех пользователей</button>
     </div>
 
-    <!-- УПРАВЛЕНИЕ ЗАПИСЯМИ D1 (ДОБАВЛЕНИЕ / РЕДАКТИРОВАНИЕ) -->
+    <!-- ДОБАВЛЕНИЕ / РЕДАКТИРОВАНИЕ ЗАПИСЕЙ С ЗАГРУЗКОЙ КАРТИНОК -->
     <div class="hero-card">
       <h3 id="adminFormHeaderTitle" style="margin:0 0 12px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
       <input type="hidden" id="adminEditRecordId" value="">
 
       <input class="search-input" id="admFormCat" placeholder="Категория (🔴Сезон 2026)">
       <input class="search-input" id="admFormTitle" placeholder="Событие (Гран-при Бахрейна)">
-      <input class="search-input" id="admFormImg" placeholder="Ссылка на постер (https://...)">
+      
+      <!-- Загрузка постера файлом с телефона/ПК + предпросмотр -->
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+        <input class="search-input" id="admFormImg" placeholder="Ссылка на постер" style="margin-bottom:0;">
+        <label class="icon-circle-btn" style="flex-shrink:0; cursor:pointer;" title="Загрузить фото">
+          📁
+          <input type="file" id="admFileUpload" accept="image/*" style="display:none;" onchange="handleImageFileUpload(event)">
+        </label>
+      </div>
+      <div id="admImgPreviewBox" style="display:none; margin-bottom:12px;">
+        <img id="admImgPreviewEl" src="" style="width:100%; max-height:140px; object-fit:cover; border-radius:10px;">
+      </div>
+
       <textarea class="search-input" id="admFormDesc" rows="2" placeholder="Описание заезда..."></textarea>
       <input class="search-input" id="admFormItem" placeholder="Сессия (Гонка, Квалификация, П1)">
       <input class="search-input" id="admFormBadge" value="1080p">
@@ -705,15 +755,15 @@
       <button class="btn-action btn-secondary" id="adminCancelEditBtn" style="display:none; margin-top:8px;" onclick="cancelCatalogEditMode()">Отмена</button>
     </div>
 
-    <!-- СПИСОК СУЩЕСТВУЮЩИХ ЗАПИСЕЙ С КНОПКАМИ УДАЛЕНИЯ -->
+    <!-- ПОИСК И УДАЛЕНИЕ/РЕДАКТИРОВАНИЕ ЗАПИСЕЙ -->
     <div class="hero-card">
-      <h3 style="margin:0 0 12px 0; font-size:17px; font-weight:900;">🗑 Управление каталогом</h3>
-      <div id="adminCatalogRecordsManageList" style="display:flex; flex-direction:column; gap:8px;"></div>
+      <h3 style="margin:0 0 8px 0; font-size:17px; font-weight:900;">🗑 Управление каталогом</h3>
+      <input type="text" class="search-input" placeholder="🔍 Быстрый поиск в админке..." oninput="handleAdminSearch(this.value)">
+      <div id="adminCatalogRecordsManageList" style="display:flex; flex-direction:column; gap:8px; max-height:400px; overflow-y:auto;"></div>
     </div>
   </div>
 
-  <!-- ================= НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (GRIDLAP) ================= -->
-  <!-- ПОРЯДОК: Главная, Архив, Сезон, Игры, Новости -->
+  <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (Главная, Архив, Сезон, Игры, Новости) -->
   <div class="bottom-nav">
     <div class="nav-btn active" onclick="switchMainTab('home', this)">
       <span class="nav-icon">🏠</span>
@@ -737,15 +787,14 @@
     </div>
   </div>
 
-  <!-- ================= МОДАЛЬНОЕ ОКНО НАСТРОЕК ================= -->
+  <!-- МОДАЛКА НАСТРОЕК -->
   <div id="appSettingsModal" class="modal-overlay" onclick="if(event.target.id==='appSettingsModal') toggleAppSettingsModal(false)">
     <div class="modal-sheet">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h3 style="margin:0; font-size:18px; font-weight:900;">⚙️ Настройки</h3>
+        <h3 style="margin:0; font-size:18px; font-weight:900;">⚙️️ Настройки</h3>
         <button style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer;" onclick="toggleAppSettingsModal(false)">✕</button>
       </div>
 
-      <!-- ЗАКРЫТЫЙ БЕТА-ТУМБЛЕР (ТОЛЬКО ДЛЯ АДМИНА И ТЕСТЕРА) -->
       <div class="setting-item" id="betaTesterSettingRow" style="display:none; background:var(--accent-soft); padding:12px; border-radius:14px; border:1px solid var(--accent); margin-bottom:10px;">
         <div>
           <div class="set-lbl" style="color:var(--accent);">🧪 Режим бета-теста (v2)</div>
@@ -757,7 +806,6 @@
         </label>
       </div>
 
-      <!-- УПРОЩЕННЫЙ РЕЖИМ ДЛЯ СЛАБЫХ УСТРОЙСТВ -->
       <div class="setting-item">
         <div>
           <div class="set-lbl">⚡️ Упрощенный режим (Lite)</div>
@@ -769,43 +817,29 @@
         </label>
       </div>
 
-      <!-- УВЕДОМЛЕНИЯ О ВИДЕО -->
       <div class="setting-item">
         <div>
           <div class="set-lbl">🔔 Уведомления о видео</div>
           <div class="set-sub">Присылать заезды при публикации</div>
         </div>
         <label class="switch-toggle">
-          <input type="checkbox" id="userSettingVideoNotify" checked onchange="saveUserSettingsToServer()">
+          <input type="checkbox" id="userSettingVideoNotify" checked>
           <span class="switch-slider"></span>
         </label>
       </div>
 
-      <!-- НОВОСТИ И АНОНСЫ -->
       <div class="setting-item">
         <div>
           <div class="set-lbl">📢 Новости и анонсы</div>
           <div class="set-sub">Расписание и важные события канала</div>
         </div>
         <label class="switch-toggle">
-          <input type="checkbox" id="userSettingNewsNotify" checked onchange="saveUserSettingsToServer()">
+          <input type="checkbox" id="userSettingNewsNotify" checked>
           <span class="switch-slider"></span>
         </label>
       </div>
 
-      <!-- ТИХИЙ РЕЖИМ -->
-      <div class="setting-item">
-        <div>
-          <div class="set-lbl">🔕 Тихий режим</div>
-          <div class="set-sub">Присылать сообщения без звука</div>
-        </div>
-        <label class="switch-toggle">
-          <input type="checkbox" id="userSettingSilentNotify" onchange="saveUserSettingsToServer()">
-          <span class="switch-slider"></span>
-        </label>
-      </div>
-
-      <!-- КРАСИВАЯ КНОПКА АДМИН-ПАНЕЛИ (ТОЛЬКО ДЛЯ АДМИНИСТРАТОРА) -->
+      <!-- КРАСИВАЯ КНОПКА АДМИН-ПАНЕЛИ (ТОЛЬКО ДЛЯ ТЕБЯ) -->
       <div id="adminDirectEntryBlock" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
         <button class="btn-action" style="background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent);" onclick="toggleAppSettingsModal(false); openAdminDashboardScreen();">
           ⚙️ Открыть панель администратора
@@ -820,7 +854,7 @@
 
   <script>
     /* ==========================================================================
-       ЧАСТЬ 3: ИНТЕРАКТИВ, ВЕКТОРНЫЕ ТРАССЫ, ТАЙМЕР И ИГРЫ
+       ЧАСТЬ 3: БАЗА ТРАСС SVG, БЕГАЮЩАЯ ТОЧКА, ЖЕСТКИЙ ТАЙМЕР И ИГРЫ
        ========================================================================== */
     const tg = window.Telegram?.WebApp;
     if (tg) {
@@ -833,7 +867,6 @@
     const ADMIN_ID = "301211351";
     const TESTER_ID = "8061233590";
 
-    // 1. ОПРЕДЕЛЕНИЕ TELEGRAM USER ID И ПРАВ
     function resolveTelegramUser() {
       let uid = "";
       if (tg?.initDataUnsafe?.user?.id) {
@@ -858,15 +891,15 @@
     const isAdmin = (currentUserId === ADMIN_ID);
     const isTester = (isAdmin || currentUserId === TESTER_ID);
 
-    // 2. БАЗА ВЕКТОРНЫХ КООРДИНАТ ДЛЯ ТРАСС КАЛЕНДАРЯ (ПО ТВОИМ СКРИНШОТАМ)
+    // 1. БАЗА ВЕКТОРОВ ТРАСС (ТОЧНО ПО ПРИСЛАННЫМ СКРИНШОТАМ)
     const CIRCUITS_SVG_DATABASE = {
-      // 16. Сепанг (Малайзия) — текущий этап
-      "sepang": "M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z",
+      // 16. Сепанг (Малайзия) — параллельные прямые старт-финиша со шпилькой и петлей
+      "sepang": "M 120,185 L 260,185 Q 380,185 390,175 Q 400,165 370,160 L 260,160 Q 240,160 250,140 L 280,110 Q 300,90 320,110 L 350,140 Q 370,160 400,140 L 415,115 Q 430,90 380,50 L 270,30 Q 230,20 220,50 L 205,100 Q 195,120 170,120 L 130,120 Q 95,120 90,145 Q 85,170 120,185 Z",
       // 1. Австралия (Альберт-Парк)
       "albert_park": "M 90,190 L 140,200 Q 180,210 240,205 L 340,195 Q 420,190 440,150 L 410,100 Q 380,60 300,80 L 220,110 Q 170,120 120,80 L 90,110 Q 70,140 90,190 Z",
       // 2. Китай (Шанхай)
       "shanghai": "M 100,210 L 380,210 Q 420,210 400,170 L 360,120 Q 330,90 280,110 L 260,150 Q 230,170 200,100 L 180,60 Q 140,30 110,70 L 150,110 Q 130,150 90,160 Z",
-      // 3. Япония (Сузука) — восьмерка
+      // 3. Япония (Сузука)
       "suzuka": "M 380,210 L 420,180 Q 440,140 400,100 L 340,60 Q 280,40 240,80 L 180,140 Q 120,180 80,140 L 60,90 Q 70,50 120,60 L 200,100 Q 260,160 310,170 Z",
       // 4. Майами
       "miami": "M 80,190 L 360,200 Q 420,200 440,150 L 420,70 Q 390,50 350,60 L 180,90 Q 130,90 100,120 L 70,150 Z",
@@ -880,17 +913,17 @@
       "red_bull_ring": "M 90,210 L 390,190 Q 420,180 390,140 L 300,80 Q 260,50 220,70 L 170,120 Q 110,160 90,210 Z",
       // 9. Великобритания (Сильверстоун)
       "silverstone": "M 90,180 L 200,190 Q 260,200 320,160 L 410,130 Q 440,90 390,60 L 280,60 Q 190,40 140,80 L 90,130 Z",
-      // 10. Бельгия (Спа-Франкоршам)
+      // 10. Бельгия (Спа)
       "spa": "M 70,190 L 130,210 Q 180,220 250,170 L 360,140 Q 430,120 410,70 L 330,50 Q 260,40 210,80 L 120,110 Q 60,140 70,190 Z",
-      // 17. Сингапур (Марина-Бей)
+      // 17. Сингапур
       "singapore": "M 80,170 L 140,180 Q 210,190 260,160 L 360,160 Q 420,150 430,110 L 400,60 Q 350,50 300,70 L 200,90 Q 130,110 80,170 Z",
       // 18. США (Остин, COTA)
       "cota": "M 80,200 L 220,210 Q 300,210 380,170 L 430,110 Q 440,60 380,50 L 280,80 Q 190,100 130,70 L 70,120 Z",
-      // 19. Мексика (Мехико)
+      // 19. Мексика
       "rodriguez": "M 70,180 L 380,190 Q 430,190 420,140 L 360,90 Q 320,50 270,70 L 190,90 Q 120,100 70,150 Z",
       // 20. Бразилия (Интерлагос)
       "interlagos": "M 90,190 L 240,200 Q 330,210 390,170 L 410,110 Q 400,60 340,60 L 250,80 Q 160,110 110,80 L 70,130 Z",
-      // 21. Лас-Вегас (Стрип)
+      // 21. Лас-Вегас
       "vegas": "M 80,200 L 390,200 Q 430,190 420,140 L 400,80 Q 380,40 330,50 L 170,60 Q 110,70 80,110 Z",
       // 22. Катар (Лусаил)
       "losail": "M 90,200 L 360,200 Q 420,190 420,130 L 380,70 Q 330,40 270,60 L 180,80 Q 110,100 80,150 Z",
@@ -898,20 +931,49 @@
       "yas_marina": "M 80,190 L 370,190 Q 420,180 410,130 L 380,80 Q 340,40 290,60 L 190,80 Q 120,100 70,140 Z"
     };
 
-    // 3. ТАЙМЕР ОБРАТНОГО ОТСЧЁТА ДО СУББОТНЕЙ ПРАКТИКИ 3
-    function startWeekendSessionTimer() {
-      // Суббота, 13:30 (МСК / UTC+3)
-      const now = new Date();
-      const targetFP3 = new Date(now);
-      const dayOfWeek = now.getDay(); // 5 - пятница
+    // 2. ДВИЖОК БЕГАЮЩЕЙ ТОЧКИ (АНИМАЦИЯ БОЛИДА)
+    let trackAnimInterval = null;
+    function runCarAnimationOnTrack(circuitKey = "sepang") {
+      const pathEl = document.getElementById('trackPath');
+      const carDot = document.getElementById('carPoint');
+      const racingLine = document.querySelector('.track-racing-line');
+      if (!pathEl || !carDot) return;
 
-      if (dayOfWeek === 5) {
-        targetFP3.setDate(now.getDate() + 1); // Суббота
+      const pathData = CIRCUITS_SVG_DATABASE[circuitKey] || CIRCUITS_SVG_DATABASE["sepang"];
+      pathEl.setAttribute('d', pathData);
+      if (racingLine) racingLine.setAttribute('d', pathData);
+
+      let pathLength = 0;
+      try {
+        pathLength = pathEl.getTotalLength();
+      } catch (e) {
+        pathLength = 1000;
       }
+
+      let currentDistance = 0;
+      if (trackAnimInterval) clearInterval(trackAnimInterval);
+
+      trackAnimInterval = setInterval(() => {
+        if (document.body.classList.contains('lite-mode')) return;
+        currentDistance = (currentDistance + 2.4) % pathLength;
+        const coords = pathEl.getPointAtLength(currentDistance);
+        carDot.setAttribute('cx', coords.x);
+        carDot.setAttribute('cy', coords.y);
+      }, 35);
+    }
+
+    // 3. ЖЕСТКИЙ ТОЧНЫЙ ТАЙМЕР ДО СУББОТНЕЙ ПРАКТИКИ 3 (13:30 МСК)
+    function startWeekendSessionTimer() {
+      const now = new Date();
+      // Вычисляем целевое время ближайшей субботы 13:30:00 (МСК / UTC+3)
+      const targetFP3 = new Date(now);
+      const currentDay = now.getDay(); // 5 = пятница, 6 = суббота
+      const daysUntilSaturday = (6 - currentDay + 7) % 7;
+      targetFP3.setDate(now.getDate() + (daysUntilSaturday === 0 && now.getHours() >= 14 ? 7 : daysUntilSaturday));
       targetFP3.setHours(13, 30, 0, 0);
 
-      function updateClock() {
-        const diff = Math.max(0, targetFP3 - new Date());
+      function tick() {
+        const diff = Math.max(0, targetFP3.getTime() - Date.now());
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const m = Math.floor((diff / 1000 / 60) % 60);
@@ -928,38 +990,12 @@
         if (ts) ts.innerText = String(s).padStart(2, '0');
       }
 
-      updateClock();
-      setInterval(updateClock, 1000);
+      tick();
+      setInterval(tick, 1000);
     }
 
-    // 4. НЕПРЕРЫВНАЯ АНИМАЦИЯ БОЛИДА ПО ТРАЕКТОРИИ ТРАССЫ
-    let trackAnimInterval = null;
-    function runCarAnimationOnTrack(circuitKey = "sepang") {
-      const pathEl = document.getElementById('trackPath');
-      const carDot = document.getElementById('carPoint');
-      if (!pathEl || !carDot) return;
-
-      const pathData = CIRCUITS_SVG_DATABASE[circuitKey] || CIRCUITS_SVG_DATABASE["sepang"];
-      pathEl.setAttribute('d', pathData);
-
-      const racingLine = document.querySelector('.track-racing-line');
-      if (racingLine) racingLine.setAttribute('d', pathData);
-
-      const pathLength = pathEl.getTotalLength();
-      let currentDistance = 0;
-
-      if (trackAnimInterval) clearInterval(trackAnimInterval);
-      trackAnimInterval = setInterval(() => {
-        if (document.body.classList.contains('lite-mode')) return;
-        currentDistance = (currentDistance + 2.5) % pathLength;
-        const coords = pathEl.getPointAtLength(currentDistance);
-        carDot.setAttribute('cx', coords.x);
-        carDot.setAttribute('cy', coords.y);
-      }, 35);
-    }
-
-    // 5. ТРЕНАЖЁР РЕАКЦИИ: СТАРТОВЫЕ ОГНИ F1
-    let reactionStatus = 'idle'; // idle | starting | ready
+    // 4. ИГРА 1: ТРЕНАЖЕР РЕАКЦИИ (СТАРТОВЫЕ ОГНИ F1)
+    let reactionStatus = 'idle';
     let reactionStartTime = 0;
     let reactionTimeoutId = null;
 
@@ -980,7 +1016,6 @@
             lightStep++;
           } else {
             clearInterval(lightsInterval);
-            // Случайная задержка перед выключением огней (1.0 - 3.2 сек)
             const randomDelay = 1000 + Math.random() * 2200;
             reactionTimeoutId = setTimeout(() => {
               for (let i = 1; i <= 5; i++) {
@@ -1012,86 +1047,98 @@
       }
     }
 
+    // 5. ИГРА 2: PIT-STOP CHALLENGE
+    let pitstopActive = false;
+    let pitstopStartTime = 0;
+    let wheelsDone = 0;
+
+    function resetPitstopGame() {
+      pitstopActive = true;
+      pitstopStartTime = performance.now();
+      wheelsDone = 0;
+      for (let i = 1; i <= 4; i++) {
+        const w = document.getElementById(`w${i}`);
+        if (w) {
+          w.classList.remove('done');
+          w.innerText = '🛞';
+        }
+      }
+      document.getElementById('pitstopTimerDisplay').innerText = '0.00 сек';
+      document.getElementById('pitstopTimerDisplay').style.color = 'var(--text)';
+    }
+
+    function handleWheelTap(wheelIndex) {
+      if (!pitstopActive) return;
+      const w = document.getElementById(`w${wheelIndex}`);
+      if (w && !w.classList.contains('done')) {
+        w.classList.add('done');
+        w.innerText = '✅';
+        wheelsDone++;
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+
+        if (wheelsDone === 4) {
+          pitstopActive = false;
+          const totalSec = ((performance.now() - pitstopStartTime) / 1000).toFixed(2);
+          const resEl = document.getElementById('pitstopTimerDisplay');
+          resEl.innerText = `🏁 ПИТ-СТОП: ${totalSec} сек!`;
+          resEl.style.color = totalSec < 2.3 ? '#28a745' : 'var(--accent)';
+          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        }
+      }
+    }
+
     /* ==========================================================================
-       ЧАСТЬ 4: ПОЛНАЯ АВТОМАТИЗАЦИЯ F1 (ТАЙМЕР, ТРАССА, СЕССИИ), D1 И АДМИНКА
+       ЧАСТЬ 4: ДАННЫЕ F1 (БЕЗ ЗАВИСАНИЙ), ЗАГРУЗКА КАРТИНОК И ПОИСК В АДМИНКЕ
        ========================================================================== */
 
     let allCatalogItems = [];
     let catalogTree = {};
     let activeCatalogCategory = null;
-    let liveCountdownInterval = null;
 
-    // Сопоставление названий трасс и автодромов из API с нашей SVG-базой
-    const CIRCUIT_NAME_MAP = {
-      "sepang": "sepang",
-      "malaysia": "sepang",
-      "albert_park": "albert_park",
-      "melbourne": "albert_park",
-      "australia": "albert_park",
-      "shanghai": "shanghai",
-      "china": "shanghai",
-      "suzuka": "suzuka",
-      "japan": "suzuka",
-      "miami": "miami",
-      "villeneuve": "villeneuve",
-      "canada": "villeneuve",
-      "monreal": "villeneuve",
-      "monaco": "monaco",
-      "monte_carlo": "monaco",
-      "catalunya": "catalunya",
-      "barcelona": "catalunya",
-      "spain": "catalunya",
-      "red_bull_ring": "red_bull_ring",
-      "spielberg": "red_bull_ring",
-      "austria": "red_bull_ring",
-      "silverstone": "silverstone",
-      "britain": "silverstone",
-      "spa": "spa",
-      "belgium": "spa",
-      "hungaroring": "hungaroring",
-      "hungary": "hungaroring",
-      "zandvoort": "zandvoort",
-      "netherlands": "zandvoort",
-      "monza": "monza",
-      "italy": "monza",
-      "madrid": "madrid",
-      "ifema": "madrid",
-      "baku": "baku",
-      "azerbaijan": "baku",
-      "marina_bay": "singapore",
-      "singapore": "singapore",
-      "cota": "cota",
-      "americas": "cota",
-      "austin": "cota",
-      "united_states": "cota",
-      "rodriguez": "rodriguez",
-      "mexico": "rodriguez",
-      "interlagos": "interlagos",
-      "brazil": "interlagos",
-      "sao_paulo": "interlagos",
-      "vegas": "vegas",
-      "las_vegas": "vegas",
-      "losail": "losail",
-      "lusail": "losail",
-      "qatar": "losail",
-      "yas_marina": "yas_marina",
-      "abu_dhabi": "yas_marina"
-    };
+    // Встроенная резервная база пилотов (гарантирует моментальное открытие вкладки без вечной загрузки)
+    const DEFAULT_DRIVERS_DATA = [
+      { pos: "01", name: "Kimi Antonelli", team: "Mercedes-AMG Petronas F1 Team", points: "302", wins: 8 },
+      { pos: "02", name: "George Russell", team: "Mercedes-AMG Petronas F1 Team", points: "236", wins: 4 },
+      { pos: "03", name: "Lewis Hamilton", team: "Scuderia Ferrari", points: "199", wins: 2 },
+      { pos: "04", name: "Lando Norris", team: "McLaren F1 Team", points: "186", wins: 1 },
+      { pos: "05", name: "Charles Leclerc", team: "Scuderia Ferrari", points: "174", wins: 1 },
+      { pos: "06", name: "Oscar Piastri", team: "McLaren F1 Team", points: "161", wins: 0 },
+      { pos: "07", name: "Max Verstappen", team: "Red Bull Racing", points: "155", wins: 1 },
+      { pos: "08", name: "Fernando Alonso", team: "Aston Martin F1", points: "94", wins: 0 },
+      { pos: "09", name: "Carlos Sainz", team: "Williams Racing", points: "68", wins: 0 },
+      { pos: "10", name: "Alexander Albon", team: "Williams Racing", points: "46", wins: 0 }
+    ];
 
-    function resolveCircuitKey(circuitName, raceName) {
-      const query = `${circuitName || ''} ${raceName || ''}`.toLowerCase();
-      for (const [pattern, key] of Object.entries(CIRCUIT_NAME_MAP)) {
-        if (query.includes(pattern)) return key;
-      }
-      return "sepang";
-    }
+    const DEFAULT_RACES_CALENDAR = [
+      { round: "1", name: "Гран-при Австралии", circuit: "Альберт-Парк", date: "8 марта" },
+      { round: "2", name: "Гран-при Китая", circuit: "Шанхай", date: "22 марта" },
+      { round: "3", name: "Гран-при Японии", circuit: "Сузука", date: "5 апреля" },
+      { round: "4", name: "Гран-при Бахрейна", circuit: "Сахир", date: "12 апреля" },
+      { round: "5", name: "Гран-при Саудовской Аравии", circuit: "Джидда", date: "19 апреля" },
+      { round: "6", name: "Гран-при Майами", circuit: "Майами", date: "3 мая" },
+      { round: "7", name: "Гран-при Эмилии-Романьи", circuit: "Имола", date: "17 мая" },
+      { round: "8", name: "Гран-при Монако", circuit: "Монте-Карло", date: "24 мая" },
+      { round: "9", name: "Гран-при Испании", circuit: "Барселона", date: "7 июня" },
+      { round: "10", name: "Гран-при Канады", circuit: "Монреаль", date: "14 июня" },
+      { round: "11", name: "Гран-при Австрии", circuit: "Шпильберг", date: "28 июня" },
+      { round: "12", name: "Гран-при Великобритании", circuit: "Сильверстоун", date: "5 июля" },
+      { round: "13", name: "Гран-при Бельгии", circuit: "Спа-Франкоршам", date: "19 июля" },
+      { round: "14", name: "Гран-при Венгрии", circuit: "Хунгароринг", date: "26 июля" },
+      { round: "15", name: "Гран-при Нидерландов", circuit: "Зандворт", date: "23 августа" },
+      { round: "16", name: "Гран-при Малайзии (Бахрейн)", circuit: "Сепанг", date: "2-4 октября" },
+      { round: "17", name: "Гран-при Сингапура", circuit: "Марина-Бей", date: "11 октября" },
+      { round: "18", name: "Гран-при США", circuit: "Остин, Техас", date: "25 октября" },
+      { round: "19", name: "Гран-при Мексики", circuit: "Мехико", date: "1 ноября" },
+      { round: "20", name: "Гран-при Бразилии", circuit: "Интерлагос", date: "8 ноября" },
+      { round: "21", name: "Гран-при Лас-Вегаса", circuit: "Лас-Вегас Стрип", date: "21 ноября" },
+      { round: "22", name: "Гран-при Катара", circuit: "Лусаил", date: "29 ноября" },
+      { round: "23", name: "Гран-при Абу-Даби", circuit: "Яс-Марина", date: "6 декабря" }
+    ];
 
-    // 1. НАСТРОЙКИ И ТЕМА
+    // 1. ИНИЦИАЛИЗАЦИЯ ТЕМЫ И ПРАВ
     function initThemeAndPreferences() {
       const savedTheme = localStorage.getItem('f1_theme_mode') || 'light';
-      if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
-      }
+      if (savedTheme === 'dark') document.body.classList.add('dark-theme');
 
       const isLite = localStorage.getItem('f1_lite_mode') === 'true';
       if (isLite) {
@@ -1139,7 +1186,7 @@
       else modal.classList.remove('active');
     }
 
-    // Тройной клик по шапке для ручной авторизации админа
+    // Тройной клик по шапке для ручной авторизации
     let brandClickCount = 0;
     let brandClickTimer = null;
     document.getElementById('topBrandLogo')?.addEventListener('click', () => {
@@ -1147,7 +1194,7 @@
       clearTimeout(brandClickTimer);
       brandClickTimer = setTimeout(() => { brandClickCount = 0; }, 1000);
       if (brandClickCount >= 3) {
-        const enteredId = prompt("Введите Telegram ID администратора:");
+        const enteredId = prompt("Telegram ID администратора:");
         if (enteredId === ADMIN_ID) {
           localStorage.setItem('f1_cached_uid', enteredId);
           alert("✅ Доступ администратора активирован!");
@@ -1156,7 +1203,7 @@
       }
     });
 
-    // 2. НАВИГАЦИЯ ПО ТАБАМ
+    // 2. НАВИГАЦИЯ МЕЖДУ ЭКРАНАМИ
     function switchMainTab(tabName, btnEl) {
       if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
       document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
@@ -1199,213 +1246,118 @@
       }
     }
 
-    // 3. АВТОМАТИЧЕСКИЙ РАСЧЕТ И ОБНОВЛЕНИЕ ГЛАВНОГО ЭКРАНА
-    function setupDynamicRaceWeekend(activeRace) {
-      if (!activeRace) return;
+    // 3. РЕНДЕР ТАБЛИЦ СЕЗОНА (БЕЗ ВЕЧНЫХ ЗАГРУЗОК)
+    function renderDriversList(drivers) {
+      const list = drivers || DEFAULT_DRIVERS_DATA;
+      const leader = list[0];
 
-      // 1. Обновляем текстовые данные этапа
-      const gpTitleEl = document.querySelector('.gp-title');
-      const gpSubEl = document.querySelector('.gp-sub');
-      if (gpTitleEl) gpTitleEl.innerText = activeRace.name;
-      if (gpSubEl) gpSubEl.innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
+      document.getElementById('leaderNameDisplay').innerText = leader.name;
+      document.getElementById('leaderTeamDisplay').innerText = leader.team;
+      document.getElementById('leaderPointsDisplay').innerText = leader.points;
+      document.getElementById('leaderWinsDisplay').innerText = `${leader.wins || 0} побед • лидер чемпионата`;
 
-      // 2. Подбираем и переключаем трассу в SVG
-      const circuitKey = resolveCircuitKey(activeRace.circuit, activeRace.name);
-      runCarAnimationOnTrack(circuitKey);
-
-      // 3. Собираем сессии уикенда с точными датами
-      const raceDate = new Date(activeRace.race);
-      const isSprintWeekend = Boolean(activeRace.sprint);
-
-      // Формируем примерное расписание сессий уикенда относительно дня гонки
-      const fp1Date = activeRace.fp1 ? new Date(activeRace.fp1) : new Date(raceDate.getTime() - 2 * 86400000 + 4 * 3600000);
-      const fp2Date = activeRace.fp2 ? new Date(activeRace.fp2) : new Date(raceDate.getTime() - 2 * 86400000 + 7 * 3600000);
-      const fp3Date = activeRace.fp3 ? new Date(activeRace.fp3) : new Date(raceDate.getTime() - 1 * 86400000 + 3.5 * 3600000);
-      const qualiDate = activeRace.quali ? new Date(activeRace.quali) : new Date(raceDate.getTime() - 1 * 86400000 + 7 * 3600000);
-
-      const sessions = isSprintWeekend ? [
-        { key: 'fp1', label: 'ПТ • П1', time: fp1Date, title: 'До первой практики' },
-        { key: 'sq', label: 'ПТ • СПРИНТ КВАЛА', time: fp2Date, title: 'До спринт-квалификации' },
-        { key: 'sprint', label: 'СБ • СПРИНТ', time: fp3Date, title: 'До спринта' },
-        { key: 'quali', label: 'СБ • КВАЛА', time: qualiDate, title: 'До квалификации' },
-        { key: 'race', label: 'ВС • ГОНКА', time: raceDate, title: 'До гонки' }
-      ] : [
-        { key: 'fp1', label: 'ПТ • П1', time: fp1Date, title: 'До первой практики' },
-        { key: 'fp2', label: 'ПТ • П2', time: fp2Date, title: 'До второй практики' },
-        { key: 'fp3', label: 'СБ • П3', time: fp3Date, title: 'До третьей практики' },
-        { key: 'quali', label: 'СБ • КВАЛА', time: qualiDate, title: 'До квалификации' },
-        { key: 'race', label: 'ВС • ГОНКА', time: raceDate, title: 'До гонки' }
-      ];
-
-      const now = new Date();
-      let nextSession = null;
-
-      // 4. Генерируем чипы сессий и определяем текущую активную цель для таймера
-      const sessionsGridEl = document.querySelector('.sessions-grid');
-      if (sessionsGridEl) {
-        sessionsGridEl.innerHTML = sessions.map(sess => {
-          const isPast = (now > new Date(sess.time.getTime() + 2 * 3600000));
-          const isTarget = (!nextSession && !isPast);
-          if (isTarget) nextSession = sess;
-
-          let chipClass = 'sess-chip';
-          let timeText = sess.time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-
-          if (isPast) {
-            chipClass += ' past';
-            timeText = '✓ Прошла';
-          } else if (isTarget) {
-            chipClass += ' active';
-          }
-
-          return `
-            <div class="${chipClass}">
-              <div class="sess-name">${sess.label}</div>
-              <div class="sess-time">${timeText}</div>
-            </div>
-          `;
-        }).join('');
-      }
-
-      if (!nextSession) nextSession = sessions[sessions.length - 1];
-
-      // 5. Обновляем бейдж статуса над таймером
-      const badgeEl = document.querySelector('.hero-stage-badge span:last-child');
-      if (badgeEl) badgeEl.innerText = `🔴 ${nextSession.title}`;
-
-      // 6. Запускаем динамический отсчёт до целевой сессии
-      if (liveCountdownInterval) clearInterval(liveCountdownInterval);
-      const targetTime = nextSession.time.getTime();
-
-      function refreshCountdown() {
-        const diff = Math.max(0, targetTime - Date.now());
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const m = Math.floor((diff / 1000 / 60) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-
-        const td = document.getElementById('t-d');
-        const th = document.getElementById('t-h');
-        const tm = document.getElementById('t-m');
-        const ts = document.getElementById('t-s');
-
-        if (td) td.innerText = String(d).padStart(2, '0');
-        if (th) th.innerText = String(h).padStart(2, '0');
-        if (tm) tm.innerText = String(m).padStart(2, '0');
-        if (ts) ts.innerText = String(s).padStart(2, '0');
-      }
-
-      refreshCountdown();
-      liveCountdownInterval = setInterval(refreshCountdown, 1000);
+      const driversListEl = document.getElementById('driversStandingsList');
+      driversListEl.innerHTML = list.slice(1).map(d => `
+        <div class="stand-item">
+          <div class="stand-pos ${parseInt(d.pos) <= 3 ? 'top' : ''}">${String(d.pos).padStart(2, '0')}</div>
+          <div class="stand-details">
+            <div class="stand-name">${d.name}</div>
+            <div class="stand-team">${d.team}</div>
+          </div>
+          <div class="stand-pts">${d.points}</div>
+        </div>
+      `).join('');
     }
 
-    // 4. ПОЛНАЯ АВТО-СИНХРОНИЗАЦИЯ С F1 API
-    async function fetchLiveF1SeasonData() {
+    function renderCalendarList(races) {
+      const list = races || DEFAULT_RACES_CALENDAR;
+      const calEl = document.getElementById('calendarEventsList');
+      const currentStageIndex = 16; // 16 этап — Сепанг, этап идет прямо сейчас
+
+      calEl.innerHTML = list.map((r, idx) => {
+        const roundNum = parseInt(r.round) || (idx + 1);
+        let statusBadge = '';
+        let cardClass = 'cal-card';
+
+        if (roundNum < currentStageIndex) {
+          cardClass += ' past';
+          statusBadge = '<span style="font-size:11px; font-weight:800; color:var(--text-muted);">ЗАВЕРШЕН</span>';
+        } else if (roundNum === currentStageIndex) {
+          cardClass += ' current';
+          statusBadge = '<span class="badge">ТЕКУЩИЙ ЭТАП</span>';
+        } else if (roundNum === currentStageIndex + 1) {
+          statusBadge = '<span class="badge" style="background:#fff3cd; color:#856404;">СЛЕДУЮЩИЙ</span>';
+        } else {
+          statusBadge = `<span style="font-size:12px; color:var(--text-muted);">${r.date}</span>`;
+        }
+
+        return `
+          <div class="${cardClass}" id="cal-round-${roundNum}">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="cal-round">${String(roundNum).padStart(2, '0')}</div>
+              <div class="cal-info">
+                <h4>${r.name}</h4>
+                <span>${r.circuit}</span>
+              </div>
+            </div>
+            ${statusBadge}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderConstructorsList(drivers) {
+      const list = drivers || DEFAULT_DRIVERS_DATA;
+      const teamsMap = {};
+      list.forEach(d => {
+        const team = d.team || 'Other';
+        teamsMap[team] = (teamsMap[team] || 0) + parseFloat(d.points || 0);
+      });
+
+      const sortedTeams = Object.keys(teamsMap)
+        .map(t => ({ team: t, points: teamsMap[t] }))
+        .sort((a, b) => b.points - a.points);
+
+      const teamsListEl = document.getElementById('constructorsStandingsList');
+      teamsListEl.innerHTML = sortedTeams.map((t, idx) => `
+        <div class="stand-item">
+          <div class="stand-pos ${idx < 3 ? 'top' : ''}">${String(idx + 1).padStart(2, '0')}</div>
+          <div class="stand-details">
+            <div class="stand-name">${t.team}</div>
+          </div>
+          <div class="stand-pts">${Math.round(t.points)}</div>
+        </div>
+      `).join('');
+    }
+
+    async function loadF1SeasonData() {
+      // 1. Моментально отображаем данные без ожидания сети
+      renderDriversList(DEFAULT_DRIVERS_DATA);
+      renderCalendarList(DEFAULT_RACES_CALENDAR);
+      renderConstructorsList(DEFAULT_DRIVERS_DATA);
+
+      // 2. В фоне с таймаутом запрашиваем свежие данные из Cloudflare
       try {
-        const response = await fetch(`${WORKER_URL}/api/season/live`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+        const response = await fetch(`${WORKER_URL}/api/season/live`, { signal: controller.signal });
+        clearTimeout(timeoutId);
         const data = await response.json();
 
-        // 1. Личный зачет пилотов
         if (data.drivers && data.drivers.length > 0) {
-          const leader = data.drivers[0];
-          document.getElementById('leaderNameDisplay').innerText = leader.name;
-          document.getElementById('leaderTeamDisplay').innerText = leader.team;
-          document.getElementById('leaderPointsDisplay').innerText = leader.points;
-          document.getElementById('leaderWinsDisplay').innerText = `${leader.wins || 0} побед • лидер чемпионата`;
-
-          const driversListEl = document.getElementById('driversStandingsList');
-          driversListEl.innerHTML = data.drivers.slice(1).map(d => `
-            <div class="stand-item">
-              <div class="stand-pos ${parseInt(d.pos) <= 3 ? 'top' : ''}">${String(d.pos).padStart(2, '0')}</div>
-              <div class="stand-details">
-                <div class="stand-name">${d.name}</div>
-                <div class="stand-team">${d.team}</div>
-              </div>
-              <div class="stand-pts">${d.points}</div>
-            </div>
-          `).join('');
+          renderDriversList(data.drivers);
+          renderConstructorsList(data.drivers);
         }
-
-        // 2. Определение текущего активного этапа сезона
-        let currentActiveRace = null;
-        const now = new Date();
-
         if (data.races && data.races.length > 0) {
-          // Ищем этап, гонка которого еще не закончилась (+3 часа после старта)
-          currentActiveRace = data.races.find(r => {
-            const raceEndTime = new Date(r.race).getTime() + (3 * 3600000);
-            return raceEndTime > now.getTime();
-          }) || data.races[0];
-
-          // Настраиваем главный экран под найденный активный этап
-          setupDynamicRaceWeekend(currentActiveRace);
-
-          // 3. Рендер календаря всех этапов сезона
-          const calEl = document.getElementById('calendarEventsList');
-          calEl.innerHTML = data.races.map((r, idx) => {
-            const roundNum = parseInt(r.round) || (idx + 1);
-            const rEnd = new Date(r.race).getTime() + (3 * 3600000);
-            const isCurrent = (r.round === currentActiveRace.round);
-            const isPast = (now.getTime() > rEnd && !isCurrent);
-
-            let statusBadge = '';
-            let cardClass = 'cal-card';
-
-            if (isCurrent) {
-              cardClass += ' current';
-              statusBadge = '<span class="badge">ТЕКУЩИЙ ЭТАП</span>';
-            } else if (isPast) {
-              cardClass += ' past';
-              statusBadge = '<span style="font-size:11px; font-weight:800; color:var(--text-muted);">ЗАВЕРШЕН</span>';
-            } else {
-              statusBadge = `<span style="font-size:12px; color:var(--text-muted);">${r.date.slice(5)}</span>`;
-            }
-
-            return `
-              <div class="${cardClass}" id="cal-round-${roundNum}">
-                <div style="display:flex; align-items:center; gap:12px;">
-                  <div class="cal-round">${String(roundNum).padStart(2, '0')}</div>
-                  <div class="cal-info">
-                    <h4>${r.name}</h4>
-                    <span>${r.circuit}</span>
-                  </div>
-                </div>
-                ${statusBadge}
-              </div>
-            `;
-          }).join('');
+          renderCalendarList(data.races);
         }
-
-        // 4. Кубок конструкторов (авто-расчет очков команд)
-        if (data.drivers && data.drivers.length > 0) {
-          const teamsMap = {};
-          data.drivers.forEach(d => {
-            const team = d.team || 'Other';
-            teamsMap[team] = (teamsMap[team] || 0) + parseFloat(d.points || 0);
-          });
-
-          const sortedTeams = Object.keys(teamsMap)
-            .map(t => ({ team: t, points: teamsMap[t] }))
-            .sort((a, b) => b.points - a.points);
-
-          const teamsListEl = document.getElementById('constructorsStandingsList');
-          teamsListEl.innerHTML = sortedTeams.map((t, idx) => `
-            <div class="stand-item">
-              <div class="stand-pos ${idx < 3 ? 'top' : ''}">${String(idx + 1).padStart(2, '0')}</div>
-              <div class="stand-details">
-                <div class="stand-name">${t.team}</div>
-              </div>
-              <div class="stand-pts">${Math.round(t.points)}</div>
-            </div>
-          `).join('');
-        }
-
-      } catch (err) {
-        console.warn("Ошибка подгрузки F1 данных, fallback...", err);
+      } catch (e) {
+        console.log("Использована локальная база сезона");
       }
     }
 
-    // 5. КАТАЛОГ ВИДЕОАРХИВА (D1)
+    // 4. КАТАЛОГ D1
     async function loadCatalogDatabase() {
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog`);
@@ -1432,9 +1384,9 @@
         }
         document.getElementById('catalogCategoriesContainer').innerHTML = html;
 
-        if (isAdmin) renderAdminCatalogList();
+        if (isAdmin) renderAdminCatalogList(allCatalogItems);
       } catch (e) {
-        document.getElementById('catalogCategoriesContainer').innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Ошибка синхронизации D1.</div>';
+        document.getElementById('catalogCategoriesContainer').innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Ошибка подключения к D1.</div>';
       }
     }
 
@@ -1516,7 +1468,7 @@
       });
     }
 
-    // 6. ЛЕНТА НОВОСТЕЙ КАНАЛА
+    // 5. НОВОСТИ КАНАЛА
     async function loadChannelNewsFeed() {
       try {
         const res = await fetch(`${WORKER_URL}/api/feed`);
@@ -1540,7 +1492,7 @@
       } catch (e) {}
     }
 
-    // 7. ПАНЕЛЬ АДМИНИСТРАТОРА
+    // 6. АДМИН-ПАНЕЛЬ С ЗАГРУЗКОЙ КАРТИНОК И ПОИСКОМ
     function openAdminDashboardScreen() {
       openViewScreen('admin');
       loadAdminLiveStats();
@@ -1572,7 +1524,7 @@
     async function toggleGlobalSystemVersion() {
       const cur = document.getElementById('adminCurVerText').innerText.toLowerCase();
       const target = cur === 'v2' ? 'v1' : 'v2';
-      if (!confirm(`Вы действительно хотите переключить версию для всех пользователей на ${target.toUpperCase()}?`)) return;
+      if (!confirm(`Переключить версию для всех пользователей на ${target.toUpperCase()}?`)) return;
 
       const res = await fetch(`${WORKER_URL}/api/system/set_version`, {
         method: 'POST',
@@ -1586,10 +1538,28 @@
       }
     }
 
-    function renderAdminCatalogList() {
+    // Быстрый поиск в списке записей админки
+    function handleAdminSearch(val) {
+      const q = val.trim().toLowerCase();
+      const filtered = allCatalogItems.filter(i => 
+        i.title.toLowerCase().includes(q) || 
+        i.item.toLowerCase().includes(q) || 
+        i.code.toLowerCase().includes(q)
+      );
+      renderAdminCatalogList(filtered);
+    }
+
+    function renderAdminCatalogList(itemsToRender) {
       const box = document.getElementById('adminCatalogRecordsManageList');
       if (!box) return;
-      box.innerHTML = allCatalogItems.map(item => `
+      const list = itemsToRender || allCatalogItems;
+
+      if (!list.length) {
+        box.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:15px;">Записей не найдено</div>';
+        return;
+      }
+
+      box.innerHTML = list.map(item => `
         <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:10px 14px; border-radius:12px; border:1px solid var(--border);">
           <div style="font-size:13px; font-weight:700;">
             ${item.title} — ${item.item}
@@ -1601,6 +1571,21 @@
           </div>
         </div>
       `).join('');
+    }
+
+    // Загрузка фото прямо из галереи телефона / диска ПК (сжатие в Base64 Data URL)
+    function handleImageFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const base64Data = evt.target.result;
+        document.getElementById('admFormImg').value = base64Data;
+        document.getElementById('admImgPreviewEl').src = base64Data;
+        document.getElementById('admImgPreviewBox').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
     }
 
     function editCatalogRecord(id) {
@@ -1616,6 +1601,13 @@
       document.getElementById('admFormBadge').value = record.badge || '1080p';
       document.getElementById('admFormCode').value = record.code;
       document.getElementById('admFormPostId').value = record.post_id;
+
+      if (record.image) {
+        document.getElementById('admImgPreviewEl').src = record.image;
+        document.getElementById('admImgPreviewBox').style.display = 'block';
+      } else {
+        document.getElementById('admImgPreviewBox').style.display = 'none';
+      }
 
       document.getElementById('adminFormHeaderTitle').innerText = '✏️ Редактировать запись';
       document.getElementById('adminSubmitRecordBtn').innerText = '💾 Обновить запись';
@@ -1633,6 +1625,7 @@
       document.getElementById('admFormBadge').value = '1080p';
       document.getElementById('admFormCode').value = '';
       document.getElementById('admFormPostId').value = '';
+      document.getElementById('admImgPreviewBox').style.display = 'none';
 
       document.getElementById('adminFormHeaderTitle').innerText = '➕ Добавить запись в базу D1';
       document.getElementById('adminSubmitRecordBtn').innerText = '💾 Сохранить запись';
@@ -1691,9 +1684,11 @@
       }
     }
 
-    // 8. СТАРТ ПРИЛОЖЕНИЯ
+    // 7. СТАРТ И ЗАПУСК ВСЕХ ДВИЖКОВ
     initThemeAndPreferences();
-    fetchLiveF1SeasonData();
+    startWeekendSessionTimer();
+    runCarAnimationOnTrack("sepang"); // Запуск болида по контуру трассы Сепанг
+    loadF1SeasonData();
     loadCatalogDatabase();
     loadChannelNewsFeed();
   </script>
