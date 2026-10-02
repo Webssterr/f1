@@ -1753,13 +1753,40 @@
       }
     }
 
-    // 7. СТАРТ И ЗАПУСК
-    initThemeAndPreferences();
-    startWeekendSessionTimer();
-    runCarAnimationOnTrack("sepang"); // Настоящий Сепанг по скриншоту 2
-    loadF1SeasonData();
-    loadCatalogDatabase();
-    loadChannelNewsFeed();
-  </script>
-</body>
-</html>
+       // 7. ПРОВЕРКА ДОСТУПА И СТАРТ ВЕРСИИ
+    async function initAppRouting() {
+      initThemeAndPreferences();
+      loadCatalogDatabase();
+
+      // Проверяем: админ, тестер или включен ли локальный тумблер теста
+      const hasBetaAccess = isAdmin || (isTester && localStorage.getItem('f1_beta_v2') === 'true');
+
+      let globalVersion = 'v1';
+      if (!hasBetaAccess) {
+        try {
+          const res = await fetch(`${WORKER_URL}/api/system/version`);
+          const data = await res.json();
+          globalVersion = data.version || 'v1';
+        } catch (e) {
+          globalVersion = 'v1';
+        }
+      }
+
+      // Если это не бета-тестер и глобальный релиз v2 еще не включен:
+      if (!hasBetaAccess && globalVersion !== 'v2') {
+        // Скрываем нижнюю панель v2 и открываем только классический Архив (v1)
+        const nav = document.querySelector('.bottom-nav');
+        if (nav) nav.style.display = 'none';
+        openViewScreen('archive');
+        return;
+      }
+
+      // Если доступ есть (или v2 включена для всех) — запускаем полный интерактив v2:
+      startWeekendSessionTimer();
+      runCarAnimationOnTrack("sepang");
+      loadF1SeasonData();
+      loadChannelNewsFeed();
+    }
+
+    initAppRouting();
+
