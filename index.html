@@ -6,6 +6,9 @@
   <title>Race Weekend F1 Archive</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    /* =========================================================
+       1. СТИЛИ V1 (КЛАССИКА ДЛЯ ВСЕХ ПОЛЬЗОВАТЕЛЕЙ)
+       ========================================================= */
     :root {
       --bg: #14171d;
       --card-bg: #1e232d;
@@ -16,6 +19,8 @@
       --text-muted: #8e95a5;
     }
 
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
     body {
       background-color: var(--bg);
       color: var(--text);
@@ -23,13 +28,13 @@
       margin: 0;
       padding: 16px;
       -webkit-font-smoothing: antialiased;
+      user-select: none;
     }
 
     .view { display: none; }
     .view.active { display: block; }
 
-    /* Поиск и кнопка настроек */
-    .search-row {
+    .header-row {
       display: flex;
       gap: 10px;
       align-items: center;
@@ -45,27 +50,24 @@
       font-size: 15px;
       color: var(--text);
       outline: none;
-      box-sizing: border-box;
     }
     .search-box:focus { border-color: var(--accent); }
     .search-box::placeholder { color: var(--text-muted); }
 
-    .settings-trigger-btn {
-      background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: var(--text);
-      border-radius: 12px;
+    .icon-btn {
       width: 48px;
       height: 48px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
       cursor: pointer;
       flex-shrink: 0;
-      transition: background 0.2s;
     }
-    .settings-trigger-btn:active { background: var(--btn-active); }
 
     .bot-card {
       background: var(--card-bg);
@@ -77,15 +79,6 @@
       line-height: 1.5;
     }
     .bot-card h2 { margin: 0 0 8px 0; font-size: 16px; text-transform: uppercase; }
-
-    .welcome-banner {
-      width: 100%;
-      max-height: 180px;
-      object-fit: cover;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      display: none;
-    }
 
     .menu-btn {
       width: 100%;
@@ -101,49 +94,18 @@
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
-      box-sizing: border-box;
       text-align: left;
     }
     .menu-btn:active { background: var(--btn-active); }
-
-    .menu-btn-content {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex: 1;
-      overflow: hidden;
-    }
-    .menu-btn-thumb {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      object-fit: cover;
-      background: #252a36;
-      flex-shrink: 0;
-    }
+    .menu-btn-content { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
+    .menu-btn-thumb { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; background: #252a36; flex-shrink: 0; }
 
     .admin-entry-btn {
-      background: rgba(225, 6, 0, 0.15);
-      border: 1px solid var(--accent);
-      color: #ff6b6b;
+      background: rgba(225, 6, 0, 0.15) !important;
+      border: 1px solid var(--accent) !important;
+      color: #ff6b6b !important;
       margin-top: 20px;
-      padding: 15px 16px;
     }
-
-    .search-result-item { display: flex; flex-direction: column; gap: 4px; text-align: left; }
-    .search-result-sub { font-size: 12px; color: var(--text-muted); font-weight: normal; }
-
-    .gp-banner {
-      width: 100%;
-      max-height: 220px;
-      object-fit: cover;
-      border-radius: 12px;
-      display: block;
-      margin-bottom: 14px;
-      background: #252a36;
-    }
-    .gp-title { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
-    .gp-desc { font-size: 13.5px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.45; }
 
     .badge {
       font-size: 11px;
@@ -166,588 +128,758 @@
       cursor: pointer;
     }
 
-    .admin-input-group { margin-bottom: 14px; }
-    .admin-input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-    .admin-input-group small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-    .admin-input {
-      width: 100%;
-      background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
-      color: var(--text);
-      box-sizing: border-box;
-      outline: none;
-    }
-    .admin-input:focus { border-color: var(--accent); }
-    
-    /* Загрузка фото с устройства */
-    .image-field-wrap {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .image-field-wrap input { flex: 1; }
-    .device-upload-btn {
-      background: #252f3f;
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff;
-      padding: 10px 12px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .device-upload-btn:active { background: #323d50; }
-    .upload-hint { font-size: 11px; margin-top: 5px; }
-
-    .submit-btn {
-      width: 100%;
-      background: var(--accent);
-      border: none;
-      color: #fff;
-      padding: 14px;
-      font-size: 15px;
-      font-weight: 700;
-      border-radius: 12px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    .stats-card {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .stat-item {
-      background: var(--card-bg);
-      padding: 12px;
-      border-radius: 10px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .stat-number { font-size: 20px; font-weight: 800; color: var(--accent); }
-    .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
-    .skeleton { text-align: center; padding: 40px 0; color: var(--text-muted); }
-
-    .admin-catalog-item {
-      background: #181d26;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .admin-item-title { font-weight: 700; font-size: 14px; color: #fff; }
-    .admin-item-sub { font-size: 12px; color: var(--text-muted); }
-    .admin-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .action-btn {
-      padding: 7px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-    }
-    .edit-btn { background: #3b4559; color: #fff; }
-    .del-btn { background: rgba(225, 6, 0, 0.2); color: #ff5555; }
-
-    /* МОДАЛЬНОЕ ОКНО НАСТРОЕК */
-    .modal-overlay {
+    /* =========================================================
+       2. СТИЛИ V2 GRIDLAP (ДЛЯ БЕТА-ТЕСТИРОВАНИЯ)
+       ========================================================= */
+    #root-v2 {
       display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(5px);
-      z-index: 9999;
-      align-items: flex-end;
-      justify-content: center;
+      --g-bg: #f4f5f8;
+      --g-card: #ffffff;
+      --g-card-sub: #f8f9fc;
+      --g-border: #e6e8ee;
+      --g-text: #111317;
+      --g-muted: #7e8494;
+      --g-accent: #ff3b30;
+      --g-accent-soft: rgba(255, 59, 48, 0.1);
+      --g-nav: rgba(255, 255, 255, 0.95);
+      --g-dot: #d1d5db;
     }
-    .modal-overlay.active { display: flex; }
-    .modal-sheet {
-      background: var(--card-bg);
-      width: 100%;
-      max-width: 520px;
-      border-radius: 20px 20px 0 0;
-      padding: 22px 20px 30px;
-      box-sizing: border-box;
-      border-top: 1px solid rgba(255,255,255,0.12);
-      animation: modalSlideUp 0.25s ease-out;
+
+    body.v2-dark #root-v2 {
+      --g-bg: #0e1015;
+      --g-card: #161820;
+      --g-card-sub: #1d202b;
+      --g-border: rgba(255, 255, 255, 0.08);
+      --g-text: #ffffff;
+      --g-muted: #8c92a4;
+      --g-accent: #ff3b30;
+      --g-accent-soft: rgba(255, 59, 48, 0.15);
+      --g-nav: rgba(22, 24, 32, 0.95);
+      --g-dot: #2c303e;
     }
-    @keyframes modalSlideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
+
+    body.active-v2 {
+      background: var(--g-bg) !important;
+      color: var(--g-text) !important;
+      padding-bottom: 90px;
     }
-    .modal-title-row {
+    body.active-v2 #root-v1 { display: none !important; }
+    body.active-v2 #root-v2 { display: block !important; }
+
+    .g-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 18px;
     }
-    .modal-title-row h3 { margin: 0; font-size: 18px; font-weight: 800; }
-    .modal-close-icon {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 22px;
-      cursor: pointer;
-      line-height: 1;
+    .g-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
     }
-    .setting-row {
+    .g-brand-badge {
+      width: 14px;
+      height: 14px;
+      background: var(--g-accent);
+      border-radius: 4px;
+    }
+    .g-circle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--g-card);
+      border: 1px solid var(--g-border);
+      color: var(--g-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .g-view { display: none; }
+    .g-view.active { display: block; animation: gFade 0.2s ease-in-out; }
+    @keyframes gFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .g-hero-card {
+      background: var(--g-card);
+      border-radius: 24px;
+      padding: 22px 20px;
+      border: 1px solid var(--g-border);
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    .g-stage-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--g-accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .g-live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--g-accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--g-accent);
+    }
+    .g-timer-row {
+      display: flex;
+      gap: 16px;
+      align-items: baseline;
+      margin-bottom: 16px;
+    }
+    .g-t-col { display: flex; flex-direction: column; }
+    .g-t-val { font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -1.5px; }
+    .g-t-lbl { font-size: 12px; color: var(--g-muted); font-weight: 600; margin-top: 4px; }
+
+    .g-track-viewport {
+      width: 100%;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0 16px 0;
+      position: relative;
+    }
+    .g-track-svg { width: 100%; height: 100%; }
+    .g-track-road {
+      stroke: var(--g-dot);
+      stroke-width: 14;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .g-track-line {
+      stroke: var(--g-accent);
+      stroke-width: 4;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .g-car-dot {
+      fill: #ffffff;
+      stroke: var(--g-accent);
+      stroke-width: 3;
+      filter: drop-shadow(0 0 5px var(--g-accent));
+    }
+
+    .g-timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--g-border);
+    }
+    .g-chip {
+      background: var(--g-card-sub);
+      border-radius: 12px;
+      padding: 10px 4px;
+      text-align: center;
+    }
+    .g-chip.active {
+      background: var(--g-accent-soft);
+      border: 1px solid rgba(255, 59, 48, 0.2);
+    }
+    .g-chip-name { font-size: 11px; color: var(--g-muted); font-weight: 600; }
+    .g-chip-time { font-size: 12px; font-weight: 800; margin-top: 3px; }
+    .g-chip.active .g-chip-name, .g-chip.active .g-chip-time { color: var(--g-accent); }
+
+    .g-elev-card {
+      background: var(--g-card);
+      border-radius: 20px;
+      padding: 16px;
+      border: 1px solid var(--g-border);
+      margin-bottom: 16px;
+    }
+    .g-elev-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
+      margin-bottom: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--g-muted);
+      text-transform: uppercase;
+    }
+    .g-elev-stats { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .g-el-box h4 { margin: 0; font-size: 20px; font-weight: 900; }
+    .g-el-box span { font-size: 11px; color: var(--g-muted); }
+    .g-elev-chart {
+      width: 100%;
+      height: 42px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .g-bar {
+      flex: 1;
+      background: var(--g-accent-soft);
+      border-radius: 3px 3px 0 0;
+      border-top: 2px solid var(--g-accent);
+    }
+
+    .g-sub-nav {
+      display: flex;
+      background: var(--g-card-sub);
+      padding: 4px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      border: 1px solid var(--g-border);
+    }
+    .g-sub-btn {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 9px 0;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 10px;
+      color: var(--g-muted);
+      cursor: pointer;
+    }
+    .g-sub-btn.active {
+      background: var(--g-card);
+      color: var(--g-text);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .g-leader-card {
+      background: linear-gradient(135deg, #1f232d 0%, #111317 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: 22px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .g-leader-bg-num {
+      position: absolute;
+      right: -8px;
+      bottom: -20px;
+      font-size: 130px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.05);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .g-leader-badge { font-size: 11px; font-weight: 800; color: var(--g-accent); text-transform: uppercase; margin-bottom: 8px; }
+    .g-leader-name { font-size: 24px; font-weight: 900; margin: 0 0 4px 0; }
+    .g-leader-team { font-size: 13px; color: #a0a6b5; margin-bottom: 16px; }
+    .g-leader-pts-row { display: flex; align-items: baseline; gap: 8px; }
+    .g-leader-pts { font-size: 38px; font-weight: 900; }
+    .g-leader-wins { font-size: 12px; color: #a0a6b5; }
+
+    .g-stand-item {
+      background: var(--g-card);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--g-border);
+      margin-bottom: 8px;
+    }
+    .g-stand-pos { font-size: 16px; font-weight: 900; width: 32px; color: var(--g-muted); }
+    .g-stand-pos.top { color: var(--g-accent); }
+    .g-stand-details { flex: 1; }
+    .g-stand-name { font-size: 15px; font-weight: 800; }
+    .g-stand-team { font-size: 12px; color: var(--g-muted); }
+    .g-stand-pts { font-size: 16px; font-weight: 900; }
+
+    .g-game-card {
+      background: var(--g-card);
+      border-radius: 24px;
+      padding: 22px;
+      border: 1px solid var(--g-border);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .g-lights-row { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
+    .g-light {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #2a2c36;
+      border: 2px solid #111;
+      transition: background 0.1s;
+    }
+    .g-light.on { background: #ff2200; box-shadow: 0 0 16px #ff2200; }
+    .g-reaction-tap {
+      background: var(--g-card-sub);
+      border: 2px dashed var(--g-border);
+      border-radius: 18px;
+      padding: 34px 10px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .g-reaction-res { font-size: 28px; font-weight: 900; color: var(--g-accent); margin-top: 14px; }
+
+    .g-bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 72px;
+      background: var(--g-nav);
+      backdrop-filter: blur(15px);
+      border-top: 1px solid var(--g-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+      padding-bottom: 8px;
+    }
+    .g-nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--g-muted);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 1;
+      height: 100%;
+    }
+    .g-nav-btn.active { color: var(--g-accent); }
+    .g-nav-icon { font-size: 22px; margin-bottom: 2px; }
+
+    /* =========================================================
+       3. МОДАЛКА НАСТРОЕК
+       ========================================================= */
+    .app-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .app-modal-overlay.active { display: flex; }
+    .app-modal-sheet {
+      background: #171a21;
+      color: #fff;
+      width: 100%;
+      max-width: 520px;
+      border-radius: 24px 24px 0 0;
+      padding: 24px 20px 32px 20px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
-    .setting-label { font-size: 14px; font-weight: 600; }
-    .setting-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .modal-label { font-size: 15px; font-weight: 700; }
+    .modal-sub { font-size: 12px; color: #8e95a5; margin-top: 2px; }
 
-    /* ТУМБЛЕРЫ (SWITCH) */
-    .switch-toggle {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-      flex-shrink: 0;
+    .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background: #333946; border-radius: 26px; transition: .25s;
     }
-    .switch-toggle input { opacity: 0; width: 0; height: 0; }
-    .switch-slider {
-      position: absolute; cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #333946;
-      transition: .25s;
-      border-radius: 24px;
+    .slider:before {
+      position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: .25s;
     }
-    .switch-slider:before {
-      position: absolute; content: "";
-      height: 18px; width: 18px; left: 3px; bottom: 3px;
-      background-color: white;
-      transition: .25s;
-      border-radius: 50%;
-    }
-    input:checked + .switch-slider { background-color: var(--accent); }
-    input:checked + .switch-slider:before { transform: translateX(20px); }
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(20px); }
 
-    /* КОМПАКТНЫЙ РЕЖИМ */
-    body.compact-mode .menu-btn { padding: 9px 12px; margin-bottom: 8px; font-size: 14px; }
-    body.compact-mode .menu-btn-thumb { width: 30px; height: 30px; }
-    body.compact-mode .gp-banner { max-height: 150px; }
+    .modal-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- ЭКРАН 1: ГЛАВНАЯ И ПОИСК -->
-  <div id="view-home" class="view active">
-    
-    <!-- Строка поиска с кнопкой настроек -->
-    <div class="search-row">
-      <input 
-        type="text" 
-        id="search-input" 
-        class="search-box" 
-        placeholder="🔍 Поиск по гонкам и сериалам..." 
-        oninput="handleSearch(this.value)"
-      >
-      <button class="settings-trigger-btn" type="button" onclick="openSettingsModal()" title="Настройки">⚙️</button>
+  <!-- ================= КОНТЕЙНЕР V1 (ДЛЯ ВСЕХ) ================= -->
+  <div id="root-v1">
+    <div id="v1-home" class="view active">
+      <div class="header-row">
+        <input type="text" class="search-box" id="v1-search" placeholder="🔍 Поиск по гонкам и сериалам..." oninput="handleSearch(this.value)">
+        <button class="icon-btn" onclick="openSettings()">⚙️</button>
+      </div>
+
+      <div id="v1-default-body">
+        <div class="bot-card" id="welcome-card" style="display: none;">
+          <h2 id="welcome-title"></h2>
+          <div id="welcome-text"></div>
+        </div>
+
+        <div id="v1-categories-list">
+          <div style="text-align:center; padding:30px; color:var(--text-muted);">Синхронизация каталога D1...</div>
+        </div>
+
+        <!-- КНОПКА АДМИНКИ В V1 -->
+        <div id="v1-admin-btn-box" style="display: none;">
+          <button class="menu-btn admin-entry-btn" onclick="openAdminScreen()">
+            <span>⚙️ Панель администратора</span>
+            <span>›</span>
+          </button>
+        </div>
+      </div>
+      <div id="v1-search-results" style="display: none;"></div>
     </div>
-
-    <div id="home-default-content">
-      <div class="bot-card" id="welcome-card" style="display: none;">
-        <img id="welcome-img" class="welcome-banner" src="" alt="Banner">
-        <h2 id="welcome-title"></h2>
-        <div id="welcome-text"></div>
-      </div>
-
-      <div id="categories-list">
-        <div class="skeleton">Синхронизация каталога D1...</div>
-      </div>
-
-      <div id="admin-entry-container" style="display: none;">
-        <button class="menu-btn admin-entry-btn" onclick="openAdminPanel()">
-          <span>⚙️ Панель администратора</span>
-          <span>›</span>
-        </button>
-      </div>
-    </div>
-
-    <div id="search-results-list" style="display: none;"></div>
   </div>
 
-  <!-- ЭКРАН 2: ЭТАПЫ / СЕЗОНЫ -->
-  <div id="view-titles" class="view">
-    <button class="back-btn" onclick="showView('home')">← Главное меню</button>
+  <!-- ================= КОНТЕЙНЕР V2 GRIDLAP (ДЛЯ БЕТА-ТЕСТЕРА) ================= -->
+  <div id="root-v2">
+    <div class="g-header">
+      <div class="g-brand" id="v2BrandLogo">
+        <div class="g-brand-badge"></div>
+        <span>GRIDLAP • F1</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="g-circle-btn" onclick="toggleV2Theme()">🌓</button>
+        <button class="g-circle-btn" onclick="openSettings()">⚙️</button>
+      </div>
+    </div>
+
+    <!-- ТАБ 1: ГЛАВНАЯ -->
+    <div id="v2-tab-home" class="g-view active">
+      <div class="g-hero-card">
+        <div class="g-stage-badge">
+          <span class="g-live-dot"></span>
+          <span>До квалификации</span>
+        </div>
+
+        <div class="g-timer-row">
+          <div class="g-t-col"><span class="g-t-val" id="g-td">01</span><span class="g-t-lbl">день</span></div>
+          <div class="g-t-col"><span class="g-t-val" id="g-th">18</span><span class="g-t-lbl">часов</span></div>
+          <div class="g-t-col"><span class="g-t-val" id="g-tm">49</span><span class="g-t-lbl">мин</span></div>
+          <div class="g-t-col"><span class="g-t-val" id="g-ts">15</span><span class="g-t-lbl">сек</span></div>
+        </div>
+
+        <div class="g-track-viewport">
+          <svg class="g-track-svg" viewBox="0 0 500 250">
+            <path id="gTrackPath" class="g-track-road" d="M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z" />
+            <path class="g-track-line" d="M 80,180 L 160,180 Q 200,180 220,150 L 300,60 Q 330,40 370,55 L 430,95 Q 460,115 440,145 L 340,175 Q 310,185 290,215 L 240,240 Q 210,245 190,225 L 110,195 Z" />
+            <circle id="gCarPoint" class="g-car-dot" r="6" cx="80" cy="180" />
+          </svg>
+        </div>
+
+        <h2 style="margin:0 0 4px 0; font-size:22px; font-weight:900;">Гран-при Бахрейна</h2>
+        <div style="font-size:13px; color:var(--g-muted);">Этап 16 • Сахир • 5,412 км</div>
+
+        <div class="g-timeline-grid">
+          <div class="g-chip"><div class="g-chip-name">ПТ • П1</div><div class="g-chip-time">14:30</div></div>
+          <div class="g-chip"><div class="g-chip-name">ПТ • П2</div><div class="g-chip-time">18:00</div></div>
+          <div class="g-chip active"><div class="g-chip-name">СБ • КВАЛА</div><div class="g-chip-time">19:00</div></div>
+          <div class="g-chip"><div class="g-chip-name">ВС • ГОНКА</div><div class="g-chip-time">18:00</div></div>
+        </div>
+      </div>
+
+      <div class="g-elev-card">
+        <div class="g-elev-header">
+          <span>Профиль высот по ходу круга</span>
+          <span style="color:var(--g-accent);">38 м сейчас</span>
+        </div>
+        <div class="g-elev-stats">
+          <div class="g-el-box"><h4>26 м</h4><span>перепад</span></div>
+          <div class="g-el-box"><h4>48 м</h4><span>набор за круг</span></div>
+          <div class="g-el-box"><h4>25...51</h4><span>м над морем</span></div>
+        </div>
+        <div class="g-elev-chart">
+          <div class="g-bar" style="height:35%;"></div>
+          <div class="g-bar" style="height:45%;"></div>
+          <div class="g-bar" style="height:70%;"></div>
+          <div class="g-bar" style="height:90%;"></div>
+          <div class="g-bar" style="height:60%;"></div>
+          <div class="g-bar" style="height:40%;"></div>
+          <div class="g-bar" style="height:55%;"></div>
+          <div class="g-bar" style="height:80%;"></div>
+          <div class="g-bar" style="height:65%;"></div>
+          <div class="g-bar" style="height:40%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ТАБ 2: СЕЗОН -->
+    <div id="v2-tab-season" class="g-view">
+      <div class="g-sub-nav">
+        <button class="g-sub-btn active" onclick="switchV2SubSeason('standings', this)">Пилоты</button>
+        <button class="g-sub-btn" onclick="switchV2SubSeason('calendar', this)">Календарь</button>
+        <button class="g-sub-btn" onclick="switchV2SubSeason('teams', this)">Кубок конструкторов</button>
+      </div>
+
+      <div id="v2-sub-standings">
+        <div class="g-leader-card">
+          <div class="g-leader-bg-num">01</div>
+          <div class="g-leader-badge">Лидер сезона 2026</div>
+          <h3 class="g-leader-name">Kimi Antonelli</h3>
+          <div class="g-leader-team">Mercedes-AMG Petronas F1 Team</div>
+          <div class="g-leader-pts-row">
+            <span class="g-leader-pts">302</span>
+            <span class="g-leader-wins">8 побед • +66 к P2</span>
+          </div>
+        </div>
+
+        <div class="g-stand-item"><div class="g-stand-pos top">02</div><div class="g-stand-details"><div class="g-stand-name">George Russell</div><div class="g-stand-team">Mercedes-AMG</div></div><div class="g-stand-pts">236</div></div>
+        <div class="g-stand-item"><div class="g-stand-pos top">03</div><div class="g-stand-details"><div class="g-stand-name">Lewis Hamilton</div><div class="g-stand-team">Ferrari</div></div><div class="g-stand-pts">199</div></div>
+        <div class="g-stand-item"><div class="g-stand-pos">04</div><div class="g-stand-details"><div class="g-stand-name">Lando Norris</div><div class="g-stand-team">McLaren</div></div><div class="g-stand-pts">186</div></div>
+        <div class="g-stand-item"><div class="g-stand-pos">05</div><div class="g-stand-details"><div class="g-stand-name">Charles Leclerc</div><div class="g-stand-team">Ferrari</div></div><div class="g-stand-pts">174</div></div>
+      </div>
+
+      <div id="v2-sub-calendar" style="display: none;">
+        <div class="g-stand-item" style="border:2px solid var(--g-accent);"><div class="g-stand-pos top">16</div><div class="g-stand-details"><div class="g-stand-name">Гран-при Бахрейна</div><div class="g-stand-team">2-4 октября • Сахир</div></div><span class="badge">СЛЕДУЮЩИЙ</span></div>
+        <div class="g-stand-item"><div class="g-stand-pos">17</div><div class="g-stand-details"><div class="g-stand-name">Сингапур</div><div class="g-stand-team">11 октября • Марина Бей</div></div><span class="badge" style="background:#fff3cd; color:#856404;">СПРИНТ</span></div>
+        <div class="g-stand-item"><div class="g-stand-pos">18</div><div class="g-stand-details"><div class="g-stand-name">США</div><div class="g-stand-team">25 октября • Остин</div></div><span style="font-size:12px; color:var(--g-muted);">25 окт</span></div>
+      </div>
+
+      <div id="v2-sub-teams" style="display: none;">
+        <div class="g-stand-item"><div class="g-stand-pos top">01</div><div class="g-stand-details"><div class="g-stand-name">Mercedes-AMG</div><div class="g-stand-team">Russell / Antonelli</div></div><div class="g-stand-pts">538</div></div>
+        <div class="g-stand-item"><div class="g-stand-pos top">02</div><div class="g-stand-details"><div class="g-stand-name">Ferrari</div><div class="g-stand-team">Hamilton / Leclerc</div></div><div class="g-stand-pts">373</div></div>
+        <div class="g-stand-item"><div class="g-stand-pos top">03</div><div class="g-stand-details"><div class="g-stand-name">McLaren</div><div class="g-stand-team">Norris / Piastri</div></div><div class="g-stand-pts">347</div></div>
+      </div>
+    </div>
+
+    <!-- ТАБ 3: ИГРЫ -->
+    <div id="v2-tab-games" class="g-view">
+      <div class="g-game-card">
+        <h3 style="margin:0 0 6px 0;">⚡️ Тест реакции: Стартовые огни</h3>
+        <div style="font-size:12px; color:var(--g-muted);">Жди, пока загорятся все 5 огней и погаснут. Как погаснут — моментально жми!</div>
+        
+        <div class="g-lights-row">
+          <div class="g-light" id="gl1"></div>
+          <div class="g-light" id="gl2"></div>
+          <div class="g-light" id="gl3"></div>
+          <div class="g-light" id="gl4"></div>
+          <div class="g-light" id="gl5"></div>
+        </div>
+
+        <div class="g-reaction-tap" id="gTapArea" onclick="handleReactionTap()">
+          НАЖМИ ДЛЯ СТАРТА
+        </div>
+        <div class="g-reaction-res" id="gReactionRes"></div>
+      </div>
+    </div>
+
+    <!-- ТАБ 4: АРХИВ ВИДЕО -->
+    <div id="v2-tab-archive" class="g-view">
+      <input type="text" class="search-box" style="margin-bottom:12px; background:var(--g-card); border-color:var(--g-border); color:var(--g-text);" placeholder="🔍 Поиск видео в архиве..." oninput="handleSearch(this.value)">
+      <div id="v2-categories-list"></div>
+    </div>
+
+    <!-- ТАБ 5: НОВОСТИ КАНАЛА -->
+    <div id="v2-tab-news" class="g-view">
+      <div id="v2-news-list"><div style="text-align:center; padding:30px; color:var(--g-muted);">Загрузка ленты @raceweekendf1...</div></div>
+    </div>
+
+    <div class="g-bottom-nav">
+      <div class="g-nav-btn active" onclick="switchV2Tab('home', this)"><span class="g-nav-icon">🏠</span><span>Главная</span></div>
+      <div class="g-nav-btn" onclick="switchV2Tab('season', this)"><span class="g-nav-icon">🏁</span><span>Сезон</span></div>
+      <div class="g-nav-btn" onclick="switchV2Tab('games', this)"><span class="g-nav-icon">🎮</span><span>Игры</span></div>
+      <div class="g-nav-btn" onclick="switchV2Tab('archive', this)"><span class="g-nav-icon">🎬</span><span>Архив</span></div>
+      <div class="g-nav-btn" onclick="switchV2Tab('news', this)"><span class="g-nav-icon">📢</span><span>Новости</span></div>
+    </div>
+  </div>
+
+  <!-- ================= ОБЩИЕ ЭКРАНЫ КАТАЛОГА ================= -->
+  <div id="screen-titles" class="view">
+    <button class="back-btn" onclick="backFromTitles()">← Назад к каталогу</button>
     <div id="titles-list"></div>
   </div>
 
-  <!-- ЭКРАН 3: КАРТОЧКА ЗАЕЗДОВ -->
-  <div id="view-details" class="view">
-    <button class="back-btn" onclick="backFromDetails()">← Назад к списку</button>
-    <div id="item-header"></div>
-    <div id="item-btns"></div>
+  <div id="screen-details" class="view">
+    <button class="back-btn" onclick="showScreen('titles')">← Назад к заездам</button>
+    <div id="details-header"></div>
+    <div id="details-btns"></div>
   </div>
 
-  <!-- ЭКРАН 4: ПАНЕЛЬ УПРАВЛЕНИЯ -->
-  <div id="view-admin" class="view">
-    <button class="back-btn" onclick="showView('home')">← Вернуться в архив</button>
-    
-    <!-- Статистика -->
-    <div class="stats-card">
-      <div class="stat-item">
-        <div id="stat-users" class="stat-number">...</div>
-        <div class="stat-label">Подписчиков</div>
-      </div>
-      <div class="stat-item">
-        <div id="stat-active" class="stat-number">...</div>
-        <div class="stat-label">За 24 часа</div>
-      </div>
-      <div class="stat-item">
-        <div id="stat-items" class="stat-number">...</div>
-        <div class="stat-label">В архиве</div>
-      </div>
-    </div>
-
-    <!-- Редактор приветственного блока -->
+  <!-- ЭКРАН АДМИН-ПАНЕЛИ -->
+  <div id="screen-admin" class="view">
+    <button class="back-btn" onclick="backFromAdmin()">← Закрыть админку</button>
     <div class="bot-card">
-      <h2 style="color: var(--accent);">🎨 Настройка главного меню</h2>
-      
-      <div class="admin-input-group">
-        <label>Заголовок приветствия</label>
-        <input class="admin-input" id="set-welcome-title" placeholder="📌 RACE WEEKEND F1 ARCHIVE">
-      </div>
-
-      <div class="admin-input-group">
-        <label>Текст описания</label>
-        <textarea class="admin-input" id="set-welcome-text" rows="2" placeholder="Текст под заголовком..."></textarea>
-      </div>
-
-      <div class="admin-input-group">
-        <label>Баннер главного экрана (URL картинки)</label>
-        <input class="admin-input" id="set-welcome-img" placeholder="https://i.postimg.cc/... (или пусто)">
-      </div>
-
-      <button class="submit-btn" style="background:#292f3d; border:1px solid rgba(255,255,255,0.15);" onclick="saveSettings()">💾 Сохранить оформление</button>
-    </div>
-
-    <!-- Форма Добавления / Редактирования -->
-    <div class="bot-card">
-      <h2 id="form-action-title" style="color: var(--accent);">➕ Добавить запись в каталог</h2>
-      <input type="hidden" id="adm-edit-id" value="">
-      
-      <div class="admin-input-group">
-        <label>Категория</label>
-        <input class="admin-input" id="adm-cat" placeholder="🔴Сезон 2026 или 🎥Гонять чтобы выживать">
-      </div>
-
-      <div class="admin-input-group">
-        <label>Название события / Сезон</label>
-        <input class="admin-input" id="adm-title" placeholder="🇧🇪 Гран При Бельгии 2026 или Сезон 1">
-      </div>
-
-      <!-- Постер с надежной загрузкой из памяти -->
-      <div class="admin-input-group">
-        <label>Постер к видео</label>
-        <div class="image-field-wrap">
-          <input class="admin-input" id="adm-img" placeholder="Ссылка на фото (https://...)">
-          <label for="deviceImageInput" class="device-upload-btn">📁 Фото с устройства</label>
-          <input type="file" id="deviceImageInput" accept="image/*" style="display: none;" onchange="uploadImageFromDevice(this)">
-        </div>
-        <div id="upload-status" class="upload-hint"></div>
-      </div>
-
-      <div class="admin-input-group">
-        <label>Описание</label>
-        <textarea class="admin-input" id="adm-desc" rows="2" placeholder="Краткое описание этапа..."></textarea>
-      </div>
-
-      <div class="admin-input-group">
-        <label>Название сессии / серии</label>
-        <input class="admin-input" id="adm-item" placeholder="Гонка, Квалификация или 1 Серия">
-      </div>
-
-      <div class="admin-input-group">
-        <label>Бейдж качества</label>
-        <input class="admin-input" id="adm-badge" value="1080p">
-      </div>
-
-      <div class="admin-input-group">
-        <label>Код выдачи (латиница без пробелов)</label>
-        <input class="admin-input" id="adm-code" placeholder="belgium26_r">
-      </div>
-
-      <div class="admin-input-group">
-        <label>ID сообщения на складе</label>
-        <input type="number" class="admin-input" id="adm-post" placeholder="Например: 105">
-      </div>
-
-      <button id="adm-save-btn" class="submit-btn" onclick="submitItemForm()">💾 Сохранить в D1</button>
-      <button id="adm-cancel-btn" class="submit-btn" style="background: transparent; border: 1px solid var(--text-muted); display: none; margin-top: 6px;" onclick="cancelEditMode()">Отмена редактирования</button>
-    </div>
-
-    <!-- Управление всеми записями (Список, Редактирование, Удаление) -->
-    <div class="bot-card">
-      <h2 style="color: var(--accent);">🗂 Все записи каталога (Редактор)</h2>
-      <input type="text" id="admin-search-catalog" class="admin-input" placeholder="🔍 Найти запись для правки или удаления..." oninput="filterAdminCatalog(this.value)" style="margin-bottom: 12px;">
-      <div id="admin-catalog-list" style="max-height: 400px; overflow-y: auto;">
-        <div class="skeleton">Загрузка каталога...</div>
-      </div>
-    </div>
-
-    <!-- Рассылка -->
-    <div class="bot-card">
-      <h2>📢 Рассылка подписчикам</h2>
-      <div class="admin-input-group">
-        <textarea class="admin-input" id="broadcast-msg" rows="3" placeholder="Текст рассылки (HTML)..."></textarea>
-      </div>
-      <button class="submit-btn" style="background:#292f3d; border:1px solid rgba(255,255,255,0.2);" onclick="sendBroadcast()">🚀 Запустить рассылку</button>
+      <h3 style="margin-top:0; color:var(--accent);">➕ Добавить запись в базу D1</h3>
+      <input class="search-box" style="margin-bottom:8px;" id="adm-cat" placeholder="Категория (🔴Сезон 2026)">
+      <input class="search-box" style="margin-bottom:8px;" id="adm-title" placeholder="Гран-при / Событие">
+      <input class="search-box" style="margin-bottom:8px;" id="adm-img" placeholder="Ссылка на постер">
+      <textarea class="search-box" style="margin-bottom:8px;" id="adm-desc" rows="2" placeholder="Описание этапа..."></textarea>
+      <input class="search-box" style="margin-bottom:8px;" id="adm-item" placeholder="Сессия (Гонка, Квалификация)">
+      <input class="search-box" style="margin-bottom:8px;" id="adm-badge" value="1080p">
+      <input class="search-box" style="margin-bottom:8px;" id="adm-code" placeholder="Код выдачи (bahrain26_r)">
+      <input type="number" class="search-box" style="margin-bottom:8px;" id="adm-post" placeholder="ID поста на складе">
+      <button class="modal-btn" onclick="submitItemForm()">💾 Сохранить в D1</button>
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК ПОЛЬЗОВАТЕЛЯ -->
-  <div id="settings-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
-    <div class="modal-sheet">
-      <div class="modal-title-row">
-        <h3>⚙️ Настройки бота</h3>
-        <button class="modal-close-icon" type="button" onclick="toggleSettingsModal(false)">✕</button>
+  <!-- МОДАЛКА НАСТРОЕК -->
+  <div id="settings-modal" class="app-modal-overlay" onclick="if(event.target.id==='settings-modal') closeSettings()">
+    <div class="app-modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0;">⚙️ Настройки</h3>
+        <button style="background:none; border:none; color:#8e95a5; font-size:20px; cursor:pointer;" onclick="closeSettings()">✕</button>
       </div>
 
-      <div class="setting-row">
+      <div class="modal-row" id="beta-tester-row" style="display:none; background:rgba(225,6,0,0.1); padding:10px; border-radius:12px; border:1px solid var(--accent); margin-bottom:10px;">
         <div>
-          <div class="setting-label">🔔 Уведомления о видео</div>
-          <div class="setting-sub">Получать видео при выходе сессий</div>
+          <div class="modal-label" style="color:#ff6b6b;">🧪 Режим бета-теста (v2)</div>
+          <div class="modal-sub">Включение нового дизайна Gridlap</div>
         </div>
-        <label class="switch-toggle">
-          <input type="checkbox" id="user-set-video" onchange="saveUserSettings()">
-          <span class="switch-slider"></span>
+        <label class="switch">
+          <input type="checkbox" id="user-set-beta" onchange="toggleBetaMode(this.checked)">
+          <span class="slider"></span>
         </label>
       </div>
 
-      <div class="setting-row">
+      <div class="modal-row">
         <div>
-          <div class="setting-label">📢 Новости и анонсы</div>
-          <div class="setting-sub">Расписание Гран-при и важные события</div>
+          <div class="modal-label">🔔 Уведомления о видео</div>
+          <div class="modal-sub">Присылать заезды при публикации</div>
         </div>
-        <label class="switch-toggle">
-          <input type="checkbox" id="user-set-news" onchange="saveUserSettings()">
-          <span class="switch-slider"></span>
+        <label class="switch">
+          <input type="checkbox" id="user-set-video" checked>
+          <span class="slider"></span>
         </label>
       </div>
 
-      <div class="setting-row">
+      <div class="modal-row">
         <div>
-          <div class="setting-label">🔕 Тихий режим</div>
-          <div class="setting-sub">Присылать сообщения без звука</div>
+          <div class="modal-label">📢 Новости и анонсы</div>
+          <div class="modal-sub">Расписание и важные события</div>
         </div>
-        <label class="switch-toggle">
-          <input type="checkbox" id="user-set-silent" onchange="saveUserSettings()">
-          <span class="switch-slider"></span>
+        <label class="switch">
+          <input type="checkbox" id="user-set-news" checked>
+          <span class="slider"></span>
         </label>
       </div>
 
-      <div class="setting-row">
-        <div>
-          <div class="setting-label">🗂 Компактный список</div>
-          <div class="setting-sub">Уменьшенные карточки каталога</div>
-        </div>
-        <label class="switch-toggle">
-          <input type="checkbox" id="user-set-compact" onchange="toggleCompactView(this.checked)">
-          <span class="switch-slider"></span>
-        </label>
+      <div id="admin-modal-btn-wrap" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06);">
+        <button class="modal-btn" style="background:#252a36;" onclick="closeSettings(); openAdminScreen();">⚙️ Открыть панель администратора</button>
       </div>
 
-      <div style="margin-top: 20px;">
-        <button type="button" class="submit-btn" style="background: #252b36; border: 1px solid rgba(255,255,255,0.1); margin-top: 0; font-size: 13px; padding: 12px;" onclick="localStorage.clear(); location.reload();">
-          🧹 Очистить локальный кэш
-        </button>
-      </div>
+      <button class="modal-btn" style="background:#222733; margin-top:16px;" onclick="localStorage.clear(); location.reload();">🧹 Очистить локальный кэш</button>
     </div>
   </div>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+<script>
+    // =========================================================================
+    // ЧАСТЬ 2: ЛОГИКА АВТОРИЗАЦИИ, КАТАЛОГА D1 И СИСТЕМЫ GRIDLAP
+    // =========================================================================
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
 
     const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
     const BOT_USERNAME = "race_weekend_f1_bot";
     const ADMIN_ID = "301211351";
+    const TESTER_ID = "8061233590";
+
+    // НАДЕЖНОЕ ИЗВЛЕЧЕНИЕ ID (прямой разбор + initDataUnsafe + fallback из localStorage)
+    function extractTelegramUserId() {
+      let uid = "";
+      if (tg?.initDataUnsafe?.user?.id) {
+        uid = String(tg.initDataUnsafe.user.id);
+      }
+      if (!uid && tg?.initData) {
+        try {
+          const params = new URLSearchParams(tg.initData);
+          const userStr = params.get('user');
+          if (userStr) {
+            const parsed = JSON.parse(decodeURIComponent(userStr));
+            if (parsed && parsed.id) uid = String(parsed.id);
+          }
+        } catch (e) {}
+      }
+      if (uid) {
+        localStorage.setItem('f1_cached_uid', uid);
+      } else {
+        uid = localStorage.getItem('f1_cached_uid') || "";
+      }
+      return uid;
+    }
+
+    const currentUserId = extractTelegramUserId();
+    const isAdmin = (currentUserId === ADMIN_ID);
+    const isTester = (isAdmin || currentUserId === TESTER_ID);
 
     let dataTree = {};
     let allItemsFlat = [];
     let activeCategory = null;
-    let cameFromSearch = false;
 
-    const currentUserId = tg.initDataUnsafe?.user?.id;
-    if (String(currentUserId) === String(ADMIN_ID)) {
-      document.getElementById('admin-entry-container').style.display = 'block';
-    }
+    // ГАРАНТИРОВАННОЕ ВКЛЮЧЕНИЕ ЭЛЕМЕНТОВ УПРАВЛЕНИЯ
+    function applyUserPermissions() {
+      if (isAdmin) {
+        const v1BtnBox = document.getElementById('v1-admin-btn-box');
+        if (v1BtnBox) v1BtnBox.style.display = 'block';
 
-    // Инициализация локальных предпочтений
-    const savedCompact = localStorage.getItem('compactView') === 'true';
-    if (savedCompact) document.body.classList.add('compact-mode');
+        const modalBtnWrap = document.getElementById('admin-modal-btn-wrap');
+        if (modalBtnWrap) modalBtnWrap.style.display = 'block';
+      }
 
-    function showView(name) {
-      if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.getElementById('view-' + name).classList.add('active');
-      window.scrollTo(0, 0);
-    }
-
-    function backFromDetails() {
-      cameFromSearch ? showView('home') : showView('titles');
-    }
-
-    // ЛОГИКА ОКНА НАСТРОЕК
-    function openSettingsModal() {
-      toggleSettingsModal(true);
-      loadUserSettings();
-    }
-
-    function toggleSettingsModal(show) {
-      const modal = document.getElementById('settings-modal');
-      if (show) {
-        modal.classList.add('active');
-      } else {
-        modal.classList.remove('active');
+      if (isTester) {
+        const betaRow = document.getElementById('beta-tester-row');
+        if (betaRow) betaRow.style.display = 'flex';
       }
     }
 
-    function handleModalOverlayClick(e) {
-      if (e.target.id === 'settings-modal') toggleSettingsModal(false);
-    }
-
-    async function loadUserSettings() {
-      const isCompact = localStorage.getItem('compactView') === 'true';
-      document.getElementById('user-set-compact').checked = isCompact;
-
-      if (!currentUserId) return;
-      try {
-        const res = await fetch(`${WORKER_URL}/api/user/settings`, {
-          headers: { 'X-User-Id': String(currentUserId) }
-        });
-        if (res.ok) {
-          const cfg = await res.json();
-          document.getElementById('user-set-video').checked = cfg.notify_videos === 1;
-          document.getElementById('user-set-news').checked = cfg.notify_news === 1;
-          document.getElementById('user-set-silent').checked = cfg.silent_mode === 1;
-        }
-      } catch (e) {}
-    }
-
-    async function saveUserSettings() {
-      if (!currentUserId) return;
-      const payload = {
-        notify_videos: document.getElementById('user-set-video').checked,
-        notify_news: document.getElementById('user-set-news').checked,
-        silent_mode: document.getElementById('user-set-silent').checked
-      };
-
-      try {
-        await fetch(`${WORKER_URL}/api/user/settings`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-User-Id': String(currentUserId)
-          },
-          body: JSON.stringify(payload)
-        });
-        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-      } catch (e) {}
-    }
-
-    function toggleCompactView(enable) {
-      localStorage.setItem('compactView', enable);
-      if (enable) {
-        document.body.classList.add('compact-mode');
-      } else {
-        document.body.classList.remove('compact-mode');
-      }
-    }
-
-    // НАДЕЖНАЯ ЗАГРУЗКА ИЗОБРАЖЕНИЯ (БЕЗ КЛЮЧЕЙ И ЛИМИТОВ)
-    async function uploadImageFromDevice(input) {
-      const file = input.files[0];
-      if (!file) return;
-
-      const statusBox = document.getElementById('upload-status');
-      statusBox.style.color = '#ff9800';
-      statusBox.textContent = '⏳ Загрузка изображения...';
-
-      const formData = new FormData();
-      formData.append('reqtype', 'fileupload');
-      formData.append('time', '72h');
-      formData.append('fileToUpload', file);
-
-      try {
-        const res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (res.ok) {
-          const fileUrl = (await res.text()).trim();
-          if (fileUrl.startsWith('http')) {
-            document.getElementById('adm-img').value = fileUrl;
-            statusBox.style.color = '#4caf50';
-            statusBox.textContent = '✅ Картинка успешно загружена!';
-            return;
-          }
-        }
-        throw new Error('Upload error');
-      } catch (err) {
-        statusBox.style.color = '#ff5555';
-        statusBox.textContent = '❌ Не удалось загрузить файл на хостинг.';
-      }
-    }
-
-    function loadSettings() {
-      fetch(`${WORKER_URL}/api/settings`)
-        .then(r => r.json())
-        .then(data => {
-          const card = document.getElementById('welcome-card');
-          const title = document.getElementById('welcome-title');
-          const text = document.getElementById('welcome-text');
-          const img = document.getElementById('welcome-img');
-
-          const hasTitle = data.welcome_title && data.welcome_title.trim();
-          const hasText = data.welcome_text && data.welcome_text.trim();
-          const hasImg = data.welcome_image && data.welcome_image.trim();
-
-          if (!hasTitle && !hasText && !hasImg) {
-            card.style.display = 'none';
-          } else {
-            card.style.display = 'block';
-            title.innerText = hasTitle ? data.welcome_title : '';
-            title.style.display = hasTitle ? 'block' : 'none';
-
-            text.innerText = hasText ? data.welcome_text : '';
-            text.style.display = hasText ? 'block' : 'none';
-
-            if (hasImg) {
-              img.src = data.welcome_image;
-              img.style.display = 'block';
-            } else {
-              img.style.display = 'none';
+    // Тройной клик по логотипу в шапке для экстренного ручного входа
+    let logoClickCount = 0;
+    let logoTimer = null;
+    document.addEventListener('DOMContentLoaded', () => {
+      const v2Logo = document.getElementById('v2BrandLogo');
+      if (v2Logo) {
+        v2Logo.addEventListener('click', () => {
+          logoClickCount++;
+          clearTimeout(logoTimer);
+          logoTimer = setTimeout(() => { logoClickCount = 0; }, 1000);
+          if (logoClickCount >= 3) {
+            const secretId = prompt("Секретный ключ администратора (Telegram ID):");
+            if (secretId === ADMIN_ID) {
+              localStorage.setItem('f1_cached_uid', secretId);
+              alert("✅ Доступ администратора активирован!");
+              location.reload();
             }
           }
+        });
+      }
+    });
 
-          if (document.getElementById('set-welcome-title')) {
-            document.getElementById('set-welcome-title').value = data.welcome_title || '';
-            document.getElementById('set-welcome-text').value = data.welcome_text || '';
-            document.getElementById('set-welcome-img').value = data.welcome_image || '';
-          }
-        })
-        .catch(() => {});
+    // ОПРЕДЕЛЕНИЕ РЕЖИМА (V1 ИЛИ V2)
+    // По умолчанию для всех подписчиков строго V1
+    const isBetaActive = (localStorage.getItem('f1_beta_v2') === 'true') && isTester;
+    if (isBetaActive) {
+      document.body.classList.add('active-v2');
+      const betaCheck = document.getElementById('user-set-beta');
+      if (betaCheck) betaCheck.checked = true;
+      initV2Systems();
     }
 
+    function toggleBetaMode(enable) {
+      localStorage.setItem('f1_beta_v2', enable ? 'true' : 'false');
+      location.reload();
+    }
+
+    function toggleV2Theme() {
+      document.body.classList.toggle('v2-dark');
+    }
+
+    // 1. СИНХРОНИЗАЦИЯ КАТАЛОГА ИЗ D1
     function loadCatalog() {
       fetch(`${WORKER_URL}/api/catalog`)
         .then(r => r.json())
@@ -755,290 +887,286 @@
           dataTree = {};
           allItemsFlat = rows || [];
 
-          rows.forEach(entry => {
-            const cat = entry.category || 'Разное';
-            const t = entry.title;
-
+          rows.forEach(e => {
+            const cat = e.category || 'Архив';
+            const t = e.title;
             if (!dataTree[cat]) dataTree[cat] = {};
-            if (!dataTree[cat][t]) {
-              dataTree[cat][t] = { 
-                image: entry.image, 
-                description: entry.description, 
-                items: [] 
-              };
-            }
-            if (!dataTree[cat][t].image && entry.image) dataTree[cat][t].image = entry.image;
-            if (!dataTree[cat][t].description && entry.description) dataTree[cat][t].description = entry.description;
-
-            dataTree[cat][t].items.push({ 
-              id: entry.id,
-              item: entry.item, 
-              badge: entry.badge, 
-              code: entry.code 
-            });
+            if (!dataTree[cat][t]) dataTree[cat][t] = { image: e.image, description: e.description, items: [] };
+            dataTree[cat][t].items.push(e);
           });
 
-          const container = document.getElementById('categories-list');
-          container.innerHTML = '';
-          for (const cat in dataTree) {
-            const btn = document.createElement('div');
-            btn.className = 'menu-btn';
-            btn.innerHTML = `
-              <div class="menu-btn-content">
-                <span>${cat}</span>
-              </div>
-              <span style="opacity:0.4;">›</span>
-            `;
-            btn.onclick = () => openCategory(cat);
-            container.appendChild(btn);
-          }
+          const buildButtonsHtml = () => {
+            let html = '';
+            for (const c in dataTree) {
+              html += `
+                <div class="menu-btn" onclick="openCategory('${c}')">
+                  <div class="menu-btn-content"><span>${c}</span></div>
+                  <span style="opacity:0.4;">›</span>
+                </div>
+              `;
+            }
+            return html;
+          };
 
-          renderAdminCatalog(allItemsFlat);
+          const v1CatList = document.getElementById('v1-categories-list');
+          if (v1CatList) v1CatList.innerHTML = buildButtonsHtml();
+
+          const v2CatList = document.getElementById('v2-categories-list');
+          if (v2CatList) v2CatList.innerHTML = buildButtonsHtml();
         })
         .catch(() => {
-          document.getElementById('categories-list').innerHTML = 
-            '<div class="skeleton">Ошибка загрузки базы Cloudflare.</div>';
+          const v1CatList = document.getElementById('v1-categories-list');
+          if (v1CatList) v1CatList.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">Ошибка синхронизации базы D1.</div>';
         });
-    }
-
-    loadSettings();
-    loadCatalog();
-
-    function handleSearch(query) {
-      const q = query.trim().toLowerCase();
-      const defaultContent = document.getElementById('home-default-content');
-      const searchContainer = document.getElementById('search-results-list');
-
-      if (!q) {
-        defaultContent.style.display = 'block';
-        searchContainer.style.display = 'none';
-        searchContainer.innerHTML = '';
-        return;
-      }
-
-      defaultContent.style.display = 'none';
-      searchContainer.style.display = 'block';
-      searchContainer.innerHTML = '';
-
-      const matched = allItemsFlat.filter(entry => 
-        entry.title.toLowerCase().includes(q) || 
-        entry.item.toLowerCase().includes(q) ||
-        entry.category.toLowerCase().includes(q)
-      );
-
-      if (matched.length === 0) {
-        searchContainer.innerHTML = '<div class="skeleton">Ничего не найдено 🏎</div>';
-        return;
-      }
-
-      matched.forEach(entry => {
-        const btn = document.createElement('div');
-        btn.className = 'menu-btn';
-        const thumbHtml = entry.image ? `<img class="menu-btn-thumb" src="${entry.image}">` : '';
-
-        btn.innerHTML = `
-          <div class="menu-btn-content">
-            ${thumbHtml}
-            <div class="search-result-item">
-              <span>${entry.title} — ${entry.item}</span>
-              <span class="search-result-sub">${entry.category}</span>
-            </div>
-          </div>
-          <span class="badge">${entry.badge || 'HD'}</span>
-        `;
-        btn.onclick = () => {
-          if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-          tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${entry.code}`);
-          tg.close();
-        };
-        searchContainer.appendChild(btn);
-      });
     }
 
     function openCategory(cat) {
       activeCategory = cat;
-      cameFromSearch = false;
-      const container = document.getElementById('titles-list');
-      container.innerHTML = '';
-
+      const c = document.getElementById('titles-list');
+      c.innerHTML = '';
       for (const t in dataTree[cat]) {
-        const itemData = dataTree[cat][t];
+        const item = dataTree[cat][t];
+        const img = item.image ? `<img class="menu-btn-thumb" src="${item.image}">` : '';
         const btn = document.createElement('div');
         btn.className = 'menu-btn';
-
-        const thumbHtml = itemData.image 
-          ? `<img class="menu-btn-thumb" src="${itemData.image}">` 
-          : '';
-
-        btn.innerHTML = `
-          <div class="menu-btn-content">
-            ${thumbHtml}
-            <span>${t}</span>
-          </div>
-          <span style="opacity:0.4;">›</span>
-        `;
+        btn.innerHTML = `<div class="menu-btn-content">${img}<span>${t}</span></div><span>›</span>`;
         btn.onclick = () => openDetails(t);
-        container.appendChild(btn);
+        c.appendChild(btn);
       }
-      showView('titles');
+      showScreen('titles');
     }
 
     function openDetails(titleKey) {
       const data = dataTree[activeCategory][titleKey];
-      const headerBox = document.getElementById('item-header');
-      const btnsBox = document.getElementById('item-btns');
+      const header = document.getElementById('details-header');
+      const btns = document.getElementById('details-btns');
 
-      let bannerHtml = (data.image && data.image.startsWith('http')) 
-        ? `<img class="gp-banner" src="${data.image}" alt="${titleKey}">` 
-        : '';
-      let descHtml = data.description 
-        ? `<div class="gp-desc">${data.description}</div>` 
-        : '';
-
-      headerBox.innerHTML = `
-        ${bannerHtml}
-        <div class="gp-title">${titleKey}</div>
-        ${descHtml}
+      header.innerHTML = `
+        ${data.image ? `<img src="${data.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; margin-bottom:12px;">` : ''}
+        <h2 style="margin:0 0 8px 0;">${titleKey}</h2>
+        ${data.description ? `<div style="color:var(--text-muted); font-size:14px; margin-bottom:14px;">${data.description}</div>` : ''}
       `;
 
-      btnsBox.innerHTML = '';
+      btns.innerHTML = '';
       data.items.forEach(it => {
         const btn = document.createElement('div');
         btn.className = 'menu-btn';
-        btn.innerHTML = `
-          <div class="menu-btn-content">
-            <span>${it.item}</span>
-          </div>
-          <span class="badge">${it.badge || 'HD'}</span>
-        `;
+        btn.innerHTML = `<span>${it.item}</span><span class="badge">${it.badge || 'HD'}</span>`;
         btn.onclick = () => {
-          if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-          tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${it.code}`);
-          tg.close();
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+          tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${it.code}`);
+          tg?.close();
         };
-        btnsBox.appendChild(btn);
+        btns.appendChild(btn);
       });
-
-      showView('details');
+      showScreen('details');
     }
 
-    function openAdminPanel() {
-      showView('admin');
-      fetch(`${WORKER_URL}/api/stats`, {
-        headers: { 'X-Admin-Id': currentUserId }
-      })
-      .then(r => r.json())
-      .then(data => {
-        document.getElementById('stat-users').innerText = data.total_users;
-        document.getElementById('stat-active').innerText = data.active_24h || data.views_today || 0;
-        document.getElementById('stat-items').innerText = data.total_items;
-      });
-      loadSettings();
-      renderAdminCatalog(allItemsFlat);
+    function showScreen(name) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      const el = document.getElementById('screen-' + name);
+      if (el) el.classList.add('active');
+      window.scrollTo(0, 0);
     }
 
-    function saveSettings() {
-      const payload = {
-        welcome_title: document.getElementById('set-welcome-title').value,
-        welcome_text: document.getElementById('set-welcome-text').value,
-        welcome_image: document.getElementById('set-welcome-img').value
-      };
+    function backFromTitles() {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      if (document.body.classList.contains('active-v2')) {
+        switchV2Tab('archive', document.querySelectorAll('.g-nav-btn')[3]);
+      } else {
+        document.getElementById('v1-home').classList.add('active');
+      }
+    }
 
-      fetch(`${WORKER_URL}/api/settings/update`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Id': currentUserId
-        },
-        body: JSON.stringify(payload)
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          alert('✅ Оформление главного экрана сохранено!');
-          loadSettings();
-        } else {
-          alert('Ошибка сохранения');
+    function backFromAdmin() {
+      backFromTitles();
+    }
+
+    function handleSearch(q) {
+      const query = q.trim().toLowerCase();
+      const def = document.getElementById('v1-default-body');
+      const res = document.getElementById('v1-search-results');
+      if (!query) {
+        if (def) def.style.display = 'block';
+        if (res) res.style.display = 'none';
+        return;
+      }
+      if (def) def.style.display = 'none';
+      if (res) {
+        res.style.display = 'block';
+        res.innerHTML = '';
+      }
+
+      const matched = allItemsFlat.filter(e => e.title.toLowerCase().includes(query) || e.item.toLowerCase().includes(query));
+      if (!matched.length) {
+        if (res) res.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">Ничего не найдено 🏎</div>';
+        return;
+      }
+
+      matched.forEach(e => {
+        const b = document.createElement('div');
+        b.className = 'menu-btn';
+        b.innerHTML = `<span>${e.title} — ${e.item}</span><span class="badge">${e.badge || 'HD'}</span>`;
+        b.onclick = () => {
+          tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${e.code}`);
+          tg?.close();
+        };
+        if (res) res.appendChild(b);
+      });
+    }
+
+    // 2. СИСТЕМЫ И ИНТЕРАКТИВ GRIDLAP (V2)
+    function initV2Systems() {
+      // Динамический таймер
+      const target = new Date();
+      target.setDate(target.getDate() + 1);
+      target.setHours(19, 0, 0, 0);
+
+      setInterval(() => {
+        const diff = Math.max(0, target - new Date());
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / 1000 / 60) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        const td = document.getElementById('g-td');
+        const th = document.getElementById('g-th');
+        const tm = document.getElementById('g-tm');
+        const ts = document.getElementById('g-ts');
+
+        if (td) td.innerText = String(d).padStart(2, '0');
+        if (th) th.innerText = String(h).padStart(2, '0');
+        if (tm) tm.innerText = String(m).padStart(2, '0');
+        if (ts) ts.innerText = String(s).padStart(2, '0');
+      }, 1000);
+
+      // Анимация болида на трассе
+      const path = document.getElementById('gTrackPath');
+      const car = document.getElementById('gCarPoint');
+      if (path && car) {
+        let prog = 0;
+        const len = path.getTotalLength();
+        setInterval(() => {
+          prog = (prog + 2) % len;
+          const pt = path.getPointAtLength(prog);
+          car.setAttribute('cx', pt.x);
+          car.setAttribute('cy', pt.y);
+        }, 35);
+      }
+
+      loadV2News();
+    }
+
+    function switchV2Tab(tab, el) {
+      if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      document.querySelectorAll('.g-nav-btn').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+
+      document.getElementById('v2-tab-home').classList.remove('active');
+      document.getElementById('v2-tab-season').classList.remove('active');
+      document.getElementById('v2-tab-games').classList.remove('active');
+      document.getElementById('v2-tab-archive').classList.remove('active');
+      document.getElementById('v2-tab-news').classList.remove('active');
+
+      document.getElementById('v2-tab-' + tab).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function switchV2SubSeason(sub, el) {
+      document.querySelectorAll('.g-sub-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('v2-sub-standings').style.display = sub === 'standings' ? 'block' : 'none';
+      document.getElementById('v2-sub-calendar').style.display = sub === 'calendar' ? 'block' : 'none';
+      document.getElementById('v2-sub-teams').style.display = sub === 'teams' ? 'block' : 'none';
+    }
+
+    // Тренажер стартовых огней F1
+    let reactionState = 'idle';
+    let reactionStart = 0;
+    let reactionTimer = null;
+
+    function handleReactionTap() {
+      const area = document.getElementById('gTapArea');
+      const res = document.getElementById('gReactionRes');
+
+      if (reactionState === 'idle') {
+        res.innerText = '';
+        area.innerText = 'ВНИМАНИЕ...';
+        reactionState = 'waiting';
+        let step = 1;
+        const intv = setInterval(() => {
+          if (step <= 5) {
+            const light = document.getElementById(`gl${step}`);
+            if (light) light.classList.add('on');
+            step++;
+          } else {
+            clearInterval(intv);
+            const delay = 1000 + Math.random() * 2500;
+            reactionTimer = setTimeout(() => {
+              for (let i = 1; i <= 5; i++) {
+                const light = document.getElementById(`gl${i}`);
+                if (light) light.classList.remove('on');
+              }
+              reactionState = 'ready';
+              reactionStart = performance.now();
+              area.innerText = 'ЖМИ СЕЙЧАС!';
+            }, delay);
+          }
+        }, 800);
+      } else if (reactionState === 'waiting') {
+        clearTimeout(reactionTimer);
+        for (let i = 1; i <= 5; i++) {
+          const light = document.getElementById(`gl${i}`);
+          if (light) light.classList.remove('on');
         }
-      });
-    }
-
-    function renderAdminCatalog(items) {
-      const container = document.getElementById('admin-catalog-list');
-      container.innerHTML = '';
-
-      if (!items || items.length === 0) {
-        container.innerHTML = '<div class="skeleton">Записей не найдено</div>';
-        return;
+        reactionState = 'idle';
+        area.innerText = 'ФАЛЬСТАРТ! Жми для повтора';
+        res.innerText = '❌ Слишком рано';
+      } else if (reactionState === 'ready') {
+        const ms = Math.round(performance.now() - reactionStart);
+        reactionState = 'idle';
+        area.innerText = 'СЫГРАТЬ ЕЩЁ РАЗ';
+        res.innerText = `⏱ ${ms} мс`;
       }
-
-      items.forEach(entry => {
-        const itemCard = document.createElement('div');
-        itemCard.className = 'admin-catalog-item';
-        itemCard.innerHTML = `
-          <div class="admin-item-title">${entry.title} — ${entry.item}</div>
-          <div class="admin-item-sub">Категория: ${entry.category} | Код: ${entry.code} | Post ID: ${entry.post_id}</div>
-          <div class="admin-actions">
-            <button class="action-btn edit-btn" onclick="startEditItem(${entry.id})">✏️ Изменить</button>
-            <button class="action-btn del-btn" onclick="deleteItem(${entry.id})">🗑 Удалить</button>
-          </div>
-        `;
-        container.appendChild(itemCard);
-      });
     }
 
-    function filterAdminCatalog(query) {
-      const q = query.trim().toLowerCase();
-      if (!q) {
-        renderAdminCatalog(allItemsFlat);
-        return;
-      }
-      const filtered = allItemsFlat.filter(e => 
-        e.title.toLowerCase().includes(q) || 
-        e.item.toLowerCase().includes(q) || 
-        e.category.toLowerCase().includes(q) ||
-        e.code.toLowerCase().includes(q)
-      );
-      renderAdminCatalog(filtered);
+    // Лента новостей канала
+    async function loadV2News() {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/feed`);
+        const posts = await res.json();
+        const list = document.getElementById('v2-news-list');
+        if (!posts || !posts.length) {
+          if (list) list.innerHTML = '<div style="text-align:center; padding:30px; color:#888;">Постов пока нет</div>';
+          return;
+        }
+        if (list) {
+          list.innerHTML = posts.map(p => `
+            <div style="background:var(--g-card); border-radius:18px; padding:16px; margin-bottom:12px; border:1px solid var(--g-border);">
+              ${p.image ? `<img src="${p.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; margin-bottom:8px;">` : ''}
+              <div style="font-size:11px; color:var(--g-muted); margin-bottom:4px;">📅 ${new Date(p.date * 1000).toLocaleString('ru-RU')}</div>
+              <div style="font-size:14px; line-height:1.45; color:var(--g-text);">${p.text || ''}</div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {}
     }
 
-    function startEditItem(id) {
-      const entry = allItemsFlat.find(e => e.id === id);
-      if (!entry) return;
-
-      document.getElementById('adm-edit-id').value = entry.id;
-      document.getElementById('adm-cat').value = entry.category;
-      document.getElementById('adm-title').value = entry.title;
-      document.getElementById('adm-img').value = entry.image || '';
-      document.getElementById('adm-desc').value = entry.description || '';
-      document.getElementById('adm-item').value = entry.item;
-      document.getElementById('adm-badge').value = entry.badge || 'HD';
-      document.getElementById('adm-code').value = entry.code;
-      document.getElementById('adm-post').value = entry.post_id;
-
-      document.getElementById('form-action-title').innerText = `✏️ Редактирование: ${entry.item}`;
-      document.getElementById('adm-save-btn').innerText = '💾 Сохранить изменения';
-      document.getElementById('adm-cancel-btn').style.display = 'block';
-
-      document.getElementById('form-action-title').scrollIntoView({ behavior: 'smooth' });
+    // 3. ОКНО НАСТРОЕК И ПАНЕЛЬ АДМИНИСТРАТОРА
+    function openSettings() {
+      applyUserPermissions();
+      document.getElementById('settings-modal').classList.add('active');
     }
 
-    function cancelEditMode() {
-      document.getElementById('adm-edit-id').value = '';
-      document.getElementById('adm-item').value = '';
-      document.getElementById('adm-code').value = '';
-      document.getElementById('adm-post').value = '';
-      document.getElementById('upload-status').textContent = '';
+    function closeSettings() {
+      document.getElementById('settings-modal').classList.remove('active');
+    }
 
-      document.getElementById('form-action-title').innerText = '➕ Добавить запись в каталог';
-      document.getElementById('adm-save-btn').innerText = '💾 Сохранить в D1';
-      document.getElementById('adm-cancel-btn').style.display = 'none';
+    function openAdminScreen() {
+      showScreen('admin');
     }
 
     function submitItemForm() {
-      const editId = document.getElementById('adm-edit-id').value;
-      const isEditing = Boolean(editId);
-
       const payload = {
         category: document.getElementById('adm-cat').value,
         title: document.getElementById('adm-title').value,
@@ -1055,74 +1183,26 @@
         return;
       }
 
-      const endpoint = isEditing ? '/api/catalog/update' : '/api/catalog/add';
-      if (isEditing) payload.id = editId;
-
-      fetch(`${WORKER_URL}${endpoint}`, {
+      fetch(`${WORKER_URL}/api/catalog/add`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Id': currentUserId
-        },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
         body: JSON.stringify(payload)
       })
       .then(r => r.json())
       .then(res => {
         if (res.success) {
-          alert(isEditing ? '✅ Запись успешно обновлена!' : '✅ Успешно сохранено в базу D1!');
-          cancelEditMode();
+          alert('✅ Запись успешно добавлена в D1!');
           loadCatalog();
+          backFromAdmin();
         } else {
-          alert('Ошибка сохранения: ' + res.error);
+          alert('Ошибка сохранения: ' + (res.error || 'D1 Error'));
         }
       });
     }
 
-    function deleteItem(id) {
-      if (!confirm('Вы уверены, что хотите удалить эту запись из базы?')) return;
-
-      fetch(`${WORKER_URL}/api/catalog/delete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Id': currentUserId
-        },
-        body: JSON.stringify({ id: id })
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          alert('🗑 Запись успешно удалена!');
-          loadCatalog();
-        } else {
-          alert('Ошибка при удалении: ' + res.error);
-        }
-      });
-    }
-
-    function sendBroadcast() {
-      const msg = document.getElementById('broadcast-msg').value.trim();
-      if (!msg) return alert('Введите текст сообщения!');
-      if (!confirm('Отправить сообщение подписчикам?')) return;
-
-      fetch(`${WORKER_URL}/api/broadcast`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Id': currentUserId
-        },
-        body: JSON.stringify({ message: msg })
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          alert(`✅ Рассылка завершена! Отправлено: ${res.sent}`);
-          document.getElementById('broadcast-msg').value = '';
-        } else {
-          alert('Ошибка рассылки');
-        }
-      });
-    }
+    // Инициализация при старте
+    applyUserPermissions();
+    loadCatalog();
   </script>
 </body>
 </html>
