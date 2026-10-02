@@ -55,7 +55,6 @@
       box-shadow: none !important;
     }
 
-    /* ШАПКА */
     .app-header {
       display: flex;
       justify-content: space-between;
@@ -98,7 +97,6 @@
     .view-screen.active { display: block; animation: viewIn 0.2s ease-out; }
     @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* КАРТОЧКА ГЛАВНОЙ */
     .hero-card {
       background: var(--card-bg);
       border-radius: 24px;
@@ -135,7 +133,6 @@
     .t-val { font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -1.5px; color: var(--text); }
     .t-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
 
-    /* ВЕКТОР ТРАССЫ */
     .track-viewport {
       width: 100%;
       height: 180px;
@@ -148,7 +145,7 @@
     .track-svg { width: 100%; height: 100%; overflow: visible; }
     .track-road {
       stroke: var(--track-base);
-      stroke-width: 12;
+      stroke-width: 11;
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
@@ -165,7 +162,6 @@
       stroke: var(--accent);
       stroke-width: 3.5;
       filter: drop-shadow(0 0 8px var(--accent));
-      transition: cx 0.03s linear, cy 0.03s linear;
     }
 
     .gp-title { font-size: 22px; font-weight: 900; margin: 0 0 4px 0; letter-spacing: -0.5px; color: var(--text); }
@@ -195,7 +191,6 @@
     .sess-time { font-size: 11px; font-weight: 800; margin-top: 3px; color: var(--text); }
     .sess-chip.active .sess-name, .sess-chip.active .sess-time { color: var(--accent); }
 
-    /* КАРТОЧКА ДАННЫХ АВТОДРОМА */
     .circuit-spec-card {
       background: var(--card-bg);
       border-radius: 20px;
@@ -230,7 +225,6 @@
       align-items: center;
     }
 
-    /* СЕЗОН */
     .sub-tabs-bar {
       display: flex;
       background: var(--card-sub);
@@ -315,7 +309,6 @@
     .cal-info h4 { margin: 0; font-size: 15px; font-weight: 800; color: var(--text); }
     .cal-info span { font-size: 12px; color: var(--text-muted); }
 
-    /* ИГРЫ */
     .game-card {
       background: var(--card-bg);
       border-radius: 24px;
@@ -346,7 +339,6 @@
     }
     .reaction-res { font-size: 26px; font-weight: 900; color: var(--accent); margin-top: 14px; }
 
-    /* ПИТ-СТОП ТРЕНАЖЕР */
     .pitstop-box {
       margin-top: 15px;
       display: flex;
@@ -368,7 +360,6 @@
     }
     .wheel-btn.done { border-color: #28a745; background: #1b3823; }
 
-    /* ОБЩИЙ ПОИСК И КАТАЛОГ */
     .search-input {
       width: 100%;
       background: var(--input-bg);
@@ -408,7 +399,6 @@
       color: var(--accent);
     }
 
-    /* НАВИГАЦИЯ */
     .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -439,7 +429,6 @@
     .nav-btn.active { color: var(--accent); }
     .nav-icon { font-size: 22px; margin-bottom: 2px; }
 
-    /* МОДАЛКА */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -506,7 +495,7 @@
 </head>
 <body>
 
-  <!-- ШАПКА C НОВЫМ НАЗВАНИЕМ -->
+  <!-- ШАПКА -->
   <div class="app-header">
     <div class="brand-wrap" id="topBrandLogo">
       <div class="brand-square"></div>
@@ -533,25 +522,25 @@
         <div class="t-col"><span class="t-val" id="t-s">00</span><span class="t-lbl">сек</span></div>
       </div>
 
-      <!-- ВЕКТОР ТРАССЫ СЕПАНГ (СНЯТ ТОЧНО ПО СКРИНШОТУ) -->
+      <!-- ВЕКТОР ТРАССЫ СЕПАНГ (СНЯТ ТОЧНО ПО ТВОЕМУ СКРИНШОТУ 2) -->
       <div class="track-viewport">
-        <svg class="track-svg" viewBox="0 0 500 240">
-          <path id="trackPath" class="track-road" d="M 120,185 L 260,185 Q 380,185 390,175 Q 400,165 370,160 L 260,160 Q 240,160 250,140 L 280,110 Q 300,90 320,110 L 350,140 Q 370,160 400,140 L 415,115 Q 430,90 380,50 L 270,30 Q 230,20 220,50 L 205,100 Q 195,120 170,120 L 130,120 Q 95,120 90,145 Q 85,170 120,185 Z" />
-          <path class="track-racing-line" d="M 120,185 L 260,185 Q 380,185 390,175 Q 400,165 370,160 L 260,160 Q 240,160 250,140 L 280,110 Q 300,90 320,110 L 350,140 Q 370,160 400,140 L 415,115 Q 430,90 380,50 L 270,30 Q 230,20 220,50 L 205,100 Q 195,120 170,120 L 130,120 Q 95,120 90,145 Q 85,170 120,185 Z" />
-          <circle id="carPoint" class="track-car-dot" r="6" cx="120" cy="185" />
+        <svg class="track-svg" viewBox="0 0 500 250">
+          <path id="trackPath" class="track-road" d="M 80,155 L 390,155 Q 410,155 405,140 Q 400,125 380,135 L 260,175 Q 240,180 250,200 L 275,225 Q 295,245 320,225 L 350,195 Q 370,175 400,195 L 435,215 Q 460,225 450,180 L 415,100 Q 395,50 340,55 L 260,65 Q 235,70 240,95 L 250,125 Q 245,145 220,135 L 140,135 Q 75,135 60,170 Q 55,200 95,200 L 370,200 Q 400,200 400,175 Q 400,155 380,155 Z" />
+          <path class="track-racing-line" d="M 80,155 L 390,155 Q 410,155 405,140 Q 400,125 380,135 L 260,175 Q 240,180 250,200 L 275,225 Q 295,245 320,225 L 350,195 Q 370,175 400,195 L 435,215 Q 460,225 450,180 L 415,100 Q 395,50 340,55 L 260,65 Q 235,70 240,95 L 250,125 Q 245,145 220,135 L 140,135 Q 75,135 60,170 Q 55,200 95,200 L 370,200 Q 400,200 400,175 Q 400,155 380,155 Z" />
+          <circle id="carPoint" class="track-car-dot" r="6" cx="80" cy="155" />
         </svg>
       </div>
 
       <h2 class="gp-title" id="gpTitleDisplay">Гран-при Бахрейна, Малайзия</h2>
       <div class="gp-sub" id="gpSubDisplay">Этап 16 • Сепанг • 5,543 км</div>
 
-      <!-- СЕТКА СЕССИЙ УИКЕНДА -->
+      <!-- СЕТКА СЕССИЙ УИКЕНДА С ТОЧНЫМ ВРЕМЕНЕМ ИЗ СКРИНШОТА 3 -->
       <div class="sessions-grid" id="weekendSessionsGrid">
-        <div class="sess-chip past"><div class="sess-name">ПТ • П1</div><div class="sess-time">✓ Завершено</div></div>
-        <div class="sess-chip past"><div class="sess-name">ПТ • П2</div><div class="sess-time">✓ Завершено</div></div>
-        <div class="sess-chip active"><div class="sess-name">СБ • П3</div><div class="sess-time">13:30</div></div>
-        <div class="sess-chip"><div class="sess-name">СБ • КВАЛА</div><div class="sess-time">17:00</div></div>
-        <div class="sess-chip"><div class="sess-name">ВС • ГОНКА</div><div class="sess-time">16:00</div></div>
+        <div class="sess-chip past"><div class="sess-name">02 ОКТ • П1</div><div class="sess-time">✓ Завершено</div></div>
+        <div class="sess-chip past"><div class="sess-name">02 ОКТ • П2</div><div class="sess-time">✓ Завершено</div></div>
+        <div class="sess-chip active"><div class="sess-name">03 ОКТ • П3</div><div class="sess-time">07:30</div></div>
+        <div class="sess-chip"><div class="sess-name">03 ОКТ • КВАЛА</div><div class="sess-time">11:00</div></div>
+        <div class="sess-chip"><div class="sess-name">04 ОКТ • ГОНКА</div><div class="sess-time">10:00</div></div>
       </div>
     </div>
 
@@ -603,12 +592,12 @@
     <div id="archiveSearchResults" style="display: none;"></div>
   </div>
 
-  <!-- ================= 3. ЭКРАН: СЕЗОН (ПИЛОТЫ, КАЛЕНДАРЬ, КОНСТРУКТОРЫ) ================= -->
+  <!-- ================= 3. ЭКРАН: СЕЗОН (22 ПИЛОТА, 11 КОМАНД, КАЛЕНДАРЬ) ================= -->
   <div id="view-season" class="view-screen">
     <div class="sub-tabs-bar">
-      <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)">Пилоты</button>
+      <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)">Пилоты (22)</button>
       <button class="sub-tab-btn" onclick="switchSeasonSubTab('calendar', this)">Календарь</button>
-      <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)">Кубок конструкторов</button>
+      <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)">Кубок (11)</button>
     </div>
 
     <!-- ТАБЛИЦА ПИЛОТОВ -->
@@ -640,7 +629,6 @@
 
   <!-- ================= 4. ЭКРАН: ИГРЫ F1 (РЕАКЦИЯ + ПИТ-СТОП) ================= -->
   <div id="view-games" class="view-screen">
-    <!-- Игра 1: Стартовые огни -->
     <div class="game-card">
       <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">⚡️ Реакция на стартовые огни F1</h3>
       <div style="font-size:13px; color:var(--text-muted); line-height:1.4;">
@@ -661,7 +649,6 @@
       <div class="reaction-res" id="reactionScoreText"></div>
     </div>
 
-    <!-- Игра 2: Симулятор пит-стопа -->
     <div class="game-card">
       <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">🏎💨 Pit-Stop Challenge</h3>
       <div style="font-size:13px; color:var(--text-muted); line-height:1.4;">
@@ -697,12 +684,48 @@
     <div id="catalogItemButtonsList"></div>
   </div>
 
-  <!-- ================= 6. ПАНЕЛЬ АДМИНИСТРАТОРА (С ПОИСКОМ И ЗАГРУЗКОЙ КАРТИНОК) ================= -->
+  <!-- ================= 6. ПАНЕЛЬ АДМИНИСТРАТОРА ================= -->
   <div id="view-admin" class="view-screen">
     <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromAdmin()">← Выйти из админки</button>
 
+    <!-- НОВЫЙ БЛОК: РУЧНОЕ УПРАВЛЕНИЕ ГЛАВНЫМ ЭКРАНОМ И ТРАССОЙ -->
+    <div class="hero-card" style="border-color: rgba(255,59,48,0.4);">
+      <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🏎 Управление этапом на Главной</h3>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Выбери трассу и настройки без правки кода:</div>
+
+      <label style="font-size:12px; font-weight:700; color:var(--text-muted);">Активная трасса:</label>
+      <select id="admActiveCircuitSelect" class="search-input" style="margin-top:4px;">
+        <option value="sepang">16. Малайзия — Сепанг</option>
+        <option value="singapore">17. Сингапур — Марина-Бей</option>
+        <option value="cota">18. США — Остин (COTA)</option>
+        <option value="rodriguez">19. Мексика — Мехико</option>
+        <option value="interlagos">20. Бразилия — Интерлагос</option>
+        <option value="vegas">21. Лас-Вегас</option>
+        <option value="losail">22. Катар — Лусаил</option>
+        <option value="yas_marina">23. Абу-Даби — Яс-Марина</option>
+        <option value="albert_park">01. Австралия — Мельбурн</option>
+        <option value="shanghai">02. Китай — Шанхай</option>
+        <option value="suzuka">03. Япония — Сузука</option>
+        <option value="miami">04. Майами</option>
+        <option value="villeneuve">05. Канада — Монреаль</option>
+        <option value="monaco">06. Монако</option>
+        <option value="catalunya">07. Испания — Барселона</option>
+        <option value="red_bull_ring">08. Австрия — Шпильберг</option>
+        <option value="silverstone">09. Великобритания — Сильверстоун</option>
+        <option value="spa">10. Бельгия — Спа</option>
+      </select>
+
+      <label style="font-size:12px; font-weight:700; color:var(--text-muted);">Заголовок Гран-при:</label>
+      <input class="search-input" id="admActiveGpTitle" value="Гран-при Бахрейна, Малайзия" style="margin-top:4px;">
+
+      <label style="font-size:12px; font-weight:700; color:var(--text-muted);">Подзаголовок:</label>
+      <input class="search-input" id="admActiveGpSub" value="Этап 16 • Сепанг • 5,543 км" style="margin-top:4px;">
+
+      <button class="btn-action" onclick="saveAdminCurrentWeekendConfig()">💾 Применить настройки этапа</button>
+    </div>
+
     <!-- СТАТИСТИКА -->
-    <div class="hero-card" style="border-color: rgba(255,59,48,0.3);">
+    <div class="hero-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h3 style="margin:0; font-size:17px; font-weight:900;">📊 Статистика бота и архива</h3>
         <button class="icon-circle-btn" style="width:34px; height:34px; font-size:14px;" onclick="loadAdminLiveStats()">🔄</button>
@@ -716,7 +739,7 @@
       </div>
     </div>
 
-    <!-- ВЕРСИЯ -->
+    <!-- УПРАВЛЕНИЕ РЕЛИЗОМ -->
     <div class="hero-card">
       <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🚀 Глобальный релиз</h3>
       <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
@@ -733,10 +756,9 @@
       <input class="search-input" id="admFormCat" placeholder="Категория (🔴Сезон 2026)">
       <input class="search-input" id="admFormTitle" placeholder="Событие (Гран-при Бахрейна)">
       
-      <!-- Загрузка постера файлом с телефона/ПК + предпросмотр -->
       <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
         <input class="search-input" id="admFormImg" placeholder="Ссылка на постер" style="margin-bottom:0;">
-        <label class="icon-circle-btn" style="flex-shrink:0; cursor:pointer;" title="Загрузить фото">
+        <label class="icon-circle-btn" style="flex-shrink:0; cursor:pointer;" title="Загрузить фото с телефона">
           📁
           <input type="file" id="admFileUpload" accept="image/*" style="display:none;" onchange="handleImageFileUpload(event)">
         </label>
@@ -755,7 +777,7 @@
       <button class="btn-action btn-secondary" id="adminCancelEditBtn" style="display:none; margin-top:8px;" onclick="cancelCatalogEditMode()">Отмена</button>
     </div>
 
-    <!-- ПОИСК И УДАЛЕНИЕ/РЕДАКТИРОВАНИЕ ЗАПИСЕЙ -->
+    <!-- ПОИСК И УПРАВЛЕНИЕ ЗАПИСЯМИ -->
     <div class="hero-card">
       <h3 style="margin:0 0 8px 0; font-size:17px; font-weight:900;">🗑 Управление каталогом</h3>
       <input type="text" class="search-input" placeholder="🔍 Быстрый поиск в админке..." oninput="handleAdminSearch(this.value)">
@@ -763,7 +785,7 @@
     </div>
   </div>
 
-  <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (Главная, Архив, Сезон, Игры, Новости) -->
+  <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ -->
   <div class="bottom-nav">
     <div class="nav-btn active" onclick="switchMainTab('home', this)">
       <span class="nav-icon">🏠</span>
@@ -839,7 +861,6 @@
         </label>
       </div>
 
-      <!-- КРАСИВАЯ КНОПКА АДМИН-ПАНЕЛИ (ТОЛЬКО ДЛЯ ТЕБЯ) -->
       <div id="adminDirectEntryBlock" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
         <button class="btn-action" style="background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent);" onclick="toggleAppSettingsModal(false); openAdminDashboardScreen();">
           ⚙️ Открыть панель администратора
@@ -854,7 +875,7 @@
 
   <script>
     /* ==========================================================================
-       ЧАСТЬ 3: БАЗА ТРАСС SVG, БЕГАЮЩАЯ ТОЧКА, ЖЕСТКИЙ ТАЙМЕР И ИГРЫ
+       ЧАСТЬ 3: БАЗА ТРАСС SVG, БЕГАЮЩАЯ ТОЧКА, ТАЙМЕР ДО 07:30 И ИГРЫ
        ========================================================================== */
     const tg = window.Telegram?.WebApp;
     if (tg) {
@@ -893,8 +914,8 @@
 
     // 1. БАЗА ВЕКТОРОВ ТРАСС (ТОЧНО ПО ПРИСЛАННЫМ СКРИНШОТАМ)
     const CIRCUITS_SVG_DATABASE = {
-      // 16. Сепанг (Малайзия) — параллельные прямые старт-финиша со шпилькой и петлей
-      "sepang": "M 120,185 L 260,185 Q 380,185 390,175 Q 400,165 370,160 L 260,160 Q 240,160 250,140 L 280,110 Q 300,90 320,110 L 350,140 Q 370,160 400,140 L 415,115 Q 430,90 380,50 L 270,30 Q 230,20 220,50 L 205,100 Q 195,120 170,120 L 130,120 Q 95,120 90,145 Q 85,170 120,185 Z",
+      // 16. Сепанг (Малайзия) — снят строго по скриншоту 2: параллельные прямые старт-финиш, шпилька Т15, петля 2 сектора
+      "sepang": "M 80,155 L 390,155 Q 410,155 405,140 Q 400,125 380,135 L 260,175 Q 240,180 250,200 L 275,225 Q 295,245 320,225 L 350,195 Q 370,175 400,195 L 435,215 Q 460,225 450,180 L 415,100 Q 395,50 340,55 L 260,65 Q 235,70 240,95 L 250,125 Q 245,145 220,135 L 140,135 Q 75,135 60,170 Q 55,200 95,200 L 370,200 Q 400,200 400,175 Q 400,155 380,155 Z",
       // 1. Австралия (Альберт-Парк)
       "albert_park": "M 90,190 L 140,200 Q 180,210 240,205 L 340,195 Q 420,190 440,150 L 410,100 Q 380,60 300,80 L 220,110 Q 170,120 120,80 L 90,110 Q 70,140 90,190 Z",
       // 2. Китай (Шанхай)
@@ -931,7 +952,7 @@
       "yas_marina": "M 80,190 L 370,190 Q 420,180 410,130 L 380,80 Q 340,40 290,60 L 190,80 Q 120,100 70,140 Z"
     };
 
-    // 2. ДВИЖОК БЕГАЮЩЕЙ ТОЧКИ (АНИМАЦИЯ БОЛИДА)
+    // 2. ДВИЖОК АНИМАЦИИ БОЛИДА
     let trackAnimInterval = null;
     function runCarAnimationOnTrack(circuitKey = "sepang") {
       const pathEl = document.getElementById('trackPath');
@@ -955,22 +976,22 @@
 
       trackAnimInterval = setInterval(() => {
         if (document.body.classList.contains('lite-mode')) return;
-        currentDistance = (currentDistance + 2.4) % pathLength;
+        currentDistance = (currentDistance + 2.5) % pathLength;
         const coords = pathEl.getPointAtLength(currentDistance);
         carDot.setAttribute('cx', coords.x);
         carDot.setAttribute('cy', coords.y);
       }, 35);
     }
 
-    // 3. ЖЕСТКИЙ ТОЧНЫЙ ТАЙМЕР ДО СУББОТНЕЙ ПРАКТИКИ 3 (13:30 МСК)
+    // 3. ЖЕСТКИЙ ТОЧНЫЙ ТАЙМЕР ДО СУББОТЫ 07:30 (ПО РАСПИСАНИЮ ИЗ СКРИНШОТА 3)
     function startWeekendSessionTimer() {
       const now = new Date();
-      // Вычисляем целевое время ближайшей субботы 13:30:00 (МСК / UTC+3)
+      // Суббота, 3 октября, 07:30:00 (по твоему локальному времени)
       const targetFP3 = new Date(now);
       const currentDay = now.getDay(); // 5 = пятница, 6 = суббота
       const daysUntilSaturday = (6 - currentDay + 7) % 7;
-      targetFP3.setDate(now.getDate() + (daysUntilSaturday === 0 && now.getHours() >= 14 ? 7 : daysUntilSaturday));
-      targetFP3.setHours(13, 30, 0, 0);
+      targetFP3.setDate(now.getDate() + (daysUntilSaturday === 0 && (now.getHours() > 7 || (now.getHours() === 7 && now.getMinutes() >= 30)) ? 7 : daysUntilSaturday));
+      targetFP3.setHours(7, 30, 0, 0);
 
       function tick() {
         const diff = Math.max(0, targetFP3.getTime() - Date.now());
@@ -994,7 +1015,7 @@
       setInterval(tick, 1000);
     }
 
-    // 4. ИГРА 1: ТРЕНАЖЕР РЕАКЦИИ (СТАРТОВЫЕ ОГНИ F1)
+    // 4. ИГРА 1: ТРЕНАЖЕР РЕАКЦИИ НА СТАРТОВЫЕ ОГНИ
     let reactionStatus = 'idle';
     let reactionStartTime = 0;
     let reactionTimeoutId = null;
@@ -1088,14 +1109,14 @@
     }
 
     /* ==========================================================================
-       ЧАСТЬ 4: ДАННЫЕ F1 (БЕЗ ЗАВИСАНИЙ), ЗАГРУЗКА КАРТИНОК И ПОИСК В АДМИНКЕ
+       ЧАСТЬ 4: 22 ПИЛОТА, 11 КОМАНД, УПРАВЛЕНИЕ ЭТАПОМ В АДМИНКЕ И КАТАЛОГ D1
        ========================================================================== */
 
     let allCatalogItems = [];
     let catalogTree = {};
     let activeCatalogCategory = null;
 
-    // Встроенная резервная база пилотов (гарантирует моментальное открытие вкладки без вечной загрузки)
+    // ПОЛНЫЙ ПЕЛОТОН: 22 ПИЛОТА
     const DEFAULT_DRIVERS_DATA = [
       { pos: "01", name: "Kimi Antonelli", team: "Mercedes-AMG Petronas F1 Team", points: "302", wins: 8 },
       { pos: "02", name: "George Russell", team: "Mercedes-AMG Petronas F1 Team", points: "236", wins: 4 },
@@ -1104,11 +1125,24 @@
       { pos: "05", name: "Charles Leclerc", team: "Scuderia Ferrari", points: "174", wins: 1 },
       { pos: "06", name: "Oscar Piastri", team: "McLaren F1 Team", points: "161", wins: 0 },
       { pos: "07", name: "Max Verstappen", team: "Red Bull Racing", points: "155", wins: 1 },
-      { pos: "08", name: "Fernando Alonso", team: "Aston Martin F1", points: "94", wins: 0 },
-      { pos: "09", name: "Carlos Sainz", team: "Williams Racing", points: "68", wins: 0 },
-      { pos: "10", name: "Alexander Albon", team: "Williams Racing", points: "46", wins: 0 }
+      { pos: "08", name: "Liam Lawson", team: "Red Bull Racing", points: "98", wins: 0 },
+      { pos: "09", name: "Fernando Alonso", team: "Aston Martin F1", points: "94", wins: 0 },
+      { pos: "10", name: "Lance Stroll", team: "Aston Martin F1", points: "72", wins: 0 },
+      { pos: "11", name: "Carlos Sainz", team: "Williams Racing", points: "68", wins: 0 },
+      { pos: "12", name: "Alexander Albon", team: "Williams Racing", points: "46", wins: 0 },
+      { pos: "13", name: "Pierre Gasly", team: "Alpine F1 Team", points: "38", wins: 0 },
+      { pos: "14", name: "Jack Doohan", team: "Alpine F1 Team", points: "24", wins: 0 },
+      { pos: "15", name: "Yuki Tsunoda", team: "Racing Bulls (VCARB)", points: "22", wins: 0 },
+      { pos: "16", name: "Isack Hadjar", team: "Racing Bulls (VCARB)", points: "18", wins: 0 },
+      { pos: "17", name: "Nico Hülkenberg", team: "Stake F1 Team Kick Sauber / Audi", points: "16", wins: 0 },
+      { pos: "18", name: "Gabriel Bortoleto", team: "Stake F1 Team Kick Sauber / Audi", points: "12", wins: 0 },
+      { pos: "19", name: "Esteban Ocon", team: "Haas F1 Team", points: "10", wins: 0 },
+      { pos: "20", name: "Oliver Bearman", team: "Haas F1 Team", points: "8", wins: 0 },
+      { pos: "21", name: "Patricio O'Ward", team: "Cadillac F1 Team", points: "4", wins: 0 },
+      { pos: "22", name: "Felipe Drugovich", team: "Cadillac F1 Team", points: "2", wins: 0 }
     ];
 
+    // ВСЕ 23 ЭТАПА СЕЗОНА
     const DEFAULT_RACES_CALENDAR = [
       { round: "1", name: "Гран-при Австралии", circuit: "Альберт-Парк", date: "8 марта" },
       { round: "2", name: "Гран-при Китая", circuit: "Шанхай", date: "22 марта" },
@@ -1158,6 +1192,9 @@
         const betaToggle = document.getElementById('userSettingBetaToggle');
         if (betaToggle) betaToggle.checked = (localStorage.getItem('f1_beta_v2') === 'true');
       }
+
+      // Восстановление настроек этапа, если админ менял их через админку
+      applySavedWeekendConfig();
     }
 
     function toggleAppTheme() {
@@ -1186,7 +1223,7 @@
       else modal.classList.remove('active');
     }
 
-    // Тройной клик по шапке для ручной авторизации
+    // Тройной клик по названию в шапке для авторизации админа
     let brandClickCount = 0;
     let brandClickTimer = null;
     document.getElementById('topBrandLogo')?.addEventListener('click', () => {
@@ -1246,7 +1283,7 @@
       }
     }
 
-    // 3. РЕНДЕР ТАБЛИЦ СЕЗОНА (БЕЗ ВЕЧНЫХ ЗАГРУЗОК)
+    // 3. РЕНДЕР СЕЗОНА: 22 ПИЛОТА, 11 КОМАНД, КАЛЕНДАРЬ
     function renderDriversList(drivers) {
       const list = drivers || DEFAULT_DRIVERS_DATA;
       const leader = list[0];
@@ -1331,12 +1368,12 @@
     }
 
     async function loadF1SeasonData() {
-      // 1. Моментально отображаем данные без ожидания сети
+      // Моментальный рендер без ожидания сети
       renderDriversList(DEFAULT_DRIVERS_DATA);
       renderCalendarList(DEFAULT_RACES_CALENDAR);
       renderConstructorsList(DEFAULT_DRIVERS_DATA);
 
-      // 2. В фоне с таймаутом запрашиваем свежие данные из Cloudflare
+      // Фоновая синхронизация с Cloudflare
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3500);
@@ -1353,7 +1390,7 @@
           renderCalendarList(data.races);
         }
       } catch (e) {
-        console.log("Использована локальная база сезона");
+        console.log("Использована локальная база 22 пилотов");
       }
     }
 
@@ -1492,7 +1529,7 @@
       } catch (e) {}
     }
 
-    // 6. АДМИН-ПАНЕЛЬ С ЗАГРУЗКОЙ КАРТИНОК И ПОИСКОМ
+    // 6. ПАНЕЛЬ АДМИНИСТРАТОРА
     function openAdminDashboardScreen() {
       openViewScreen('admin');
       loadAdminLiveStats();
@@ -1538,7 +1575,39 @@
       }
     }
 
-    // Быстрый поиск в списке записей админки
+    // Управление настройками этапа администратором
+    function saveAdminCurrentWeekendConfig() {
+      const circuitKey = document.getElementById('admActiveCircuitSelect').value;
+      const gpTitle = document.getElementById('admActiveGpTitle').value;
+      const gpSub = document.getElementById('admActiveGpSub').value;
+
+      const config = { circuitKey, gpTitle, gpSub };
+      localStorage.setItem('f1_custom_weekend_config', JSON.stringify(config));
+
+      applySavedWeekendConfig();
+      alert("✅ Настройки Гран-при применены к главной странице!");
+      openViewScreen('home');
+    }
+
+    function applySavedWeekendConfig() {
+      const raw = localStorage.getItem('f1_custom_weekend_config');
+      if (!raw) return;
+      try {
+        const config = JSON.parse(raw);
+        if (config.gpTitle) document.getElementById('gpTitleDisplay').innerText = config.gpTitle;
+        if (config.gpSub) document.getElementById('gpSubDisplay').innerText = config.gpSub;
+        if (config.circuitKey) runCarAnimationOnTrack(config.circuitKey);
+
+        const sel = document.getElementById('admActiveCircuitSelect');
+        const tit = document.getElementById('admActiveGpTitle');
+        const sub = document.getElementById('admActiveGpSub');
+        if (sel) sel.value = config.circuitKey;
+        if (tit) tit.value = config.gpTitle;
+        if (sub) sub.value = config.gpSub;
+      } catch (e) {}
+    }
+
+    // Поиск по каталогу в админке
     function handleAdminSearch(val) {
       const q = val.trim().toLowerCase();
       const filtered = allCatalogItems.filter(i => 
@@ -1573,7 +1642,7 @@
       `).join('');
     }
 
-    // Загрузка фото прямо из галереи телефона / диска ПК (сжатие в Base64 Data URL)
+    // Загрузка фото из галереи телефона / ПК
     function handleImageFileUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1684,10 +1753,10 @@
       }
     }
 
-    // 7. СТАРТ И ЗАПУСК ВСЕХ ДВИЖКОВ
+    // 7. СТАРТ И ЗАПУСК
     initThemeAndPreferences();
     startWeekendSessionTimer();
-    runCarAnimationOnTrack("sepang"); // Запуск болида по контуру трассы Сепанг
+    runCarAnimationOnTrack("sepang"); // Настоящий Сепанг по скриншоту 2
     loadF1SeasonData();
     loadCatalogDatabase();
     loadChannelNewsFeed();
