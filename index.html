@@ -946,22 +946,8 @@
     };
 
     // Надежный рендеринг трассы и точки через группу <g> для точного центрирования без смещений
-    // Надежный рендеринг трассы с автокалибровкой отрицательных и смещенных координат
     let trackAnimInterval = null;
     function runCarAnimationOnTrack(circuitKey = "sepang", customPath = null) {
-      const svgEl = document.getElementById('trackSvgEl');
-      if (!svgEl) return;
-
-      let groupEl = document.getElementById('trackGroup');
-      if (!groupEl) {
-        groupEl = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        groupEl.id = "trackGroup";
-        while (svgEl.firstChild) {
-          groupEl.appendChild(svgEl.firstChild);
-        }
-        svgEl.appendChild(groupEl);
-      }
-
       const pathEl = document.getElementById('trackPath');
       const carDot = document.getElementById('carPoint');
       const racingLine = document.getElementById('trackLine');
@@ -971,37 +957,10 @@
       pathEl.setAttribute('d', pathData);
       if (racingLine) racingLine.setAttribute('d', pathData);
 
-      groupEl.removeAttribute('transform');
-
-      // Безопасный замер размеров пути
-      let bbox = { x: 0, y: 0, width: 400, height: 200 };
-      try { 
-        bbox = pathEl.getBBox(); 
-      } catch (e) {
-        // Защита для путей с отрицательными координатами, если getBBox вернул нули
-        bbox = { x: -400, y: -400, width: 800, height: 800 };
-      }
-
-      // Если bbox нулевой или некорректный, задаем дефолтные рамки
-      if (!bbox || !bbox.width || !bbox.height) {
-        bbox = { x: -400, y: -400, width: 800, height: 800 };
-      }
-
-      // Целевые размеры нашего виджета на главной (viewBox 500x250)
-      const targetW = 400;
-      const targetH = 170;
-      
-      const scaleX = targetW / bbox.width;
-      const scaleY = targetH / bbox.height;
-      const scale = Math.min(scaleX, scaleY);
-
-      // Центрируем с учетом реального смещения bbox (даже если он в минусах)
-      const cx = bbox.x + bbox.width / 2;
-      const cy = bbox.y + bbox.height / 2;
-      const tx = 250 - cx * scale;
-      const ty = 125 - cy * scale;
-
-      groupEl.setAttribute('transform', `translate(${tx}, ${ty}) scale(${scale})`);
+      // Используем готовую функцию нормализации и центрирования
+      const transformValue = normalizeAndCenterSvgPath(pathData);
+      pathEl.setAttribute('transform', transformValue);
+      if (racingLine) racingLine.setAttribute('transform', transformValue);
 
       let pathLength = 1000;
       try { pathLength = pathEl.getTotalLength(); } catch (e) {}
