@@ -986,9 +986,32 @@
       pathEl.setAttribute('d', pathData);
       if (racingLine) racingLine.setAttribute('d', pathData);
 
-      const transformStr = normalizeAndCenterSvgPath(pathData);
-      pathEl.setAttribute('transform', transformStr);
-      if (racingLine) racingLine.setAttribute('transform', transformStr);
+      // Сбрасываем старые трансформации для корректного замера bbox
+      pathEl.removeAttribute('transform');
+      if (racingLine) racingLine.removeAttribute('transform');
+
+      let bbox = { x: 0, y: 0, width: 400, height: 200 };
+      try {
+        bbox = pathEl.getBBox();
+      } catch (e) {}
+
+      // Размеры нашего viewBox в SVG (ширина 500, высота 250)
+      const targetW = 420;
+      const targetH = 190;
+      
+      const scaleX = targetW / (bbox.width || 400);
+      const scaleY = targetH / (bbox.height || 200);
+      const scale = Math.min(scaleX, scaleY);
+
+      // Вычисляем смещение для идеального центрирования
+      const cx = bbox.x + bbox.width / 2;
+      const cy = bbox.y + bbox.height / 2;
+      const tx = 250 - cx * scale;
+      const ty = 125 - cy * scale;
+
+      const transformValue = `translate(${tx}, ${ty}) scale(${scale})`;
+      pathEl.setAttribute('transform', transformValue);
+      if (racingLine) racingLine.setAttribute('transform', transformValue);
 
       let pathLength = 1000;
       try { pathLength = pathEl.getTotalLength(); } catch (e) {}
@@ -1031,14 +1054,28 @@
     }
 
     // ДИНАМИЧЕСКИЙ ТАЙМЕР УИКЕНДА
-    function startWeekendSessionTimer() {
-      const sessions = [
-        { name: "Практика 1", short: "П1", date: new Date(2026, 9, 2, 7, 30), duration: 60 },
-        { name: "Практика 2", short: "П2", date: new Date(2026, 9, 2, 11, 0), duration: 60 },
-        { name: "Практика 3", short: "П3", date: new Date(2026, 9, 3, 7, 30), duration: 60 },
-        { name: "Квалификация", short: "КВАЛА", date: new Date(2026, 9, 3, 11, 0), duration: 60 },
-        { name: "Гонка", short: "ГОНКА", date: new Date(2026, 9, 4, 10, 0), duration: 120 }
-      ];
+    let globalSessionInterval = null;
+
+    function initDynamicWeekendSessions(raceData) {
+      const sessions = [];
+      if (raceData) {
+        if (raceData.FirstPractice) sessions.push({ name: "Практика 1", short: "П1", date: new Date(raceData.FirstPractice.date + 'T' + (raceData.FirstPractice.time || '08:00:00Z')), duration: 60 });
+        if (raceData.SecondPractice) sessions.push({ name: "Практика 2", short: "П2", date: new Date(raceData.SecondPractice.date + 'T' + (raceData.SecondPractice.time || '11:00:00Z')), duration: 60 });
+        if (raceData.ThirdPractice) sessions.push({ name: "Практика 3", short: "П3", date: new Date(raceData.ThirdPractice.date + 'T' + (raceData.ThirdPractice.time || '08:00:00Z')), duration: 60 });
+        if (raceData.Sprint) sessions.push({ name: "Спринт", short: "СПРИНТ", date: new Date(raceData.Sprint.date + 'T' + (raceData.Sprint.time || '10:00:00Z')), duration: 45 });
+        if (raceData.Qualifying) sessions.push({ name: "Квалификация", short: "КВАЛА", date: new Date(raceData.Qualifying.date + 'T' + (raceData.Qualifying.time || '11:00:00Z')), duration: 60 });
+        if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: new Date(raceData.date + 'T' + (raceData.time || '14:00:00Z')), duration: 120 });
+      }
+
+      if (sessions.length === 0) {
+        sessions.push(
+          { name: "Практика 1", short: "П1", date: new Date(2026, 9, 2, 7, 30), duration: 60 },
+          { name: "Практика 2", short: "П2", date: new Date(2026, 9, 2, 11, 0), duration: 60 },
+          { name: "Практика 3", short: "П3", date: new Date(2026, 9, 3, 7, 30), duration: 60 },
+          { name: "Квалификация", short: "КВАЛА", date: new Date(2026, 9, 3, 11, 0), duration: 60 },
+          { name: "Гонка", short: "ГОНКА", date: new Date(2026, 9, 4, 10, 0), duration: 120 }
+        );
+      }
 
       const label = document.getElementById("heroStageLabel");
       const grid = document.getElementById("weekendSessionsGrid");
@@ -1058,6 +1095,7 @@
 
       function renderSessions(now) {
         if (!grid) return;
+        grid.style.gridTemplateColumns = `repeat(${sessions.length}, minmax(0, 1fr))`;
         grid.innerHTML = sessions.map(session => {
           const start = session.date.getTime();
           const end = start + session.duration * 60000;
@@ -1124,8 +1162,9 @@
         if (timer.s) timer.s.innerText = String(seconds).padStart(2, "0");
       }
 
+      if (globalSessionInterval) clearInterval(globalSessionInterval);
       updateTimer();
-      setInterval(updateTimer, 1000);
+      globalSessionInterval = setInterval(updateTimer, 1000);
     }
 
     // ИГРА: РЕАКЦИЯ
@@ -1876,7 +1915,7 @@
           return;
         }
 
-        startWeekendSessionTimer();
+        // startWeekendSessionTimer(); <-- ЭТУ СТРОКУ УДАЛЯЕМ
         loadCircuitFromDatabase("sepang");
         loadF1SeasonData();
       } catch (fatalErr) {
