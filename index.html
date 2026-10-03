@@ -667,22 +667,22 @@
       </div>
     </div>
 
-    <div class="game-card">
-      <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">⚡️ Реакция на стартовые огни F1</h3>
-      <div style="font-size:13px; color:var(--text-muted); line-height:1.4;">
-        Загораются 5 красных огней по очереди. Жди выключения и жми!
+    <div class="card game-card">
+      <h3>⚡ Реакция на стартовые огни F1</h3>
+      <p class="card-desc">Загораются 5 красных огней по очереди. Жди выключения и жми!</p>
+  
+      <div class="f1-lights-container" style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
+        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
       </div>
-      <div class="lights-row">
-        <div class="f1-light" id="f1Light1"></div>
-        <div class="f1-light" id="f1Light2"></div>
-        <div class="f1-light" id="f1Light3"></div>
-        <div class="f1-light" id="f1Light4"></div>
-        <div class="f1-light" id="f1Light5"></div>
-      </div>
-      <div class="reaction-tap-area" id="reactionTapBox" onclick="processReactionTap()">
+
+      <button id="f1LightsBtn" class="action-btn" style="width: 100%; padding: 12px; background: #e10600; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">
         НАЖМИ ДЛЯ СТАРТА
-      </div>
-      <div class="reaction-res" id="reactionScoreText"></div>
+      </button>
+      <div id="f1LightsResult" style="text-align: center; margin-top: 10px; font-size: 14px; color: #aaa;"></div>
     </div>
 
     <div class="game-card">
@@ -1145,23 +1145,6 @@
       updateTimer();
       globalSessionInterval = setInterval(updateTimer, 1000);
     }
-    <div class="card game-card">
-      <h3>⚡ Реакция на стартовые огни F1</h3>
-      <p class="card-desc">Загораются 5 красных огней по очереди. Жди выключения и жми!</p>
-  
-      <div class="f1-lights-container" style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
-      </div>
-
-      <button id="f1LightsBtn" class="action-btn" style="width: 100%; padding: 12px; background: #e10600; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">
-        НАЖМИ ДЛЯ СТАРТА
-      </button>
-      <div id="f1LightsResult" style="text-align: center; margin-top: 10px; font-size: 14px; color: #aaa;"></div>
-    </div>
     
     // ИГРА: ПИТ-СТОП
     let pitstopActive = false;
