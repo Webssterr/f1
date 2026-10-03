@@ -1070,6 +1070,16 @@
       const grid = document.getElementById("weekendSessionsGrid");
       const timer = { d: document.getElementById("t-d"), h: document.getElementById("t-h"), m: document.getElementById("t-m"), s: document.getElementById("t-s") };
 
+      // Словарь для правильных падежей
+      const sessionGenitiveNames = {
+        "Практика 1": "первой практики",
+        "Практика 2": "второй практики",
+        "Практика 3": "третьей практики",
+        "Спринт": "спринта",
+        "Квалификация": "квалификации",
+        "Гонка": "гонки"
+      };
+
       function renderEmptyState() {
         if (label) label.innerText = "🔴 Ожидание уикенда";
         Object.values(timer).forEach(el => { if (el) el.innerText = "00"; });
@@ -1112,7 +1122,9 @@
           return;
         }
 
-        if (label) label.innerText = `🔴 До ${next.name}`;
+        const genitiveName = sessionGenitiveNames[next.name] || next.name.toLowerCase();
+        if (label) label.innerText = `🔴 до ${genitiveName}`;
+        
         const diff = Math.max(0, next.date.getTime() - nowTs);
         if (timer.d) timer.d.innerText = String(Math.floor(diff / 86400000)).padStart(2, "0");
         if (timer.h) timer.h.innerText = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, "0");
