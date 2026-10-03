@@ -945,43 +945,12 @@
       "spa": "M 70,190 L 130,210 Q 180,220 250,170 L 360,140 Q 430,120 410,70 L 330,50 Q 260,40 210,80 L 120,110 Q 60,140 70,190 Z"
     };
 
-    // Нормализация и автоцентрирование SVG трасс в окошке
-    function normalizeAndCenterSvgPath(pathStr) {
-      const pathEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      pathEl.setAttribute("d", pathStr);
-      let bbox;
-      try {
-        document.body.appendChild(pathEl);
-        bbox = pathEl.getBBox();
-        document.body.removeChild(pathEl);
-      } catch (e) {
-        if (pathEl.parentNode) pathEl.parentNode.removeChild(pathEl);
-        return pathStr;
-      }
-
-      if (!bbox || bbox.width === 0 || bbox.height === 0) return pathStr;
-
-      const targetW = 400;
-      const targetH = 200;
-      const scaleX = targetW / bbox.width;
-      const scaleY = targetH / bbox.height;
-      const scale = Math.min(scaleX, scaleY) * 0.85;
-
-      const cx = bbox.x + bbox.width / 2;
-      const cy = bbox.y + bbox.height / 2;
-      const tx = 250 - cx * scale;
-      const ty = 125 - cy * scale;
-
-      return `translate(${tx}, ${ty}) scale(${scale})`;
-    }
-
-    // Надежный рендеринг трассы и точки через общую группу <g>
+    // Надежный рендеринг трассы и точки через группу <g> для точного центрирования без смещений
     let trackAnimInterval = null;
     function runCarAnimationOnTrack(circuitKey = "sepang", customPath = null) {
       const svgEl = document.getElementById('trackSvgEl');
       if (!svgEl) return;
 
-      // Проверяем или создаем группу для трансформации, чтобы точка не убегала
       let groupEl = document.getElementById('trackGroup');
       if (!groupEl) {
         groupEl = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -1036,7 +1005,30 @@
       }, 35);
     }
 
-    // Защищенный динамический таймер с фолбэком
+    async function loadCircuitFromDatabase(circuitKey) {
+      try {
+        const response = await fetch(`${WORKER_URL}/api/circuits/${encodeURIComponent(circuitKey)}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (!data.success || !data.path) throw new Error("SVG не найден в D1");
+
+        runCarAnimationOnTrack(circuitKey, data.path);
+
+        if (data.length) document.getElementById('specLength').innerText = `${data.length} км`;
+        if (data.laps) document.getElementById('specLaps').innerText = data.laps;
+        if (data.firstYear) document.getElementById('specFirstYear').innerText = data.firstYear;
+        if (data.distance) document.getElementById('specDistance').innerText = `${data.distance} км`;
+        if (data.fastLap) document.getElementById('specFastLap').innerText = data.fastLap;
+        if (data.fastDriver) document.getElementById('specFastDriver').innerText = data.fastDriver;
+
+        return true;
+      } catch (error) {
+        runCarAnimationOnTrack(circuitKey);
+        return false;
+      }
+    }
+
+    // ДИНАМИЧЕСКИЙ ТАЙМЕР И СЕТКА СЕССИЙ УИКЕНДА
     let globalSessionInterval = null;
     function initDynamicWeekendSessions(raceData) {
       const sessions = [];
@@ -1051,21 +1043,47 @@
 
       const label = document.getElementById("heroStageLabel");
       const grid = document.getElementById("weekendSessionsGrid");
-      const timer = { d: document.getElementById("t-d"), h: document.getElementById("t-h"), m: document.getElementById("t-m"), s: document.getElementById("t-s") };
+      const timer = {
+        d: document.getElementById("t-d"),
+        h: document.getElementById("t-h"),
+        m: document.getElementById("t-m"),
+        s: document.getElementById("t-s")
+      };
 
-      function formatTime(d) { return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false }); }
-      function formatDate(d) { return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }).replace(".", "").toUpperCase(); }
+      function formatTime(date) {
+        return date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false });
+      }
+      function formatDate(date) {
+        return date.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }).replace(".", "").toUpperCase();
+      }
 
       function renderSessions(now) {
         if (!grid || sessions.length === 0) return;
         grid.style.gridTemplateColumns = `repeat(${sessions.length}, minmax(0, 1fr))`;
-        grid.innerHTML = sessions.map(s => {
-          const start = s.date.getTime();
-          const end = start + s.duration * 60000;
-          const cur = now.getTime();
-          let status = cur >= end ? "✓ Завершено" : (cur >= start ? "● Идёт" : formatTime(s.date));
-          let cls = "sess-chip" + (cur >= end ? " past" : (cur >= start ? " active" : ""));
-          return `<div class="${cls}"><div class="sess-name">${formatDate(s.date)} • ${s.short}</div><div class="sess-time">${status}</div></div>`;
+        grid.innerHTML = sessions.map(session => {
+          const start = session.date.getTime();
+          const end = start + session.duration * 60000;
+          const current = now.getTime();
+
+          let status = "";
+          let className = "sess-chip";
+
+          if (current >= end) {
+            className += " past";
+            status = "✓ Завершено";
+          } else if (current >= start && current < end) {
+            className += " active";
+            status = "● Идёт";
+          } else {
+            status = formatTime(session.date);
+          }
+
+          return `
+            <div class="${className}">
+              <div class="sess-name">${formatDate(session.date)} • ${session.short}</div>
+              <div class="sess-time">${status}</div>
+            </div>
+          `;
         }).join("");
       }
 
@@ -1079,19 +1097,37 @@
           return;
         }
 
-        const next = sessions.find(s => s.date.getTime() > nowTs);
-        if (!next) {
-          if (label) label.innerText = "🏁 Уикенд завершён";
+        const activeSession = sessions.find(s => nowTs >= s.date.getTime() && nowTs < s.date.getTime() + s.duration * 60000);
+        const nextSession = sessions.find(s => s.date.getTime() > nowTs);
+
+        let target = null;
+        let stageText = "";
+
+        if (activeSession) {
+          target = new Date(activeSession.date.getTime() + activeSession.duration * 60000);
+          stageText = `🔴 Сейчас: ${activeSession.name}`;
+        } else if (nextSession) {
+          target = nextSession.date;
+          stageText = `🔴 До ${nextSession.name}`;
+        } else {
+          stageText = "🏁 Уикенд завершён";
           Object.values(timer).forEach(el => { if (el) el.innerText = "00"; });
+          if (label) label.innerText = stageText;
           return;
         }
 
-        if (label) label.innerText = `🔴 До ${next.name}`;
-        const diff = Math.max(0, next.date.getTime() - nowTs);
-        if (timer.d) timer.d.innerText = String(Math.floor(diff / 86400000)).padStart(2, "0");
-        if (timer.h) timer.h.innerText = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, "0");
-        if (timer.m) timer.m.innerText = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
-        if (timer.s) timer.s.innerText = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
+        if (label) label.innerText = stageText;
+
+        const diff = Math.max(0, target.getTime() - nowTs);
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+
+        if (timer.d) timer.d.innerText = String(days).padStart(2, "0");
+        if (timer.h) timer.h.innerText = String(hours).padStart(2, "0");
+        if (timer.m) timer.m.innerText = String(minutes).padStart(2, "0");
+        if (timer.s) timer.s.innerText = String(seconds).padStart(2, "0");
       }
 
       if (globalSessionInterval) clearInterval(globalSessionInterval);
@@ -1286,7 +1322,6 @@
         if (liteCheck) liteCheck.checked = true;
       }
 
-      // Загрузка расширенных настроек
       document.getElementById('userSettingVideoNotify').checked = localStorage.getItem('f1_set_video') !== 'false';
       document.getElementById('userSettingTextNotify').checked = localStorage.getItem('f1_set_text') !== 'false';
       document.getElementById('userSettingNewsNotify').checked = localStorage.getItem('f1_set_news') !== 'false';
@@ -1483,12 +1518,14 @@
             document.getElementById('gpSubDisplay').innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
             const circuitKey = activeRace.circuitId || "sepang";
             loadCircuitFromDatabase(circuitKey);
+            initDynamicWeekendSessions(activeRace);
           }
         }
       } catch (e) {
         renderDriversList();
         renderCalendarList();
         initPredictionGame(DEFAULT_DRIVERS_DATA);
+        initDynamicWeekendSessions(null);
       }
     }
 
@@ -1847,7 +1884,6 @@
           return;
         }
 
-        // startWeekendSessionTimer(); <-- ЭТУ СТРОКУ УДАЛЯЕМ
         loadCircuitFromDatabase("sepang");
         loadF1SeasonData();
       } catch (fatalErr) {
