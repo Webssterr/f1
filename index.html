@@ -176,91 +176,6 @@
     .gp-title { font-size: 22px; font-weight: 900; margin: 0 0 4px 0; letter-spacing: -0.5px; color: var(--text); }
     .gp-sub { font-size: 13px; color: var(--text-muted); font-weight: 500; }
 
-    .sessions-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 5px;
-      margin-top: 18px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-    .sess-chip {
-      background: var(--card-sub);
-      border-radius: 12px;
-      padding: 10px 2px;
-      text-align: center;
-      border: 1px solid transparent;
-    }
-    .sess-chip.past { opacity: 0.45; }
-    .sess-chip.active {
-      background: var(--accent-soft);
-      border-color: rgba(255, 59, 48, 0.4);
-    }
-    .sess-name { font-size: 10px; color: var(--text-muted); font-weight: 700; }
-    .sess-time { font-size: 11px; font-weight: 800; margin-top: 3px; color: var(--text); }
-    .sess-chip.active .sess-name, .sess-chip.active .sess-time { color: var(--accent); }
-
-    .circuit-spec-card {
-      background: var(--card-bg);
-      border-radius: 20px;
-      padding: 18px 20px;
-      border: 1px solid var(--border);
-      margin-bottom: 16px;
-    }
-    .spec-header {
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 14px;
-      display: flex;
-      justify-content: space-between;
-    }
-    .spec-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      row-gap: 14px;
-      column-gap: 16px;
-    }
-    .spec-item h5 { margin: 0; font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
-    .spec-item p { margin: 4px 0 0 0; font-size: 17px; font-weight: 900; color: var(--text); }
-    .spec-record {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .sub-tabs-bar {
-      display: flex;
-      background: var(--card-sub);
-      padding: 4px;
-      border-radius: 14px;
-      margin-bottom: 16px;
-      border: 1px solid var(--border);
-      gap: 4px;
-    }
-    .sub-tab-btn {
-      flex: 1;
-      border: none;
-      background: none;
-      padding: 9px 0;
-      font-size: 13px;
-      font-weight: 700;
-      border-radius: 10px;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .sub-tab-btn.active {
-      background: var(--card-bg);
-      color: var(--text);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
     .bottom-nav {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -439,160 +354,134 @@
       </div>
 
       <div class="track-viewport">
-        <svg class="track-svg" viewBox="0 0 500 250">
+        <svg class="track-svg" viewBox="0 0 500 240">
           <path id="trackPath" class="track-road" d="" />
           <path class="track-racing-line" d="" />
           <circle id="carPoint" class="track-car-dot" r="6" cx="0" cy="0" style="display:none;" />
         </svg>
       </div>
 
-      <h2 class="gp-title" id="gpTitleDisplay">Гран-при Малайзии</h2>
-      <div class="gp-sub" id="gpSubDisplay">Международный автодром Сепанг</div>
+      <h2 class="gp-title" id="gpTitleDisplay">Загрузка Гран-при...</h2>
+      <div class="gp-sub" id="gpSubDisplay">Синхронизация трассы...</div>
 
       <div class="sessions-grid" id="weekendSessionsGrid">
-        <div class="sess-chip past"><div class="sess-name">П1</div><div class="sess-time">✓</div></div>
-        <div class="sess-chip past"><div class="sess-name">П2</div><div class="sess-time">✓</div></div>
-        <div class="sess-chip active"><div class="sess-name">П3</div><div class="sess-time">07:30</div></div>
-        <div class="sess-chip"><div class="sess-name">КВАЛА</div><div class="sess-time">11:00</div></div>
-        <div class="sess-chip"><div class="sess-name">ГОНКА</div><div class="sess-time">10:00</div></div>
+        <div class="sess-chip"><div class="sess-name">П1</div><div class="sess-time">—</div></div>
+        <div class="sess-chip"><div class="sess-name">П2</div><div class="sess-time">—</div></div>
+        <div class="sess-chip"><div class="sess-name">П3</div><div class="sess-time">—</div></div>
+        <div class="sess-chip"><div class="sess-name">КВАЛА</div><div class="sess-time">—</div></div>
+        <div class="sess-chip"><div class="sess-name">ГОНКА</div><div class="sess-time">—</div></div>
       </div>
     </div>
 
-    <!-- КАРТОЧКА ХАРАКТЕРИСТИК (Пункт 3: исправление прочерков) -->
-    <div class="circuit-spec-card">
-      <div class="spec-header">
+    <!-- КАРТОЧКА ХАРАКТЕРИСТИК АВТОДРОМА -->
+    <div class="circuit-spec-card" style="background:var(--card-bg); border-radius:20px; padding:18px 20px; border:1px solid var(--border); margin-bottom:16px;">
+      <div class="spec-header" style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:14px; display:flex; justify-content:space-between;">
         <span>Данные автодрома</span>
-        <span style="color:var(--accent);" id="specCircuitNameBadge">Sepang Circuit</span>
+        <span style="color:var(--accent);" id="specCircuitNameBadge">F1 Circuit</span>
       </div>
-      <div class="spec-grid">
-        <div class="spec-item"><h5>Длина круга</h5><p id="specLength">5.543 км</p></div>
-        <div class="spec-item"><h5>Кругов</h5><p id="specLaps">56</p></div>
-        <div class="spec-item"><h5>Первый Гран-при</h5><p id="specFirstYear">1999</p></div>
-        <div class="spec-item"><h5>Дистанция гонки</h5><p id="specDistance">310.417 км</p></div>
+      <div class="spec-grid" style="display:grid; grid-template-columns:repeat(2,1fr); row-gap:14px; column-gap:16px;">
+        <div class="spec-item"><h5>Длина круга</h5><p id="specLength" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
+        <div class="spec-item"><h5>Кругов</h5><p id="specLaps" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
+        <div class="spec-item"><h5>Первый Гран-при</h5><p id="specFirstYear" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
+        <div class="spec-item"><h5>Дистанция гонки</h5><p id="specDistance" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
       </div>
-      <div class="spec-record">
+      <div class="spec-record" style="margin-top:14px; padding-top:12px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
         <div>
           <div style="font-size:11px; color:var(--text-muted); font-weight:700;">Рекорд круга</div>
-          <div style="font-size:16px; font-weight:900; color:var(--accent);" id="specFastLap">1:34.080</div>
+          <div style="font-size:16px; font-weight:900; color:var(--accent);" id="specFastLap">—</div>
         </div>
-        <div style="font-size:13px; font-weight:700; color:var(--text-muted); text-align:right;" id="specFastDriver">Себастьян Феттель (2017)</div>
+        <div style="font-size:13px; font-weight:700; color:var(--text-muted); text-align:right;" id="specFastDriver">—</div>
       </div>
     </div>
   </div>
 
-  <script>
-    // БАЗА ДАННЫХ ВСЕХ ТРАСС (Точные SVG-пути из вашего файла трассы.txt + характеристики)[cite: 9]
-    const circuitDatabase = {
-      "sepang": {
-        name: "Международный автодром Сепанг", length: "5.543 км", laps: "56", firstYear: "1999", distance: "310.417 км", fastLap: "1:34.080", fastDriver: "Себастьян Феттель (2017)",
-        path: "M 333,142 C 334,129 335,116 337,103 C 337,94 339,84 338,75 C 338,73 337,71 335,70 C 334,69 332,69 330,69 C 328,69 327,70 325,71 C 324,72 323,73 323,75 C 322,79 325,82 326,85 C 326,87 326,88 325,90 C 325,91 324,91 322,92 C 321,92 319,92 318,91 C 316,91 314,88 312,87 C 309,85 306,83 303,82 C 299,81 296,80 293,81 C 288,81 283,81 278,83 C 274,84 270,86 266,88 C 263,91 257,98 255,102 C 250,118 246,129 240,145 C 235,158 229,170 224,183 C 224,184 223,186 224,187 C 225,188 227,190 228,190 C 241,192 254,194 267,196 C 272,198 279,199 283,203 C 286,206 288,208 290,212 C 292,217 293,221 292,226 C 292,231 290,236 287,240 C 284,244 278,247 276,252 C 274,256 273,261 274,265 C 275,270 277,274 280,277 C 295,290 309,302 325,317 C 327,318 330,320 331,319 C 337,316 343,314 348,311 C 350,311 350,308 350,306 C 352,273 355,242 359,210 C 360,208 361,206 363,205 C 365,205 367,207 368,209 C 371,214 373,220 377,224 C 380,227 386,228 389,228 C 397,229 403,227 410,225 C 414,224 419,220 421,217 C 423,214 425,209 423,206 C 422,203 419,199 416,198 C 413,194 388,162 386,159 C 384,156 383,151 384,148 C 385,145 388,139 390,135 C 392,131 394,127 394,123 C 395,116 394,108 391,102 C 389,98 385,94 380,91 C 378,89 375,89 373,90 C 371,91 370,93 369,95 C 359,157 349,216 338,278 C 338,281 334,284 332,284 C 330,285 328,284 326,283 C 325,282 324,281 323,279 C 323,277 323,275 323,273 C 326,229 330,185 333,142 Z"[cite: 9]
-      },
-      "bahrain": {
-        name: "Международный автодром Бахрейн", length: "5.412 км", laps: "57", firstYear: "2004", distance: "308.238 км", fastLap: "1:31.447", fastDriver: "Педро де ла Роса (2005)",
-        path: "M 158.49777,959.77438 c -128.157212,0.34389 -256.31662,-0.59613 -384.47478,-0.94157[cite: 9] ... Z" // Сокращено для читаемости, полный путь из файла
-      },
-      "albert_park": { name: "Альберт-Парк (Мельбурн)", length: "5.278 км", laps: "58", firstYear: "1996", distance: "306.124 км", fastLap: "1:19.813", fastDriver: "Шарль Леклер (2024)", path: "M500,215.42,427.6,370.57l-39.29,79.7... Z"[cite: 9] },
-      "shanghai": { name: "Международный автодром Шанхай", length: "5.451 км", laps: "56", firstYear: "2004", distance: "305.066 км", fastLap: "1:32.238", fastDriver: "Михаэль Шумахер (2004)", path: "m -853.46939,684.61728 c 38.16139... z"[cite: 9] },
-      "suzuka": { name: "Гоночный трек Сузука", length: "5.807 км", laps: "53", firstYear: "1987", distance: "307.471 км", fastLap: "1:30.983", fastDriver: "Льюис Хэмилтон (2019)", path: "m 356.47746,426.07244 c 42.46359... z"[cite: 9] },
-      "miami": { name: "Международный автодром Майами", length: "5.412 км", laps: "57", firstYear: "2022", distance: "308.326 км", fastLap: "1:29.708", fastDriver: "Макс Ферстаппен (2023)", path: "M388.9,100c0,0,62.7,36.7... z"[cite: 9] },
-      "monaco": { name: "Городская трасса Монако", length: "3.337 км", laps: "78", firstYear: "1950", distance: "260.286 км", fastLap: "1:12.909", fastDriver: "Льюис Хэмилтон (2021)", path: "M 104.50658,653.97079 C... z"[cite: 9] },
-      "catalunya": { name: "Барселона-Каталунья", length: "4.657 км", laps: "66", firstYear: "1991", distance: "307.236 км", fastLap: "1:16.330", fastDriver: "Макс Ферстаппен (2023)", path: "m 2329.9462,1281.1143 c... z"[cite: 9] },
-      "villeneuve": { name: "Автодром имени Жиля Вильнёва", length: "4.361 км", laps: "70", firstYear: "1978", distance: "305.270 км", fastLap: "1:13.078", `fastDriver`: "Валттери Боттас (2019)", path: "M 384,409.9 C... z"[cite: 9] },
-      "red_bull_ring": { name: "Ред Булл Ринг (Шпильберг)", length: "4.318 км", laps: "71", firstYear: "1970", distance: "306.452 км", fastLap: "1:05.619", fastDriver: "Карлос Сайнс (2020)", path: "m 567.8,358.72 c... z"[cite: 9] },
-      "silverstone": { name: "Автодром Сильверстоун", length: "5.891 км", laps: "52", firstYear: "1950", distance: "306.198 км", fastLap: "1:27.097", fastDriver: "Макс Ферстаппен (2020)", path: "M 44.377608,426.59702 C... z"[cite: 9] },
-      "hungaroring": { name: "Хунгароринг", length: "4.381 км", laps: "70", firstYear: "1986", distance: "306.630 км", fastLap: "1:16.627", fastDriver: "Льюис Хэмилтон (2020)", path: "m 1249.0036,1023.6494 c... z"[cite: 9] },
-      "spa": { name: "Спа-Франкоршам", length: "7.004 км", laps: "44", firstYear: "1950", distance: "308.052 км", fastLap: "1:44.701", fastDriver: "Серхио Перес (2024)", path: "m -1785.7292,792.86845 c... z"[cite: 9] },
-      "zandvoort": { name: "Зандворт", length: "4.259 км", laps: "72", firstYear: "1952", distance: "306.587 км", fastLap: "1:11.097", fastDriver: "Льюис Хэмилтон (2021)", path: "m 1710.8,1789.3222 c... z"[cite: 9] },
-      "monza": { name: "Монца", length: "5.793 км", laps: "53", firstYear: "1950", distance: "306.720 км", fastLap: "1:20.901", fastDriver: "Ландо Норрис (2025)", path: "m 1542.8438,997.31011 c... z"[cite: 9] },
-      "baku": { name: "Городской трек Баку", length: "6.003 км", laps: "51", firstYear: "2016", distance: "306.049 км", fastLap: "1:43.009", fastDriver: "Шарль Леклер (2019)", path: "m -168.72375,373.1353... z"[cite: 9] },
-      "marina_bay": { name: "Марина-Бей (Сингапур)", length: "4.940 км", laps: "62", firstYear: "2008", distance: "306.143 км", fastLap: "1:34.486", fastDriver: "Льюис Хэмилтон (2023)", path: "M 1017.3216,-1.4715983 C... z"[cite: 9] },
-      "americas": { name: "Трасса Америк (COTA)", length: "5.513 км", laps: "56", firstYear: "2012", distance: "308.405 км", fastLap: "1:36.169", fastDriver: "Шарль Леклер (2019)", path: "M 1710.8,1789.3222 C... z"[cite: 9] },
-      "rodriguez": { name: "Автодром имени братьев Родригес", length: "4.304 км", laps: "71", firstYear: "1963", distance: "305.584 км", fastLap: "1:17.774", fastDriver: "Валттери Боттас (2021)", path: "M 2125.7827,1712.8676 C... z"[cite: 9] },
-      "interlagos": { name: "Интерлагос (Бразилия)", length: "4.309 км", laps: "71", firstYear: "1973", distance: "305.879 км", fastLap: "1:10.540", fastDriver: "Валттери Боттас (2018)", path: "M 191.75,559.61218 C... z"[cite: 9] },
-      "vegas": { name: "Лас-Вегас-Стрип", length: "6.201 км", laps: "50", firstYear: "2023", distance: "309.950 км", fastLap: "1:33.033", fastDriver: "Льюис Хэмилтон (2023)", path: "m 2095.0962,62.519865 c... z"[cite: 9] },
-      "losail": { name: "Лусаил (Катар)", length: "5.419 км", laps: "57", firstYear: "2021", distance: "308.611 км", fastLap: "1:23.196", fastDriver: "Макс Ферстаппен (2023)", path: "m 967.85818,991.34764 c... z"[cite: 9] },
-      "yas_marina": { name: "Яс-Марина (Абу-Даби)", length: "5.281 км", laps: "58", firstYear: "2009", distance: "306.183 км", fastLap: "1:26.103", fastDriver: "Макс Ферстаппен (2021)", path: "M 2125.7827,1712.8676 C... z"[cite: 9] },
-      "imola": { name: "Имола", length: "4.909 км", laps: "63", firstYear: "1980", distance: "309.249 км", fastLap: "1:15.484", fastDriver: "Льюис Хэмилтон (2020)", path: "m 2095.0962,62.519865 c... z"[cite: 9] },
-      "madrid": { name: "Мадрид (Circuito de Madring)", length: "5.470 км", laps: "55", firstYear: "2026", distance: "300.850 км", fastLap: "—", fastDriver: "—", path: "M 22.33,105.17 L 15.32,62.8... Z"[cite: 9] }
-    };
+  <style>
+    .sessions-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .sess-chip {
+      background: var(--card-sub);
+      border-radius: 12px;
+      padding: 10px 2px;
+      text-align: center;
+      border: 1px solid transparent;
+    }
+    .sess-chip.past { opacity: 0.45; }
+    .sess-chip.active {
+      background: var(--accent-soft);
+      border-color: rgba(255, 59, 48, 0.4);
+    }
+    .sess-name { font-size: 10px; color: var(--text-muted); font-weight: 700; }
+    .sess-time { font-size: 11px; font-weight: 800; margin-top: 3px; color: var(--text); }
+    .sess-chip.active .sess-name, .sess-chip.active .sess-time { color: var(--accent); }
+  </style>
 
+  <script>
     let trackAnimFrameId = null;
 
-    // Отрисовка выбранной трассы и бегающая точка
-    function renderLocalTrack(circuitKey = "sepang") {
+    // Загрузка динамической геометрии трассы с бэкенда Cloudflare Worker
+    async function loadDynamicTrack(circuitKey = "sepang") {
       const pathEl = document.getElementById('trackPath');
       const racingLine = document.querySelector('.track-racing-line');
       const carDot = document.getElementById('carPoint');
       if (!pathEl || !carDot) return;
 
-      const info = circuitDatabase[circuitKey] || circuitDatabase["sepang"];
-      const pathD = info.path;
+      try {
+        const res = await fetch(`${WORKER_URL}/api/circuits/${circuitKey}`);
+        if (res.ok) {
+          const data = await res.json();
+          const pathD = data.path;
 
-      pathEl.setAttribute('d', pathD);
-      if (racingLine) racingLine.setAttribute('d', pathD);
+          pathEl.setAttribute('d', pathD);
+          if (racingLine) racingLine.setAttribute('d', pathD);
 
-      // Заполняем характеристики под трассой (Пункт 3)
-      document.getElementById('specLength').innerText = info.length;
-      document.getElementById('specLaps').innerText = info.laps;
-      document.getElementById('specFirstYear').innerText = info.firstYear;
-      document.getElementById('specDistance').innerText = info.distance;
-      document.getElementById('specFastLap').innerText = info.fastLap;
-      document.getElementById('specFastDriver').innerText = info.fastDriver;
-      document.getElementById('specCircuitNameBadge').innerText = info.name;
+          let totalLength = 0;
+          try { totalLength = pathEl.getTotalLength(); } catch (err) { totalLength = 1000; }
 
-      let totalLength = 0;
-      try { totalLength = pathEl.getTotalLength(); } catch (err) { totalLength = 1000; }
+          carDot.style.display = 'block';
+          let currentDistance = 0;
+          if (trackAnimFrameId) cancelAnimationFrame(trackAnimFrameId);
 
-      carDot.style.display = 'block';
-      let currentDistance = 0;
-      if (trackAnimFrameId) cancelAnimationFrame(trackAnimFrameId);
-
-      function animStep() {
-        if (!document.body.classList.contains('lite-mode') && totalLength > 0) {
-          currentDistance = (currentDistance + 1.8) % totalLength;
-          const coords = pathEl.getPointAtLength(currentDistance);
-          carDot.setAttribute('cx', coords.x);
-          carDot.setAttribute('cy', coords.y);
+          function animStep() {
+            if (!document.body.classList.contains('lite-mode') && totalLength > 0) {
+              currentDistance = (currentDistance + 1.8) % totalLength;
+              const coords = pathEl.getPointAtLength(currentDistance);
+              carDot.setAttribute('cx', coords.x);
+              carDot.setAttribute('cy', coords.y);
+            }
+            trackAnimFrameId = requestAnimationFrame(animStep);
+          }
+          trackAnimFrameId = requestAnimationFrame(animStep);
         }
-        trackAnimFrameId = requestAnimationFrame(animStep);
+      } catch (e) {
+        console.warn("Ошибка загрузки трассы:", e);
       }
-      trackAnimFrameId = requestAnimationFrame(animStep);
     }
 
     // Сквозной таймер уикенда
     let sessionTimerInterval = null;
     function startWeekendSessionTimer() {
-      const sessions = [
-        { id: "fp3", name: "до третьей практики", time: new Date(2026, 9, 3, 7, 30, 0).getTime() },
-        { id: "quali", name: "до квалификации", time: new Date(2026, 9, 3, 11, 0, 0).getTime() },
-        { id: "race", name: "до старта гонки", time: new Date(2026, 9, 4, 10, 0, 0).getTime() }
-      ];
-
+      const targetTime = new Date(2026, 9, 4, 10, 0, 0).getTime();
       if (sessionTimerInterval) clearInterval(sessionTimerInterval);
 
       function updateTimerTick() {
         const now = Date.now();
-        const nextSession = sessions.find(s => s.time > now);
-        const labelEl = document.getElementById('heroStageLabel');
-        const td = document.getElementById('t-d'), th = document.getElementById('t-h'), tm = document.getElementById('t-m'), ts = document.getElementById('t-s');
-
-        if (!nextSession) {
-          if (labelEl) labelEl.innerText = "🏁 УИКЕНД ЗАВЕРШЕН";
-          if (td) td.innerText = "00"; if (th) th.innerText = "00"; if (tm) tm.innerText = "00"; if (ts) ts.innerText = "00";
-          return;
-        }
-
-        if (labelEl) labelEl.innerText = `🔴 ${nextSession.name.toUpperCase()}`;
-        const diff = Math.max(0, nextSession.time - now);
+        const diff = Math.max(0, targetTime - now);
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const m = Math.floor((diff / 1000 / 60) % 60);
         const s = Math.floor((diff / 1000) % 60);
 
-        if (td) td.innerText = String(d).padStart(2, '0');
-        if (th) th.innerText = String(h).padStart(2, '0');
-        if (tm) tm.innerText = String(m).padStart(2, '0');
-        if (ts) ts.innerText = String(s).padStart(2, '0');
+        document.getElementById('t-d').innerText = String(d).padStart(2, '0');
+        document.getElementById('t-h').innerText = String(h).padStart(2, '0');
+        document.getElementById('t-m').innerText = String(m).padStart(2, '0');
+        document.getElementById('t-s').innerText = String(s).padStart(2, '0');
+        document.getElementById('heroStageLabel').innerText = "🔴 ДО СТАРТА ГРАН-ПРИ";
       }
       updateTimerTick();
       sessionTimerInterval = setInterval(updateTimerTick, 1000);
@@ -620,12 +509,6 @@
     </div>
 
     <div id="seasonSubStandings">
-      <div class="hero-card" id="seasonLeaderCard" style="display:none; padding:18px; margin-bottom:12px;">
-        <div style="font-size:11px; font-weight:800; color:var(--accent); text-transform:uppercase;">Лидер чемпионата</div>
-        <h3 class="leader-name" id="leaderNameDisplay" style="margin:4px 0 2px 0; font-size:20px; font-weight:900;">—</h3>
-        <div class="leader-team" id="leaderTeamDisplay" style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">—</div>
-        <div style="font-size:22px; font-weight:900; color:var(--text);"><span id="leaderPointsDisplay">0</span> PTS</div>
-      </div>
       <div id="driversStandingsList">
         <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка зачёта пилотов...</div>
       </div>
@@ -647,7 +530,7 @@
   <!-- ================= ЭКРАН: ИГРЫ F1 ================= -->
   <div id="view-games" class="view-screen">
     <div class="sub-tabs-bar">
-      <button class="sub-tab-btn active" onclick="switchGameTab('reaction', this)">⚡️ Огни F1</button>
+      <button class="sub-tab-btn active" onclick="switchGameTab('reaction', this)">⚡️️ Огни F1</button>
       <button class="sub-tab-btn" onclick="switchGameTab('pitstop', this)">🛞 Пит-стоп</button>
       <button class="sub-tab-btn" onclick="switchGameTab('vote', this)">🗳 Предикты</button>
     </div>
@@ -671,15 +554,14 @@
       <div class="pitstop-box" style="background:var(--card-sub); border:1px solid var(--border); border-radius:20px; padding:20px; text-align:center;">
         <div style="font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase;">DHL Pit Stop Challenge</div>
         <div style="font-size:38px; font-weight:900; margin:10px 0;" id="pitstopTimerDisplay">0.000 s</div>
-        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;" id="pitstopInstructionText">Нажми «СТАРТ ПИТ-СТОПА» и как можно быстрее обслужи все 4 колеса!</div>
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">Нажми «СТАРТ ПИТ-СТОПА» и обслужи все 4 колеса!</div>
         <div class="pit-wheels-grid" style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin:20px 0;">
-          <div class="pit-wheel-btn" id="pitWheelFL" onclick="tapPitWheel('FL')" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ П. Левое<br><small style="color:var(--text-muted);">Нажми</small></div>
-          <div class="pit-wheel-btn" id="pitWheelFR" onclick="tapPitWheel('FR')" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ П. Правое<br><small style="color:var(--text-muted);">Нажми</small></div>
-          <div class="pit-wheel-btn" id="pitWheelRL" onclick="tapPitWheel('RL')" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ З. Левое<br><small style="color:var(--text-muted);">Нажми</small></div>
-          <div class="pit-wheel-btn" id="pitWheelRR" onclick="tapPitWheel('RR')" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ З. Правое<br><small style="color:var(--text-muted);">Нажми</small></div>
+          <div class="pit-wheel-btn" onclick="tapPitWheel(this)" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ П. Левое<br><small style="color:var(--text-muted);">Нажми</small></div>
+          <div class="pit-wheel-btn" onclick="tapPitWheel(this)" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ П. Правое<br><small style="color:var(--text-muted);">Нажми</small></div>
+          <div class="pit-wheel-btn" onclick="tapPitWheel(this)" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ З. Левое<br><small style="color:var(--text-muted);">Нажми</small></div>
+          <div class="pit-wheel-btn" onclick="tapPitWheel(this)" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️️ З. Правое<br><small style="color:var(--text-muted);">Нажми</small></div>
         </div>
         <button class="btn-action" id="pitstopActionBtn" onclick="togglePitstopGame()">🚀 СТАРТ ПИТ-СТОПА</button>
-        <div id="pitstopRecordText" style="font-size:13px; color:var(--text-muted); margin-top:10px; font-weight:700;">Лучший пит-стоп: —</div>
       </div>
     </div>
 
@@ -688,12 +570,11 @@
         <div style="font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase; margin-bottom:6px;">Голосование уикенда</div>
         <h3 style="margin:0 0 10px 0; font-size:18px; font-weight:900;">🗳 Прогнозы на Гран-при</h3>
         <div id="votingPollOptionsList"><div style="text-align:center; padding:20px 0; color:var(--text-muted);">Загрузка пилотов...</div></div>
-        <button class="btn-action" id="submitVoteBtn" style="display:none;" onclick="submitUserVote()">Подтвердить прогноз</button>
       </div>
     </div>
   </div>
 
-  <!-- ================= ЭКРАН: НОВОСТИ (Пункт 10) ================= -->
+  <!-- ================= ЭКРАН: НОВОСТИ ================= -->
   <div id="view-news" class="view-screen">
     <div id="channelNewsFeedContainer">
       <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация ленты новостей...</div>
@@ -713,22 +594,6 @@
   </div>
 
   <style>
-    .stand-item { background: var(--card-bg); border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; border: 1px solid var(--border); margin-bottom: 8px; }
-    .stand-pos { font-size: 16px; font-weight: 900; width: 32px; color: var(--text-muted); }
-    .stand-pos.top { color: var(--accent); }
-    .stand-details { flex: 1; }
-    .stand-name { font-size: 15px; font-weight: 800; color: var(--text); }
-    .stand-team { font-size: 12px; color: var(--text-muted); }
-    .stand-pts { font-size: 16px; font-weight: 900; color: var(--text); }
-
-    .cal-card { background: var(--card-bg); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); margin-bottom: 8px; }
-    .cal-card.past { opacity: 0.5; background: var(--card-sub); }
-    .cal-card.current { border: 2px solid var(--accent); background: var(--card-bg); opacity: 1; }
-    .cal-round { font-size: 16px; font-weight: 900; width: 30px; color: var(--text-muted); }
-    .cal-card.current .cal-round { color: var(--accent); }
-    .cal-info h4 { margin: 0; font-size: 15px; font-weight: 800; color: var(--text); }
-    .cal-info span { font-size: 12px; color: var(--text-muted); }
-
     .search-input { width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 14px; padding: 13px 16px; font-size: 15px; color: var(--text); outline: none; margin-bottom: 12px; }
     .search-input:focus { border-color: var(--accent); }
     .menu-btn { width: 100%; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 13px 16px; margin-bottom: 10px; border-radius: 16px; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; }
@@ -738,17 +603,17 @@
   </style>
 
   <script>
-    // Загрузка каталога с прямой хронологической сортировкой (Пункт 8: ASC)
     let allCatalogItems = [];
     let catalogTree = {};
     let activeCatalogCategory = null;
 
+    // Загрузка каталога с прямой хронологической сортировкой (ASC)
     async function loadCatalogData() {
       try {
-        const res = await fetch(`${WORKER_URL}/api/catalog`);[cite: 1]
+        const res = await fetch(`${WORKER_URL}/api/catalog`);
         if (res.ok) {
           allCatalogItems = await res.json();
-          allCatalogItems.sort((a, b) => (a.id || 0) - (b.id || 0)); // Прямой порядок ASC
+          allCatalogItems.sort((a, b) => (a.id || 0) - (b.id || 0));
           buildCatalogTree();
           renderCatalogCategories();
         }
@@ -807,7 +672,6 @@
       openViewScreen('titles');
     }
 
-    // Рендер сессий БЕЗ технических меток постов
     function openCatalogDetails(title) {
       const items = catalogTree[activeCatalogCategory]?.[title] || [];
       const headerEl = document.getElementById('catalogItemHeader');
@@ -858,12 +722,11 @@
       `).join('') : `<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Ничего не найдено</div>`;
     }
 
-    // Подгрузка новостей (Пункт 10)
     async function loadChannelNewsFeed() {
       const container = document.getElementById('channelNewsFeedContainer');
       if (!container) return;
       try {
-        const res = await fetch(`${WORKER_URL}/api/feed`);[cite: 1]
+        const res = await fetch(`${WORKER_URL}/api/feed`);
         if (res.ok) {
           const posts = await res.json();
           if (posts && posts.length > 0) {
@@ -881,7 +744,52 @@
       container.innerHTML = `<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Лента новостей пуста</div>`;
     }
 
-    // Подвкладки сезона
+    async function loadSeasonLiveStats() {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/season/live`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            // Пилоты
+            const dContainer = document.getElementById('driversStandingsList');
+            if (data.drivers && data.drivers.length > 0) {
+              dContainer.innerHTML = data.drivers.map(d => `
+                <div style="background:var(--card-bg); border-radius:16px; padding:12px 16px; display:flex; align-items:center; border:1px solid var(--border); margin-bottom:8px;">
+                  <div style="font-size:16px; font-weight:900; width:32px; color:var(--text-muted);">${d.pos}</div>
+                  <div style="flex:1;"><div style="font-weight:800; font-size:15px;">${d.name}</div><div style="font-size:12px; color:var(--text-muted);">${d.team}</div></div>
+                  <div style="font-weight:900; font-size:16px;">${d.points} PTS</div>
+                </div>
+              `).join('');
+            }
+            // Календарь
+            const cContainer = document.getElementById('calendarEventsList');
+            if (data.races && data.races.length > 0) {
+              cContainer.innerHTML = data.races.map(r => `
+                <div style="background:var(--card-bg); border-radius:16px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border); margin-bottom:8px;" onclick="loadDynamicTrack('${r.circuitId || 'sepang'}'); openViewScreen('home');">
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="font-size:16px; font-weight:900; width:28px; color:var(--accent);">R${r.round}</div>
+                    <div><h4 style="margin:0; font-size:15px; font-weight:800;">${r.name}</h4><span style="font-size:12px; color:var(--text-muted);">${r.circuit}</span></div>
+                  </div>
+                  <span style="font-size:12px; font-weight:700; color:var(--text-muted);">${r.date}</span>
+                </div>
+              `).join('');
+            }
+            // Конструкторы
+            const tContainer = document.getElementById('constructorsStandingsList');
+            if (data.constructors && data.constructors.length > 0) {
+              tContainer.innerHTML = data.constructors.map(c => `
+                <div style="background:var(--card-bg); border-radius:16px; padding:12px 16px; display:flex; align-items:center; border:1px solid var(--border); margin-bottom:8px;">
+                  <div style="font-size:16px; font-weight:900; width:32px; color:var(--text-muted);">${c.pos}</div>
+                  <div style="flex:1; font-weight:800; font-size:15px;">${c.team}</div>
+                  <div style="font-weight:900; font-size:16px;">${c.points} PTS</div>
+                </div>
+              `).join('');
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
     function switchSeasonSubTab(tabName, btnEl) {
       btnEl.parentNode.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
@@ -890,17 +798,14 @@
       document.getElementById('seasonSubTeams').style.display = (tabName === 'teams') ? 'block' : 'none';
     }
 
-    // Подвкладки игр
     function switchGameTab(tabName, btnEl) {
       btnEl.parentNode.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
       btnEl.classList.add('active');
       document.getElementById('gameSubReaction').style.display = (tabName === 'reaction') ? 'block' : 'none';
       document.getElementById('gameSubPitstop').style.display = (tabName === 'pitstop') ? 'block' : 'none';
       document.getElementById('gameSubVote').style.display = (tabName === 'vote') ? 'block' : 'none';
-      if (tabName === 'vote') renderVotingDriversPoll();
     }
 
-    // Игры логика
     let reactionState = "idle", reactionStartTime = 0, reactionTimeouts = [];
     function processReactionTap() {
       const box = document.getElementById('reactionTapBox'), score = document.getElementById('reactionScoreText');
@@ -942,18 +847,14 @@
       }
     }
 
-    let isPitstopRunning = false, pitstopStartTime = 0, pitstopAnimId = null, wheelsServiced = { FL: false, FR: false, RL: false, RR: false };
+    let isPitstopRunning = false, pitstopStartTime = 0, pitstopAnimId = null, pitWheelsCount = 0;
     function togglePitstopGame() {
       const btn = document.getElementById('pitstopActionBtn');
       const timerDisplay = document.getElementById('pitstopTimerDisplay');
       if (isPitstopRunning) { resetPitstopState(); return; }
       isPitstopRunning = true;
-      wheelsServiced = { FL: false, FR: false, RL: false, RR: false };
-      ['FL', 'FR', 'RL', 'RR'].forEach(pos => {
-        const wEl = document.getElementById(`pitWheel${pos}`);
-        wEl.classList.remove('done');
-        wEl.querySelector('small').innerText = "Крути!";
-      });
+      pitWheelsCount = 0;
+      document.querySelectorAll('.pit-wheel-btn').forEach(w => { w.style.borderColor = 'var(--border)'; w.querySelector('small').innerText = "Нажми"; });
       btn.innerText = "❌ СБРОСИТЬ";
       pitstopStartTime = performance.now();
       function updatePit() {
@@ -963,16 +864,17 @@
       }
       pitstopAnimId = requestAnimationFrame(updatePit);
     }
-    function tapPitWheel(pos) {
-      if (!isPitstopRunning || wheelsServiced[pos]) return;
-      wheelsServiced[pos] = true;
-      const wEl = document.getElementById(`pitWheel${pos}`);
-      wEl.classList.add('done');
-      wEl.querySelector('small').innerText = "✓ Готово";
-      if (Object.values(wheelsServiced).every(v => v)) {
+    function tapPitWheel(el) {
+      if (!isPitstopRunning || el.dataset.serviced === "1") return;
+      el.dataset.serviced = "1";
+      el.style.borderColor = "var(--success)";
+      el.querySelector('small').innerText = "✓ Готово";
+      pitWheelsCount++;
+      if (pitWheelsCount === 4) {
         isPitstopRunning = false;
         cancelAnimationFrame(pitstopAnimId);
         document.getElementById('pitstopActionBtn').innerText = "🔄 ПОВТОРИТЬ";
+        document.querySelectorAll('.pit-wheel-btn').forEach(w => delete w.dataset.serviced);
       }
     }
     function resetPitstopState() {
@@ -980,29 +882,18 @@
       cancelAnimationFrame(pitstopAnimId);
       document.getElementById('pitstopTimerDisplay').innerText = "0.000 s";
       document.getElementById('pitstopActionBtn').innerText = "🚀 СТАРТ ПИТ-СТОПА";
-    }
-
-    function renderVotingDriversPoll() {
-      const container = document.getElementById('votingPollOptionsList');
-      if (!container) return;
-      const candidates = window.f1LoadedDrivers || [{ name: "Max Verstappen", team: "Red Bull Racing" }, { name: "Lando Norris", team: "McLaren" }];
-      container.innerHTML = candidates.slice(0, 5).map((c, i) => `
-        <div class="vote-item-card" onclick="alert('Голос за ${c.name} принят!')" style="background:var(--card-sub); border:1px solid var(--border); border-radius:14px; padding:12px; margin-bottom:8px; cursor:pointer;">
-          <div style="font-weight:800;">${c.name}</div>
-          <div style="font-size:12px; color:var(--text-muted);">${c.team}</div>
-        </div>
-      `).join('');
+      document.querySelectorAll('.pit-wheel-btn').forEach(w => delete w.dataset.serviced);
     }
   </script>
 
-  <!-- ================= ЭКРАН: ПАНЕЛЬ АДМИНИСТРАТОРА (Пункт 5, 6, 7) ================= -->
+  <!-- ================= ЭКРАН: ПАНЕЛЬ АДМИНИСТРАТОРА ================= -->
   <div id="view-admin" class="view-screen">
     <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromAdmin()">← Выйти из админки</button>
 
-    <!-- Выбор трассы из нашей локальной базы (Пункт 5) -->
+    <!-- Выбор трассы -->
     <div class="hero-card" style="border-color: rgba(255,59,48,0.4);">
       <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🏎 Выбор геометрии трассы</h3>
-      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Выберите трассу из локальной базы путей для отображения на Главной:</div>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Выберите трассу для отображения на Главной:</div>
 
       <select id="admActiveCircuitSelect" class="search-input">
         <option value="sepang">Малайзия — Сепанг</option>
@@ -1029,45 +920,33 @@
         <option value="losail">Катар — Лусаил</option>
         <option value="yas_marina">Абу-Даби — Яс-Марина</option>
         <option value="imola">Имола</option>
-        <option value="madrid">Мадрид</option>
       </select>
 
-      <button class="btn-action" onclick="applyAdminManualCircuit()">🌐 Установить геометрию трассы</button>
+      <button class="btn-action" onclick="applyAdminManualCircuit()">🌐 Загрузить трассу</button>
     </div>
 
-    <!-- Кнопка глобального релиз-статуса (Пункт 6) -->
+    <!-- Релиз-статус (v1/v2) -->
     <div class="hero-card">
       <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🚀 Глобальный релиз</h3>
       <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
-        Текущий статус для всех пользователей: <b id="adminCurVerText" style="color:var(--accent);">V1 (Архив)</b>
+        Текущий статус для пользователей: <b id="adminCurVerText" style="color:var(--accent);">V1</b>
       </div>
-      <button class="btn-action" id="adminToggleVersionBtn" onclick="toggleGlobalSystemVersion()">Выкатить v2 для всех пользователей</button>
+      <button class="btn-action" id="adminToggleVersionBtn" onclick="toggleGlobalSystemVersion()">Переключить версию</button>
     </div>
 
-    <!-- Добавление и РЕДАКТИРОВАНИЕ записей каталога D1 (Пункт 7) -->
+    <!-- Управление каталогом D1 (Добавление / Редактирование) -->
     <div class="hero-card">
       <h3 id="adminFormHeaderTitle" style="margin:0 0 12px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
       <input type="hidden" id="adminEditRecordId" value="">
 
-      <input class="search-input" id="admFormCat" placeholder="Категория (🔴Сезон 2026)">
+      <input class="search-input" id="admFormCat" placeholder="Категория (🔴 Сезон 2026)">
       <input class="search-input" id="admFormTitle" placeholder="Событие (Гран-при Бахрейна)">
-      
-      <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
-        <input class="search-input" id="admFormImg" placeholder="Ссылка на постер" style="margin-bottom:0;">
-        <label class="icon-circle-btn" style="flex-shrink:0; cursor:pointer;" title="Загрузить фото с телефона">
-          📁
-          <input type="file" id="admFileUpload" accept="image/*" style="display:none;" onchange="handleImageFileUpload(event)">
-        </label>
-      </div>
-      <div id="admImgPreviewBox" style="display:none; margin-bottom:12px;">
-        <img id="admImgPreviewEl" src="" style="width:100%; max-height:140px; object-fit:cover; border-radius:10px;">
-      </div>
-
-      <textarea class="search-input" id="admFormDesc" rows="2" placeholder="Описание заезда..."></textarea>
-      <input class="search-input" id="admFormItem" placeholder="Сессия (Гонка, Квалификация, П1)">
+      <input class="search-input" id="admFormImg" placeholder="Ссылка на постер">
+      <textarea class="search-input" id="admFormDesc" rows="2" placeholder="Описание..."></textarea>
+      <input class="search-input" id="admFormItem" placeholder="Сессия (Гонка, Квалификация)">
       <input class="search-input" id="admFormBadge" value="1080p">
       <input class="search-input" id="admFormCode" placeholder="Код выдачи (bahrain26_race)">
-      <input type="number" class="search-input" id="admFormPostId" placeholder="ID поста на канале-складе">
+      <input type="number" class="search-input" id="admFormPostId" placeholder="ID поста в канале-складе">
 
       <button class="btn-action" id="adminSubmitRecordBtn" onclick="submitCatalogRecordForm()">💾 Сохранить запись</button>
       <button class="btn-action btn-secondary" id="adminCancelEditBtn" style="display:none; margin-top:8px;" onclick="cancelCatalogEditMode()">Отмена</button>
@@ -1084,7 +963,6 @@
   </div>
 
   <script>
-    // Управление экранами и навигацией
     function openViewScreen(name) {
       document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
       const target = document.getElementById(`view-${name}`);
@@ -1098,22 +976,15 @@
       openViewScreen(tabName);
     }
 
-    function navigateBackFromAdmin() {
-      openViewScreen('home');
-    }
+    function navigateBackFromAdmin() { openViewScreen('home'); }
+    function openAdminDashboardScreen() { openViewScreen('admin'); }
 
-    function openAdminDashboardScreen() {
-      openViewScreen('admin');
-    }
-
-    // Установка трассы из админки
     function applyAdminManualCircuit() {
       const selected = document.getElementById('admActiveCircuitSelect').value;
-      renderLocalTrack(selected);
-      alert(`Трасса [${selected}] установлена!`);
+      loadDynamicTrack(selected);
+      alert(`Трасса [${selected}] загружена из базы!`);
     }
 
-    // Проверка прав доступа и релиза (v1/v2) (Пункт 6)
     let globalAppVersion = "v1";
 
     async function checkReleaseAccess() {
@@ -1128,7 +999,7 @@
       const curVerEl = document.getElementById('adminCurVerText');
       if (curVerEl) curVerEl.innerText = globalAppVersion.toUpperCase();
 
-      const hasFullAccess = (globalAppVersion === "v2") || isTester;
+      const hasFullAccess = (globalAppVersion === "v2") || isTester || isAdmin;
 
       if (hasFullAccess) {
         document.getElementById('mainBottomNav').style.display = 'flex';
@@ -1139,7 +1010,8 @@
       }
 
       if (isAdmin) {
-        document.getElementById('adminDirectEntryBlock').style.display = 'block';
+        const adminBlock = document.getElementById('adminDirectEntryBlock');
+        if (adminBlock) adminBlock.style.display = 'block';
       }
     }
 
@@ -1154,28 +1026,13 @@
         if (res.ok) {
           globalAppVersion = nextVer;
           checkReleaseAccess();
-          alert(`Глобальный релиз переключен на: ${nextVer.toUpperCase()}`);
+          alert(`Режим переключен на: ${nextVer.toUpperCase()}`);
         }
       } catch (e) {
-        alert("Ошибка сети при смене версии");
+        alert("Ошибка сети");
       }
     }
 
-    // Загрузка фото в форму админки
-    function handleImageFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const base64 = evt.target.result;
-        document.getElementById('admFormImg').value = base64;
-        document.getElementById('admImgPreviewEl').src = base64;
-        document.getElementById('admImgPreviewBox').style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    }
-
-    // Добавление и Редактирование записи каталога (Пункт 7)
     async function submitCatalogRecordForm() {
       if (!isAdmin) return;
       const editId = document.getElementById('adminEditRecordId').value;
@@ -1195,7 +1052,7 @@
         return;
       }
 
-      const endpoint = editId ? `${WORKER_URL}/api/catalog/edit` : `${WORKER_URL}/api/catalog/add`;
+      const endpoint = editId ? `${WORKER_URL}/api/catalog/edit` : `${WORKER_URL}/api/catalog/add`;[cite: 1]
       if (editId) payload.id = parseInt(editId);
 
       try {
@@ -1204,12 +1061,12 @@
           body: JSON.stringify(payload)
         });
         if (res.ok) {
-          alert(editId ? "Запись успешно обновлена!" : "Запись успешно добавлена!");
+          alert(editId ? "Запись обновлена!" : "Запись добавлена!");
           cancelCatalogEditMode();
           loadCatalogData();
         }
       } catch (e) {
-        alert("Ошибка сохранения: " + e.message);
+        alert("Ошибка: " + e.message);
       }
     }
 
@@ -1222,13 +1079,12 @@
       document.getElementById('admFormItem').value = "";
       document.getElementById('admFormCode').value = "";
       document.getElementById('admFormPostId').value = "";
-      document.getElementById('admImgPreviewBox').style.display = 'none';
       document.getElementById('adminCancelEditBtn').style.display = 'none';
       document.getElementById('adminFormHeaderTitle').innerText = "➕ Добавить запись в базу D1";
       document.getElementById('adminSubmitRecordBtn').innerText = "💾 Сохранить запись";
     }
 
-    // Инициализация при старте приложения
+    // Инициализация
     window.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('f1_theme_light') === '1') document.body.classList.add('light-theme');
       if (localStorage.getItem('f1_lite_mode') === '1') {
@@ -1238,9 +1094,10 @@
 
       checkReleaseAccess();
       startWeekendSessionTimer();
-      renderLocalTrack("sepang"); // Рендер Сепанга по центру
+      loadDynamicTrack("sepang");
       loadCatalogData();
       loadChannelNewsFeed();
+      loadSeasonLiveStats();
     });
   </script>
 </body>
