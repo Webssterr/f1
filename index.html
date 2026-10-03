@@ -945,6 +945,7 @@
       "spa": "M 70,190 L 130,210 Q 180,220 250,170 L 360,140 Q 430,120 410,70 L 330,50 Q 260,40 210,80 L 120,110 Q 60,140 70,190 Z"
     };
 
+    // Надежный рендеринг трассы и точки через группу <g> для точного центрирования без смещений
     // Надежный рендеринг трассы с автокалибровкой отрицательных и смещенных координат
     let trackAnimInterval = null;
     function runCarAnimationOnTrack(circuitKey = "sepang", customPath = null) {
@@ -1018,7 +1019,29 @@
         } catch (e) {}
       }, 35);
     }
-    
+    async function loadCircuitFromDatabase(circuitKey) {
+      try {
+        const response = await fetch(`${WORKER_URL}/api/circuits/${encodeURIComponent(circuitKey)}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (!data.success || !data.path) throw new Error("SVG не найден в D1");
+
+        runCarAnimationOnTrack(circuitKey, data.path);
+
+        if (data.length) document.getElementById('specLength').innerText = `${data.length} км`;
+        if (data.laps) document.getElementById('specLaps').innerText = data.laps;
+        if (data.firstYear) document.getElementById('specFirstYear').innerText = data.firstYear;
+        if (data.distance) document.getElementById('specDistance').innerText = `${data.distance} км`;
+        if (data.fastLap) document.getElementById('specFastLap').innerText = data.fastLap;
+        if (data.fastDriver) document.getElementById('specFastDriver').innerText = data.fastDriver;
+
+        return true;
+      } catch (error) {
+        runCarAnimationOnTrack(circuitKey);
+        return false;
+      }
+    }
+
     // ДИНАМИЧЕСКИЙ ТАЙМЕР И СЕТКА СЕССИЙ УИКЕНДА
     let globalSessionInterval = null;
     function initDynamicWeekendSessions(raceData) {
