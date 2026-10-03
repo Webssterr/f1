@@ -1047,57 +1047,51 @@
     function initDynamicWeekendSessions(raceData) {
       const sessions = [];
       if (raceData) {
-        if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: new Date(raceData.FirstPractice.date + 'T' + (raceData.FirstPractice.time || '08:00:00Z')), duration: 60 });
-        if (raceData.SecondPractice?.date) sessions.push({ name: "Практика 2", short: "П2", date: new Date(raceData.SecondPractice.date + 'T' + (raceData.SecondPractice.time || '11:00:00Z')), duration: 60 });
-        if (raceData.ThirdPractice?.date) sessions.push({ name: "Практика 3", short: "П3", date: new Date(raceData.ThirdPractice.date + 'T' + (raceData.ThirdPractice.time || '08:00:00Z')), duration: 60 });
-        if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: new Date(raceData.Sprint.date + 'T' + (raceData.Sprint.time || '10:00:00Z')), duration: 45 });
-        if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация", short: "КВАЛА", date: new Date(raceData.Qualifying.date + 'T' + (raceData.Qualifying.time || '11:00:00Z')), duration: 60 });
-        if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: new Date(raceData.date + 'T' + (raceData.time || '14:00:00Z')), duration: 120 });
+        const parseLocalDateTime = (dateStr, timeStr) => {
+          if (!dateStr) return null;
+          const cleanTime = (timeStr || '14:00:00').replace('Z', '');
+          return new Date(`${dateStr}T${cleanTime}`);
+        };
+
+        if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
+        if (raceData.SecondPractice?.date) sessions.push({ name: "Практика 2", short: "П2", date: parseLocalDateTime(raceData.SecondPractice.date, raceData.SecondPractice.time), duration: 60 });
+        if (raceData.ThirdPractice?.date) sessions.push({ name: "Практика 3", short: "П3", date: parseLocalDateTime(raceData.ThirdPractice.date, raceData.ThirdPractice.time), duration: 60 });
+        if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 45 });
+        if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
+        if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
       }
 
       const label = document.getElementById("heroStageLabel");
       const grid = document.getElementById("weekendSessionsGrid");
-      const timer = {
-        d: document.getElementById("t-d"),
-        h: document.getElementById("t-h"),
-        m: document.getElementById("t-m"),
-        s: document.getElementById("t-s")
-      };
+      const timer = { d: document.getElementById("t-d"), h: document.getElementById("t-h"), m: document.getElementById("t-m"), s: document.getElementById("t-s") };
 
-      function formatTime(date) {
-        return date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false });
+      function renderEmptyState() {
+        if (label) label.innerText = "🔴 Ожидание уикенда";
+        Object.values(timer).forEach(el => { if (el) el.innerText = "00"; });
+        if (grid) {
+          grid.style.gridTemplateColumns = `repeat(1, minmax(0, 1fr))`;
+          grid.innerHTML = `<div class="sess-chip"><div class="sess-name">ГОНКА</div><div class="sess-time">— : —</div></div>`;
+        }
       }
-      function formatDate(date) {
-        return date.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }).replace(".", "").toUpperCase();
+
+      if (sessions.length === 0) {
+        renderEmptyState();
+        return;
       }
+
+      function formatTime(d) { return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false }); }
+      function formatDate(d) { return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }).replace(".", "").toUpperCase(); }
 
       function renderSessions(now) {
-        if (!grid || sessions.length === 0) return;
+        if (!grid) return;
         grid.style.gridTemplateColumns = `repeat(${sessions.length}, minmax(0, 1fr))`;
-        grid.innerHTML = sessions.map(session => {
-          const start = session.date.getTime();
-          const end = start + session.duration * 60000;
-          const current = now.getTime();
-
-          let status = "";
-          let className = "sess-chip";
-
-          if (current >= end) {
-            className += " past";
-            status = "✓ Завершено";
-          } else if (current >= start && current < end) {
-            className += " active";
-            status = "● Идёт";
-          } else {
-            status = formatTime(session.date);
-          }
-
-          return `
-            <div class="${className}">
-              <div class="sess-name">${formatDate(session.date)} • ${session.short}</div>
-              <div class="sess-time">${status}</div>
-            </div>
-          `;
+        grid.innerHTML = sessions.map(s => {
+          const start = s.date.getTime();
+          const end = start + s.duration * 60000;
+          const cur = now.getTime();
+          let status = cur >= end ? "✓ Завершено" : (cur >= start ? "● Идёт" : formatTime(s.date));
+          let cls = "sess-chip" + (cur >= end ? " past" : (cur >= start ? " active" : ""));
+          return `<div class="${cls}"><div class="sess-name">${formatDate(s.date)} • ${s.short}</div><div class="sess-time">${status}</div></div>`;
         }).join("");
       }
 
@@ -1106,98 +1100,24 @@
         const nowTs = now.getTime();
         renderSessions(now);
 
-        if (sessions.length === 0) {
-          if (label) label.innerText = "🔴 Межсезонье";
-          return;
-        }
-
-        const activeSession = sessions.find(s => nowTs >= s.date.getTime() && nowTs < s.date.getTime() + s.duration * 60000);
-        const nextSession = sessions.find(s => s.date.getTime() > nowTs);
-
-        let target = null;
-        let stageText = "";
-
-        if (activeSession) {
-          target = new Date(activeSession.date.getTime() + activeSession.duration * 60000);
-          stageText = `🔴 Сейчас: ${activeSession.name}`;
-        } else if (nextSession) {
-          target = nextSession.date;
-          stageText = `🔴 До ${nextSession.name}`;
-        } else {
-          stageText = "🏁 Уикенд завершён";
+        const next = sessions.find(s => s.date.getTime() > nowTs);
+        if (!next) {
+          if (label) label.innerText = "🏁 Уикенд завершён";
           Object.values(timer).forEach(el => { if (el) el.innerText = "00"; });
-          if (label) label.innerText = stageText;
           return;
         }
 
-        if (label) label.innerText = stageText;
-
-        const diff = Math.max(0, target.getTime() - nowTs);
-        const days = Math.floor(diff / 86400000);
-        const hours = Math.floor((diff % 86400000) / 3600000);
-        const minutes = Math.floor((diff % 3600000) / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-
-        if (timer.d) timer.d.innerText = String(days).padStart(2, "0");
-        if (timer.h) timer.h.innerText = String(hours).padStart(2, "0");
-        if (timer.m) timer.m.innerText = String(minutes).padStart(2, "0");
-        if (timer.s) timer.s.innerText = String(seconds).padStart(2, "0");
+        if (label) label.innerText = `🔴 До ${next.name}`;
+        const diff = Math.max(0, next.date.getTime() - nowTs);
+        if (timer.d) timer.d.innerText = String(Math.floor(diff / 86400000)).padStart(2, "0");
+        if (timer.h) timer.h.innerText = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, "0");
+        if (timer.m) timer.m.innerText = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
+        if (timer.s) timer.s.innerText = String(Math.floor((diff % 60000) / 1000)).padStart(2, "0");
       }
 
       if (globalSessionInterval) clearInterval(globalSessionInterval);
       updateTimer();
       globalSessionInterval = setInterval(updateTimer, 1000);
-    }
-
-    // ИГРА: РЕАКЦИЯ
-    let reactionStatus = 'idle';
-    let reactionStartTime = 0;
-    let reactionTimeoutId = null;
-
-    function processReactionTap() {
-      const tapBox = document.getElementById('reactionTapBox');
-      const scoreTxt = document.getElementById('reactionScoreText');
-
-      if (reactionStatus === 'idle') {
-        scoreTxt.innerText = '';
-        tapBox.innerText = 'ВНИМАНИЕ...';
-        reactionStatus = 'starting';
-
-        let lightStep = 1;
-        const lightsInterval = setInterval(() => {
-          if (lightStep <= 5) {
-            const l = document.getElementById(`f1Light${lightStep}`);
-            if (l) l.classList.add('on');
-            lightStep++;
-          } else {
-            clearInterval(lightsInterval);
-            const randomDelay = 1000 + Math.random() * 2200;
-            reactionTimeoutId = setTimeout(() => {
-              for (let i = 1; i <= 5; i++) {
-                const l = document.getElementById(`f1Light${i}`);
-                if (l) l.classList.remove('on');
-              }
-              reactionStatus = 'ready';
-              reactionStartTime = performance.now();
-              tapBox.innerText = 'ЖМИ СЕЙЧАС!';
-            }, randomDelay);
-          }
-        }, 750);
-      } else if (reactionStatus === 'starting') {
-        clearTimeout(reactionTimeoutId);
-        for (let i = 1; i <= 5; i++) {
-          const l = document.getElementById(`f1Light${i}`);
-          if (l) l.classList.remove('on');
-        }
-        reactionStatus = 'idle';
-        tapBox.innerText = 'ФАЛЬСТАРТ! Нажми для повтора';
-        scoreTxt.innerText = '❌ Слишком рано';
-      } else if (reactionStatus === 'ready') {
-        const reactionMs = Math.round(performance.now() - reactionStartTime);
-        reactionStatus = 'idle';
-        tapBox.innerText = 'СЫГРАТЬ ЕЩЁ РАЗ';
-        scoreTxt.innerText = `⏱ ${reactionMs} мс`;
-      }
     }
 
     // ИГРА: ПИТ-СТОП
