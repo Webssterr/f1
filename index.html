@@ -1054,8 +1054,8 @@
       if (raceData) {
         const parseLocalDateTime = (dateStr, timeStr) => {
           if (!dateStr) return null;
-          const cleanTime = (timeStr || '14:00:00').replace('Z', '');
-          return new Date(`${dateStr}T${cleanTime}`);
+          let cleanTime = (timeStr || '14:00:00').replace('Z', '');
+          return new Date(`${dateStr}T${cleanTime}Z`);
         };
 
         if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
@@ -1094,7 +1094,15 @@
         return;
       }
 
-      function formatTime(d) { return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false }); }
+            function formatTime(d) { 
+        return d.toLocaleTimeString("ru-RU", { 
+          hour: "2-digit", 
+          minute: "2-digit", 
+          hour12: false 
+          // Без параметра timeZone браузер автоматически возьмет таймпояс устройства пользователя!
+        }); 
+      }
+
       function formatDate(d) { return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }).replace(".", "").toUpperCase(); }
 
       function renderSessions(now) {
