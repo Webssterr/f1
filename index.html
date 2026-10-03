@@ -1131,7 +1131,7 @@
         }
 
         const genitiveName = sessionGenitiveNames[next.name] || next.name.toLowerCase();
-        if (label) label.innerText = `🔴 до ${genitiveName}`;
+        if (label) label.innerText = `🔴 До ${genitiveName}`;
         
         const diff = Math.max(0, next.date.getTime() - nowTs);
         if (timer.d) timer.d.innerText = String(Math.floor(diff / 86400000)).padStart(2, "0");
