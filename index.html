@@ -1850,6 +1850,51 @@
       }
     }
 
+    // 1. Проверяем текущую версию при загрузке приложения
+    async function checkAppVersion() {
+      try {
+        const res = await fetch('https://твой-воркер.workers.dev/api/app-config'); // Замени на URL твоего воркера
+        const data = await res.json();
+        if (data.success) {
+          const versionLabel = document.getElementById('currentVersionLabel');
+          if (versionLabel) versionLabel.innerText = data.version.toUpperCase();
+          
+          // Здесь можешь управлять показом блоков v1 или v2 в зависимости от data.version
+          if (data.version === 'v2') {
+            // Включаем фичи V2
+          }
+        }
+      } catch (e) {}
+    }
+
+    // 2. Обработка клика по кнопке переключения версии в админке
+    document.getElementById('deployV2Btn')?.addEventListener('click', async () => {
+      if (!confirm("Переключить версию для всех пользователей на V2?")) return;
+      
+      try {
+        const res = await fetch('https://твой-воркер.workers.dev/api/admin/set-version', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            version: 'v2', 
+            adminId: '301211351' // Твой ADMIN_ID
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Версия V2 успешно активирована для всех!");
+          location.reload();
+        } else {
+          alert("Ошибка сохранения");
+        }
+      } catch (e) {
+        alert("Ошибка сети");
+      }
+    });
+
+    // Вызываем при загрузке страницы
+    checkAppVersion();
+
     initAppRouting();
   </script>
 </body>
