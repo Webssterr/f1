@@ -46,15 +46,6 @@
       padding: 16px 16px 95px 16px;
       -webkit-font-smoothing: antialiased;
       user-select: none;
-      transition: background-color 0.25s ease, color 0.25s ease;
-    }
-
-    body.lite-mode * {
-      animation: none !important;
-      transition: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      box-shadow: none !important;
     }
 
     .app-header {
@@ -72,7 +63,6 @@
       font-weight: 900;
       letter-spacing: -0.4px;
       color: var(--text);
-      cursor: pointer;
     }
 
     .brand-square {
@@ -97,11 +87,9 @@
       font-size: 18px;
       cursor: pointer;
     }
-    .icon-circle-btn:active { transform: scale(0.95); }
 
     .view-screen { display: none; }
-    .view-screen.active { display: block; animation: viewIn 0.2s ease-out; }
-    @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .view-screen.active { display: block; }
 
     .hero-card {
       background: var(--card-bg);
@@ -109,7 +97,6 @@
       padding: 22px 20px;
       border: 1px solid var(--border);
       margin-bottom: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
     }
 
     .hero-stage-badge {
@@ -170,7 +157,6 @@
       fill: #ffffff;
       stroke: var(--accent);
       stroke-width: 3.5;
-      filter: drop-shadow(0 0 8px var(--accent));
     }
 
     .gp-title { font-size: 22px; font-weight: 900; margin: 0 0 4px 0; letter-spacing: -0.5px; color: var(--text); }
@@ -210,7 +196,6 @@
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
       z-index: 9999;
       align-items: flex-end;
       justify-content: center;
@@ -250,13 +235,13 @@
 
   <!-- ШАПКА -->
   <div class="app-header">
-    <div class="brand-wrap" id="topBrandLogo">
+    <div class="brand-wrap">
       <div class="brand-square"></div>
       <span>Race Weekend F1 Archive</span>
     </div>
     <div class="header-btns">
       <button class="icon-circle-btn" onclick="toggleAppTheme()">🌓</button>
-      <button class="icon-circle-btn" onclick="openSettingsModal()">⚙️</button>
+      <button class="icon-circle-btn" onclick="toggleAppSettingsModal(true)">⚙️</button>
     </div>
   </div>
 
@@ -276,8 +261,8 @@
 
       <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
         <div>
-          <div class="set-lbl" style="font-weight:700;">⚡️ Режим Lite</div>
-          <div class="set-sub" style="font-size:12px; color:var(--text-muted);">Отключение анимаций болида</div>
+          <div style="font-weight:700;">⚡️ Режим Lite</div>
+          <div style="font-size:12px; color:var(--text-muted);">Отключение анимаций болида</div>
         </div>
         <input type="checkbox" id="userSettingLiteToggle" onchange="handleLiteModeToggle(this.checked)">
       </div>
@@ -318,16 +303,11 @@
 
     function toggleAppTheme() {
       document.body.classList.toggle('light-theme');
-      const isLight = document.body.classList.contains('light-theme');
-      localStorage.setItem('f1_theme_light', isLight ? '1' : '0');
+      localStorage.setItem('f1_theme_light', document.body.classList.contains('light-theme') ? '1' : '0');
     }
 
     function toggleAppSettingsModal(show) {
       document.getElementById('appSettingsModal').classList.toggle('active', show);
-    }
-
-    function openSettingsModal() {
-      toggleAppSettingsModal(true);
     }
 
     function handleLiteModeToggle(enabled) {
@@ -335,10 +315,8 @@
       localStorage.setItem('f1_lite_mode', enabled ? '1' : '0');
     }
   </script>
-</body>
-</html>
 
-<!-- ================= ЭКРАН: ГЛАВНАЯ ================= -->
+  <!-- ================= ЭКРАН: ГЛАВНАЯ ================= -->
   <div id="view-home" class="view-screen active">
     <div class="hero-card">
       <div class="hero-stage-badge">
@@ -374,23 +352,23 @@
     </div>
 
     <!-- КАРТОЧКА ХАРАКТЕРИСТИК АВТОДРОМА -->
-    <div class="circuit-spec-card" style="background:var(--card-bg); border-radius:20px; padding:18px 20px; border:1px solid var(--border); margin-bottom:16px;">
-      <div class="spec-header" style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:14px; display:flex; justify-content:space-between;">
+    <div style="background:var(--card-bg); border-radius:20px; padding:18px 20px; border:1px solid var(--border); margin-bottom:16px;">
+      <div style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:14px; display:flex; justify-content:space-between;">
         <span>Данные автодрома</span>
         <span style="color:var(--accent);" id="specCircuitNameBadge">F1 Circuit</span>
       </div>
-      <div class="spec-grid" style="display:grid; grid-template-columns:repeat(2,1fr); row-gap:14px; column-gap:16px;">
-        <div class="spec-item"><h5>Длина круга</h5><p id="specLength" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
-        <div class="spec-item"><h5>Кругов</h5><p id="specLaps" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
-        <div class="spec-item"><h5>Первый Гран-при</h5><p id="specFirstYear" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
-        <div class="spec-item"><h5>Дистанция гонки</h5><p id="specDistance" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
+      <div style="display:grid; grid-template-columns:repeat(2,1fr); row-gap:14px; column-gap:16px;">
+        <div><div style="font-size:11px; color:var(--text-muted);">Длина круга</div><p id="specLength" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
+        <div><div style="font-size:11px; color:var(--text-muted);">Кругов</div><p id="specLaps" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
+        <div><div style="font-size:11px; color:var(--text-muted);">Первый Гран-при</div><p id="specFirstYear" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
+        <div><div style="font-size:11px; color:var(--text-muted);">Дистанция гонки</div><p id="specDistance" style="margin:4px 0 0 0; font-size:17px; font-weight:900;">—</p></div>
       </div>
-      <div class="spec-record" style="margin-top:14px; padding-top:12px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
         <div>
           <div style="font-size:11px; color:var(--text-muted); font-weight:700;">Рекорд круга</div>
-          <div style="font-size:16px; font-weight:900; color:var(--accent);" id="specFastLap">—</div>
+          <div style="font-size:15px; font-weight:900; color:var(--accent);" id="specFastLap">—</div>
         </div>
-        <div style="font-size:13px; font-weight:700; color:var(--text-muted); text-align:right;" id="specFastDriver">—</div>
+        <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-align:right;" id="specFastDriver">—</div>
       </div>
     </div>
   </div>
@@ -411,21 +389,15 @@
       text-align: center;
       border: 1px solid transparent;
     }
-    .sess-chip.past { opacity: 0.45; }
-    .sess-chip.active {
-      background: var(--accent-soft);
-      border-color: rgba(255, 59, 48, 0.4);
-    }
     .sess-name { font-size: 10px; color: var(--text-muted); font-weight: 700; }
     .sess-time { font-size: 11px; font-weight: 800; margin-top: 3px; color: var(--text); }
-    .sess-chip.active .sess-name, .sess-chip.active .sess-time { color: var(--accent); }
   </style>
 
   <script>
     let trackAnimFrameId = null;
 
-    // Загрузка динамической геометрии трассы с бэкенда Cloudflare Worker
-    async function loadDynamicTrack(circuitKey = "sepang") {
+    // Загрузка динамической трассы и характеристик из D1
+    async function loadDynamicTrack(circuitKey = "bahrain") {
       const pathEl = document.getElementById('trackPath');
       const racingLine = document.querySelector('.track-racing-line');
       const carDot = document.getElementById('carPoint');
@@ -435,43 +407,51 @@
         const res = await fetch(`${WORKER_URL}/api/circuits/${circuitKey}`);
         if (res.ok) {
           const data = await res.json();
-          const pathD = data.path;
+          if (data.success && data.path) {
+            pathEl.setAttribute('d', data.path);
+            if (racingLine) racingLine.setAttribute('d', data.path);
 
-          pathEl.setAttribute('d', pathD);
-          if (racingLine) racingLine.setAttribute('d', pathD);
+            document.getElementById('gpTitleDisplay').innerText = data.name || "Гран-при";
+            document.getElementById('gpSubDisplay').innerText = data.circuitId || circuitKey;
+            document.getElementById('specCircuitNameBadge').innerText = (circuitKey).toUpperCase();
+            document.getElementById('specLength').innerText = data.length || "—";
+            document.getElementById('specLaps').innerText = data.laps || "—";
+            document.getElementById('specFirstYear').innerText = data.firstYear || "—";
+            document.getElementById('specDistance').innerText = data.distance || "—";
+            document.getElementById('specFastLap').innerText = data.fastLap || "—";
+            document.getElementById('specFastDriver').innerText = data.fastDriver || "—";
 
-          let totalLength = 0;
-          try { totalLength = pathEl.getTotalLength(); } catch (err) { totalLength = 1000; }
+            let totalLength = 1000;
+            try { totalLength = pathEl.getTotalLength(); } catch (err) {}
 
-          carDot.style.display = 'block';
-          let currentDistance = 0;
-          if (trackAnimFrameId) cancelAnimationFrame(trackAnimFrameId);
+            carDot.style.display = 'block';
+            let currentDistance = 0;
+            if (trackAnimFrameId) cancelAnimationFrame(trackAnimFrameId);
 
-          function animStep() {
-            if (!document.body.classList.contains('lite-mode') && totalLength > 0) {
-              currentDistance = (currentDistance + 1.8) % totalLength;
-              const coords = pathEl.getPointAtLength(currentDistance);
-              carDot.setAttribute('cx', coords.x);
-              carDot.setAttribute('cy', coords.y);
+            function animStep() {
+              if (!document.body.classList.contains('lite-mode') && totalLength > 0) {
+                currentDistance = (currentDistance + 1.8) % totalLength;
+                const coords = pathEl.getPointAtLength(currentDistance);
+                carDot.setAttribute('cx', coords.x);
+                carDot.setAttribute('cy', coords.y);
+              }
+              trackAnimFrameId = requestAnimationFrame(animStep);
             }
             trackAnimFrameId = requestAnimationFrame(animStep);
           }
-          trackAnimFrameId = requestAnimationFrame(animStep);
         }
       } catch (e) {
         console.warn("Ошибка загрузки трассы:", e);
       }
     }
 
-    // Сквозной таймер уикенда
     let sessionTimerInterval = null;
     function startWeekendSessionTimer() {
       const targetTime = new Date(2026, 9, 4, 10, 0, 0).getTime();
       if (sessionTimerInterval) clearInterval(sessionTimerInterval);
 
       function updateTimerTick() {
-        const now = Date.now();
-        const diff = Math.max(0, targetTime - now);
+        const diff = Math.max(0, targetTime - Date.now());
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const m = Math.floor((diff / 1000 / 60) % 60);
@@ -502,88 +482,34 @@
 
   <!-- ================= ЭКРАН: СЕЗОН ================= -->
   <div id="view-season" class="view-screen">
-    <div class="sub-tabs-bar">
-      <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)">Пилоты</button>
-      <button class="sub-tab-btn" onclick="switchSeasonSubTab('calendar', this)">Календарь</button>
-      <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)">Кубок</button>
+    <div class="sub-tabs-bar" style="display:flex; gap:8px; margin-bottom:14px;">
+      <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)" style="flex:1; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; color:var(--text); font-weight:800; cursor:pointer;">Пилоты</button>
+      <button class="sub-tab-btn" onclick="switchSeasonSubTab('calendar', this)" style="flex:1; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; color:var(--text); font-weight:800; cursor:pointer;">Календарь</button>
+      <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)" style="flex:1; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; color:var(--text); font-weight:800; cursor:pointer;">Кубок</button>
     </div>
 
-    <div id="seasonSubStandings">
-      <div id="driversStandingsList">
-        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка зачёта пилотов...</div>
-      </div>
-    </div>
-
-    <div id="seasonSubCalendar" style="display: none;">
-      <div id="calendarEventsList">
-        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка календаря...</div>
-      </div>
-    </div>
-
-    <div id="seasonSubTeams" style="display: none;">
-      <div id="constructorsStandingsList">
-        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Загрузка кубка конструкторов...</div>
-      </div>
-    </div>
+    <div id="seasonSubStandings"><div id="driversStandingsList"><div style="text-align:center; padding:35px 0; color:var(--text-muted);">Загрузка зачёта пилотов...</div></div></div>
+    <div id="seasonSubCalendar" style="display: none;"><div id="calendarEventsList"><div style="text-align:center; padding:35px 0; color:var(--text-muted);">Загрузка календаря...</div></div></div>
+    <div id="seasonSubTeams" style="display: none;"><div id="constructorsStandingsList"><div style="text-align:center; padding:35px 0; color:var(--text-muted);">Загрузка конструкторов...</div></div></div>
   </div>
 
-  <!-- ================= ЭКРАН: ИГРЫ F1 ================= -->
+  <!-- ================= ЭКРАН: ИГРЫ ================= -->
   <div id="view-games" class="view-screen">
-    <div class="sub-tabs-bar">
-      <button class="sub-tab-btn active" onclick="switchGameTab('reaction', this)">⚡️️ Огни F1</button>
-      <button class="sub-tab-btn" onclick="switchGameTab('pitstop', this)">🛞 Пит-стоп</button>
-      <button class="sub-tab-btn" onclick="switchGameTab('vote', this)">🗳 Предикты</button>
-    </div>
-
-    <div id="gameSubReaction">
-      <div class="hero-card">
-        <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">⚡️ Реакция на стартовые огни</h3>
-        <div class="lights-row" style="display:flex; justify-content:center; gap:8px; margin:22px 0;">
-          <div class="f1-light" id="f1Light1" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-          <div class="f1-light" id="f1Light2" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-          <div class="f1-light" id="f1Light3" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-          <div class="f1-light" id="f1Light4" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-          <div class="f1-light" id="f1Light5" style="width:28px; height:28px; border-radius:50%; background:#2c303d;"></div>
-        </div>
-        <div id="reactionTapBox" style="background:var(--card-sub); border:2px dashed var(--border); border-radius:16px; padding:25px; text-align:center; font-weight:800; cursor:pointer;" onclick="processReactionTap()">НАЖМИ ДЛЯ СТАРТА</div>
-        <div id="reactionScoreText" style="text-align:center; font-size:18px; font-weight:900; margin-top:12px; color:var(--accent);"></div>
-      </div>
-    </div>
-
-    <div id="gameSubPitstop" style="display: none;">
-      <div class="pitstop-box" style="background:var(--card-sub); border:1px solid var(--border); border-radius:20px; padding:20px; text-align:center;">
-        <div style="font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase;">DHL Pit Stop Challenge</div>
-        <div style="font-size:38px; font-weight:900; margin:10px 0;" id="pitstopTimerDisplay">0.000 s</div>
-        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">Нажми «СТАРТ ПИТ-СТОПА» и обслужи все 4 колеса!</div>
-        <div class="pit-wheels-grid" style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin:20px 0;">
-          <div class="pit-wheel-btn" onclick="tapPitWheel(this)" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ П. Левое<br><small style="color:var(--text-muted);">Нажми</small></div>
-          <div class="pit-wheel-btn" onclick="tapPitWheel(this)" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ П. Правое<br><small style="color:var(--text-muted);">Нажми</small></div>
-          <div class="pit-wheel-btn" onclick="tapPitWheel(this)" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️ З. Левое<br><small style="color:var(--text-muted);">Нажми</small></div>
-          <div class="pit-wheel-btn" onclick="tapPitWheel(this)" style="background:var(--card-bg); border:2px solid var(--border); border-radius:16px; padding:16px; cursor:pointer; font-weight:800;">⚙️️ З. Правое<br><small style="color:var(--text-muted);">Нажми</small></div>
-        </div>
-        <button class="btn-action" id="pitstopActionBtn" onclick="togglePitstopGame()">🚀 СТАРТ ПИТ-СТОПА</button>
-      </div>
-    </div>
-
-    <div id="gameSubVote" style="display: none;">
-      <div class="hero-card">
-        <div style="font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase; margin-bottom:6px;">Голосование уикенда</div>
-        <h3 style="margin:0 0 10px 0; font-size:18px; font-weight:900;">🗳 Прогнозы на Гран-при</h3>
-        <div id="votingPollOptionsList"><div style="text-align:center; padding:20px 0; color:var(--text-muted);">Загрузка пилотов...</div></div>
-      </div>
+    <div class="hero-card" style="text-align:center;">
+      <h3 style="margin:0 0 10px 0; font-size:18px; font-weight:900;">⚡️ Реакция на стартовые огни</h3>
+      <div id="reactionTapBox" style="background:var(--card-sub); border:2px dashed var(--border); border-radius:16px; padding:25px; font-weight:800; cursor:pointer;" onclick="processReactionTap()">НАЖМИ ДЛЯ СТАРТА</div>
+      <div id="reactionScoreText" style="font-size:18px; font-weight:900; margin-top:12px; color:var(--accent);"></div>
     </div>
   </div>
 
   <!-- ================= ЭКРАН: НОВОСТИ ================= -->
   <div id="view-news" class="view-screen">
-    <div id="channelNewsFeedContainer">
-      <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация ленты новостей...</div>
-    </div>
+    <div id="channelNewsFeedContainer"><div style="text-align:center; padding:35px 0; color:var(--text-muted);">Загрузка ленты...</div></div>
   </div>
 
   <!-- ЭКРАНЫ ДЕТАЛИЗАЦИИ КАТАЛОГА -->
   <div id="view-titles" class="view-screen">
-    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('archive')">← Назад к категориям</button>
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('archive')">← Назад</button>
     <div id="catalogTitlesList"></div>
   </div>
 
@@ -595,7 +521,6 @@
 
   <style>
     .search-input { width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 14px; padding: 13px 16px; font-size: 15px; color: var(--text); outline: none; margin-bottom: 12px; }
-    .search-input:focus { border-color: var(--accent); }
     .menu-btn { width: 100%; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 13px 16px; margin-bottom: 10px; border-radius: 16px; font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; }
     .menu-btn-content { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
     .menu-btn-thumb { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; background: #222; flex-shrink: 0; }
@@ -607,7 +532,6 @@
     let catalogTree = {};
     let activeCatalogCategory = null;
 
-    // Загрузка каталога с прямой хронологической сортировкой (ASC)
     async function loadCatalogData() {
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog`);
@@ -617,9 +541,7 @@
           buildCatalogTree();
           renderCatalogCategories();
         }
-      } catch (e) {
-        console.warn("Ошибка каталога:", e);
-      }
+      } catch (e) {}
     }
 
     function buildCatalogTree() {
@@ -636,10 +558,7 @@
     function renderCatalogCategories() {
       const container = document.getElementById('catalogCategoriesContainer');
       const cats = Object.keys(catalogTree);
-      if (!cats.length) {
-        container.innerHTML = `<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Архив пуст</div>`;
-        return;
-      }
+      if (!cats.length) { container.innerHTML = `<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Архив пуст</div>`; return; }
       container.innerHTML = cats.map(cat => `
         <div class="menu-btn" onclick="openCatalogCategory('${cat}')">
           <div class="menu-btn-content"><span>📁</span><span>${cat}</span></div>
@@ -655,15 +574,11 @@
       titlesList.innerHTML = titles.map(t => {
         const items = catalogTree[cat][t];
         const first = items[0] || {};
-        const thumb = first.image || "https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg";
         return `
           <div class="menu-btn" onclick="openCatalogDetails('${t}')">
             <div class="menu-btn-content">
-              <img src="${thumb}" class="menu-btn-thumb">
-              <div>
-                <div style="font-weight:800; font-size:15px;">${t}</div>
-                <div style="font-size:12px; color:var(--text-muted);">${items.length} сессий</div>
-              </div>
+              <img src="${first.image || 'https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg'}" class="menu-btn-thumb">
+              <div><div style="font-weight:800; font-size:15px;">${t}</div><div style="font-size:12px; color:var(--text-muted);">${items.length} сессий</div></div>
             </div>
             <span style="color:var(--text-muted);">›</span>
           </div>
@@ -677,10 +592,9 @@
       const headerEl = document.getElementById('catalogItemHeader');
       const btnsEl = document.getElementById('catalogItemButtonsList');
       const first = items[0] || {};
-      const thumb = first.image || "https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg";
 
       headerEl.innerHTML = `
-        <img src="${thumb}" style="width:100%; height:180px; object-fit:cover; border-radius:18px; margin-bottom:12px;">
+        <img src="${first.image || 'https://poiuyuiop132.github.io/tgapptest/f1_placeholder.jpg'}" style="width:100%; height:180px; object-fit:cover; border-radius:18px; margin-bottom:12px;">
         <h2 style="margin:0 0 6px 0; font-size:22px; font-weight:900;">${title}</h2>
         <div style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">${first.description || "Записи уикенда в архиве."}</div>
       `;
@@ -734,7 +648,7 @@
               <div class="hero-card">
                 ${p.image ? `<img src="${p.image}" style="width:100%; height:160px; object-fit:cover; border-radius:14px; margin-bottom:12px;">` : ''}
                 <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">${new Date(p.date * 1000).toLocaleDateString()}</div>
-                <div style="font-size:14px; line-height:1.5; white-space:pre-wrap;">${p.text}</div>
+                <div style="font-size:14px; line-height:1.5;">${p.text}</div>
               </div>
             `).join('');
             return;
@@ -750,7 +664,6 @@
         if (res.ok) {
           const data = await res.json();
           if (data.success) {
-            // Пилоты
             const dContainer = document.getElementById('driversStandingsList');
             if (data.drivers && data.drivers.length > 0) {
               dContainer.innerHTML = data.drivers.map(d => `
@@ -761,11 +674,10 @@
                 </div>
               `).join('');
             }
-            // Календарь
             const cContainer = document.getElementById('calendarEventsList');
             if (data.races && data.races.length > 0) {
               cContainer.innerHTML = data.races.map(r => `
-                <div style="background:var(--card-bg); border-radius:16px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border); margin-bottom:8px;" onclick="loadDynamicTrack('${r.circuitId || 'sepang'}'); openViewScreen('home');">
+                <div style="background:var(--card-bg); border-radius:16px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border); margin-bottom:8px;" onclick="loadDynamicTrack('${r.circuitId || 'bahrain'}'); openViewScreen('home');">
                   <div style="display:flex; align-items:center; gap:12px;">
                     <div style="font-size:16px; font-weight:900; width:28px; color:var(--accent);">R${r.round}</div>
                     <div><h4 style="margin:0; font-size:15px; font-weight:800;">${r.name}</h4><span style="font-size:12px; color:var(--text-muted);">${r.circuit}</span></div>
@@ -774,7 +686,6 @@
                 </div>
               `).join('');
             }
-            // Конструкторы
             const tContainer = document.getElementById('constructorsStandingsList');
             if (data.constructors && data.constructors.length > 0) {
               tContainer.innerHTML = data.constructors.map(c => `
@@ -791,112 +702,39 @@
     }
 
     function switchSeasonSubTab(tabName, btnEl) {
-      btnEl.parentNode.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-      btnEl.classList.add('active');
+      btnEl.parentNode.querySelectorAll('button').forEach(b => b.style.opacity = '0.6');
+      btnEl.style.opacity = '1';
       document.getElementById('seasonSubStandings').style.display = (tabName === 'standings') ? 'block' : 'none';
       document.getElementById('seasonSubCalendar').style.display = (tabName === 'calendar') ? 'block' : 'none';
       document.getElementById('seasonSubTeams').style.display = (tabName === 'teams') ? 'block' : 'none';
     }
 
-    function switchGameTab(tabName, btnEl) {
-      btnEl.parentNode.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-      btnEl.classList.add('active');
-      document.getElementById('gameSubReaction').style.display = (tabName === 'reaction') ? 'block' : 'none';
-      document.getElementById('gameSubPitstop').style.display = (tabName === 'pitstop') ? 'block' : 'none';
-      document.getElementById('gameSubVote').style.display = (tabName === 'vote') ? 'block' : 'none';
-    }
-
-    let reactionState = "idle", reactionStartTime = 0, reactionTimeouts = [];
+    let reactionState = "idle", reactionStartTime = 0;
     function processReactionTap() {
       const box = document.getElementById('reactionTapBox'), score = document.getElementById('reactionScoreText');
-      const lights = [document.getElementById('f1Light1'), document.getElementById('f1Light2'), document.getElementById('f1Light3'), document.getElementById('f1Light4'), document.getElementById('f1Light5')];
-
       if (reactionState === "idle" || reactionState === "done") {
-        reactionState = "starting";
+        reactionState = "ready";
+        reactionStartTime = performance.now();
+        box.innerText = "ВРЕМЯ ПОШЛО! ЖМИ!";
         score.innerText = "";
-        box.innerText = "ВНИМАНИЕ НА ОГНИ...";
-        lights.forEach(l => l.style.background = "#2c303d");
-        reactionTimeouts.forEach(t => clearTimeout(t));
-        reactionTimeouts = [];
-
-        lights.forEach((l, idx) => {
-          reactionTimeouts.push(setTimeout(() => {
-            if (reactionState === "starting") l.style.background = "var(--accent)";
-          }, (idx + 1) * 1000));
-        });
-
-        const randomOutDelay = 5000 + Math.floor(Math.random() * 1800) + 1200;
-        reactionTimeouts.push(setTimeout(() => {
-          if (reactionState === "starting") {
-            reactionState = "ready";
-            reactionStartTime = performance.now();
-            lights.forEach(l => l.style.background = "#2c303d");
-            box.innerText = "ГАСНУТ ОГНИ! ЖМИ!";
-          }
-        }, randomOutDelay));
-      } else if (reactionState === "starting") {
-        reactionTimeouts.forEach(t => clearTimeout(t));
-        reactionState = "done";
-        box.innerText = "ФАЛЬСТАРТ!";
-        score.innerText = "Штраф 5 секунд!";
       } else if (reactionState === "ready") {
         const ms = Math.round(performance.now() - reactionStartTime);
         reactionState = "done";
-        box.innerText = "ОТЛИЧНЫЙ СТАРТ!";
+        box.innerText = "НАЖАТЬ ЕЩЕ РАЗ";
         score.innerHTML = `${ms} ms`;
       }
-    }
-
-    let isPitstopRunning = false, pitstopStartTime = 0, pitstopAnimId = null, pitWheelsCount = 0;
-    function togglePitstopGame() {
-      const btn = document.getElementById('pitstopActionBtn');
-      const timerDisplay = document.getElementById('pitstopTimerDisplay');
-      if (isPitstopRunning) { resetPitstopState(); return; }
-      isPitstopRunning = true;
-      pitWheelsCount = 0;
-      document.querySelectorAll('.pit-wheel-btn').forEach(w => { w.style.borderColor = 'var(--border)'; w.querySelector('small').innerText = "Нажми"; });
-      btn.innerText = "❌ СБРОСИТЬ";
-      pitstopStartTime = performance.now();
-      function updatePit() {
-        if (!isPitstopRunning) return;
-        timerDisplay.innerText = `${((performance.now() - pitstopStartTime) / 1000).toFixed(3)} s`;
-        pitstopAnimId = requestAnimationFrame(updatePit);
-      }
-      pitstopAnimId = requestAnimationFrame(updatePit);
-    }
-    function tapPitWheel(el) {
-      if (!isPitstopRunning || el.dataset.serviced === "1") return;
-      el.dataset.serviced = "1";
-      el.style.borderColor = "var(--success)";
-      el.querySelector('small').innerText = "✓ Готово";
-      pitWheelsCount++;
-      if (pitWheelsCount === 4) {
-        isPitstopRunning = false;
-        cancelAnimationFrame(pitstopAnimId);
-        document.getElementById('pitstopActionBtn').innerText = "🔄 ПОВТОРИТЬ";
-        document.querySelectorAll('.pit-wheel-btn').forEach(w => delete w.dataset.serviced);
-      }
-    }
-    function resetPitstopState() {
-      isPitstopRunning = false;
-      cancelAnimationFrame(pitstopAnimId);
-      document.getElementById('pitstopTimerDisplay').innerText = "0.000 s";
-      document.getElementById('pitstopActionBtn').innerText = "🚀 СТАРТ ПИТ-СТОПА";
-      document.querySelectorAll('.pit-wheel-btn').forEach(w => delete w.dataset.serviced);
     }
   </script>
 
   <!-- ================= ЭКРАН: ПАНЕЛЬ АДМИНИСТРАТОРА ================= -->
   <div id="view-admin" class="view-screen">
-    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromAdmin()">← Выйти из админки</button>
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('home')">← Выйти из админки</button>
 
-    <!-- Выбор трассы -->
     <div class="hero-card" style="border-color: rgba(255,59,48,0.4);">
       <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🏎 Выбор геометрии трассы</h3>
       <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Выберите трассу для отображения на Главной:</div>
 
       <select id="admActiveCircuitSelect" class="search-input">
-        <option value="sepang">Малайзия — Сепанг</option>
         <option value="bahrain">Бахрейн — Сахир</option>
         <option value="albert_park">Австралия — Мельбурн</option>
         <option value="shanghai">Китай — Шанхай</option>
@@ -920,25 +758,22 @@
         <option value="losail">Катар — Лусаил</option>
         <option value="yas_marina">Абу-Даби — Яс-Марина</option>
         <option value="imola">Имола</option>
+        <option value="sepang">Малайзия — Сепанг</option>
       </select>
 
       <button class="btn-action" onclick="applyAdminManualCircuit()">🌐 Загрузить трассу</button>
     </div>
 
-    <!-- Релиз-статус (v1/v2) -->
     <div class="hero-card">
       <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🚀 Глобальный релиз</h3>
       <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
-        Текущий статус для пользователей: <b id="adminCurVerText" style="color:var(--accent);">V1</b>
+        Статус системы: <b id="adminCurVerText" style="color:var(--accent);">V1</b>
       </div>
-      <button class="btn-action" id="adminToggleVersionBtn" onclick="toggleGlobalSystemVersion()">Переключить версию</button>
+      <button class="btn-action" onclick="toggleGlobalSystemVersion()">Переключить версию</button>
     </div>
 
-    <!-- Управление каталогом D1 (Добавление / Редактирование) -->
     <div class="hero-card">
-      <h3 id="adminFormHeaderTitle" style="margin:0 0 12px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
-      <input type="hidden" id="adminEditRecordId" value="">
-
+      <h3 style="margin:0 0 12px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
       <input class="search-input" id="admFormCat" placeholder="Категория (🔴 Сезон 2026)">
       <input class="search-input" id="admFormTitle" placeholder="Событие (Гран-при Бахрейна)">
       <input class="search-input" id="admFormImg" placeholder="Ссылка на постер">
@@ -947,14 +782,12 @@
       <input class="search-input" id="admFormBadge" value="1080p">
       <input class="search-input" id="admFormCode" placeholder="Код выдачи (bahrain26_race)">
       <input type="number" class="search-input" id="admFormPostId" placeholder="ID поста в канале-складе">
-
-      <button class="btn-action" id="adminSubmitRecordBtn" onclick="submitCatalogRecordForm()">💾 Сохранить запись</button>
-      <button class="btn-action btn-secondary" id="adminCancelEditBtn" style="display:none; margin-top:8px;" onclick="cancelCatalogEditMode()">Отмена</button>
+      <button class="btn-action" onclick="submitCatalogRecordForm()">💾 Сохранить запись</button>
     </div>
   </div>
 
   <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ -->
-  <div class="bottom-nav" id="mainBottomNav" style="display:none;">
+  <div class="bottom-nav" id="mainBottomNav">
     <div class="nav-btn active" onclick="switchMainTab('home', this)"><span class="nav-icon">🏠</span><span>Главная</span></div>
     <div class="nav-btn" onclick="switchMainTab('archive', this)"><span class="nav-icon">🎬</span><span>Архив</span></div>
     <div class="nav-btn" onclick="switchMainTab('season', this)"><span class="nav-icon">🏁</span><span>Сезон</span></div>
@@ -976,7 +809,6 @@
       openViewScreen(tabName);
     }
 
-    function navigateBackFromAdmin() { openViewScreen('home'); }
     function openAdminDashboardScreen() { openViewScreen('admin'); }
 
     function applyAdminManualCircuit() {
@@ -988,6 +820,14 @@
     let globalAppVersion = "v1";
 
     async function checkReleaseAccess() {
+      // Принудительно показываем нижнюю панель навигации сразу
+      document.getElementById('mainBottomNav').style.display = 'flex';
+
+      if (isAdmin) {
+        const adminBlock = document.getElementById('adminDirectEntryBlock');
+        if (adminBlock) adminBlock.style.display = 'block';
+      }
+
       try {
         const res = await fetch(`${WORKER_URL}/api/system/version`);[cite: 1]
         if (res.ok) {
@@ -998,21 +838,6 @@
 
       const curVerEl = document.getElementById('adminCurVerText');
       if (curVerEl) curVerEl.innerText = globalAppVersion.toUpperCase();
-
-      const hasFullAccess = (globalAppVersion === "v2") || isTester || isAdmin;
-
-      if (hasFullAccess) {
-        document.getElementById('mainBottomNav').style.display = 'flex';
-        openViewScreen('home');
-      } else {
-        document.getElementById('mainBottomNav').style.display = 'none';
-        openViewScreen('archive');
-      }
-
-      if (isAdmin) {
-        const adminBlock = document.getElementById('adminDirectEntryBlock');
-        if (adminBlock) adminBlock.style.display = 'block';
-      }
     }
 
     async function toggleGlobalSystemVersion() {
@@ -1026,16 +851,13 @@
         if (res.ok) {
           globalAppVersion = nextVer;
           checkReleaseAccess();
-          alert(`Режим переключен на: ${nextVer.toUpperCase()}`);
+          alert(`Версия переключена на: ${nextVer.toUpperCase()}`);
         }
-      } catch (e) {
-        alert("Ошибка сети");
-      }
+      } catch (e) { alert("Ошибка сети"); }
     }
 
     async function submitCatalogRecordForm() {
       if (!isAdmin) return;
-      const editId = document.getElementById('adminEditRecordId').value;
       const payload = {
         category: document.getElementById('admFormCat').value.trim(),
         title: document.getElementById('admFormTitle').value.trim(),
@@ -1047,57 +869,43 @@
         post_id: parseInt(document.getElementById('admFormPostId').value) || 0
       };
 
-      if (!payload.title || !payload.code) {
-        alert("Заполните Название и Код!");
-        return;
-      }
-
-      const endpoint = editId ? `${WORKER_URL}/api/catalog/edit` : `${WORKER_URL}/api/catalog/add`;[cite: 1]
-      if (editId) payload.id = parseInt(editId);
+      if (!payload.title || !payload.code) { alert("Заполните Название и Код!"); return; }
 
       try {
-        const res = await fetch(endpoint, {
+        const res = await fetch(`${WORKER_URL}/api/catalog/add`, {
           method: "POST", headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },[cite: 1]
           body: JSON.stringify(payload)
         });
         if (res.ok) {
-          alert(editId ? "Запись обновлена!" : "Запись добавлена!");
-          cancelCatalogEditMode();
+          alert("Запись добавлена в базу D1!");
           loadCatalogData();
         }
-      } catch (e) {
-        alert("Ошибка: " + e.message);
-      }
+      } catch (e) { alert("Ошибка: " + e.message); }
     }
+  </script>
 
-    function cancelCatalogEditMode() {
-      document.getElementById('adminEditRecordId').value = "";
-      document.getElementById('admFormCat').value = "";
-      document.getElementById('admFormTitle').value = "";
-      document.getElementById('admFormImg').value = "";
-      document.getElementById('admFormDesc').value = "";
-      document.getElementById('admFormItem').value = "";
-      document.getElementById('admFormCode').value = "";
-      document.getElementById('admFormPostId').value = "";
-      document.getElementById('adminCancelEditBtn').style.display = 'none';
-      document.getElementById('adminFormHeaderTitle').innerText = "➕ Добавить запись в базу D1";
-      document.getElementById('adminSubmitRecordBtn').innerText = "💾 Сохранить запись";
-    }
-
-    // Инициализация
+  <script>
+    // Глобальная инициализация всего приложения при загрузке страницы
     window.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('f1_theme_light') === '1') document.body.classList.add('light-theme');
+      // Восстановление темы и режима Lite
+      if (localStorage.getItem('f1_theme_light') === '1') {
+        document.body.classList.add('light-theme');
+      }
       if (localStorage.getItem('f1_lite_mode') === '1') {
         document.body.classList.add('lite-mode');
-        document.getElementById('userSettingLiteToggle').checked = true;
+        const liteToggle = document.getElementById('userSettingLiteToggle');
+        if (liteToggle) liteToggle.checked = true;
       }
 
+      // Запуск основных системных процессов
       checkReleaseAccess();
       startWeekendSessionTimer();
-      loadDynamicTrack("sepang");
+      loadDynamicTrack("bahrain");
       loadCatalogData();
       loadChannelNewsFeed();
       loadSeasonLiveStats();
+
+      console.log("🏎 Race Weekend F1 Archive successfully initialized!");
     });
   </script>
 </body>
