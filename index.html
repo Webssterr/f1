@@ -1201,6 +1201,27 @@
       }
     }
 
+    <div class="card game-card">
+  <h3>⚡ Реакция на стартовые огни F1</h3>
+  <p class="card-desc">Загораются 5 красных огней по очереди. Жди выключения и жми!</p>
+  
+  <!-- Блок с 5 кружками огней -->
+  <div class="f1-lights-container" style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
+    <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+    <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+    <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+    <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+    <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+  </div>
+
+  <!-- Кнопка управления / вывода результатов -->
+  <button id="f1LightsBtn" class="action-btn" style="width: 100%; padding: 12px; background: #e10600; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">
+    НАЖМИ ДЛЯ СТАРТА
+  </button>
+  <div id="f1LightsResult" style="text-align: center; margin-top: 10px; font-size: 14px; color: #aaa;"></div>
+</div>
+
+
     function submitUserPrediction() {
       const selectEl = document.getElementById('predictionDriverSelect');
       const chosen = selectEl.value;
@@ -1893,10 +1914,69 @@
       }
     });
 
-    // Вызываем при загрузке страницы
-    checkAppVersion();
+    // --- КОД МИНИ-ИГРЫ СТАРТОВЫЕ ОГНИ ---
+let f1GameState = 'IDLE'; 
+let f1StartTime = 0;
+let f1Timeout = null;
+let f1Interval = null;
 
-    initAppRouting();
+document.getElementById('f1LightsBtn')?.addEventListener('click', () => {
+  const btn = document.getElementById('f1LightsBtn');
+  const lights = document.querySelectorAll('.f1-light');
+  const resultDiv = document.getElementById('f1LightsResult');
+
+  if (f1GameState === 'IDLE' || f1GameState === 'FINISHED') {
+    f1GameState = 'COUNTING';
+    btn.innerText = "ЖДИ ОГНИ...";
+    btn.style.background = "#333";
+    resultDiv.innerText = "";
+    
+    lights.forEach(l => l.style.background = "#2a2a35");
+
+    let currentLight = 0;
+    f1Interval = setInterval(() => {
+      if (currentLight < 5) {
+        lights[currentLight].style.background = "#e10600";
+        currentLight++;
+      } else {
+        clearInterval(f1Interval);
+        f1GameState = 'WAITING';
+        btn.innerText = "ТУШИ СВЕТ!";
+        btn.style.background = "#e10600";
+
+        const randomDelay = Math.random() * 2000 + 1000;
+        f1Timeout = setTimeout(() => {
+          lights.forEach(l => l.style.background = "#2a2a35");
+          f1StartTime = performance.now();
+          f1GameState = 'READY_TO_CLICK';
+        }, randomDelay);
+      }
+    }, 1000);
+
+  } else if (f1GameState === 'WAITING') {
+    clearTimeout(f1Timeout);
+    clearInterval(f1Interval);
+    f1GameState = 'FALSE_START';
+    btn.innerText = "НАЖМИ ДЛЯ СТАРТА";
+    btn.style.background = "#e10600";
+    resultDiv.innerText = "❌ Фальстарт! Слишком рано.";
+    lights.forEach(l => l.style.background = "#2a2a35");
+
+  } else if (f1GameState === 'READY_TO_CLICK') {
+    const reactionTime = Math.round(performance.now() - f1StartTime);
+    f1GameState = 'FINISHED';
+    btn.innerText = "ИГРАТЬ СНОВА";
+    btn.style.background = "#e10600";
+    resultDiv.innerText = `⏱ Твое время реакции: ${reactionTime} мс!`;
+  }
+});
+// ---------------------------------------
+
+// Вызываем при загрузке страницы
+checkAppVersion();
+
+initAppRouting();
+
   </script>
 </body>
 </html>
