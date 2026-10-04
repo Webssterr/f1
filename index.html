@@ -1014,9 +1014,18 @@
       let currentDistance = 0;
       if (trackAnimInterval) clearInterval(trackAnimInterval);
 
+      const REVERSED_TRACKS = ['catalunya']; 
+      const isReversed = REVERSED_TRACKS.includes(circuitKey);
+
       trackAnimInterval = setInterval(() => {
         if (document.body.classList.contains('lite-mode')) return;
-        currentDistance = (currentDistance + 2.5) % pathLength;
+        
+        if (isReversed) {
+          currentDistance = (currentDistance - 2.5 + pathLength) % pathLength;
+        } else {
+          currentDistance = (currentDistance + 2.5) % pathLength;
+        }
+
         try {
           const coords = pathEl.getPointAtLength(currentDistance);
           carDot.setAttribute('cx', coords.x);
