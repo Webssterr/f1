@@ -1110,10 +1110,26 @@
         grid.style.gridTemplateColumns = `repeat(${sessions.length}, minmax(0, 1fr))`;
         grid.innerHTML = sessions.map(s => {
           const start = s.date.getTime();
-          const end = start + s.duration * 60000;
+          // Добавляем время длительности сессии (duration задан в минутах, переводим в миллисекунды)
+          const end = start + (s.duration * 60000); 
           const cur = now.getTime();
-          let status = cur >= end ? "✓ Завершено" : (cur >= start ? "● Идёт" : formatTime(s.date));
-          let cls = "sess-chip" + (cur >= end ? " past" : (cur >= start ? " active" : ""));
+          
+          let status = "";
+          let cls = "sess-chip";
+
+          if (cur >= end) {
+            // Если текущее время больше времени окончания (старт + 2 часа для гонки)
+            status = "✓ Завершено";
+            cls += " past";
+          } else if (cur >= start) {
+            // Если сессия началась, но время окончания еще не наступило
+            status = "● Идёт";
+            cls += " active";
+          } else {
+            // Сессия еще не началась (в будущем)
+            status = formatTime(s.date);
+          }
+
           return `<div class="${cls}"><div class="sess-name">${formatDate(s.date)} • ${s.short}</div><div class="sess-time">${status}</div></div>`;
         }).join("");
       }
