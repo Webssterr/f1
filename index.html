@@ -34,7 +34,10 @@
       --input-bg: #1c1f2a;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent; 
+    }
 
     body {
       background-color: var(--bg);
@@ -61,6 +64,7 @@
       align-items: center;
       margin-bottom: 18px;
     }
+
     .brand-wrap {
       display: flex;
       align-items: center;
@@ -71,13 +75,19 @@
       color: var(--text);
       cursor: pointer;
     }
+
     .brand-square {
       width: 14px;
       height: 14px;
       background: var(--accent);
       border-radius: 4px;
     }
-    .header-btns { display: flex; gap: 8px; }
+
+    .header-btns { 
+      display: flex; 
+      gap: 8px; 
+    }
+
     .icon-circle-btn {
       width: 40px;
       height: 40px;
@@ -91,11 +101,24 @@
       font-size: 18px;
       cursor: pointer;
     }
-    .icon-circle-btn:active { transform: scale(0.95); }
 
-    .view-screen { display: none; }
-    .view-screen.active { display: block; animation: viewIn 0.2s ease-out; }
-    @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .icon-circle-btn:active { 
+      transform: scale(0.95); 
+    }
+
+    .view-screen { 
+      display: none; 
+    }
+
+    .view-screen.active { 
+      display: block; 
+      animation: viewIn 0.2s ease-out; 
+    }
+
+    @keyframes viewIn { 
+      from { opacity: 0; transform: translateY(4px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
 
     .hero-card {
       background: var(--card-bg);
@@ -106,6 +129,7 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.03);
       overflow: hidden;
     }
+
     .hero-stage-badge {
       display: inline-flex;
       align-items: center;
@@ -117,6 +141,7 @@
       letter-spacing: 0.5px;
       margin-bottom: 12px;
     }
+
     .live-dot {
       width: 8px;
       height: 8px;
@@ -124,17 +149,34 @@
       border-radius: 50%;
       box-shadow: 0 0 8px var(--accent);
     }
+
     .timer-grid {
       display: flex;
       gap: 16px;
       align-items: baseline;
       margin-bottom: 16px;
     }
-    .t-col { display: flex; flex-direction: column; }
-    .t-val { font-size: 44px; font-weight: 900; line-height: 0.95; letter-spacing: -1.5px; color: var(--text); }
-    .t-lbl { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
 
-    /* Контейнер трассы с центрированием */
+    .t-col { 
+      display: flex; 
+      flex-direction: column; 
+    }
+
+    .t-val { 
+      font-size: 44px; 
+      font-weight: 900; 
+      line-height: 0.95; 
+      letter-spacing: -1.5px; 
+      color: var(--text); 
+    }
+
+    .t-lbl { 
+      font-size: 12px; 
+      color: var(--text-muted); 
+      font-weight: 600; 
+      margin-top: 4px; 
+    }
+
     .track-viewport {
       width: 100%;
       height: 190px;
@@ -144,7 +186,14 @@
       margin: 10px 0 16px 0;
       position: relative;
     }
-    .track-svg { width: 100%; height: 100%; overflow: visible; max-width: 320px; }
+
+    .track-svg { 
+      width: 100%; 
+      height: 100%; 
+      overflow: visible; 
+      max-width: 320px; 
+    }
+
     .track-road {
       stroke: var(--track-base);
       stroke-width: 12;
@@ -152,6 +201,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
+
     .track-racing-line {
       stroke: var(--accent);
       stroke-width: 4;
@@ -159,6 +209,7 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
+
     .track-car-dot {
       fill: #ffffff;
       stroke: var(--accent);
@@ -166,10 +217,20 @@
       filter: drop-shadow(0 0 8px var(--accent));
     }
 
-    .gp-title { font-size: 22px; font-weight: 900; margin: 0 0 4px 0; letter-spacing: -0.5px; color: var(--text); }
-    .gp-sub { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .gp-title { 
+      font-size: 22px; 
+      font-weight: 900; 
+      margin: 0 0 4px 0; 
+      letter-spacing: -0.5px; 
+      color: var(--text); 
+    }
 
-    /* Адаптивная сетка сессий без переполнения вправо */
+    .gp-sub { 
+      font-size: 13px; 
+      color: var(--text-muted); 
+      font-weight: 500; 
+    }
+
     .sessions-grid {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -178,6 +239,7 @@
       padding-top: 16px;
       border-top: 1px solid var(--border);
     }
+
     .sess-chip {
       background: var(--card-sub);
       border-radius: 10px;
@@ -186,14 +248,39 @@
       border: 1px solid transparent;
       min-width: 0;
     }
-    .sess-chip.past { opacity: 0.45; }
+
+    .sess-chip.past { 
+      opacity: 0.45; 
+    }
+
     .sess-chip.active {
       background: var(--accent-soft);
       border-color: rgba(255, 59, 48, 0.25);
     }
-    .sess-name { font-size: 9.5px; color: var(--text-muted); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sess-time { font-size: 10px; font-weight: 800; margin-top: 3px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sess-chip.active .sess-name, .sess-chip.active .sess-time { color: var(--accent); }
+
+    .sess-name { 
+      font-size: 9.5px; 
+      color: var(--text-muted); 
+      font-weight: 700; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
+
+    .sess-time { 
+      font-size: 10px; 
+      font-weight: 800; 
+      margin-top: 3px; 
+      color: var(--text); 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
+
+    .sess-chip.active .sess-name, 
+    .sess-chip.active .sess-time { 
+      color: var(--accent); 
+    }
 
     .circuit-spec-card {
       background: var(--card-bg);
@@ -202,6 +289,7 @@
       border: 1px solid var(--border);
       margin-bottom: 16px;
     }
+
     .spec-header {
       font-size: 12px;
       font-weight: 800;
@@ -212,14 +300,28 @@
       display: flex;
       justify-content: space-between;
     }
+
     .spec-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       row-gap: 14px;
       column-gap: 16px;
     }
-    .spec-item h5 { margin: 0; font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
-    .spec-item p { margin: 4px 0 0 0; font-size: 17px; font-weight: 900; color: var(--text); }
+
+    .spec-item h5 { 
+      margin: 0; 
+      font-size: 11.5px; 
+      color: var(--text-muted); 
+      font-weight: 600; 
+    }
+
+    .spec-item p { 
+      margin: 4px 0 0 0; 
+      font-size: 17px; 
+      font-weight: 900; 
+      color: var(--text); 
+    }
+
     .spec-record {
       margin-top: 14px;
       padding-top: 12px;
@@ -237,6 +339,7 @@
       margin-bottom: 16px;
       border: 1px solid var(--border);
     }
+
     .sub-tab-btn {
       flex: 1;
       border: none;
@@ -248,6 +351,7 @@
       color: var(--text-muted);
       cursor: pointer;
     }
+
     .sub-tab-btn.active {
       background: var(--card-bg);
       color: var(--text);
@@ -263,6 +367,7 @@
       position: relative;
       overflow: hidden;
     }
+
     .leader-bg-num {
       position: absolute;
       right: -8px;
@@ -273,12 +378,42 @@
       line-height: 1;
       pointer-events: none;
     }
-    .leader-badge { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
-    .leader-name { font-size: 24px; font-weight: 900; margin: 0 0 4px 0; }
-    .leader-team { font-size: 13px; color: #a0a6b5; margin-bottom: 16px; }
-    .leader-pts-row { display: flex; align-items: baseline; gap: 8px; }
-    .leader-pts { font-size: 38px; font-weight: 900; }
-    .leader-wins { font-size: 12px; color: #a0a6b5; }
+
+    .leader-badge { 
+      font-size: 11px; 
+      font-weight: 800; 
+      color: var(--accent); 
+      text-transform: uppercase; 
+      margin-bottom: 8px; 
+    }
+
+    .leader-name { 
+      font-size: 24px; 
+      font-weight: 900; 
+      margin: 0 0 4px 0; 
+    }
+
+    .leader-team { 
+      font-size: 13px; 
+      color: #a0a6b5; 
+      margin-bottom: 16px; 
+    }
+
+    .leader-pts-row { 
+      display: flex; 
+      align-items: baseline; 
+      gap: 8px; 
+    }
+
+    .leader-pts { 
+      font-size: 38px; 
+      font-weight: 900; 
+    }
+
+    .leader-wins { 
+      font-size: 12px; 
+      color: #a0a6b5; 
+    }
 
     .stand-item {
       background: var(--card-bg);
@@ -289,12 +424,38 @@
       border: 1px solid var(--border);
       margin-bottom: 8px;
     }
-    .stand-pos { font-size: 16px; font-weight: 900; width: 32px; color: var(--text-muted); }
-    .stand-pos.top { color: var(--accent); }
-    .stand-details { flex: 1; }
-    .stand-name { font-size: 15px; font-weight: 800; color: var(--text); }
-    .stand-team { font-size: 12px; color: var(--text-muted); }
-    .stand-pts { font-size: 16px; font-weight: 900; color: var(--text); }
+
+    .stand-pos { 
+      font-size: 16px; 
+      font-weight: 900; 
+      width: 32px; 
+      color: var(--text-muted); 
+    }
+
+    .stand-pos.top { 
+      color: var(--accent); 
+    }
+
+    .stand-details { 
+      flex: 1; 
+    }
+
+    .stand-name { 
+      font-size: 15px; 
+      font-weight: 800; 
+      color: var(--text); 
+    }
+
+    .stand-team { 
+      font-size: 12px; 
+      color: var(--text-muted); 
+    }
+
+    .stand-pts { 
+      font-size: 16px; 
+      font-weight: 900; 
+      color: var(--text); 
+    }
 
     .cal-card {
       background: var(--card-bg);
@@ -306,12 +467,40 @@
       border: 1px solid var(--border);
       margin-bottom: 8px;
     }
-    .cal-card.past { opacity: 0.5; background: var(--card-sub); }
-    .cal-card.current { border: 2px solid var(--accent); background: var(--card-bg); opacity: 1; }
-    .cal-round { font-size: 16px; font-weight: 900; width: 30px; color: var(--text-muted); }
-    .cal-card.current .cal-round { color: var(--accent); }
-    .cal-info h4 { margin: 0; font-size: 15px; font-weight: 800; color: var(--text); }
-    .cal-info span { font-size: 12px; color: var(--text-muted); }
+
+    .cal-card.past { 
+      opacity: 0.5; 
+      background: var(--card-sub); 
+    }
+
+    .cal-card.current { 
+      border: 2px solid var(--accent); 
+      background: var(--card-bg); 
+      opacity: 1; 
+    }
+
+    .cal-round { 
+      font-size: 16px; 
+      font-weight: 900; 
+      width: 30px; 
+      color: var(--text-muted); 
+    }
+
+    .cal-card.current .cal-round { 
+      color: var(--accent); 
+    }
+
+    .cal-info h4 { 
+      margin: 0; 
+      font-size: 15px; 
+      font-weight: 800; 
+      color: var(--text); 
+    }
+
+    .cal-info span { 
+      font-size: 12px; 
+      color: var(--text-muted); 
+    }
 
     .game-card {
       background: var(--card-bg);
@@ -321,50 +510,7 @@
       margin-bottom: 16px;
       text-align: center;
     }
-    .lights-row { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
-    .f1-light {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: #2a2c36;
-      border: 2px solid #111;
-      transition: background 0.1s;
-    }
-    .f1-light.on { background: #ff2200; box-shadow: 0 0 16px #ff2200; }
-    .reaction-tap-area {
-      background: var(--card-sub);
-      border: 2px dashed var(--border);
-      border-radius: 18px;
-      padding: 30px 10px;
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--text);
-      cursor: pointer;
-    }
-    .reaction-res { font-size: 26px; font-weight: 900; color: var(--accent); margin-top: 14px; }
 
-    .pitstop-box {
-      margin-top: 15px;
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-    }
-    .wheel-btn {
-      width: 65px;
-      height: 65px;
-      border-radius: 50%;
-      background: #222;
-      border: 3px solid #444;
-      color: #fff;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    .wheel-btn.done { border-color: #28a745; background: #1b3823; }
-
-    /* Стили для Предикшна */
     .prediction-select {
       width: 100%;
       background: var(--input-bg);
@@ -377,12 +523,12 @@
       margin-bottom: 12px;
     }
 
-    /* ИГРОВАЯ СЕТКА */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
+
     .game-grid-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -398,11 +544,31 @@
       justify-content: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.02);
     }
-    .game-grid-card:active { transform: scale(0.96); }
-    .g-icon { font-size: 34px; margin-bottom: 10px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
-    .g-title { font-size: 14px; font-weight: 900; color: var(--text); margin-bottom: 4px; line-height: 1.1; }
-    .g-desc { font-size: 11px; color: var(--text-muted); font-weight: 600; line-height: 1.3; }
 
+    .game-grid-card:active { 
+      transform: scale(0.96); 
+    }
+
+    .g-icon { 
+      font-size: 34px; 
+      margin-bottom: 10px; 
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); 
+    }
+
+    .g-title { 
+      font-size: 14px; 
+      font-weight: 900; 
+      color: var(--text); 
+      margin-bottom: 4px; 
+      line-height: 1.1; 
+    }
+
+    .g-desc { 
+      font-size: 11px; 
+      color: var(--text-muted); 
+      font-weight: 600; 
+      line-height: 1.3; 
+    }
 
     .search-input {
       width: 100%;
@@ -415,7 +581,11 @@
       outline: none;
       margin-bottom: 12px;
     }
-    .search-input:focus { border-color: var(--accent); }
+
+    .search-input:focus { 
+      border-color: var(--accent); 
+    }
+
     .menu-btn {
       width: 100%;
       background: var(--card-bg);
@@ -432,8 +602,24 @@
       cursor: pointer;
       text-align: left;
     }
-    .menu-btn-content { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
-    .menu-btn-thumb { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; background: #222; flex-shrink: 0; }
+
+    .menu-btn-content { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      flex: 1; 
+      overflow: hidden; 
+    }
+
+    .menu-btn-thumb { 
+      width: 38px; 
+      height: 38px; 
+      border-radius: 8px; 
+      object-fit: cover; 
+      background: #222; 
+      flex-shrink: 0; 
+    }
+
     .badge {
       font-size: 11px;
       font-weight: 800;
@@ -443,10 +629,11 @@
       color: var(--accent);
     }
 
-    /* Нижняя панель с 4 вкладками */
     .bottom-nav {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
+      bottom: 0; 
+      left: 0; 
+      right: 0;
       height: 72px;
       background: var(--nav-bg);
       backdrop-filter: blur(15px);
@@ -459,6 +646,7 @@
       padding-bottom: 8px;
       transition: background 0.25s, border-color 0.25s;
     }
+
     .nav-btn {
       display: flex;
       flex-direction: column;
@@ -471,20 +659,34 @@
       flex: 1;
       height: 100%;
     }
-    .nav-btn.active { color: var(--accent); }
-    .nav-icon { font-size: 22px; margin-bottom: 2px; }
+
+    .nav-btn.active { 
+      color: var(--accent); 
+    }
+
+    .nav-icon { 
+      font-size: 22px; 
+      margin-bottom: 2px; 
+    }
 
     .modal-overlay {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0;
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(6px);
       z-index: 9999;
       align-items: flex-end;
       justify-content: center;
     }
-    .modal-overlay.active { display: flex; }
+
+    .modal-overlay.active { 
+      display: flex; 
+    }
+
     .modal-sheet {
       background: var(--card-bg);
       color: var(--text);
@@ -496,6 +698,7 @@
       max-height: 85vh;
       overflow-y: auto;
     }
+
     .setting-item {
       display: flex;
       justify-content: space-between;
@@ -503,21 +706,62 @@
       padding: 14px 0;
       border-bottom: 1px solid var(--border);
     }
-    .set-lbl { font-size: 15px; font-weight: 700; }
-    .set-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-    .switch-toggle { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
-    .switch-toggle input { opacity: 0; width: 0; height: 0; }
+    .set-lbl { 
+      font-size: 15px; 
+      font-weight: 700; 
+    }
+
+    .set-sub { 
+      font-size: 12px; 
+      color: var(--text-muted); 
+      margin-top: 2px; 
+    }
+
+    .switch-toggle { 
+      position: relative; 
+      width: 46px; 
+      height: 26px; 
+      flex-shrink: 0; 
+    }
+
+    .switch-toggle input { 
+      opacity: 0; 
+      width: 0; 
+      height: 0; 
+    }
+
     .switch-slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background: #333946; border-radius: 26px; transition: .25s;
+      position: absolute; 
+      cursor: pointer; 
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0;
+      background: #333946; 
+      border-radius: 26px; 
+      transition: .25s;
     }
+
     .switch-slider:before {
-      position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
-      background: #fff; border-radius: 50%; transition: .25s;
+      position: absolute; 
+      content: ""; 
+      height: 20px; 
+      width: 20px; 
+      left: 3px; 
+      bottom: 3px;
+      background: #fff; 
+      border-radius: 50%; 
+      transition: .25s;
     }
-    input:checked + .switch-slider { background-color: var(--accent); }
-    input:checked + .switch-slider:before { transform: translateX(20px); }
+
+    input:checked + .switch-slider { 
+      background-color: var(--accent); 
+    }
+
+    input:checked + .switch-slider:before { 
+      transform: translateX(20px); 
+    }
 
     .btn-action {
       width: 100%;
@@ -531,10 +775,45 @@
       cursor: pointer;
       margin-top: 12px;
     }
+
     .btn-secondary {
       background: var(--card-sub);
       color: var(--text);
       border: 1px solid var(--border);
+    }
+
+    /* Стили для новых игр */
+    .f1-light { 
+      width: 34px; 
+      height: 34px; 
+      border-radius: 50%; 
+      background: #2a2c36; 
+      border: 2px solid #111; 
+      transition: background 0.1s; 
+    }
+    
+    .f1-light.on { 
+      background: #ff2200; 
+      box-shadow: 0 0 16px #ff2200; 
+    }
+    
+    .wheel-btn { 
+      width: 65px; 
+      height: 65px; 
+      border-radius: 50%; 
+      background: #222; 
+      border: 3px solid #444; 
+      color: #fff; 
+      font-size: 24px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+    }
+    
+    .wheel-btn.done { 
+      border-color: #28a745; 
+      background: #1b3823; 
     }
   </style>
 </head>
@@ -581,7 +860,10 @@
 
       <!-- СЕТКА СЕССИЙ (АДАПТИВНАЯ) -->
       <div class="sessions-grid" id="weekendSessionsGrid">
-        <div class="sess-chip"><div class="sess-name">-- • --</div><div class="sess-time">--:--</div></div>
+        <div class="sess-chip">
+          <div class="sess-name">-- • --</div>
+          <div class="sess-time">--:--</div>
+        </div>
       </div>
     </div>
 
@@ -592,10 +874,22 @@
         <span style="color:var(--accent);" id="specCircuitName">Circuit</span>
       </div>
       <div class="spec-grid">
-        <div class="spec-item"><h5>Длина круга</h5><p id="specLength">—</p></div>
-        <div class="spec-item"><h5>Кругов</h5><p id="specLaps">—</p></div>
-        <div class="spec-item"><h5>Первый Гран-при</h5><p id="specFirstYear">—</p></div>
-        <div class="spec-item"><h5>Дистанция гонки</h5><p id="specDistance">—</p></div>
+        <div class="spec-item">
+          <h5>Длина круга</h5>
+          <p id="specLength">—</p>
+        </div>
+        <div class="spec-item">
+          <h5>Кругов</h5>
+          <p id="specLaps">—</p>
+        </div>
+        <div class="spec-item">
+          <h5>Первый Гран-при</h5>
+          <p id="specFirstYear">—</p>
+        </div>
+        <div class="spec-item">
+          <h5>Дистанция гонки</h5>
+          <p id="specDistance">—</p>
+        </div>
       </div>
       <div class="spec-record">
         <div>
@@ -610,7 +904,11 @@
   <!-- ================= 2. ЭКРАН: АРХИВ ВИДЕО ================= -->
   <div id="view-archive" class="view-screen">
     <input type="text" class="search-input" id="archiveSearchInput" placeholder="🔍 Поиск заездов..." oninput="handleSearch(this.value)">
-    <div id="archiveDefaultList"><div id="catalogCategoriesContainer"><div style="text-align:center; padding:35px 0; color:var(--text-muted);">Загрузка архива...</div></div></div>
+    <div id="archiveDefaultList">
+      <div id="catalogCategoriesContainer">
+        <div style="text-align:center; padding:35px 0; color:var(--text-muted);">Загрузка архива...</div>
+      </div>
+    </div>
     <div id="archiveSearchResults" style="display: none;"></div>
   </div>
 
@@ -621,6 +919,7 @@
       <button class="sub-tab-btn" onclick="switchSeasonSubTab('calendar', this)">Календарь</button>
       <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)">Кубок</button>
     </div>
+    
     <div id="seasonSubStandings">
       <div class="leader-card">
         <div class="leader-bg-num">01</div>
@@ -634,8 +933,14 @@
       </div>
       <div id="driversStandingsList"></div>
     </div>
-    <div id="seasonSubCalendar" style="display: none;"><div id="calendarEventsList"></div></div>
-    <div id="seasonSubTeams" style="display: none;"><div id="constructorsStandingsList"></div></div>
+    
+    <div id="seasonSubCalendar" style="display: none;">
+      <div id="calendarEventsList"></div>
+    </div>
+    
+    <div id="seasonSubTeams" style="display: none;">
+      <div id="constructorsStandingsList"></div>
+    </div>
   </div>
 
   <!-- ================= 4. ЭКРАН: ИГРЫ F1 + ПРЕДИКШН ================= -->
@@ -647,16 +952,20 @@
         Выберите победителя гонки (3 очка за 1 место, 2 за 2-е, 1 за 3-е). Прогноз можно сделать 1 раз!
       </div>
       <div id="predictionActiveBox">
-        <select id="predictionDriverSelect" class="prediction-select"><option value="">⏳ Загрузка пилотов...</option></select>
+        <select id="predictionDriverSelect" class="prediction-select">
+          <option value="">⏳ Загрузка пилотов...</option>
+        </select>
         <button class="btn-action" onclick="submitUserPrediction()">Сделать прогноз</button>
       </div>
       <div id="predictionResultBox" style="display:none; font-size:14px; font-weight:700; color:var(--accent); margin-top:10px;"></div>
     </div>
 
     <!-- ТАБЛИЦА ЛИДЕРБОРДА ПРЕДИКШНОВ -->
-    <div class="game-card">
+    <div class="game-card" style="padding:16px;">
       <h3 style="margin:0 0 10px 0; font-size:16px; font-weight:900;">📊 Таблица очков прогнозов</h3>
-      <div id="predictionLeaderboardList" style="text-align:left; font-size:13px; color:var(--text-muted);">Загрузка лидерборда...</div>
+      <div id="predictionLeaderboardList" style="text-align:left; font-size:13px; color:var(--text-muted);">
+        Загрузка лидерборда...
+      </div>
     </div>
 
     <h2 style="font-size:18px; font-weight:900; margin: 24px 0 12px 0;">🎮 Arcade Zone</h2>
@@ -829,10 +1138,10 @@
 
   <!-- МОДАЛКА НАСТРОЕК (РАСШИРЕННАЯ) -->
   <div id="appSettingsModal" class="modal-overlay" onclick="if(event.target.id==='appSettingsModal') toggleAppSettingsModal(false)">
-    <div class="modal-sheet">
+    <div class="modal-sheet" style="max-height: 85vh;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h3 style="margin:0; font-size:18px; font-weight:900;">⚙ Настройки</h3>
-        <button style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer;" onclick="toggleAppSettingsModal(false)">✕</button>
+        <button class="modal-close" onclick="toggleAppSettingsModal(false)">✕</button>
       </div>
 
       <div class="setting-item">
@@ -919,9 +1228,10 @@
 
   <script>
     const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
+    
+    if (tg) { 
+      tg.ready(); 
+      tg.expand(); 
     }
 
     const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
@@ -931,19 +1241,29 @@
 
     function resolveTelegramUser() {
       let uid = "";
-      if (tg?.initDataUnsafe?.user?.id) uid = String(tg.initDataUnsafe.user.id);
+      
+      if (tg?.initDataUnsafe?.user?.id) {
+        uid = String(tg.initDataUnsafe.user.id);
+      }
+      
       if (!uid && tg?.initData) {
         try {
           const p = new URLSearchParams(tg.initData);
           const uStr = p.get('user');
-          if (uStr) {
-            const parsed = JSON.parse(decodeURIComponent(uStr));
-            if (parsed?.id) uid = String(parsed.id);
+          if (uStr) { 
+            const parsed = JSON.parse(decodeURIComponent(uStr)); 
+            if (parsed?.id) uid = String(parsed.id); 
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn(e);
+        }
       }
-      if (uid) localStorage.setItem('f1_cached_uid', uid);
-      else uid = localStorage.getItem('f1_cached_uid') || "user_guest";
+      
+      if (uid) {
+        localStorage.setItem('f1_cached_uid', uid);
+      } else {
+        uid = localStorage.getItem('f1_cached_uid') || "user_guest";
+      }
       return uid;
     }
 
@@ -951,15 +1271,17 @@
     const isAdmin = (currentUserId === ADMIN_ID);
     const isTester = (isAdmin || currentUserId === TESTER_ID);
 
-    const CIRCUITS_SVG_DATABASE = {
+    // --- ГЛОБАЛЬНЫЕ ДАННЫЕ И МАССИВЫ ---
+	const CIRCUITS_SVG_DATABASE = {
       "sepang": "M 80,155 L 390,155 Q 410,155 405,140 Q 400,125 380,135 L 260,175 Q 240,180 250,200 L 275,225 Q 295,245 320,225 L 350,195 Q 370,175 400,195 L 435,215 Q 460,225 450,180 L 415,100 Q 395,50 340,55 L 260,65 Q 235,70 240,95 L 250,125 Q 245,145 220,135 L 140,135 Q 75,135 60,170 Q 55,200 95,200 L 370,200 Q 400,200 400,175 Q 400,155 380,155 Z",
       "albert_park": "M 90,190 L 140,200 Q 180,210 240,205 L 340,195 Q 420,190 440,150 L 410,100 Q 380,60 300,80 L 220,110 Q 170,120 120,80 L 90,110 Q 70,140 90,190 Z",
       "monaco": "M 80,190 L 150,150 Q 220,120 280,80 L 380,60 Q 430,70 420,110 L 360,130 Q 310,140 280,180 L 210,210 Q 140,230 80,190 Z",
       "silverstone": "M 90,180 L 200,190 Q 260,200 320,160 L 410,130 Q 440,90 390,60 L 280,60 Q 190,40 140,80 L 90,130 Z",
       "spa": "M 70,190 L 130,210 Q 180,220 250,170 L 360,140 Q 430,120 410,70 L 330,50 Q 260,40 210,80 L 120,110 Q 60,140 70,190 Z"
     };
-	  
-	  let trackAnimInterval = null;
+
+    let trackAnimInterval = null;
+
     function runCarAnimationOnTrack(circuitKey = "sepang", customPath = null) {
       const svgEl = document.getElementById('trackSvgEl');
       if (!svgEl) return;
@@ -977,11 +1299,15 @@
       const pathEl = document.getElementById('trackPath');
       const carDot = document.getElementById('carPoint');
       const racingLine = document.getElementById('trackLine');
+      
       if (!pathEl || !carDot) return;
 
       const pathData = customPath || CIRCUITS_SVG_DATABASE[circuitKey] || CIRCUITS_SVG_DATABASE["sepang"];
       pathEl.setAttribute('d', pathData);
-      if (racingLine) racingLine.setAttribute('d', pathData);
+      
+      if (racingLine) {
+        racingLine.setAttribute('d', pathData);
+      }
 
       groupEl.removeAttribute('transform');
 
@@ -1011,7 +1337,9 @@
       groupEl.setAttribute('transform', `translate(${tx}, ${ty}) scale(${scale})`);
 
       let pathLength = 1000;
-      try { pathLength = pathEl.getTotalLength(); } catch (e) {}
+      try { 
+        pathLength = pathEl.getTotalLength(); 
+      } catch (e) {}
 
       let currentDistance = 0;
       if (trackAnimInterval) clearInterval(trackAnimInterval);
@@ -1040,12 +1368,15 @@
       try {
         const response = await fetch(`${WORKER_URL}/api/circuits/${encodeURIComponent(circuitKey)}`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
         const data = await response.json();
-        if (!data.success || !data.path) throw new Error("SVG не найден в D1");
+        
+        if (!data.success || !data.path) {
+          throw new Error("SVG не найден в D1");
+        }
 
         runCarAnimationOnTrack(circuitKey, data.path);
 
-        // Обновляем шапку карточки трассы
         if (data.name) {
           document.getElementById('specHeaderTitle').innerText = `Данные трассы • ${data.name}`;
           document.getElementById('specCircuitName').innerText = data.name;
@@ -1065,10 +1396,11 @@
       }
     }
 
-    // ДИНАМИЧЕСКИЙ ТАЙМЕР И СЕТКА СЕССИЙ УИКЕНДА (Строго 5 сессий)
     let globalSessionInterval = null;
+
     function initDynamicWeekendSessions(raceData) {
       const sessions = [];
+      
       if (raceData) {
         const parseLocalDateTime = (dateStr, timeStr) => {
           if (!dateStr) return null;
@@ -1079,24 +1411,49 @@
         const isSprintWeekend = !!(raceData.Sprint?.date || raceData.SprintQualifying?.date);
 
         if (isSprintWeekend) {
-          if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
+          if (raceData.FirstPractice?.date) {
+            sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
+          }
           const sqData = raceData.SprintQualifying || raceData.Qualifying; 
-          if (sqData?.date) sessions.push({ name: "Квалификация к спринту", short: "КВАЛА С", date: parseLocalDateTime(sqData.date, sqData.time), duration: 45 });
-          if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 45 });
-          if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация к гонке", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
-          if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+          if (sqData?.date) {
+            sessions.push({ name: "Квалификация к спринту", short: "КВАЛА С", date: parseLocalDateTime(sqData.date, sqData.time), duration: 45 });
+          }
+          if (raceData.Sprint?.date) {
+            sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 45 });
+          }
+          if (raceData.Qualifying?.date) {
+            sessions.push({ name: "Квалификация к гонке", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
+          }
+          if (raceData.date) {
+            sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+          }
         } else {
-          if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
-          if (raceData.SecondPractice?.date) sessions.push({ name: "Практика 2", short: "П2", date: parseLocalDateTime(raceData.SecondPractice.date, raceData.SecondPractice.time), duration: 60 });
-          if (raceData.ThirdPractice?.date) sessions.push({ name: "Практика 3", short: "П3", date: parseLocalDateTime(raceData.ThirdPractice.date, raceData.ThirdPractice.time), duration: 60 });
-          if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
-          if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+          if (raceData.FirstPractice?.date) {
+            sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
+          }
+          if (raceData.SecondPractice?.date) {
+            sessions.push({ name: "Практика 2", short: "П2", date: parseLocalDateTime(raceData.SecondPractice.date, raceData.SecondPractice.time), duration: 60 });
+          }
+          if (raceData.ThirdPractice?.date) {
+            sessions.push({ name: "Практика 3", short: "П3", date: parseLocalDateTime(raceData.ThirdPractice.date, raceData.ThirdPractice.time), duration: 60 });
+          }
+          if (raceData.Qualifying?.date) {
+            sessions.push({ name: "Квалификация", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
+          }
+          if (raceData.date) {
+            sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+          }
         }
       }
 
       const label = document.getElementById("heroStageLabel");
       const grid = document.getElementById("weekendSessionsGrid");
-      const timer = { d: document.getElementById("t-d"), h: document.getElementById("t-h"), m: document.getElementById("t-m"), s: document.getElementById("t-s") };
+      const timer = { 
+        d: document.getElementById("t-d"), 
+        h: document.getElementById("t-h"), 
+        m: document.getElementById("t-m"), 
+        s: document.getElementById("t-s") 
+      };
 
       const sessionGenitiveNames = {
         "Практика 1": "первой практики",
@@ -1123,10 +1480,13 @@
         return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false }); 
       }
 
-      function formatDate(d) { return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }).replace(".", "").toUpperCase(); }
+      function formatDate(d) { 
+        return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }).replace(".", "").toUpperCase(); 
+      }
 
       function renderSessions(now) {
         if (!grid) return;
+        
         grid.style.gridTemplateColumns = `repeat(${sessions.length}, minmax(0, 1fr))`;
         grid.innerHTML = sessions.map(s => {
           const start = s.date.getTime();
@@ -1156,6 +1516,7 @@
         renderSessions(now);
 
         const next = sessions.find(s => s.date.getTime() > nowTs);
+        
         if (!next) {
           if (label) label.innerText = "🏁 Уикенд завершён";
           Object.values(timer).forEach(el => { if (el) el.innerText = "00"; });
@@ -1166,6 +1527,7 @@
         if (label) label.innerText = "До " + genitiveName.charAt(0).toUpperCase() + genitiveName.slice(1);
 
         const diff = Math.max(0, next.date.getTime() - nowTs);
+        
         if (timer.d) timer.d.innerText = String(Math.floor(diff / 86400000)).padStart(2, "0");
         if (timer.h) timer.h.innerText = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, "0");
         if (timer.m) timer.m.innerText = String(Math.floor((diff % 3600000) / 60000)).padStart(2, "0");
@@ -1177,7 +1539,6 @@
       globalSessionInterval = setInterval(updateTimer, 1000);
     }
 
-    // НОВЫЙ ДИЗАЙН КАРТОЧЕК ПИЛОТОВ С НЕОНОМ И ГИТХАБ КАРТИНКАМИ
     function renderDriversList(drivers) {
       const list = drivers || DEFAULT_DRIVERS_DATA;
       if (!list || list.length === 0) return;
@@ -1344,7 +1705,6 @@
           renderCalendarList(data.races);
           
           const nowTs = Date.now();
-          // Ищем этап, который еще идет или следующий в будущем (с запасом в 3 часа = 10800000 мс)
           let activeRace = data.races.find(r => {
             const raceTime = new Date(r.date + "T" + (r.time || "14:00:00")).getTime();
             return (raceTime + 10800000) >= nowTs; 
@@ -1356,6 +1716,7 @@
             window.activeRaceRound = activeRace.round; 
             document.getElementById('gpTitleDisplay').innerText = activeRace.name;
             document.getElementById('gpSubDisplay').innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
+            
             const circuitKey = activeRace.circuitId || "sepang";
             loadCircuitFromDatabase(circuitKey);
             initDynamicWeekendSessions(activeRace);
@@ -1369,11 +1730,11 @@
       }
     }
 
-    // ПРЕДИКШН МЕХАНИКА С ОТПРАВКОЙ НА WORKER
     function initPredictionGame(driversList) {
       const selectEl = document.getElementById('predictionDriverSelect');
       const activeBox = document.getElementById('predictionActiveBox');
       const resBox = document.getElementById('predictionResultBox');
+      
       if (!selectEl) return;
 
       const currentRound = window.activeRaceRound || "17"; 
@@ -1389,12 +1750,14 @@
         selectEl.innerHTML = '<option value="">-- Выберите победителя гонки --</option>' +
           driversList.map(d => `<option value="${d.name}">${d.name} (${d.team})</option>`).join('');
       }
+      
       loadPredictionLeaderboard();
     }
 
     async function submitUserPrediction() {
       const selectEl = document.getElementById('predictionDriverSelect');
       const chosen = selectEl.value;
+      
       if (!chosen) {
         alert('Пожалуйста, выберите гонщика!');
         return;
@@ -1412,14 +1775,17 @@
             driver_name: chosen
           })
         });
+        
         const data = await res.json();
 
         if (data.success) {
           localStorage.setItem(`f1_prediction_${currentUserId}_${currentRound}`, chosen);
+          
           document.getElementById('predictionActiveBox').style.display = 'none';
           const resBox = document.getElementById('predictionResultBox');
           resBox.style.display = 'block';
           resBox.innerText = `✅ Прогноз успешно принят сервером: ${chosen}`;
+          
           if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
           loadPredictionLeaderboard();
         } else {
@@ -1460,8 +1826,10 @@
         rows.forEach(item => {
           const cat = item.category || 'Архив';
           const title = item.title;
+          
           if (!catalogTree[cat]) catalogTree[cat] = {};
           if (!catalogTree[cat][title]) catalogTree[cat][title] = { image: item.image, description: item.description, items: [] };
+          
           catalogTree[cat][title].items.push(item);
         });
 
@@ -1474,6 +1842,7 @@
             </div>
           `;
         }
+        
         document.getElementById('catalogCategoriesContainer').innerHTML = html;
         if (isAdmin) renderAdminCatalogList(allCatalogItems);
       } catch (e) {
@@ -1490,9 +1859,11 @@
         const itemObj = catalogTree[categoryName][titleKey];
         const thumb = itemObj.image ? `<img class="menu-btn-thumb" src="${itemObj.image}">` : '';
         const btn = document.createElement('div');
+        
         btn.className = 'menu-btn';
         btn.innerHTML = `<div class="menu-btn-content">${thumb}<span>${titleKey}</span></div><span>›</span>`;
         btn.onclick = () => openCatalogDetails(titleKey);
+        
         listEl.appendChild(btn);
       }
       openViewScreen('titles');
@@ -1510,6 +1881,7 @@
       `;
 
       btnsBox.innerHTML = '';
+      
       data.items.forEach(it => {
         const b = document.createElement('div');
         b.className = 'menu-btn';
@@ -1521,6 +1893,7 @@
         };
         btnsBox.appendChild(b);
       });
+      
       openViewScreen('details');
     }
 
@@ -1532,16 +1905,22 @@
       const query = queryText.trim().toLowerCase();
       const def = document.getElementById('archiveDefaultList');
       const res = document.getElementById('archiveSearchResults');
+      
       if (!query) {
         def.style.display = 'block';
         res.style.display = 'none';
         return;
       }
+      
       def.style.display = 'none';
       res.style.display = 'block';
       res.innerHTML = '';
 
-      const matched = allCatalogItems.filter(e => e.title.toLowerCase().includes(query) || e.item.toLowerCase().includes(query));
+      const matched = allCatalogItems.filter(e => 
+        e.title.toLowerCase().includes(query) || 
+        e.item.toLowerCase().includes(query)
+      );
+      
       if (!matched.length) {
         res.innerHTML = '<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Ничего не найдено 🏎</div>';
         return;
@@ -1570,8 +1949,11 @@
 
     async function loadAdminLiveStats() {
       try {
-        const res = await fetch(`${WORKER_URL}/api/stats`, { headers: { 'X-Admin-Id': ADMIN_ID } });
+        const res = await fetch(`${WORKER_URL}/api/stats`, { 
+          headers: { 'X-Admin-Id': ADMIN_ID } 
+        });
         const stats = await res.json();
+        
         document.getElementById('statTotalUsers').innerText = stats.total_users || 0;
         document.getElementById('statActive24').innerText = stats.active_24h || 0;
         document.getElementById('statViewsToday').innerText = stats.views_today || 0;
@@ -1588,6 +1970,7 @@
     async function toggleGlobalSystemVersion() {
       const cur = document.getElementById('adminCurVerText').innerText.toLowerCase();
       const target = cur === 'v2' ? 'v1' : 'v2';
+      
       if (!confirm(`Переключить версию для всех пользователей на ${target.toUpperCase()}?`)) return;
 
       const res = await fetch(`${WORKER_URL}/api/system/set_version`, {
@@ -1595,7 +1978,9 @@
         headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
         body: JSON.stringify({ version: target })
       });
+      
       const data = await res.json();
+      
       if (data.success) {
         alert(`✅ Глобальная версия переключена на ${target.toUpperCase()}!`);
         loadAdminLiveStats();
@@ -1612,6 +1997,7 @@
 
       applySavedWeekendConfig();
       loadCircuitFromDatabase(circuitKey);
+      
       alert("✅ Настройки Гран-при применены к главной странице!");
       openViewScreen('home');
     }
@@ -1619,6 +2005,7 @@
     function applySavedWeekendConfig() {
       const raw = localStorage.getItem('f1_custom_weekend_config');
       if (!raw) return;
+      
       try {
         const config = JSON.parse(raw);
         if (config.gpTitle) document.getElementById('gpTitleDisplay').innerText = config.gpTitle;
@@ -1628,6 +2015,7 @@
         const sel = document.getElementById('admActiveCircuitSelect');
         const tit = document.getElementById('admActiveGpTitle');
         const sub = document.getElementById('admActiveGpSub');
+        
         if (sel) sel.value = config.circuitKey;
         if (tit) tit.value = config.gpTitle;
         if (sub) sub.value = config.gpSub;
@@ -1647,6 +2035,7 @@
     function renderAdminCatalogList(itemsToRender) {
       const box = document.getElementById('adminCatalogRecordsManageList');
       if (!box) return;
+      
       const list = itemsToRender || allCatalogItems;
 
       if (!list.length) {
@@ -1757,7 +2146,9 @@
         headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
         body: JSON.stringify(payload)
       });
+      
       const data = await res.json();
+      
       if (data.success) {
         alert(editId ? '✅ Запись успешно обновлена!' : '✅ Запись успешно создана в D1!');
         cancelCatalogEditMode();
@@ -1785,6 +2176,7 @@
 
         const hasBetaAccess = isAdmin || isTester;
         let globalVersion = 'v1';
+        
         if (!hasBetaAccess) {
           try {
             const controller = new AbortController();
@@ -1823,17 +2215,18 @@
       } catch (e) {}
     }
 
-    // ========================================================================
-    // МИНИ-ИГРЫ - ДВИЖОК (НОВАЯ ARCADE ZONE)
-    // ========================================================================
     let gameLoopRef = null;
+
     function openMiniGame(gameId) {
       const modal = document.getElementById('miniGameModal');
       const content = document.getElementById('mgContent');
       const title = document.getElementById('mgTitle');
       content.innerHTML = '';
       
-      if (gameLoopRef) { cancelAnimationFrame(gameLoopRef); clearInterval(gameLoopRef); }
+      if (gameLoopRef) { 
+        cancelAnimationFrame(gameLoopRef); 
+        clearInterval(gameLoopRef); 
+      }
 
       if (gameId === 'lights') {
         title.innerText = 'Стартовые огни';
@@ -1841,7 +2234,11 @@
           <div style="text-align:center; width:100%;">
             <p style="color:var(--text-muted); font-size:14px; margin-bottom:30px;">Загораются 5 огней. Жди выключения и жми!</p>
             <div style="display:flex; gap:10px; justify-content:center; margin-bottom:40px;" id="lContainer">
-              <div class="f1-light"></div><div class="f1-light"></div><div class="f1-light"></div><div class="f1-light"></div><div class="f1-light"></div>
+              <div class="f1-light"></div>
+              <div class="f1-light"></div>
+              <div class="f1-light"></div>
+              <div class="f1-light"></div>
+              <div class="f1-light"></div>
             </div>
             <button id="lBtn" class="btn-action" style="padding:20px; font-size:18px;">НАЖМИ ДЛЯ СТАРТА</button>
             <div id="lRes" style="margin-top:20px; font-size:18px; font-weight:900; color:var(--text);"></div>
@@ -1855,8 +2252,10 @@
           <div style="text-align:center; width:100%;">
             <p style="color:var(--text-muted); font-size:14px; margin-bottom:30px;">Смени 4 колеса как можно быстрее!</p>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; width:fit-content; margin:0 auto 30px auto;">
-              <div class="wheel-btn" id="pw1">🛞</div><div class="wheel-btn" id="pw2">🛞</div>
-              <div class="wheel-btn" id="pw3">🛞</div><div class="wheel-btn" id="pw4">🛞</div>
+              <div class="wheel-btn" id="pw1">🛞</div>
+              <div class="wheel-btn" id="pw2">🛞</div>
+              <div class="wheel-btn" id="pw3">🛞</div>
+              <div class="wheel-btn" id="pw4">🛞</div>
             </div>
             <div id="pRes" style="font-size:32px; font-weight:900; color:var(--text); margin-bottom:20px;">0.00s</div>
             <button class="btn-action" id="pBtn">НАЧАТЬ</button>
@@ -1926,153 +2325,244 @@
     }
 
     function closeMiniGame() {
-      if (gameLoopRef) { cancelAnimationFrame(gameLoopRef); clearInterval(gameLoopRef); }
+      if (gameLoopRef) { 
+        cancelAnimationFrame(gameLoopRef); 
+        clearInterval(gameLoopRef); 
+      }
       document.getElementById('miniGameModal').classList.remove('active');
     }
 
-    // --- ЛОГИКА ОГНЕЙ ---
     function setupLightsGame() {
       let st='IDLE', start=0, t=null, i=null;
-      const b=document.getElementById('lBtn'), ls=document.querySelectorAll('#lContainer .f1-light'), r=document.getElementById('lRes');
+      const b = document.getElementById('lBtn');
+      const ls = document.querySelectorAll('#lContainer .f1-light');
+      const r = document.getElementById('lRes');
+      
       b.onclick = () => {
         if(st==='IDLE' || st==='FINISHED') {
-          st='COUNT'; b.innerText='ЖДИ...'; b.style.background='#333'; r.innerText='';
-          ls.forEach(l=>l.classList.remove('on'));
+          st='COUNT'; 
+          b.innerText='ЖДИ...'; 
+          b.style.background='#333'; 
+          r.innerText='';
+          ls.forEach(l => l.classList.remove('on'));
           let cur=0;
-          i = setInterval(()=> {
-            if(cur<5) { ls[cur].classList.add('on'); cur++; }
-            else {
-              clearInterval(i); st='WAIT'; b.innerText='ТУШИ!'; b.style.background='#e10600';
-              t = setTimeout(()=> { ls.forEach(l=>l.classList.remove('on')); start=performance.now(); st='GO'; }, Math.random()*2000+1000);
+          
+          i = setInterval(() => {
+            if(cur < 5) { 
+              ls[cur].classList.add('on'); 
+              cur++; 
+            } else {
+              clearInterval(i); 
+              st='WAIT'; 
+              b.innerText='ТУШИ!'; 
+              b.style.background='#e10600';
+              t = setTimeout(() => { 
+                ls.forEach(l => l.classList.remove('on')); 
+                start = performance.now(); 
+                st='GO'; 
+              }, Math.random() * 2000 + 1000);
             }
           }, 1000);
         } else if(st==='WAIT') {
-          clearTimeout(t); clearInterval(i); st='IDLE'; b.innerText='ФАЛЬСТАРТ! ЗАНОВО'; r.innerText='❌ Слишком рано'; ls.forEach(l=>l.classList.remove('on'));
+          clearTimeout(t); 
+          clearInterval(i); 
+          st='IDLE'; 
+          b.innerText='ФАЛЬСТАРТ! ЗАНОВО'; 
+          r.innerText='❌ Слишком рано'; 
+          ls.forEach(l => l.classList.remove('on'));
         } else if(st==='GO') {
-          const rt=Math.round(performance.now()-start); st='FINISHED'; b.innerText='ИГРАТЬ СНОВА'; r.innerText=`⏱ ${rt} мс!`;
+          const rt = Math.round(performance.now() - start); 
+          st='FINISHED'; 
+          b.innerText='ИГРАТЬ СНОВА'; 
+          r.innerText=`⏱ ${rt} мс!`;
         }
       }
     }
 
-    // --- ЛОГИКА ПИТ-СТОПА ---
     function setupPitstopGame() {
-      let active=false, start=0, done=0;
-      const b=document.getElementById('pBtn'), r=document.getElementById('pRes');
-      const ws = [1,2,3,4].map(i=>document.getElementById(`pw${i}`));
+      let active = false, start = 0, done = 0;
+      const b = document.getElementById('pBtn');
+      const r = document.getElementById('pRes');
+      const ws = [1,2,3,4].map(i => document.getElementById(`pw${i}`));
+      
       b.onclick = () => {
-        active=true; start=performance.now(); done=0; r.innerText='0.00s'; r.style.color='var(--text)';
-        ws.forEach(w=>{w.classList.remove('done'); w.innerText='🛞';});
+        active = true; 
+        start = performance.now(); 
+        done = 0; 
+        r.innerText = '0.00s'; 
+        r.style.color = 'var(--text)';
+        ws.forEach(w => { 
+          w.classList.remove('done'); 
+          w.innerText = '🛞'; 
+        });
       };
-      ws.forEach(w => w.onclick = () => {
-        if(active && !w.classList.contains('done')) {
-          w.classList.add('done'); w.innerText='✅'; done++;
-          if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-          if(done===4) { active=false; const time=((performance.now()-start)/1000).toFixed(2); r.innerText=`${time}s`; r.style.color=time<2.5?'#28a745':'var(--accent)'; }
+      
+      ws.forEach(w => {
+        w.onclick = () => {
+          if(active && !w.classList.contains('done')) {
+            w.classList.add('done'); 
+            w.innerText='✅'; 
+            done++;
+            
+            if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            
+            if(done === 4) { 
+              active = false; 
+              const time = ((performance.now() - start) / 1000).toFixed(2); 
+              r.innerText = `${time}s`; 
+              r.style.color = time < 2.5 ? '#28a745' : 'var(--accent)'; 
+            }
+          }
         }
       });
     }
 
-    // --- ЛОГИКА ENDLESS RUN ---
     function setupTrafficGame() {
-      const cvs = document.getElementById('eCanvas'); const ctx = cvs.getContext('2d');
-      cvs.width = cvs.parentElement.clientWidth; cvs.height = 400;
-      let state='MENU', score=0, lane=1, speed=5, frames=0, obs=[];
+      const cvs = document.getElementById('eCanvas'); 
+      const ctx = cvs.getContext('2d');
+      cvs.width = cvs.parentElement.clientWidth; 
+      cvs.height = 400;
+      
+      let state = 'MENU', score = 0, lane = 1, speed = 5, frames = 0, obs = [];
       const lanes = [cvs.width/6, cvs.width/2, cvs.width - cvs.width/6];
       const cw = 40, ch = 80;
 
-      function reset() { score=0; lane=1; speed=5; frames=0; obs=[]; state='PLAY'; loop(); }
+      function reset() { 
+        score = 0; 
+        lane = 1; 
+        speed = 5; 
+        frames = 0; 
+        obs = []; 
+        state = 'PLAY'; 
+        loop(); 
+      }
+      
       document.getElementById('eBtn').onclick = reset;
 
       cvs.addEventListener('pointerdown', (e) => {
-        if(state!=='PLAY') return;
+        if(state !== 'PLAY') return;
         const rect = cvs.getBoundingClientRect();
         if((e.clientX - rect.left) < cvs.width/2 && lane > 0) lane--;
         else if((e.clientX - rect.left) >= cvs.width/2 && lane < 2) lane++;
       });
 
       function loop() {
-        if(state!=='PLAY') return;
-        ctx.clearRect(0,0,cvs.width,cvs.height);
+        if(state !== 'PLAY') return;
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
         
-        // Линии
-        ctx.fillStyle='#fff';
-        for(let i=0; i<400; i+=40) { ctx.fillRect(cvs.width/3 - 2, i + (frames%40), 4, 20); ctx.fillRect(cvs.width*2/3 - 2, i + (frames%40), 4, 20); }
+        ctx.fillStyle = '#fff';
+        for(let i = 0; i < 400; i += 40) { 
+          ctx.fillRect(cvs.width/3 - 2, i + (frames%40), 4, 20); 
+          ctx.fillRect(cvs.width*2/3 - 2, i + (frames%40), 4, 20); 
+        }
 
-        // Игрок
-        ctx.fillStyle='#ff3b30';
-        ctx.fillRect(lanes[lane]-cw/2, cvs.height-100, cw, ch);
+        ctx.fillStyle = '#ff3b30';
+        ctx.fillRect(lanes[lane] - cw/2, cvs.height - 100, cw, ch);
 
-        // Враги
-        if(frames%Math.max(20, 60-Math.floor(speed*2)) === 0) {
+        if(frames % Math.max(20, 60 - Math.floor(speed*2)) === 0) {
           obs.push({l: Math.floor(Math.random()*3), y: -100});
         }
 
-        for(let i=obs.length-1; i>=0; i--) {
-          let o = obs[i]; o.y += speed;
-          ctx.fillStyle='#00a0e9'; ctx.fillRect(lanes[o.l]-cw/2, o.y, cw, ch);
+        for(let i = obs.length - 1; i >= 0; i--) {
+          let o = obs[i]; 
+          o.y += speed;
+          ctx.fillStyle = '#00a0e9'; 
+          ctx.fillRect(lanes[o.l] - cw/2, o.y, cw, ch);
           
-          if(o.l === lane && o.y+ch > cvs.height-100 && o.y < cvs.height-20) { state='GAME_OVER'; document.getElementById('eBtn').innerText='ЗАНОВО'; }
-          if(o.y > cvs.height) { obs.splice(i, 1); score++; speed+=0.05; }
+          if(o.l === lane && o.y + ch > cvs.height - 100 && o.y < cvs.height - 20) { 
+            state = 'GAME_OVER'; 
+            document.getElementById('eBtn').innerText = 'ЗАНОВО'; 
+          }
+          if(o.y > cvs.height) { 
+            obs.splice(i, 1); 
+            score++; 
+            speed += 0.05; 
+          }
         }
 
         document.getElementById('eScore').innerText = score;
         frames++;
-        if(state==='PLAY') gameLoopRef = requestAnimationFrame(loop);
+        if(state === 'PLAY') gameLoopRef = requestAnimationFrame(loop);
       }
     }
 
-    // --- ЛОГИКА ТАЙМ-АТАКА (SLOT RACING) ---
     function setupSlotGame() {
-      const cvs = document.getElementById('sCanvas'); const ctx = cvs.getContext('2d');
-      cvs.width = cvs.parentElement.clientWidth; cvs.height = 350;
-      let state='PLAY', angle=0, speed=0, laps=0, isDown=false;
-      const cx=cvs.width/2, cy=cvs.height/2, rx=cvs.width/2.5, ry=cvs.height/2.5;
+      const cvs = document.getElementById('sCanvas'); 
+      const ctx = cvs.getContext('2d');
+      cvs.width = cvs.parentElement.clientWidth; 
+      cvs.height = 350;
+      
+      let state = 'PLAY', angle = 0, speed = 0, laps = 0, isDown = false;
+      const cx = cvs.width/2, cy = cvs.height/2, rx = cvs.width/2.5, ry = cvs.height/2.5;
 
-      cvs.addEventListener('pointerdown', ()=>isDown=true);
-      cvs.addEventListener('pointerup', ()=>isDown=false);
-      cvs.addEventListener('pointercancel', ()=>isDown=false);
+      cvs.addEventListener('pointerdown', () => isDown = true);
+      cvs.addEventListener('pointerup', () => isDown = false);
+      cvs.addEventListener('pointercancel', () => isDown = false);
 
       function loop() {
-        if(state!=='PLAY') return;
-        ctx.clearRect(0,0,cvs.width,cvs.height);
+        if(state !== 'PLAY') return;
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
         
-        ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
-        ctx.strokeStyle='#444'; ctx.lineWidth=30; ctx.stroke();
-        ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
-        ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.setLineDash([10,10]); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); 
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+        ctx.strokeStyle = '#444'; 
+        ctx.lineWidth = 30; 
+        ctx.stroke();
+        
+        ctx.beginPath(); 
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+        ctx.strokeStyle = '#fff'; 
+        ctx.lineWidth = 2; 
+        ctx.setLineDash([10,10]); 
+        ctx.stroke(); 
+        ctx.setLineDash([]);
 
-        if(isDown) speed+=0.001; else speed-=0.002;
-        if(speed<0) speed=0; if(speed>0.08) speed=0.08;
+        if(isDown) speed += 0.001; 
+        else speed -= 0.002;
+        
+        if(speed < 0) speed = 0; 
+        if(speed > 0.08) speed = 0.08;
 
-        // В поворотах (когда sin/cos близки к 1) максимальная скорость меньше
         const cornerFactor = Math.abs(Math.sin(angle*2)); 
         if(speed > 0.05 && cornerFactor > 0.8) {
-          state='CRASH'; document.getElementById('sRes').innerText='ВЫЛЕТ С ТРАССЫ!';
-          document.getElementById('sRes').style.color='red';
+          state = 'CRASH'; 
+          document.getElementById('sRes').innerText = 'ВЫЛЕТ С ТРАССЫ!';
+          document.getElementById('sRes').style.color = 'red';
         }
 
-        let oldAngle = angle;
         angle += speed;
-        if(angle >= Math.PI*2) { angle=0; laps++; document.getElementById('sRes').innerText=`Кругов: ${laps}`; }
+        if(angle >= Math.PI*2) { 
+          angle = 0; 
+          laps++; 
+          document.getElementById('sRes').innerText = `Кругов: ${laps}`; 
+        }
 
-        const x = cx + rx * Math.cos(angle); const y = cy + ry * Math.sin(angle);
-        ctx.fillStyle='#ff3b30'; ctx.beginPath(); ctx.arc(x,y, 10, 0, Math.PI*2); ctx.fill();
+        const x = cx + rx * Math.cos(angle); 
+        const y = cy + ry * Math.sin(angle);
+        
+        ctx.fillStyle = '#ff3b30'; 
+        ctx.beginPath(); 
+        ctx.arc(x, y, 10, 0, Math.PI*2); 
+        ctx.fill();
 
-        if(state==='PLAY') gameLoopRef = requestAnimationFrame(loop);
+        if(state === 'PLAY') gameLoopRef = requestAnimationFrame(loop);
       }
       loop();
     }
 
-    // --- ЛОГИКА СТРАТЕГИИ ---
     function setupStrategyGame() {
-      let lap=1, pos=15, wear=100, tyre='Soft', weather='☀️ Сухо';
+      let lap = 1, pos = 15, wear = 100, tyre = 'Soft', weather = '☀️ Сухо';
       const wBar = document.getElementById('stWearBar'), log = document.getElementById('stLog');
       
-      function logMsg(m) { log.innerHTML = m + "<br>" + log.innerHTML; }
+      function logMsg(m) { 
+        log.innerHTML = m + "<br>" + log.innerHTML; 
+      }
       
       window.stPit = (type) => {
         if(!gameLoopRef) return;
-        tyre = type; wear = 100; pos += 4; // Штраф за пит-стоп
+        tyre = type; 
+        wear = 100; 
+        pos += 4;
         logMsg(`Пит-стоп! Поставили ${type}. Потеря позиций.`);
         updateUI();
       }
@@ -2083,37 +2573,44 @@
         document.getElementById('stTyreName').innerText = tyre;
         document.getElementById('stWear').innerText = Math.floor(wear) + '%';
         wBar.style.width = Math.floor(wear)+'%';
-        wBar.style.background = tyre==='Soft'?'#e80020':tyre==='Hard'?'#fff':'#0090ff';
+        wBar.style.background = tyre === 'Soft' ? '#e80020' : tyre === 'Hard' ? '#fff' : '#0090ff';
         document.getElementById('stWeather').innerText = weather;
       }
 
       document.getElementById('stStartBtn').onclick = () => {
-        document.getElementById('stStartBtn').style.display='none';
+        document.getElementById('stStartBtn').style.display = 'none';
         logMsg('Гонка стартовала!');
         
         gameLoopRef = setInterval(() => {
           lap++;
-          if(lap>15) { clearInterval(gameLoopRef); logMsg(`🏁 ФИНИШ! Твоя позиция: P${pos}`); return; }
+          if(lap > 15) { 
+            clearInterval(gameLoopRef); 
+            logMsg(`🏁 ФИНИШ! Твоя позиция: P${pos}`); 
+            return; 
+          }
 
-          if(lap===6 && Math.random()>0.5) weather = '🌧 Дождь';
-          if(lap===12 && Math.random()>0.5) weather = '☀️ Сухо';
+          if(lap === 6 && Math.random() > 0.5) weather = '🌧 Дождь';
+          if(lap === 12 && Math.random() > 0.5) weather = '☀️ Сухо';
 
-          // Логика износа
-          wear -= tyre==='Soft'? 15 : tyre==='Hard'? 8 : 10;
-          if(wear<0) wear=0;
+          wear -= tyre === 'Soft' ? 15 : tyre === 'Hard' ? 8 : 10;
+          if(wear < 0) wear = 0;
 
-          // Логика темпа
-          let speed = tyre==='Soft'? 3 : tyre==='Hard'? 1 : 2;
-          if(weather==='🌧 Дождь' && tyre!=='Wet') speed -= 5;
-          if(weather==='☀️ Сухо' && tyre==='Wet') speed -= 5;
+          let speed = tyre === 'Soft' ? 3 : tyre === 'Hard' ? 1 : 2;
+          if(weather === '🌧 Дождь' && tyre !== 'Wet') speed -= 5;
+          if(weather === '☀️ Сухо' && tyre === 'Wet') speed -= 5;
           if(wear < 30) speed -= 3;
 
-          // Обгон или потеря позиций
-          if(speed > 1 && pos > 1) { pos--; logMsg(`L${lap}: Обогнал соперника!`); }
-          else if(speed < 1 && pos < 20) { pos++; logMsg(`L${lap}: Теряешь темп!`); }
+          if(speed > 1 && pos > 1) { 
+            pos--; 
+            logMsg(`L${lap}: Обогнал соперника!`); 
+          }
+          else if(speed < 1 && pos < 20) { 
+            pos++; 
+            logMsg(`L${lap}: Теряешь темп!`); 
+          }
           
           updateUI();
-        }, 2000); // 1 круг = 2 секунды
+        }, 2000); 
       }
     }
 
