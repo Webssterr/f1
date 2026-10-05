@@ -2432,10 +2432,8 @@
       const content = document.getElementById('mgContent');
       const title = document.getElementById('mgTitle');
       
-      // ИСПРАВЛЕНИЕ 1: Показываем модалку ДО рендера содержимого,
-      // чтобы у Canvas и кнопок появились физические размеры!
       modal.classList.add('active');
-      void modal.offsetWidth; // Принудительный пересчет стилей браузером
+      void modal.offsetWidth; 
       
       content.innerHTML = '';
       
@@ -2484,6 +2482,7 @@
         title.innerText = 'Endless Run';
         content.innerHTML = `
           <div style="text-align:center; width:100%; height:100%; display:flex; flex-direction:column;">
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:10px;">Тапай по нужной полосе для перестроения. Свайпы не работают!</p>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
               <span style="font-weight:900; color:var(--text);">ОЧКИ: <span id="eScore" style="color:var(--accent);">0</span></span>
             </div>
