@@ -563,10 +563,11 @@
     </div>
 
     <!-- ХАРАКТЕРИСТИКИ ТРАССЫ -->
+        <!-- ХАРАКТЕРИСТИКИ ТРАССЫ -->
     <div class="circuit-spec-card">
       <div class="spec-header">
-        <span>Данные трассы • Сепанг</span>
-        <span style="color:var(--accent);">Sepang Circuit</span>
+        <span id="specHeaderTitle">Данные трассы</span>
+        <span style="color:var(--accent);" id="specCircuitName">Circuit</span>
       </div>
       <div class="spec-grid">
         <div class="spec-item">
@@ -1042,6 +1043,14 @@
 
         runCarAnimationOnTrack(circuitKey, data.path);
 
+                runCarAnimationOnTrack(circuitKey, data.path);
+
+        // Обновляем шапку карточки трассы
+        if (data.name) {
+          document.getElementById('specHeaderTitle').innerText = `Данные трассы • ${data.name}`;
+          document.getElementById('specCircuitName').innerText = data.name;
+        }
+        
         if (data.length) document.getElementById('specLength').innerText = `${data.length} км`;
         if (data.laps) document.getElementById('specLaps').innerText = data.laps;
         if (data.firstYear) document.getElementById('specFirstYear').innerText = data.firstYear;
