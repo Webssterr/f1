@@ -549,16 +549,12 @@
         </svg>
       </div>
 
-      <h2 class="gp-title" id="gpTitleDisplay">Гран-при Малайзии</h2>
-      <div class="gp-sub" id="gpSubDisplay">Этап 16 • Сепанг • 5,543 км</div>
+      <h2 class="gp-title" id="gpTitleDisplay">Гран-при Сингапура</h2>
+      <div class="gp-sub" id="gpSubDisplay">Этап 17 • Марина-Бей</div>
 
       <!-- СЕТКА СЕССИЙ (АДАПТИВНАЯ) -->
       <div class="sessions-grid" id="weekendSessionsGrid">
-        <div class="sess-chip past"><div class="sess-name">02 ОКТ • П1</div><div class="sess-time">✓ Завершено</div></div>
-        <div class="sess-chip past"><div class="sess-name">02 ОКТ • П2</div><div class="sess-time">✓ Завершено</div></div>
-        <div class="sess-chip past"><div class="sess-name">03 ОКТ • П3</div><div class="sess-time">✓ Завершено</div></div>
-        <div class="sess-chip past"><div class="sess-name">03 ОКТ • КВАЛА</div><div class="sess-time">✓ Завершено</div></div>
-        <div class="sess-chip active"><div class="sess-name">04 ОКТ • ГОНКА</div><div class="sess-time">10:00</div></div>
+        <div class="sess-chip"><div class="sess-name">-- • --</div><div class="sess-time">--:--</div></div>
       </div>
     </div>
 
@@ -569,76 +565,50 @@
         <span style="color:var(--accent);" id="specCircuitName">Circuit</span>
       </div>
       <div class="spec-grid">
-        <div class="spec-item">
-          <h5>Длина круга</h5>
-          <p id="specLength">5.543 км</p>
-        </div>
-        <div class="spec-item">
-          <h5>Кругов</h5>
-          <p id="specLaps">56</p>
-        </div>
-        <div class="spec-item">
-          <h5>Первый Гран-при</h5>
-          <p id="specFirstYear">1999</p>
-        </div>
-        <div class="spec-item">
-          <h5>Дистанция гонки</h5>
-          <p id="specDistance">310.417 км</p>
-        </div>
+        <div class="spec-item"><h5>Длина круга</h5><p id="specLength">—</p></div>
+        <div class="spec-item"><h5>Кругов</h5><p id="specLaps">—</p></div>
+        <div class="spec-item"><h5>Первый Гран-при</h5><p id="specFirstYear">—</p></div>
+        <div class="spec-item"><h5>Дистанция гонки</h5><p id="specDistance">—</p></div>
       </div>
       <div class="spec-record">
         <div>
           <div style="font-size:11px; color:var(--text-muted); font-weight:700;">Рекорд круга</div>
-          <div style="font-size:16px; font-weight:900; color:var(--accent);" id="specFastLap">1:34.080</div>
+          <div style="font-size:16px; font-weight:900; color:var(--accent);" id="specFastLap">—</div>
         </div>
-        <div style="font-size:13px; font-weight:700; color:var(--text-muted); text-align:right;" id="specFastDriver">
-          Sebastian Vettel (2017)
-        </div>
+        <div style="font-size:13px; font-weight:700; color:var(--text-muted); text-align:right;" id="specFastDriver">—</div>
       </div>
     </div>
   </div>
 
   <!-- ================= 2. ЭКРАН: АРХИВ ВИДЕО ================= -->
   <div id="view-archive" class="view-screen">
-    <input type="text" class="search-input" id="archiveSearchInput" placeholder="🔍 Поиск заездов, квалификаций, сериалов..." oninput="handleSearch(this.value)">
-
-    <div id="archiveDefaultList">
-      <div id="catalogCategoriesContainer">
-        <div style="text-align:center; padding:35px 0; color:var(--text-muted); font-size:14px;">Синхронизация архива...</div>
-      </div>
-    </div>
+    <input type="text" class="search-input" id="archiveSearchInput" placeholder="🔍 Поиск заездов..." oninput="handleSearch(this.value)">
+    <div id="archiveDefaultList"><div id="catalogCategoriesContainer"><div style="text-align:center; padding:35px 0; color:var(--text-muted);">Загрузка архива...</div></div></div>
     <div id="archiveSearchResults" style="display: none;"></div>
   </div>
 
   <!-- ================= 3. ЭКРАН: СЕЗОН ================= -->
   <div id="view-season" class="view-screen">
     <div class="sub-tabs-bar">
-      <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)">Пилоты (22)</button>
+      <button class="sub-tab-btn active" onclick="switchSeasonSubTab('standings', this)">Пилоты</button>
       <button class="sub-tab-btn" onclick="switchSeasonSubTab('calendar', this)">Календарь</button>
-      <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)">Кубок (11)</button>
+      <button class="sub-tab-btn" onclick="switchSeasonSubTab('teams', this)">Кубок</button>
     </div>
-
     <div id="seasonSubStandings">
       <div class="leader-card">
         <div class="leader-bg-num">01</div>
-        <div class="leader-badge">Лидер сезона 2026</div>
-        <h3 class="leader-name" id="leaderNameDisplay">Kimi Antonelli</h3>
-        <div class="leader-team" id="leaderTeamDisplay">Mercedes-AMG Petronas F1 Team</div>
+        <div class="leader-badge">Лидер сезона</div>
+        <h3 class="leader-name" id="leaderNameDisplay">—</h3>
+        <div class="leader-team" id="leaderTeamDisplay">—</div>
         <div class="leader-pts-row">
-          <span class="leader-pts" id="leaderPointsDisplay">302</span>
-          <span class="leader-wins" id="leaderWinsDisplay">8 побед • лидер чемпионата</span>
+          <span class="leader-pts" id="leaderPointsDisplay">0</span>
+          <span class="leader-wins" id="leaderWinsDisplay">0 побед</span>
         </div>
       </div>
       <div id="driversStandingsList"></div>
     </div>
-
-    <div id="seasonSubCalendar" style="display: none;">
-      <div id="calendarEventsList"></div>
-    </div>
-
-    <div id="seasonSubTeams" style="display: none;">
-      <div id="constructorsStandingsList"></div>
-    </div>
+    <div id="seasonSubCalendar" style="display: none;"><div id="calendarEventsList"></div></div>
+    <div id="seasonSubTeams" style="display: none;"><div id="constructorsStandingsList"></div></div>
   </div>
 
   <!-- ================= 4. ЭКРАН: ИГРЫ F1 + ПРЕДИКШН ================= -->
@@ -647,13 +617,10 @@
     <div class="game-card" style="border: 2px solid var(--accent);">
       <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">🏆 Предикшн на Гран-при</h3>
       <div style="font-size:13px; color:var(--text-muted); line-height:1.4; margin-bottom:14px;">
-        Выберите победителя предстоящей гонки. Сделать выбор можно только 1 раз! Очки начисляются: 1-е место (3 очка), 2-е место (2 очка), 3-е место (1 очко).
+        Выберите победителя гонки (3 очка за 1 место, 2 за 2-е, 1 за 3-е). Прогноз можно сделать 1 раз!
       </div>
-
       <div id="predictionActiveBox">
-        <select id="predictionDriverSelect" class="prediction-select">
-          <option value="">⏳ Загрузка пилотов из API...</option>
-        </select>
+        <select id="predictionDriverSelect" class="prediction-select"><option value="">⏳ Загрузка пилотов...</option></select>
         <button class="btn-action" onclick="submitUserPrediction()">Сделать прогноз</button>
       </div>
       <div id="predictionResultBox" style="display:none; font-size:14px; font-weight:700; color:var(--accent); margin-top:10px;"></div>
@@ -662,9 +629,7 @@
     <!-- ТАБЛИЦА ЛИДЕРБОРДА ПРЕДИКШНОВ -->
     <div class="game-card">
       <h3 style="margin:0 0 10px 0; font-size:16px; font-weight:900;">📊 Таблица очков прогнозов</h3>
-      <div id="predictionLeaderboardList" style="text-align:left; font-size:13px; color:var(--text-muted);">
-        Загрузка лидерборда...
-      </div>
+      <div id="predictionLeaderboardList" style="text-align:left; font-size:13px; color:var(--text-muted);">Загрузка лидерборда...</div>
     </div>
 
     <div class="card game-card">
@@ -898,7 +863,7 @@
 
       <div id="adminDirectEntryBlock" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
         <button class="btn-action" style="background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent);" onclick="toggleAppSettingsModal(false); openAdminDashboardScreen();">
-          ⚙️ Открыть панель администратора
+          ⚙️️ Открыть панель администратора
         </button>
       </div>
 
@@ -1063,7 +1028,6 @@
           return new Date(`${dateStr}T${cleanTime}Z`);
         };
 
-        // Проверяем наличие спринт-уикенда через безопасное опциональное чтение
         const isSprintWeekend = !!(raceData.Sprint?.date || raceData.SprintQualifying?.date);
 
         if (isSprintWeekend) {
@@ -1222,7 +1186,6 @@
         selectEl.innerHTML = '<option value="">-- Выберите победителя гонки --</option>' +
           driversList.map(d => `<option value="${d.name}">${d.name} (${d.team})</option>`).join('');
       }
-      // Сразу загружаем очки
       loadPredictionLeaderboard();
     }
 
@@ -1451,27 +1414,76 @@
       if (currentCard) currentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+    // НОВЫЙ ДИЗАЙН КАРТОЧЕК ПИЛОТОВ
     function renderDriversList(drivers) {
       const list = drivers || DEFAULT_DRIVERS_DATA;
       if (!list || list.length === 0) return;
 
+      const TEAM_COLORS = {
+        "McLaren F1 Team": "#FF8000",
+        "Scuderia Ferrari": "#E80020",
+        "Mercedes-AMG Petronas F1 Team": "#00A19B",
+        "Red Bull Racing": "#0600EF",
+        "Aston Martin F1": "#229971",
+        "Alpine F1 Team": "#0090FF",
+        "Haas F1 Team": "#ED1A3B",
+        "Racing Bulls (VCARB)": "#1534CC",
+        "Williams Racing": "#00A0E9",
+        "Stake F1 Team Kick Sauber / Audi": "#000000",
+        "Cadillac F1 Team": "#222222"
+      };
+
       const leader = list[0];
+      const leaderColor = TEAM_COLORS[leader.team] || "#7e8494";
+
       document.getElementById('leaderNameDisplay').innerText = leader.name;
       document.getElementById('leaderTeamDisplay').innerText = leader.team;
       document.getElementById('leaderPointsDisplay').innerText = leader.points;
       document.getElementById('leaderWinsDisplay').innerText = `${leader.wins || 0} побед • лидер чемпионата`;
+      document.querySelector('.leader-card').style.borderBottom = `4px solid ${leaderColor}`;
 
       const driversListEl = document.getElementById('driversStandingsList');
-      driversListEl.innerHTML = list.slice(1).map(d => `
-        <div class="stand-item">
-          <div class="stand-pos ${parseInt(d.pos) <= 3 ? 'top' : ''}">${String(d.pos).padStart(2, '0')}</div>
-          <div class="stand-details">
-            <div class="stand-name">${d.name}</div>
-            <div class="stand-team">${d.team}</div>
+      driversListEl.innerHTML = list.slice(1).map(d => {
+        const teamColor = TEAM_COLORS[d.team] || "#7e8494";
+        const gradientBg = `${teamColor}26`; 
+        
+        // Получаем фамилию и очищаем ее (например, удаляем умлаут Hülkenberg -> hulkenberg)
+        let lastName = d.name.split(' ').pop().toLowerCase();
+        lastName = lastName.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+        
+        // Патч для твоей опечатки в файле russel.png
+        if (lastName === 'russell') lastName = 'russel';
+        
+        // Ссылка на фото из твоего GitHub
+        const imgUrl = `https://raw.githubusercontent.com/Webssterr/f1/main/images/${lastName}.png`;
+        const fallbackInitials = d.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+
+        return `
+          <div class="stand-item" style="
+            background: linear-gradient(90deg, ${gradientBg} 0%, transparent 80%);
+            border-left: 4px solid ${teamColor};
+            padding: 8px 16px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+          ">
+            <div class="stand-pos" style="width: 28px; font-size: 15px; font-weight: 900; color: var(--text-muted);">${String(d.pos).padStart(2, '0')}</div>
+            
+            <div style="width: 46px; height: 46px; border-radius: 50%; background: ${teamColor}40; margin-right: 14px; border: 2px solid ${teamColor}; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
+              <span style="position: absolute; font-weight: 800; color: ${teamColor}; font-size: 14px;">${fallbackInitials}</span>
+              <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2;" onerror="this.style.display='none'">
+            </div>
+            
+            <div class="stand-details" style="flex: 1;">
+              <div class="stand-name" style="font-size: 16px; font-weight: 800; color: var(--text);">${d.name}</div>
+              <div class="stand-team" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">${d.team}</div>
+            </div>
+            
+            <div class="stand-pts" style="font-size: 18px; font-weight: 900; color: var(--text);">${d.points}</div>
           </div>
-          <div class="stand-pts">${d.points}</div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function renderCalendarList(races) {
@@ -2016,7 +2028,6 @@
           resultDiv.innerText = `⏱ Твое время реакции: ${reactionTime} мс!`;
         }
       });
-  // ---------------------------------------
 
       checkAppVersion();
       initAppRouting();
