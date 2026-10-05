@@ -1280,6 +1280,57 @@
       "spa": "M 70,190 L 130,210 Q 180,220 250,170 L 360,140 Q 430,120 410,70 L 330,50 Q 260,40 210,80 L 120,110 Q 60,140 70,190 Z"
     };
 
+    const DEFAULT_DRIVERS_DATA = [
+      { pos: "01", name: "Kimi Antonelli", team: "Mercedes-AMG Petronas F1 Team", points: "302", wins: 8 },
+      { pos: "02", name: "George Russell", team: "Mercedes-AMG Petronas F1 Team", points: "236", wins: 4 },
+      { pos: "03", name: "Lewis Hamilton", team: "Scuderia Ferrari", points: "199", wins: 2 },
+      { pos: "04", name: "Lando Norris", team: "McLaren F1 Team", points: "186", wins: 1 },
+      { pos: "05", name: "Charles Leclerc", team: "Scuderia Ferrari", points: "174", wins: 1 },
+      { pos: "06", name: "Oscar Piastri", team: "McLaren F1 Team", points: "161", wins: 0 },
+      { pos: "07", name: "Max Verstappen", team: "Red Bull Racing", points: "155", wins: 1 },
+      { pos: "08", name: "Liam Lawson", team: "Red Bull Racing", points: "98", wins: 0 },
+      { pos: "09", name: "Fernando Alonso", team: "Aston Martin F1", points: "94", wins: 0 },
+      { pos: "10", name: "Lance Stroll", team: "Aston Martin F1", points: "72", wins: 0 },
+      { pos: "11", name: "Carlos Sainz", team: "Williams Racing", points: "68", wins: 0 },
+      { pos: "12", name: "Alexander Albon", team: "Williams Racing", points: "46", wins: 0 },
+      { pos: "13", name: "Pierre Gasly", team: "Alpine F1 Team", points: "38", wins: 0 },
+      { pos: "14", name: "Jack Doohan", team: "Alpine F1 Team", points: "24", wins: 0 },
+      { pos: "15", name: "Yuki Tsunoda", team: "Racing Bulls (VCARB)", points: "22", wins: 0 },
+      { pos: "16", name: "Isack Hadjar", team: "Racing Bulls (VCARB)", points: "18", wins: 0 },
+      { pos: "17", name: "Nico Hülkenberg", team: "Stake F1 Team Kick Sauber / Audi", points: "16", wins: 0 },
+      { pos: "18", name: "Gabriel Bortoleto", team: "Stake F1 Team Kick Sauber / Audi", points: "12", wins: 0 },
+      { pos: "19", name: "Esteban Ocon", team: "Haas F1 Team", points: "10", wins: 0 },
+      { pos: "20", name: "Oliver Bearman", team: "Haas F1 Team", points: "8", wins: 0 },
+      { pos: "21", name: "Patricio O'Ward", team: "Cadillac F1 Team", points: "4", wins: 0 },
+      { pos: "22", name: "Felipe Drugovich", team: "Cadillac F1 Team", points: "2", wins: 0 }
+    ];
+
+    const DEFAULT_RACES_CALENDAR = [
+      { round: "1", name: "Гран-при Австралии", circuit: "Альберт-Парк", date: "8 марта" },
+      { round: "2", name: "Гран-при Китая", circuit: "Шанхай", date: "22 марта" },
+      { round: "3", name: "Гран-при Японии", circuit: "Сузука", date: "5 апреля" },
+      { round: "4", name: "Гран-при Бахрейна", circuit: "Сахир", date: "12 апреля" },
+      { round: "5", name: "Гран-при Саудовской Аравии", circuit: "Джидда", date: "19 апреля" },
+      { round: "6", name: "Гран-при Майами", circuit: "Майами", date: "3 мая" },
+      { round: "7", name: "Гран-при Эмилии-Романьи", circuit: "Имола", date: "17 мая" },
+      { round: "8", name: "Гран-при Монако", circuit: "Монте-Карло", date: "24 мая" },
+      { round: "9", name: "Гран-при Испании", circuit: "Барселона", date: "7 июня" },
+      { round: "10", name: "Гран-при Канады", circuit: "Монреаль", date: "14 июня" },
+      { round: "11", name: "Гран-при Австрии", circuit: "Шпильберг", date: "28 июня" },
+      { round: "12", name: "Гран-при Великобритании", circuit: "Сильверстоун", date: "5 июля" },
+      { round: "13", name: "Гран-при Бельгии", circuit: "Спа-Франкоршам", date: "19 июля" },
+      { round: "14", name: "Гран-при Венгрии", circuit: "Хунгароринг", date: "26 июля" },
+      { round: "15", name: "Гран-при Нидерландов", circuit: "Зандворт", date: "23 августа" },
+      { round: "16", name: "Гран-при Малайзии", circuit: "Сепанг", date: "2-4 октября" },
+      { round: "17", name: "Гран-при Сингапура", circuit: "Марина-Бей", date: "11 октября" },
+      { round: "18", name: "Гран-при США", circuit: "Остин, Техас", date: "25 октября" },
+      { round: "19", name: "Гран-при Мексики", circuit: "Мехико", date: "1 ноября" },
+      { round: "20", name: "Гран-при Бразилии", circuit: "Интерлагос", date: "8 ноября" },
+      { round: "21", name: "Гран-при Лас-Вегаса", circuit: "Лас-Вегас Стрип", date: "21 ноября" },
+      { round: "22", name: "Гран-при Катара", circuit: "Лусаил", date: "29 ноября" },
+      { round: "23", name: "Гран-при Абу-Даби", circuit: "Яс-Марина", date: "6 декабря" }
+    ];
+
     let trackAnimInterval = null;
 
     function runCarAnimationOnTrack(circuitKey = "sepang", customPath = null) {
@@ -1539,40 +1590,40 @@
       globalSessionInterval = setInterval(updateTimer, 1000);
     }
 
+    const TEAM_COLORS = {
+      "mclaren": "#FF8000",
+      "ferrari": "#E80020",
+      "mercedes": "#00A19B",
+      "red bull": "#0600EF",
+      "aston martin": "#229971",
+      "alpine": "#0090FF",
+      "haas": "#ED1A3B",
+      "rb": "#1534CC",
+      "racing bulls": "#1534CC",
+      "williams": "#00A0E9",
+      "sauber": "#00E701",
+      "audi": "#000000",
+      "cadillac": "#222222"
+    };
+
+    function getTeamColor(teamName) {
+      const t = (teamName || "").toLowerCase();
+      for (const key in TEAM_COLORS) {
+        if (t.includes(key)) return TEAM_COLORS[key];
+      }
+      return "#7e8494"; 
+    }
+
+    function getDriverImage(name) {
+      let lastName = name.split(' ').pop().toLowerCase();
+      lastName = lastName.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+      if (lastName === 'russell') lastName = 'russel'; 
+      return `https://raw.githubusercontent.com/Webssterr/f1/main/images/${lastName}.png`;
+    }
+
     function renderDriversList(drivers) {
       const list = drivers || DEFAULT_DRIVERS_DATA;
       if (!list || list.length === 0) return;
-
-      const TEAM_COLORS = {
-        "mclaren": "#FF8000",
-        "ferrari": "#E80020",
-        "mercedes": "#00A19B",
-        "red bull": "#0600EF",
-        "aston martin": "#229971",
-        "alpine": "#0090FF",
-        "haas": "#ED1A3B",
-        "rb": "#1534CC",
-        "racing bulls": "#1534CC",
-        "williams": "#00A0E9",
-        "sauber": "#00E701",
-        "audi": "#000000",
-        "cadillac": "#222222"
-      };
-
-      function getTeamColor(teamName) {
-        const t = (teamName || "").toLowerCase();
-        for (const key in TEAM_COLORS) {
-          if (t.includes(key)) return TEAM_COLORS[key];
-        }
-        return "#7e8494"; 
-      }
-
-      function getDriverImage(name) {
-        let lastName = name.split(' ').pop().toLowerCase();
-        lastName = lastName.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-        if (lastName === 'russell') lastName = 'russel'; 
-        return `https://raw.githubusercontent.com/Webssterr/f1/main/images/${lastName}.png`;
-      }
 
       const leader = list[0];
       const leaderColor = getTeamColor(leader.team);
@@ -1672,13 +1723,13 @@
         `;
       }).join('');
     }
-
-    async function loadF1SeasonData() {
+	async function loadF1SeasonData() {
       try {
         const response = await fetch(`${WORKER_URL}/api/season/live`);
         const data = await response.json();
 
         let driversData = DEFAULT_DRIVERS_DATA;
+        
         if (data.drivers && data.drivers.length > 0) {
           driversData = data.drivers;
           renderDriversList(data.drivers);
@@ -1690,6 +1741,7 @@
 
         if (data.constructors && data.constructors.length > 0) {
           const teamsListEl = document.getElementById('constructorsStandingsList');
+          
           teamsListEl.innerHTML = data.constructors.map(t => `
             <div class="stand-item">
               <div class="stand-pos ${parseInt(t.pos) <= 3 ? 'top' : ''}">${t.pos}</div>
@@ -1705,12 +1757,15 @@
           renderCalendarList(data.races);
           
           const nowTs = Date.now();
+          // Ищем этап, который еще идет или следующий в будущем (с запасом в 3 часа = 10800000 мс)
           let activeRace = data.races.find(r => {
             const raceTime = new Date(r.date + "T" + (r.time || "14:00:00")).getTime();
             return (raceTime + 10800000) >= nowTs; 
           });
           
-          if (!activeRace) activeRace = data.races[data.races.length - 1];
+          if (!activeRace) {
+            activeRace = data.races[data.races.length - 1];
+          }
 
           if (activeRace) {
             window.activeRaceRound = activeRace.round; 
@@ -1820,6 +1875,7 @@
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog`);
         const rows = await res.json();
+        
         allCatalogItems = rows || [];
         catalogTree = {};
 
@@ -1827,8 +1883,17 @@
           const cat = item.category || 'Архив';
           const title = item.title;
           
-          if (!catalogTree[cat]) catalogTree[cat] = {};
-          if (!catalogTree[cat][title]) catalogTree[cat][title] = { image: item.image, description: item.description, items: [] };
+          if (!catalogTree[cat]) {
+            catalogTree[cat] = {};
+          }
+          
+          if (!catalogTree[cat][title]) {
+            catalogTree[cat][title] = { 
+              image: item.image, 
+              description: item.description, 
+              items: [] 
+            };
+          }
           
           catalogTree[cat][title].items.push(item);
         });
@@ -1844,7 +1909,10 @@
         }
         
         document.getElementById('catalogCategoriesContainer').innerHTML = html;
-        if (isAdmin) renderAdminCatalogList(allCatalogItems);
+        
+        if (isAdmin) {
+          renderAdminCatalogList(allCatalogItems);
+        }
       } catch (e) {
         document.getElementById('catalogCategoriesContainer').innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Ошибка подключения к D1.</div>';
       }
@@ -1866,6 +1934,7 @@
         
         listEl.appendChild(btn);
       }
+      
       openViewScreen('titles');
     }
 
@@ -1886,11 +1955,15 @@
         const b = document.createElement('div');
         b.className = 'menu-btn';
         b.innerHTML = `<span>${it.item}</span><span class="badge">${it.badge || '1080p'}</span>`;
+        
         b.onclick = () => {
-          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+          if (tg?.HapticFeedback) {
+            tg.HapticFeedback.impactOccurred('medium');
+          }
           tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${it.code}`);
           tg?.close();
         };
+        
         btnsBox.appendChild(b);
       });
       
@@ -1930,10 +2003,12 @@
         const b = document.createElement('div');
         b.className = 'menu-btn';
         b.innerHTML = `<span>${e.title} — ${e.item}</span><span class="badge">${e.badge || '1080p'}</span>`;
+        
         b.onclick = () => {
           tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${e.code}`);
           tg?.close();
         };
+        
         res.appendChild(b);
       });
     }
@@ -1961,6 +2036,7 @@
 
         const curVer = stats.current_version || 'v1';
         document.getElementById('adminCurVerText').innerText = curVer.toUpperCase();
+        
         document.getElementById('adminToggleVersionBtn').innerText = curVer === 'v2' 
           ? 'Откатить релиз до v1 для всех' 
           : 'Выкатить v2 для всех пользователей';
@@ -2008,9 +2084,15 @@
       
       try {
         const config = JSON.parse(raw);
-        if (config.gpTitle) document.getElementById('gpTitleDisplay').innerText = config.gpTitle;
-        if (config.gpSub) document.getElementById('gpSubDisplay').innerText = config.gpSub;
-        if (config.circuitKey) loadCircuitFromDatabase(config.circuitKey);
+        if (config.gpTitle) {
+          document.getElementById('gpTitleDisplay').innerText = config.gpTitle;
+        }
+        if (config.gpSub) {
+          document.getElementById('gpSubDisplay').innerText = config.gpSub;
+        }
+        if (config.circuitKey) {
+          loadCircuitFromDatabase(config.circuitKey);
+        }
 
         const sel = document.getElementById('admActiveCircuitSelect');
         const tit = document.getElementById('admActiveGpTitle');
@@ -2024,11 +2106,13 @@
 
     function handleAdminSearch(val) {
       const q = val.trim().toLowerCase();
+      
       const filtered = allCatalogItems.filter(i => 
         i.title.toLowerCase().includes(q) || 
         i.item.toLowerCase().includes(q) || 
         i.code.toLowerCase().includes(q)
       );
+      
       renderAdminCatalogList(filtered);
     }
 
@@ -2062,12 +2146,14 @@
       if (!file) return;
 
       const reader = new FileReader();
+      
       reader.onload = function(evt) {
         const base64Data = evt.target.result;
         document.getElementById('admFormImg').value = base64Data;
         document.getElementById('admImgPreviewEl').src = base64Data;
         document.getElementById('admImgPreviewBox').style.display = 'block';
       };
+      
       reader.readAsDataURL(file);
     }
 
@@ -2095,6 +2181,7 @@
       document.getElementById('adminFormHeaderTitle').innerText = '✏️ Редактировать запись';
       document.getElementById('adminSubmitRecordBtn').innerText = '💾 Обновить запись';
       document.getElementById('adminCancelEditBtn').style.display = 'block';
+      
       window.scrollTo(0, document.getElementById('adminFormHeaderTitle').offsetTop - 30);
     }
 
@@ -2108,8 +2195,8 @@
       document.getElementById('admFormBadge').value = '1080p';
       document.getElementById('admFormCode').value = '';
       document.getElementById('admFormPostId').value = '';
+      
       document.getElementById('admImgPreviewBox').style.display = 'none';
-
       document.getElementById('adminFormHeaderTitle').innerText = '➕ Добавить запись в базу D1';
       document.getElementById('adminSubmitRecordBtn').innerText = '💾 Сохранить запись';
       document.getElementById('adminCancelEditBtn').style.display = 'none';
@@ -2164,8 +2251,12 @@
           headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
           body: JSON.stringify({ id })
         });
+        
         const data = await res.json();
-        if (data.success) loadCatalogDatabase();
+        
+        if (data.success) {
+          loadCatalogDatabase();
+        }
       } catch (err) {}
     }
 
@@ -2181,7 +2272,11 @@
           try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 2000);
-            const res = await fetch(`${WORKER_URL}/api/system/version`, { signal: controller.signal });
+            
+            const res = await fetch(`${WORKER_URL}/api/system/version`, { 
+              signal: controller.signal 
+            });
+            
             clearTimeout(timeoutId);
             const data = await res.json();
             globalVersion = data.version || 'v1';
@@ -2221,6 +2316,7 @@
       const modal = document.getElementById('miniGameModal');
       const content = document.getElementById('mgContent');
       const title = document.getElementById('mgTitle');
+      
       content.innerHTML = '';
       
       if (gameLoopRef) { 
@@ -2333,19 +2429,20 @@
     }
 
     function setupLightsGame() {
-      let st='IDLE', start=0, t=null, i=null;
+      let st = 'IDLE', start = 0, t = null, i = null;
       const b = document.getElementById('lBtn');
       const ls = document.querySelectorAll('#lContainer .f1-light');
       const r = document.getElementById('lRes');
       
       b.onclick = () => {
-        if(st==='IDLE' || st==='FINISHED') {
-          st='COUNT'; 
-          b.innerText='ЖДИ...'; 
-          b.style.background='#333'; 
-          r.innerText='';
+        if(st === 'IDLE' || st === 'FINISHED') {
+          st = 'COUNT'; 
+          b.innerText = 'ЖДИ...'; 
+          b.style.background = '#333'; 
+          r.innerText = '';
+          
           ls.forEach(l => l.classList.remove('on'));
-          let cur=0;
+          let cur = 0;
           
           i = setInterval(() => {
             if(cur < 5) { 
@@ -2353,28 +2450,29 @@
               cur++; 
             } else {
               clearInterval(i); 
-              st='WAIT'; 
-              b.innerText='ТУШИ!'; 
-              b.style.background='#e10600';
+              st = 'WAIT'; 
+              b.innerText = 'ТУШИ!'; 
+              b.style.background = '#e10600';
+              
               t = setTimeout(() => { 
                 ls.forEach(l => l.classList.remove('on')); 
                 start = performance.now(); 
-                st='GO'; 
+                st = 'GO'; 
               }, Math.random() * 2000 + 1000);
             }
           }, 1000);
-        } else if(st==='WAIT') {
+        } else if(st === 'WAIT') {
           clearTimeout(t); 
           clearInterval(i); 
-          st='IDLE'; 
-          b.innerText='ФАЛЬСТАРТ! ЗАНОВО'; 
-          r.innerText='❌ Слишком рано'; 
+          st = 'IDLE'; 
+          b.innerText = 'ФАЛЬСТАРТ! ЗАНОВО'; 
+          r.innerText = '❌ Слишком рано'; 
           ls.forEach(l => l.classList.remove('on'));
-        } else if(st==='GO') {
+        } else if(st === 'GO') {
           const rt = Math.round(performance.now() - start); 
-          st='FINISHED'; 
-          b.innerText='ИГРАТЬ СНОВА'; 
-          r.innerText=`⏱ ${rt} мс!`;
+          st = 'FINISHED'; 
+          b.innerText = 'ИГРАТЬ СНОВА'; 
+          r.innerText = `⏱ ${rt} мс!`;
         }
       }
     }
@@ -2383,7 +2481,7 @@
       let active = false, start = 0, done = 0;
       const b = document.getElementById('pBtn');
       const r = document.getElementById('pRes');
-      const ws = [1,2,3,4].map(i => document.getElementById(`pw${i}`));
+      const ws = [1, 2, 3, 4].map(i => document.getElementById(`pw${i}`));
       
       b.onclick = () => {
         active = true; 
@@ -2391,6 +2489,7 @@
         done = 0; 
         r.innerText = '0.00s'; 
         r.style.color = 'var(--text)';
+        
         ws.forEach(w => { 
           w.classList.remove('done'); 
           w.innerText = '🛞'; 
@@ -2401,10 +2500,12 @@
         w.onclick = () => {
           if(active && !w.classList.contains('done')) {
             w.classList.add('done'); 
-            w.innerText='✅'; 
+            w.innerText = '✅'; 
             done++;
             
-            if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            if(tg?.HapticFeedback) {
+              tg.HapticFeedback.impactOccurred('light');
+            }
             
             if(done === 4) { 
               active = false; 
@@ -2482,7 +2583,10 @@
 
         document.getElementById('eScore').innerText = score;
         frames++;
-        if(state === 'PLAY') gameLoopRef = requestAnimationFrame(loop);
+        
+        if(state === 'PLAY') {
+          gameLoopRef = requestAnimationFrame(loop);
+        }
       }
     }
 
@@ -2517,8 +2621,11 @@
         ctx.stroke(); 
         ctx.setLineDash([]);
 
-        if(isDown) speed += 0.001; 
-        else speed -= 0.002;
+        if(isDown) {
+          speed += 0.001; 
+        } else {
+          speed -= 0.002;
+        }
         
         if(speed < 0) speed = 0; 
         if(speed > 0.08) speed = 0.08;
@@ -2545,7 +2652,9 @@
         ctx.arc(x, y, 10, 0, Math.PI*2); 
         ctx.fill();
 
-        if(state === 'PLAY') gameLoopRef = requestAnimationFrame(loop);
+        if(state === 'PLAY') {
+          gameLoopRef = requestAnimationFrame(loop);
+        }
       }
       loop();
     }
@@ -2562,7 +2671,7 @@
         if(!gameLoopRef) return;
         tyre = type; 
         wear = 100; 
-        pos += 4;
+        pos += 4; 
         logMsg(`Пит-стоп! Поставили ${type}. Потеря позиций.`);
         updateUI();
       }
@@ -2616,6 +2725,7 @@
 
     checkAppVersion();
     initAppRouting();
+
   </script>
 </body>
 </html>
