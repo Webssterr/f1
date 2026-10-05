@@ -563,7 +563,6 @@
     </div>
 
     <!-- ХАРАКТЕРИСТИКИ ТРАССЫ -->
-        <!-- ХАРАКТЕРИСТИКИ ТРАССЫ -->
     <div class="circuit-spec-card">
       <div class="spec-header">
         <span id="specHeaderTitle">Данные трассы</span>
@@ -648,7 +647,7 @@
     <div class="game-card" style="border: 2px solid var(--accent);">
       <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">🏆 Предикшн на Гран-при</h3>
       <div style="font-size:13px; color:var(--text-muted); line-height:1.4; margin-bottom:14px;">
-        Выберите победителя предстоящей гонки. Сделать выбор можно только 1 раз! После финиширования этапа очки начислятся автоматически.
+        Выберите победителя предстоящей гонки. Сделать выбор можно только 1 раз! Очки начисляются: 1-е место (3 очка), 2-е место (2 очка), 3-е место (1 очко).
       </div>
 
       <div id="predictionActiveBox">
@@ -664,7 +663,7 @@
     <div class="game-card">
       <h3 style="margin:0 0 10px 0; font-size:16px; font-weight:900;">📊 Таблица очков прогнозов</h3>
       <div id="predictionLeaderboardList" style="text-align:left; font-size:13px; color:var(--text-muted);">
-        Пока нет завершенных гонок для начисления очков.
+        Загрузка лидерборда...
       </div>
     </div>
 
@@ -944,15 +943,9 @@
     const isTester = (isAdmin || currentUserId === TESTER_ID);
 
     const CIRCUITS_SVG_DATABASE = {
-      "sepang": "M 80,155 L 390,155 Q 410,155 405,140 Q 400,125 380,135 L 260,175 Q 240,180 250,200 L 275,225 Q 295,245 320,225 L 350,195 Q 370,175 400,195 L 435,215 Q 460,225 450,180 L 415,100 Q 395,50 340,55 L 260,65 Q 235,70 240,95 L 250,125 Q 245,145 220,135 L 140,135 Q 75,135 60,170 Q 55,200 95,200 L 370,200 Q 400,200 400,175 Q 400,155 380,155 Z",
-      "albert_park": "M 90,190 L 140,200 Q 180,210 240,205 L 340,195 Q 420,190 440,150 L 410,100 Q 380,60 300,80 L 220,110 Q 170,120 120,80 L 90,110 Q 70,140 90,190 Z",
-      "monaco": "M 80,190 L 150,150 Q 220,120 280,80 L 380,60 Q 430,70 420,110 L 360,130 Q 310,140 280,180 L 210,210 Q 140,230 80,190 Z",
-      "silverstone": "M 90,180 L 200,190 Q 260,200 320,160 L 410,130 Q 440,90 390,60 L 280,60 Q 190,40 140,80 L 90,130 Z",
-      "spa": "M 70,190 L 130,210 Q 180,220 250,170 L 360,140 Q 430,120 410,70 L 330,50 Q 260,40 210,80 L 120,110 Q 60,140 70,190 Z"
+      "sepang": "M 80,155 L 390,155 Q 410,155 405,140 Q 400,125 380,135 L 260,175 Q 240,180 250,200 L 275,225 Q 295,245 320,225 L 350,195 Q 370,175 400,195 L 435,215 Q 460,225 450,180 L 415,100 Q 395,50 340,55 L 260,65 Q 235,70 240,95 L 250,125 Q 245,145 220,135 L 140,135 Q 75,135 60,170 Q 55,200 95,200 L 370,200 Q 400,200 400,175 Q 400,155 380,155 Z"
     };
 
-    // Надежный рендеринг трассы и точки через группу <g> для точного центрирования без смещений
-    // Надежный рендеринг трассы с автокалибровкой отрицательных и смещенных координат
     let trackAnimInterval = null;
     function runCarAnimationOnTrack(circuitKey = "sepang", customPath = null) {
       const svgEl = document.getElementById('trackSvgEl');
@@ -979,21 +972,17 @@
 
       groupEl.removeAttribute('transform');
 
-      // Безопасный замер размеров пути
       let bbox = { x: 0, y: 0, width: 400, height: 200 };
       try { 
         bbox = pathEl.getBBox(); 
       } catch (e) {
-        // Защита для путей с отрицательными координатами, если getBBox вернул нули
         bbox = { x: -400, y: -400, width: 800, height: 800 };
       }
 
-      // Если bbox нулевой или некорректный, задаем дефолтные рамки
       if (!bbox || !bbox.width || !bbox.height) {
         bbox = { x: -400, y: -400, width: 800, height: 800 };
       }
 
-      // Целевые размеры нашего виджета на главной (viewBox 500x250)
       const targetW = 400;
       const targetH = 170;
       
@@ -1001,7 +990,6 @@
       const scaleY = targetH / bbox.height;
       const scale = Math.min(scaleX, scaleY);
 
-      // Центрируем с учетом реального смещения bbox (даже если он в минусах)
       const cx = bbox.x + bbox.width / 2;
       const cy = bbox.y + bbox.height / 2;
       const tx = 250 - cx * scale;
@@ -1034,6 +1022,7 @@
         } catch (e) {}
       }, 35);
     }
+    
     async function loadCircuitFromDatabase(circuitKey) {
       try {
         const response = await fetch(`${WORKER_URL}/api/circuits/${encodeURIComponent(circuitKey)}`);
@@ -1042,8 +1031,6 @@
         if (!data.success || !data.path) throw new Error("SVG не найден в D1");
 
         runCarAnimationOnTrack(circuitKey, data.path);
-
-                runCarAnimationOnTrack(circuitKey, data.path);
 
         // Обновляем шапку карточки трассы
         if (data.name) {
@@ -1065,7 +1052,7 @@
       }
     }
 
-    // ДИНАМИЧЕСКИЙ ТАЙМЕР И СЕТКА СЕССИЙ УИКЕНДА
+    // ДИНАМИЧЕСКИЙ ТАЙМЕР И СЕТКА СЕССИЙ УИКЕНДА (Строго 5 сессий)
     let globalSessionInterval = null;
     function initDynamicWeekendSessions(raceData) {
       const sessions = [];
@@ -1076,49 +1063,52 @@
           return new Date(`${dateStr}T${cleanTime}Z`);
         };
 
-        if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
-        if (raceData.SecondPractice?.date) sessions.push({ name: "Практика 2", short: "П2", date: parseLocalDateTime(raceData.SecondPractice.date, raceData.SecondPractice.time), duration: 60 });
-        if (raceData.ThirdPractice?.date) sessions.push({ name: "Практика 3", short: "П3", date: parseLocalDateTime(raceData.ThirdPractice.date, raceData.ThirdPractice.time), duration: 60 });
-        if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 45 });
-        if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
-        if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+        // Проверяем наличие спринт-уикенда через безопасное опциональное чтение
+        const isSprintWeekend = !!(raceData.Sprint?.date || raceData.SprintQualifying?.date);
+
+        if (isSprintWeekend) {
+          if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
+          const sqData = raceData.SprintQualifying || raceData.Qualifying; 
+          if (sqData?.date) sessions.push({ name: "Квалификация к спринту", short: "КВАЛА С", date: parseLocalDateTime(sqData.date, sqData.time), duration: 45 });
+          if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 45 });
+          if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация к гонке", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
+          if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+        } else {
+          if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
+          if (raceData.SecondPractice?.date) sessions.push({ name: "Практика 2", short: "П2", date: parseLocalDateTime(raceData.SecondPractice.date, raceData.SecondPractice.time), duration: 60 });
+          if (raceData.ThirdPractice?.date) sessions.push({ name: "Практика 3", short: "П3", date: parseLocalDateTime(raceData.ThirdPractice.date, raceData.ThirdPractice.time), duration: 60 });
+          if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
+          if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+        }
       }
 
       const label = document.getElementById("heroStageLabel");
       const grid = document.getElementById("weekendSessionsGrid");
       const timer = { d: document.getElementById("t-d"), h: document.getElementById("t-h"), m: document.getElementById("t-m"), s: document.getElementById("t-s") };
 
-      // Словарь для правильных падежей
       const sessionGenitiveNames = {
         "Практика 1": "первой практики",
         "Практика 2": "второй практики",
         "Практика 3": "третьей практики",
         "Спринт": "спринта",
+        "Квалификация к спринту": "спринт-квалы",
+        "Квалификация к гонке": "квалификации",
         "Квалификация": "квалификации",
         "Гонка": "гонки"
       };
 
-      function renderEmptyState() {
+      if (sessions.length === 0) {
         if (label) label.innerText = "🔴 Ожидание уикенда";
         Object.values(timer).forEach(el => { if (el) el.innerText = "00"; });
         if (grid) {
           grid.style.gridTemplateColumns = `repeat(1, minmax(0, 1fr))`;
           grid.innerHTML = `<div class="sess-chip"><div class="sess-name">ГОНКА</div><div class="sess-time">— : —</div></div>`;
         }
-      }
-
-      if (sessions.length === 0) {
-        renderEmptyState();
         return;
       }
 
-            function formatTime(d) { 
-        return d.toLocaleTimeString("ru-RU", { 
-          hour: "2-digit", 
-          minute: "2-digit", 
-          hour12: false 
-          // Без параметра timeZone браузер автоматически возьмет таймпояс устройства пользователя!
-        }); 
+      function formatTime(d) { 
+        return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", hour12: false }); 
       }
 
       function formatDate(d) { return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "short" }).replace(".", "").toUpperCase(); }
@@ -1128,7 +1118,6 @@
         grid.style.gridTemplateColumns = `repeat(${sessions.length}, minmax(0, 1fr))`;
         grid.innerHTML = sessions.map(s => {
           const start = s.date.getTime();
-          // Добавляем время длительности сессии (duration задан в минутах, переводим в миллисекунды)
           const end = start + (s.duration * 60000); 
           const cur = now.getTime();
           
@@ -1136,15 +1125,12 @@
           let cls = "sess-chip";
 
           if (cur >= end) {
-            // Если текущее время больше времени окончания (старт + 2 часа для гонки)
             status = "✓ Завершено";
             cls += " past";
           } else if (cur >= start) {
-            // Если сессия началась, но время окончания еще не наступило
             status = "● Идёт";
             cls += " active";
           } else {
-            // Сессия еще не началась (в будущем)
             status = formatTime(s.date);
           }
 
@@ -1167,7 +1153,6 @@
         const genitiveName = sessionGenitiveNames[next.name] || next.name.toLowerCase();
         if (label) label.innerText = "До " + genitiveName.charAt(0).toUpperCase() + genitiveName.slice(1);
 
-        
         const diff = Math.max(0, next.date.getTime() - nowTs);
         if (timer.d) timer.d.innerText = String(Math.floor(diff / 86400000)).padStart(2, "0");
         if (timer.h) timer.h.innerText = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, "0");
@@ -1217,37 +1202,86 @@
       }
     }
 
-    // ПРЕДИКШН МЕХАНИКА
+    // ПРЕДИКШН МЕХАНИКА (С отправкой в D1)
     function initPredictionGame(driversList) {
       const selectEl = document.getElementById('predictionDriverSelect');
       const activeBox = document.getElementById('predictionActiveBox');
       const resBox = document.getElementById('predictionResultBox');
       if (!selectEl) return;
 
-      const savedPrediction = localStorage.getItem(`f1_prediction_${currentUserId}`);
+      const currentRound = window.activeRaceRound || "17"; 
+      const savedPrediction = localStorage.getItem(`f1_prediction_${currentUserId}_${currentRound}`);
+      
       if (savedPrediction) {
         activeBox.style.display = 'none';
         resBox.style.display = 'block';
-        resBox.innerText = `✅ Ваш прогноз на гонку: ${savedPrediction}`;
+        resBox.innerText = `✅ Ваш прогноз на текущую гонку: ${savedPrediction}`;
       } else {
+        activeBox.style.display = 'block';
+        resBox.style.display = 'none';
         selectEl.innerHTML = '<option value="">-- Выберите победителя гонки --</option>' +
           driversList.map(d => `<option value="${d.name}">${d.name} (${d.team})</option>`).join('');
       }
+      // Сразу загружаем очки
+      loadPredictionLeaderboard();
     }
 
-    function submitUserPrediction() {
+    async function submitUserPrediction() {
       const selectEl = document.getElementById('predictionDriverSelect');
       const chosen = selectEl.value;
       if (!chosen) {
         alert('Пожалуйста, выберите гонщика!');
         return;
       }
-      localStorage.setItem(`f1_prediction_${currentUserId}`, chosen);
-      document.getElementById('predictionActiveBox').style.display = 'none';
-      const resBox = document.getElementById('predictionResultBox');
-      resBox.style.display = 'block';
-      resBox.innerText = `✅ Прогноз успешно принят: ${chosen}`;
-      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+      const currentRound = window.activeRaceRound || "17"; 
+
+      try {
+        const res = await fetch(`${WORKER_URL}/api/prediction/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: currentUserId,
+            round: currentRound,
+            driver_name: chosen
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem(`f1_prediction_${currentUserId}_${currentRound}`, chosen);
+          document.getElementById('predictionActiveBox').style.display = 'none';
+          const resBox = document.getElementById('predictionResultBox');
+          resBox.style.display = 'block';
+          resBox.innerText = `✅ Прогноз успешно принят сервером: ${chosen}`;
+          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+          loadPredictionLeaderboard();
+        } else {
+          alert("Ошибка соединения. Попробуйте еще раз!");
+        }
+      } catch (e) {
+        alert("Ошибка сети при отправке на сервер.");
+      }
+    }
+
+    async function loadPredictionLeaderboard() {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/prediction/leaderboard`);
+        const data = await res.json();
+        const listEl = document.getElementById('predictionLeaderboardList');
+        
+        if (!data.leaderboard || data.leaderboard.length === 0) {
+          listEl.innerHTML = 'Пока нет начисленных очков за гонки.';
+          return;
+        }
+
+        listEl.innerHTML = data.leaderboard.map((row, idx) => `
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);">
+            <span>#${idx + 1} Игрок: ...${String(row.user_id).slice(-4)}</span>
+            <span style="font-weight:900; color:var(--accent);">${row.total_points} очков</span>
+          </div>
+        `).join('');
+      } catch (e) {}
     }
 
     let allCatalogItems = [];
@@ -1419,8 +1453,9 @@
 
     function renderDriversList(drivers) {
       const list = drivers || DEFAULT_DRIVERS_DATA;
-      const leader = list[0];
+      if (!list || list.length === 0) return;
 
+      const leader = list[0];
       document.getElementById('leaderNameDisplay').innerText = leader.name;
       document.getElementById('leaderTeamDisplay').innerText = leader.team;
       document.getElementById('leaderPointsDisplay').innerText = leader.points;
@@ -1486,7 +1521,7 @@
           driversData = data.drivers;
           renderDriversList(data.drivers);
         } else {
-          renderDriversList();
+          renderDriversList(DEFAULT_DRIVERS_DATA);
         }
 
         initPredictionGame(driversData);
@@ -1504,20 +1539,20 @@
           `).join('');
         }
 
-                if (data.races && data.races.length > 0) {
+        if (data.races && data.races.length > 0) {
           renderCalendarList(data.races);
           
           const nowTs = Date.now();
-          // Ищем этап, который еще идет или следующий в будущем
+          // Ищем этап, который еще идет или следующий в будущем (с запасом в 3 часа = 10800000 мс)
           let activeRace = data.races.find(r => {
             const raceTime = new Date(r.date + "T" + (r.time || "14:00:00")).getTime();
-            return (raceTime + 7200000) >= nowTs; // Гонка идет или еще не прошла (+2 часа на проведение)
+            return (raceTime + 10800000) >= nowTs; 
           });
           
-          // Если все гонки сезона уже прошли, берем последнюю
           if (!activeRace) activeRace = data.races[data.races.length - 1];
 
           if (activeRace) {
+            window.activeRaceRound = activeRace.round; 
             document.getElementById('gpTitleDisplay').innerText = activeRace.name;
             document.getElementById('gpSubDisplay').innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
             const circuitKey = activeRace.circuitId || "sepang";
@@ -1526,8 +1561,8 @@
           }
         }
       } catch (e) {
-        renderDriversList();
-        renderCalendarList();
+        renderDriversList(DEFAULT_DRIVERS_DATA);
+        renderCalendarList(DEFAULT_RACES_CALENDAR);
         initPredictionGame(DEFAULT_DRIVERS_DATA);
         initDynamicWeekendSessions(null);
       }
@@ -1895,24 +1930,17 @@
       }
     }
 
-    // 1. Проверяем текущую версию при загрузке приложения
     async function checkAppVersion() {
       try {
-        const res = await fetch('https://твой-воркер.workers.dev/api/app-config'); // Замени на URL твоего воркера
+        const res = await fetch('https://твой-воркер.workers.dev/api/app-config'); 
         const data = await res.json();
         if (data.success) {
           const versionLabel = document.getElementById('currentVersionLabel');
           if (versionLabel) versionLabel.innerText = data.version.toUpperCase();
-          
-          // Здесь можешь управлять показом блоков v1 или v2 в зависимости от data.version
-          if (data.version === 'v2') {
-            // Включаем фичи V2
-          }
         }
       } catch (e) {}
     }
 
-    // 2. Обработка клика по кнопке переключения версии в админке
     document.getElementById('deployV2Btn')?.addEventListener('click', async () => {
       if (!confirm("Переключить версию для всех пользователей на V2?")) return;
       
@@ -1920,10 +1948,7 @@
         const res = await fetch('https://твой-воркер.workers.dev/api/admin/set-version', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            version: 'v2', 
-            adminId: '301211351' // Твой ADMIN_ID
-          })
+          body: JSON.stringify({ version: 'v2', adminId: '301211351' })
         });
         const data = await res.json();
         if (data.success) {
@@ -1932,9 +1957,7 @@
         } else {
           alert("Ошибка сохранения");
         }
-      } catch (e) {
-        alert("Ошибка сети");
-      }
+      } catch (e) { alert("Ошибка сети"); }
     });
 
       // --- КОД МИНИ-ИГРЫ СТАРТОВЫЕ ОГНИ ---
@@ -1995,9 +2018,7 @@
       });
   // ---------------------------------------
 
-  // Вызываем при загрузке страницы
       checkAppVersion();
-
       initAppRouting();
   </script>
 </body>
