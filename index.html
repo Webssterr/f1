@@ -1419,44 +1419,79 @@
       const list = drivers || DEFAULT_DRIVERS_DATA;
       if (!list || list.length === 0) return;
 
+      // Умный поиск: используем короткие корни названий
       const TEAM_COLORS = {
-        "McLaren F1 Team": "#FF8000",
-        "Scuderia Ferrari": "#E80020",
-        "Mercedes-AMG Petronas F1 Team": "#00A19B",
-        "Red Bull Racing": "#0600EF",
-        "Aston Martin F1": "#229971",
-        "Alpine F1 Team": "#0090FF",
-        "Haas F1 Team": "#ED1A3B",
-        "Racing Bulls (VCARB)": "#1534CC",
-        "Williams Racing": "#00A0E9",
-        "Stake F1 Team Kick Sauber / Audi": "#000000",
-        "Cadillac F1 Team": "#222222"
+        "mclaren": "#FF8000",
+        "ferrari": "#E80020",
+        "mercedes": "#00A19B",
+        "red bull": "#0600EF",
+        "aston martin": "#229971",
+        "alpine": "#0090FF",
+        "haas": "#ED1A3B",
+        "rb": "#1534CC",
+        "racing bulls": "#1534CC",
+        "williams": "#00A0E9",
+        "sauber": "#00E701",
+        "audi": "#000000",
+        "cadillac": "#222222"
       };
 
-      const leader = list[0];
-      const leaderColor = TEAM_COLORS[leader.team] || "#7e8494";
+      // Функция для получения цвета по фрагменту имени
+      function getTeamColor(teamName) {
+        const t = (teamName || "").toLowerCase();
+        for (const key in TEAM_COLORS) {
+          if (t.includes(key)) return TEAM_COLORS[key];
+        }
+        return "#7e8494"; // Серый по умолчанию
+      }
 
+      // Генератор ссылок на фото
+      function getDriverImage(name) {
+        let lastName = name.split(' ').pop().toLowerCase();
+        lastName = lastName.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+        if (lastName === 'russell') lastName = 'russel'; // патч для твоей картинки
+        return `https://raw.githubusercontent.com/Webssterr/f1/main/images/${lastName}.png`;
+      }
+
+      const leader = list[0];
+      const leaderColor = getTeamColor(leader.team);
+      const leaderImg = getDriverImage(leader.name);
+
+      // --- ОФОРМЛЕНИЕ КАРТОЧКИ ЛИДЕРА ---
       document.getElementById('leaderNameDisplay').innerText = leader.name;
       document.getElementById('leaderTeamDisplay').innerText = leader.team;
       document.getElementById('leaderPointsDisplay').innerText = leader.points;
       document.getElementById('leaderWinsDisplay').innerText = `${leader.wins || 0} побед • лидер чемпионата`;
-      document.querySelector('.leader-card').style.borderBottom = `4px solid ${leaderColor}`;
+      
+      const leaderCard = document.querySelector('.leader-card');
+      // Заливаем фон карточки лидера цветом его команды
+      leaderCard.style.background = `linear-gradient(135deg, ${leaderColor} 0%, #111317 120%)`;
+      leaderCard.style.borderBottom = `4px solid ${leaderColor}`;
+      
+      // Добавляем или обновляем фото лидера
+      let lPhoto = document.getElementById('leaderPhotoEl');
+      if (!lPhoto) {
+        lPhoto = document.createElement('img');
+        lPhoto.id = 'leaderPhotoEl';
+        // Позиционируем фото лидера справа
+        lPhoto.style.cssText = 'position:absolute; right:-10px; bottom:0; height:120%; object-fit:contain; z-index:1; pointer-events:none; filter: drop-shadow(-4px 0 12px rgba(0,0,0,0.4));';
+        leaderCard.appendChild(lPhoto);
+        
+        // Поднимаем текст над фотографией
+        const leaderBgNum = document.querySelector('.leader-bg-num');
+        if (leaderBgNum) leaderBgNum.style.zIndex = '0';
+        const leaderTexts = leaderCard.querySelectorAll('.leader-badge, .leader-name, .leader-team, .leader-pts-row');
+        leaderTexts.forEach(el => { el.style.position = 'relative'; el.style.zIndex = '2'; });
+      }
+      lPhoto.src = leaderImg;
 
+      // --- ОФОРМЛЕНИЕ СПИСКА ОСТАЛЬНЫХ ПИЛОТОВ ---
       const driversListEl = document.getElementById('driversStandingsList');
       driversListEl.innerHTML = list.slice(1).map(d => {
-        const teamColor = TEAM_COLORS[d.team] || "#7e8494";
+        const teamColor = getTeamColor(d.team);
         const gradientBg = `${teamColor}26`; 
-        
-        // Получаем фамилию и очищаем ее (например, удаляем умлаут Hülkenberg -> hulkenberg)
-        let lastName = d.name.split(' ').pop().toLowerCase();
-        lastName = lastName.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-        
-        // Патч для твоей опечатки в файле russel.png
-        if (lastName === 'russell') lastName = 'russel';
-        
-        // Ссылка на фото из твоего GitHub
-        const imgUrl = `https://raw.githubusercontent.com/Webssterr/f1/main/images/${lastName}.png`;
         const fallbackInitials = d.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+        const imgUrl = getDriverImage(d.name);
 
         return `
           <div class="stand-item" style="
@@ -1472,15 +1507,16 @@
             
             <div style="width: 46px; height: 46px; border-radius: 50%; background: ${teamColor}40; margin-right: 14px; border: 2px solid ${teamColor}; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
               <span style="position: absolute; font-weight: 800; color: ${teamColor}; font-size: 14px;">${fallbackInitials}</span>
-              <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2;" onerror="this.style.display='none'">
+              <!-- При успешной загрузке картинки она скрывает слой с буквами через onload -->
+              <img src="${imgUrl}" onload="this.previousElementSibling.style.display='none'" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2;" onerror="this.style.display='none'">
             </div>
             
-            <div class="stand-details" style="flex: 1;">
+            <div class="stand-details" style="flex: 1; z-index: 2;">
               <div class="stand-name" style="font-size: 16px; font-weight: 800; color: var(--text);">${d.name}</div>
               <div class="stand-team" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">${d.team}</div>
             </div>
             
-            <div class="stand-pts" style="font-size: 18px; font-weight: 900; color: var(--text);">${d.points}</div>
+            <div class="stand-pts" style="font-size: 18px; font-weight: 900; color: var(--text); z-index: 2;">${d.points}</div>
           </div>
         `;
       }).join('');
