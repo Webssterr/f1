@@ -1495,9 +1495,19 @@
           `).join('');
         }
 
-        if (data.races && data.races.length > 0) {
+                if (data.races && data.races.length > 0) {
           renderCalendarList(data.races);
-          const activeRace = data.races[15] || data.races[0];
+          
+          const nowTs = Date.now();
+          // Ищем этап, который еще идет или следующий в будущем
+          let activeRace = data.races.find(r => {
+            const raceTime = new Date(r.date + "T" + (r.time || "14:00:00")).getTime();
+            return (raceTime + 7200000) >= nowTs; // Гонка идет или еще не прошла (+2 часа на проведение)
+          });
+          
+          // Если все гонки сезона уже прошли, берем последнюю
+          if (!activeRace) activeRace = data.races[data.races.length - 1];
+
           if (activeRace) {
             document.getElementById('gpTitleDisplay').innerText = activeRace.name;
             document.getElementById('gpSubDisplay').innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
