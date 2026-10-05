@@ -2643,33 +2643,61 @@
       const cvs = document.getElementById('eCanvas'); 
       const ctx = cvs.getContext('2d');
       
-      // Читаем фактическую отрендеренную ширину
       const rect = cvs.getBoundingClientRect();
       cvs.width = rect.width || window.innerWidth - 40; 
       cvs.height = 400;
       
       let state = 'MENU', score = 0, lane = 1, speed = 5, frames = 0, obs = [];
       const lanes = [cvs.width/6, cvs.width/2, cvs.width - cvs.width/6];
-      const cw = 40, ch = 80;
-
+      
       function reset() { 
-        score = 0; 
-        lane = 1; 
-        speed = 5; 
-        frames = 0; 
-        obs = []; 
-        state = 'PLAY'; 
-        loop(); 
+        score = 0; lane = 1; speed = 5; frames = 0; obs = []; state = 'PLAY'; loop(); 
       }
       
       document.getElementById('eBtn').addEventListener('pointerdown', reset);
 
+      // Умное управление: прыгаем ровно в ту полосу, по которой тапнули
       cvs.addEventListener('pointerdown', (e) => {
         if(state !== 'PLAY') return;
         const r = cvs.getBoundingClientRect();
-        if((e.clientX - r.left) < cvs.width/2 && lane > 0) lane--;
-        else if((e.clientX - r.left) >= cvs.width/2 && lane < 2) lane++;
+        const clickX = e.clientX - r.left;
+        
+        if (clickX < cvs.width / 3) lane = 0;
+        else if (clickX < (cvs.width / 3) * 2) lane = 1;
+        else lane = 2;
       });
+
+      // Функция отрисовки детализированного болида F1
+      function drawCar(x, y, color) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 4;
+        
+        // Основной корпус
+        ctx.fillStyle = color;
+        ctx.fillRect(-10, -20, 20, 40); 
+        ctx.fillRect(-5, -30, 10, 10);  
+        
+        // Кокпит
+        ctx.fillStyle = '#111';
+        ctx.fillRect(-4, -5, 8, 10); 
+        
+        // Аэродинамика
+        ctx.fillStyle = '#222';
+        ctx.fillRect(-18, -26, 36, 5); // Переднее крыло
+        ctx.fillRect(-14, 16, 28, 6);  // Заднее крыло
+        
+        // Шины
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(-20, -18, 6, 12); 
+        ctx.fillRect(14, -18, 6, 12);  
+        ctx.fillRect(-20, 6, 8, 14);   
+        ctx.fillRect(12, 6, 8, 14);    
+        
+        ctx.restore();
+      }
 
       function loop() {
         if(state !== 'PLAY') return;
@@ -2677,28 +2705,35 @@
         
         ctx.fillStyle = '#fff';
         for(let i = 0; i < 400; i += 40) { 
-          ctx.fillRect(cvs.width/3 - 2, i + (frames%40), 4, 20); 
-          ctx.fillRect(cvs.width*2/3 - 2, i + (frames%40), 4, 20); 
+          ctx.fillRect(cvs.width/3 - 2, i + (frames % 40), 4, 20); 
+          ctx.fillRect(cvs.width*2/3 - 2, i + (frames % 40), 4, 20); 
         }
 
-        ctx.fillStyle = '#ff3b30';
-        ctx.fillRect(lanes[lane] - cw/2, cvs.height - 100, cw, ch);
+        // Рисуем игрока
+        const playerY = cvs.height - 70;
+        drawCar(lanes[lane], playerY, '#ff3b30');
 
         if(frames % Math.max(20, 60 - Math.floor(speed*2)) === 0) {
-          obs.push({l: Math.floor(Math.random()*3), y: -100});
+          const enemyColors = ['#00a0e9', '#229971', '#FF8000', '#E80020'];
+          obs.push({
+            l: Math.floor(Math.random()*3), 
+            y: -100,
+            color: enemyColors[Math.floor(Math.random() * enemyColors.length)]
+          });
         }
 
         for(let i = obs.length - 1; i >= 0; i--) {
           let o = obs[i]; 
           o.y += speed;
-          ctx.fillStyle = '#00a0e9'; 
-          ctx.fillRect(lanes[o.l] - cw/2, o.y, cw, ch);
           
-          if(o.l === lane && o.y + ch > cvs.height - 100 && o.y < cvs.height - 20) { 
+          drawCar(lanes[o.l], o.y, o.color);
+          
+          // Проверка столкновения (хитбокс ~30px)
+          if(o.l === lane && o.y + 30 > playerY - 30 && o.y - 30 < playerY + 30) { 
             state = 'GAME_OVER'; 
             document.getElementById('eBtn').innerText = 'ЗАНОВО'; 
           }
-          if(o.y > cvs.height) { 
+          if(o.y > cvs.height + 50) { 
             obs.splice(i, 1); 
             score++; 
             speed += 0.05; 
