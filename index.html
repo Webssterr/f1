@@ -377,6 +377,33 @@
       margin-bottom: 12px;
     }
 
+    /* ИГРОВАЯ СЕТКА */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .game-grid-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+    .game-grid-card:active { transform: scale(0.96); }
+    .g-icon { font-size: 34px; margin-bottom: 10px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+    .g-title { font-size: 14px; font-weight: 900; color: var(--text); margin-bottom: 4px; line-height: 1.1; }
+    .g-desc { font-size: 11px; color: var(--text-muted); font-weight: 600; line-height: 1.3; }
+
+
     .search-input {
       width: 100%;
       background: var(--input-bg);
@@ -632,37 +659,39 @@
       <div id="predictionLeaderboardList" style="text-align:left; font-size:13px; color:var(--text-muted);">Загрузка лидерборда...</div>
     </div>
 
-    <div class="card game-card">
-      <h3>⚡ Реакция на стартовые огни F1</h3>
-      <p class="card-desc">Загораются 5 красных огней по очереди. Жди выключения и жми!</p>
-  
-      <div class="f1-lights-container" style="display: flex; gap: 10px; justify-content: center; margin: 15px 0;">
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
-        <div class="f1-light" style="width: 35px; height: 35px; border-radius: 50%; background: #2a2a35; transition: background 0.2s;"></div>
+    <h2 style="font-size:18px; font-weight:900; margin: 24px 0 12px 0;">🎮 Arcade Zone</h2>
+    
+    <!-- СЕТКА ИГР -->
+    <div class="games-grid">
+      <!-- Игра 1 -->
+      <div class="game-grid-card" onclick="openMiniGame('traffic')">
+        <div class="g-icon">🏎️</div>
+        <div class="g-title">Endless Run</div>
+        <div class="g-desc">Уворачивайся от трафика</div>
       </div>
-
-      <button id="f1LightsBtn" class="action-btn" style="width: 100%; padding: 12px; background: #e10600; color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">
-        НАЖМИ ДЛЯ СТАРТА
-      </button>
-      <div id="f1LightsResult" style="text-align: center; margin-top: 10px; font-size: 14px; color: #aaa;"></div>
-    </div>
-
-    <div class="game-card">
-      <h3 style="margin:0 0 6px 0; font-size:18px; font-weight:900;">🏎💨 Pit-Stop Challenge</h3>
-      <div style="font-size:13px; color:var(--text-muted); line-height:1.4;">
-        Коснись всех 4 колёс болида как можно быстрее!
+      <!-- Игра 2 -->
+      <div class="game-grid-card" onclick="openMiniGame('slot')">
+        <div class="g-icon">🔄</div>
+        <div class="g-title">Time Attack</div>
+        <div class="g-desc">Жми в апекс, не вылети</div>
       </div>
-      <div class="pitstop-box">
-        <div class="wheel-btn" id="w1" onclick="handleWheelTap(1)">🛞</div>
-        <div class="wheel-btn" id="w2" onclick="handleWheelTap(2)">🛞</div>
-        <div class="wheel-btn" id="w3" onclick="handleWheelTap(3)">🛞</div>
-        <div class="wheel-btn" id="w4" onclick="handleWheelTap(4)">🛞</div>
+      <!-- Игра 3 -->
+      <div class="game-grid-card" style="grid-column: span 2;" onclick="openMiniGame('strategy')">
+        <div class="g-icon">📊</div>
+        <div class="g-title">Гоночный Инженер</div>
+        <div class="g-desc">Симулятор стратегии: шины и погода</div>
       </div>
-      <div class="reaction-res" id="pitstopTimerDisplay" style="color:var(--text); font-size:22px;">2.40 сек</div>
-      <button class="btn-action" style="margin-top:10px;" onclick="resetPitstopGame()">НАЧАТЬ ПИТ-СТОП</button>
+      <!-- Старые игры -->
+      <div class="game-grid-card" onclick="openMiniGame('lights')">
+        <div class="g-icon">🚦</div>
+        <div class="g-title">Стартовые огни</div>
+        <div class="g-desc">Проверь реакцию</div>
+      </div>
+      <div class="game-grid-card" onclick="openMiniGame('pitstop')">
+        <div class="g-icon">🛞</div>
+        <div class="g-title">Pit-Stop</div>
+        <div class="g-desc">Смени колеса</div>
+      </div>
     </div>
   </div>
 
@@ -863,13 +892,28 @@
 
       <div id="adminDirectEntryBlock" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
         <button class="btn-action" style="background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent);" onclick="toggleAppSettingsModal(false); openAdminDashboardScreen();">
-          ⚙️️ Открыть панель администратора
+          ⚙ Открыть панель администратора
         </button>
       </div>
 
       <button class="btn-action btn-secondary" onclick="localStorage.clear(); location.reload();" style="margin-top:12px;">
         🧹 Очистить локальный кэш
       </button>
+    </div>
+  </div>
+
+  <!-- ================= МОДАЛКА ДЛЯ МИНИ-ИГР ================= -->
+  <div id="miniGameModal" class="modal-overlay" style="z-index: 10001;" onclick="if(event.target.id==='miniGameModal') closeMiniGame()">
+    <div class="modal-sheet" style="height: 85vh; padding: 0; border-radius: 24px 24px 0 0; overflow: hidden; display: flex; flex-direction: column;">
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom: 1px solid var(--border); background: var(--card-bg);">
+        <h3 id="mgTitle" style="margin:0; font-size:18px; font-weight:900;">Игра</h3>
+        <button class="modal-close" style="background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer;" onclick="closeMiniGame()">✕</button>
+      </div>
+      
+      <div id="mgContent" style="flex:1; background: var(--bg); position: relative; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+        <!-- Игровой контент будет рендериться сюда -->
+      </div>
     </div>
   </div>
 
@@ -908,10 +952,13 @@
     const isTester = (isAdmin || currentUserId === TESTER_ID);
 
     const CIRCUITS_SVG_DATABASE = {
-      "sepang": "M 80,155 L 390,155 Q 410,155 405,140 Q 400,125 380,135 L 260,175 Q 240,180 250,200 L 275,225 Q 295,245 320,225 L 350,195 Q 370,175 400,195 L 435,215 Q 460,225 450,180 L 415,100 Q 395,50 340,55 L 260,65 Q 235,70 240,95 L 250,125 Q 245,145 220,135 L 140,135 Q 75,135 60,170 Q 55,200 95,200 L 370,200 Q 400,200 400,175 Q 400,155 380,155 Z"
+      "sepang": "M 80,155 L 390,155 Q 410,155 405,140 Q 400,125 380,135 L 260,175 Q 240,180 250,200 L 275,225 Q 295,245 320,225 L 350,195 Q 370,175 400,195 L 435,215 Q 460,225 450,180 L 415,100 Q 395,50 340,55 L 260,65 Q 235,70 240,95 L 250,125 Q 245,145 220,135 L 140,135 Q 75,135 60,170 Q 55,200 95,200 L 370,200 Q 400,200 400,175 Q 400,155 380,155 Z",
+      "albert_park": "M 90,190 L 140,200 Q 180,210 240,205 L 340,195 Q 420,190 440,150 L 410,100 Q 380,60 300,80 L 220,110 Q 170,120 120,80 L 90,110 Q 70,140 90,190 Z",
+      "monaco": "M 80,190 L 150,150 Q 220,120 280,80 L 380,60 Q 430,70 420,110 L 360,130 Q 310,140 280,180 L 210,210 Q 140,230 80,190 Z",
+      "silverstone": "M 90,180 L 200,190 Q 260,200 320,160 L 410,130 Q 440,90 390,60 L 280,60 Q 190,40 140,80 L 90,130 Z",
+      "spa": "M 70,190 L 130,210 Q 180,220 250,170 L 360,140 Q 430,120 410,70 L 330,50 Q 260,40 210,80 L 120,110 Q 60,140 70,190 Z"
     };
-
-    let trackAnimInterval = null;
+	let trackAnimInterval = null;
     function runCarAnimationOnTrack(circuitKey = "sepang", customPath = null) {
       const svgEl = document.getElementById('trackSvgEl');
       if (!svgEl) return;
@@ -1128,298 +1175,12 @@
       updateTimer();
       globalSessionInterval = setInterval(updateTimer, 1000);
     }
-    
-    // ИГРА: ПИТ-СТОП
-    let pitstopActive = false;
-    let pitstopStartTime = 0;
-    let wheelsDone = 0;
 
-    function resetPitstopGame() {
-      pitstopActive = true;
-      pitstopStartTime = performance.now();
-      wheelsDone = 0;
-      for (let i = 1; i <= 4; i++) {
-        const w = document.getElementById(`w${i}`);
-        if (w) { w.classList.remove('done'); w.innerText = '🛞'; }
-      }
-      document.getElementById('pitstopTimerDisplay').innerText = '0.00 сек';
-      document.getElementById('pitstopTimerDisplay').style.color = 'var(--text)';
-    }
-
-    function handleWheelTap(wheelIndex) {
-      if (!pitstopActive) return;
-      const w = document.getElementById(`w${wheelIndex}`);
-      if (w && !w.classList.contains('done')) {
-        w.classList.add('done');
-        w.innerText = '✅';
-        wheelsDone++;
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-
-        if (wheelsDone === 4) {
-          pitstopActive = false;
-          const totalSec = ((performance.now() - pitstopStartTime) / 1000).toFixed(2);
-          const resEl = document.getElementById('pitstopTimerDisplay');
-          resEl.innerText = `🏁 ПИТ-СТОП: ${totalSec} сек!`;
-          resEl.style.color = totalSec < 2.3 ? '#28a745' : 'var(--accent)';
-          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        }
-      }
-    }
-
-    // ПРЕДИКШН МЕХАНИКА (С отправкой в D1)
-    function initPredictionGame(driversList) {
-      const selectEl = document.getElementById('predictionDriverSelect');
-      const activeBox = document.getElementById('predictionActiveBox');
-      const resBox = document.getElementById('predictionResultBox');
-      if (!selectEl) return;
-
-      const currentRound = window.activeRaceRound || "17"; 
-      const savedPrediction = localStorage.getItem(`f1_prediction_${currentUserId}_${currentRound}`);
-      
-      if (savedPrediction) {
-        activeBox.style.display = 'none';
-        resBox.style.display = 'block';
-        resBox.innerText = `✅ Ваш прогноз на текущую гонку: ${savedPrediction}`;
-      } else {
-        activeBox.style.display = 'block';
-        resBox.style.display = 'none';
-        selectEl.innerHTML = '<option value="">-- Выберите победителя гонки --</option>' +
-          driversList.map(d => `<option value="${d.name}">${d.name} (${d.team})</option>`).join('');
-      }
-      loadPredictionLeaderboard();
-    }
-
-    async function submitUserPrediction() {
-      const selectEl = document.getElementById('predictionDriverSelect');
-      const chosen = selectEl.value;
-      if (!chosen) {
-        alert('Пожалуйста, выберите гонщика!');
-        return;
-      }
-
-      const currentRound = window.activeRaceRound || "17"; 
-
-      try {
-        const res = await fetch(`${WORKER_URL}/api/prediction/submit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: currentUserId,
-            round: currentRound,
-            driver_name: chosen
-          })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          localStorage.setItem(`f1_prediction_${currentUserId}_${currentRound}`, chosen);
-          document.getElementById('predictionActiveBox').style.display = 'none';
-          const resBox = document.getElementById('predictionResultBox');
-          resBox.style.display = 'block';
-          resBox.innerText = `✅ Прогноз успешно принят сервером: ${chosen}`;
-          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-          loadPredictionLeaderboard();
-        } else {
-          alert("Ошибка соединения. Попробуйте еще раз!");
-        }
-      } catch (e) {
-        alert("Ошибка сети при отправке на сервер.");
-      }
-    }
-
-    async function loadPredictionLeaderboard() {
-      try {
-        const res = await fetch(`${WORKER_URL}/api/prediction/leaderboard`);
-        const data = await res.json();
-        const listEl = document.getElementById('predictionLeaderboardList');
-        
-        if (!data.leaderboard || data.leaderboard.length === 0) {
-          listEl.innerHTML = 'Пока нет начисленных очков за гонки.';
-          return;
-        }
-
-        listEl.innerHTML = data.leaderboard.map((row, idx) => `
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);">
-            <span>#${idx + 1} Игрок: ...${String(row.user_id).slice(-4)}</span>
-            <span style="font-weight:900; color:var(--accent);">${row.total_points} очков</span>
-          </div>
-        `).join('');
-      } catch (e) {}
-    }
-
-    let allCatalogItems = [];
-    let catalogTree = {};
-    let activeCatalogCategory = null;
-
-    const DEFAULT_DRIVERS_DATA = [
-      { pos: "01", name: "Kimi Antonelli", team: "Mercedes-AMG Petronas F1 Team", points: "302", wins: 8 },
-      { pos: "02", name: "George Russell", team: "Mercedes-AMG Petronas F1 Team", points: "236", wins: 4 },
-      { pos: "03", name: "Lewis Hamilton", team: "Scuderia Ferrari", points: "199", wins: 2 },
-      { pos: "04", name: "Lando Norris", team: "McLaren F1 Team", points: "186", wins: 1 },
-      { pos: "05", name: "Charles Leclerc", team: "Scuderia Ferrari", points: "174", wins: 1 },
-      { pos: "06", name: "Oscar Piastri", team: "McLaren F1 Team", points: "161", wins: 0 },
-      { pos: "07", name: "Max Verstappen", team: "Red Bull Racing", points: "155", wins: 1 },
-      { pos: "08", name: "Liam Lawson", team: "Red Bull Racing", points: "98", wins: 0 },
-      { pos: "09", name: "Fernando Alonso", team: "Aston Martin F1", points: "94", wins: 0 },
-      { pos: "10", name: "Lance Stroll", team: "Aston Martin F1", points: "72", wins: 0 },
-      { pos: "11", name: "Carlos Sainz", team: "Williams Racing", points: "68", wins: 0 },
-      { pos: "12", name: "Alexander Albon", team: "Williams Racing", points: "46", wins: 0 },
-      { pos: "13", name: "Pierre Gasly", team: "Alpine F1 Team", points: "38", wins: 0 },
-      { pos: "14", name: "Jack Doohan", team: "Alpine F1 Team", points: "24", wins: 0 },
-      { pos: "15", name: "Yuki Tsunoda", team: "Racing Bulls (VCARB)", points: "22", wins: 0 },
-      { pos: "16", name: "Isack Hadjar", team: "Racing Bulls (VCARB)", points: "18", wins: 0 },
-      { pos: "17", name: "Nico Hülkenberg", team: "Stake F1 Team Kick Sauber / Audi", points: "16", wins: 0 },
-      { pos: "18", name: "Gabriel Bortoleto", team: "Stake F1 Team Kick Sauber / Audi", points: "12", wins: 0 },
-      { pos: "19", name: "Esteban Ocon", team: "Haas F1 Team", points: "10", wins: 0 },
-      { pos: "20", name: "Oliver Bearman", team: "Haas F1 Team", points: "8", wins: 0 },
-      { pos: "21", name: "Patricio O'Ward", team: "Cadillac F1 Team", points: "4", wins: 0 },
-      { pos: "22", name: "Felipe Drugovich", team: "Cadillac F1 Team", points: "2", wins: 0 }
-    ];
-
-    const DEFAULT_RACES_CALENDAR = [
-      { round: "1", name: "Гран-при Австралии", circuit: "Альберт-Парк", date: "8 марта" },
-      { round: "2", name: "Гран-при Китая", circuit: "Шанхай", date: "22 марта" },
-      { round: "3", name: "Гран-при Японии", circuit: "Сузука", date: "5 апреля" },
-      { round: "4", name: "Гран-при Бахрейна", circuit: "Сахир", date: "12 апреля" },
-      { round: "5", name: "Гран-при Саудовской Аравии", circuit: "Джидда", date: "19 апреля" },
-      { round: "6", name: "Гран-при Майами", circuit: "Майами", date: "3 мая" },
-      { round: "7", name: "Гран-при Эмилии-Романьи", circuit: "Имола", date: "17 мая" },
-      { round: "8", name: "Гран-при Монако", circuit: "Монте-Карло", date: "24 мая" },
-      { round: "9", name: "Гран-при Испании", circuit: "Барселона", date: "7 июня" },
-      { round: "10", name: "Гран-при Канады", circuit: "Монреаль", date: "14 июня" },
-      { round: "11", name: "Гран-при Австрии", circuit: "Шпильберг", date: "28 июня" },
-      { round: "12", name: "Гран-при Великобритании", circuit: "Сильверстоун", date: "5 июля" },
-      { round: "13", name: "Гран-при Бельгии", circuit: "Спа-Франкоршам", date: "19 июля" },
-      { round: "14", name: "Гран-при Венгрии", circuit: "Хунгароринг", date: "26 июля" },
-      { round: "15", name: "Гран-при Нидерландов", circuit: "Зандворт", date: "23 августа" },
-      { round: "16", name: "Гран-при Малайзии", circuit: "Сепанг", date: "2-4 октября" },
-      { round: "17", name: "Гран-при Сингапура", circuit: "Марина-Бей", date: "11 октября" },
-      { round: "18", name: "Гран-при США", circuit: "Остин, Техас", date: "25 октября" },
-      { round: "19", name: "Гран-при Мексики", circuit: "Мехико", date: "1 ноября" },
-      { round: "20", name: "Гран-при Бразилии", circuit: "Интерлагос", date: "8 ноября" },
-      { round: "21", name: "Гран-при Лас-Вегаса", circuit: "Лас-Вегас Стрип", date: "21 ноября" },
-      { round: "22", name: "Гран-при Катара", circuit: "Лусаил", date: "29 ноября" },
-      { round: "23", name: "Гран-при Абу-Даби", circuit: "Яс-Марина", date: "6 декабря" }
-    ];
-
-    function initThemeAndPreferences() {
-      const savedTheme = localStorage.getItem('f1_theme_mode') || 'light';
-      if (savedTheme === 'dark') document.body.classList.add('dark-theme');
-
-      const isLite = localStorage.getItem('f1_lite_mode') === 'true';
-      if (isLite) {
-        document.body.classList.add('lite-mode');
-        const liteCheck = document.getElementById('userSettingLiteToggle');
-        if (liteCheck) liteCheck.checked = true;
-      }
-
-      document.getElementById('userSettingVideoNotify').checked = localStorage.getItem('f1_set_video') !== 'false';
-      document.getElementById('userSettingTextNotify').checked = localStorage.getItem('f1_set_text') !== 'false';
-      document.getElementById('userSettingNewsNotify').checked = localStorage.getItem('f1_set_news') !== 'false';
-      document.getElementById('userSettingSilentMode').checked = localStorage.getItem('f1_set_silent') === 'true';
-
-      if (isAdmin) {
-        const adminBtn = document.getElementById('adminDirectEntryBlock');
-        if (adminBtn) adminBtn.style.display = 'block';
-      }
-      if (isTester) {
-        const betaRow = document.getElementById('betaTesterSettingRow');
-        if (betaRow) betaRow.style.display = 'flex';
-      }
-
-      applySavedWeekendConfig();
-    }
-
-    function saveUserSettings() {
-      localStorage.setItem('f1_set_video', document.getElementById('userSettingVideoNotify').checked);
-      localStorage.setItem('f1_set_text', document.getElementById('userSettingTextNotify').checked);
-      localStorage.setItem('f1_set_news', document.getElementById('userSettingNewsNotify').checked);
-      localStorage.setItem('f1_set_silent', document.getElementById('userSettingSilentMode').checked);
-    }
-
-    function toggleAppTheme() {
-      const isDark = document.body.classList.toggle('dark-theme');
-      localStorage.setItem('f1_theme_mode', isDark ? 'dark' : 'light');
-    }
-
-    function handleLiteModeToggle(enabled) {
-      if (enabled) document.body.classList.add('lite-mode');
-      else document.body.classList.remove('lite-mode');
-      localStorage.setItem('f1_lite_mode', enabled ? 'true' : 'false');
-    }
-
-    function openSettingsModal() {
-      document.getElementById('appSettingsModal').classList.add('active');
-    }
-
-    function toggleAppSettingsModal(show) {
-      const modal = document.getElementById('appSettingsModal');
-      if (show) modal.classList.add('active');
-      else modal.classList.remove('active');
-    }
-
-    let brandClickCount = 0;
-    let brandClickTimer = null;
-    document.getElementById('topBrandLogo')?.addEventListener('click', () => {
-      brandClickCount++;
-      clearTimeout(brandClickTimer);
-      brandClickTimer = setTimeout(() => { brandClickCount = 0; }, 1000);
-      if (brandClickCount >= 3) {
-        const enteredId = prompt("Telegram ID администратора:");
-        if (enteredId === ADMIN_ID) {
-          localStorage.setItem('f1_cached_uid', enteredId);
-          alert("✅ Доступ администратора активирован!");
-          location.reload();
-        }
-      }
-    });
-
-    function switchMainTab(tabName, btnEl) {
-      if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-      document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
-
-      document.querySelectorAll('.view-screen').forEach(s => s.classList.remove('active'));
-      const target = document.getElementById('view-' + tabName);
-      if (target) target.classList.add('active');
-      window.scrollTo(0, 0);
-
-      if (tabName === 'season') {
-        setTimeout(scrollToCurrentCalendarStage, 250);
-      }
-    }
-
-    function openViewScreen(screenName) {
-      document.querySelectorAll('.view-screen').forEach(s => s.classList.remove('active'));
-      const screen = document.getElementById('view-' + screenName);
-      if (screen) screen.classList.add('active');
-      window.scrollTo(0, 0);
-    }
-
-    function switchSeasonSubTab(subTab, btn) {
-      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      document.getElementById('seasonSubStandings').style.display = subTab === 'standings' ? 'block' : 'none';
-      document.getElementById('seasonSubCalendar').style.display = subTab === 'calendar' ? 'block' : 'none';
-      document.getElementById('seasonSubTeams').style.display = subTab === 'teams' ? 'block' : 'none';
-
-      if (subTab === 'calendar') {
-        setTimeout(scrollToCurrentCalendarStage, 150);
-      }
-    }
-
-    function scrollToCurrentCalendarStage() {
-      const currentCard = document.querySelector('.cal-card.current');
-      if (currentCard) currentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    // НОВЫЙ ДИЗАЙН КАРТОЧЕК ПИЛОТОВ
+    // НОВЫЙ ДИЗАЙН КАРТОЧЕК ПИЛОТОВ С НЕОНОМ И ГИТХАБ КАРТИНКАМИ
     function renderDriversList(drivers) {
       const list = drivers || DEFAULT_DRIVERS_DATA;
       if (!list || list.length === 0) return;
 
-      // Умный поиск: используем короткие корни названий
       const TEAM_COLORS = {
         "mclaren": "#FF8000",
         "ferrari": "#E80020",
@@ -1436,20 +1197,18 @@
         "cadillac": "#222222"
       };
 
-      // Функция для получения цвета по фрагменту имени
       function getTeamColor(teamName) {
         const t = (teamName || "").toLowerCase();
         for (const key in TEAM_COLORS) {
           if (t.includes(key)) return TEAM_COLORS[key];
         }
-        return "#7e8494"; // Серый по умолчанию
+        return "#7e8494"; 
       }
 
-      // Генератор ссылок на фото
       function getDriverImage(name) {
         let lastName = name.split(' ').pop().toLowerCase();
         lastName = lastName.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-        if (lastName === 'russell') lastName = 'russel'; // патч для твоей картинки
+        if (lastName === 'russell') lastName = 'russel'; 
         return `https://raw.githubusercontent.com/Webssterr/f1/main/images/${lastName}.png`;
       }
 
@@ -1457,27 +1216,22 @@
       const leaderColor = getTeamColor(leader.team);
       const leaderImg = getDriverImage(leader.name);
 
-      // --- ОФОРМЛЕНИЕ КАРТОЧКИ ЛИДЕРА ---
       document.getElementById('leaderNameDisplay').innerText = leader.name;
       document.getElementById('leaderTeamDisplay').innerText = leader.team;
       document.getElementById('leaderPointsDisplay').innerText = leader.points;
       document.getElementById('leaderWinsDisplay').innerText = `${leader.wins || 0} побед • лидер чемпионата`;
       
       const leaderCard = document.querySelector('.leader-card');
-      // Заливаем фон карточки лидера цветом его команды
       leaderCard.style.background = `linear-gradient(135deg, ${leaderColor} 0%, #111317 120%)`;
       leaderCard.style.borderBottom = `4px solid ${leaderColor}`;
       
-      // Добавляем или обновляем фото лидера
       let lPhoto = document.getElementById('leaderPhotoEl');
       if (!lPhoto) {
         lPhoto = document.createElement('img');
         lPhoto.id = 'leaderPhotoEl';
-        // Позиционируем фото лидера справа
         lPhoto.style.cssText = 'position:absolute; right:-10px; bottom:0; height:120%; object-fit:contain; z-index:1; pointer-events:none; filter: drop-shadow(-4px 0 12px rgba(0,0,0,0.4));';
         leaderCard.appendChild(lPhoto);
         
-        // Поднимаем текст над фотографией
         const leaderBgNum = document.querySelector('.leader-bg-num');
         if (leaderBgNum) leaderBgNum.style.zIndex = '0';
         const leaderTexts = leaderCard.querySelectorAll('.leader-badge, .leader-name, .leader-team, .leader-pts-row');
@@ -1485,7 +1239,6 @@
       }
       lPhoto.src = leaderImg;
 
-      // --- ОФОРМЛЕНИЕ СПИСКА ОСТАЛЬНЫХ ПИЛОТОВ ---
       const driversListEl = document.getElementById('driversStandingsList');
       driversListEl.innerHTML = list.slice(1).map(d => {
         const teamColor = getTeamColor(d.team);
@@ -1507,7 +1260,6 @@
             
             <div style="width: 46px; height: 46px; border-radius: 50%; background: ${teamColor}40; margin-right: 14px; border: 2px solid ${teamColor}; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
               <span style="position: absolute; font-weight: 800; color: ${teamColor}; font-size: 14px;">${fallbackInitials}</span>
-              <!-- При успешной загрузке картинки она скрывает слой с буквами через onload -->
               <img src="${imgUrl}" onload="this.previousElementSibling.style.display='none'" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2;" onerror="this.style.display='none'">
             </div>
             
@@ -1614,6 +1366,87 @@
         initPredictionGame(DEFAULT_DRIVERS_DATA);
         initDynamicWeekendSessions(null);
       }
+    }
+
+    // ПРЕДИКШН МЕХАНИКА С ОТПРАВКОЙ НА WORKER
+    function initPredictionGame(driversList) {
+      const selectEl = document.getElementById('predictionDriverSelect');
+      const activeBox = document.getElementById('predictionActiveBox');
+      const resBox = document.getElementById('predictionResultBox');
+      if (!selectEl) return;
+
+      const currentRound = window.activeRaceRound || "17"; 
+      const savedPrediction = localStorage.getItem(`f1_prediction_${currentUserId}_${currentRound}`);
+      
+      if (savedPrediction) {
+        activeBox.style.display = 'none';
+        resBox.style.display = 'block';
+        resBox.innerText = `✅ Ваш прогноз на текущую гонку: ${savedPrediction}`;
+      } else {
+        activeBox.style.display = 'block';
+        resBox.style.display = 'none';
+        selectEl.innerHTML = '<option value="">-- Выберите победителя гонки --</option>' +
+          driversList.map(d => `<option value="${d.name}">${d.name} (${d.team})</option>`).join('');
+      }
+      loadPredictionLeaderboard();
+    }
+
+    async function submitUserPrediction() {
+      const selectEl = document.getElementById('predictionDriverSelect');
+      const chosen = selectEl.value;
+      if (!chosen) {
+        alert('Пожалуйста, выберите гонщика!');
+        return;
+      }
+
+      const currentRound = window.activeRaceRound || "17"; 
+
+      try {
+        const res = await fetch(`${WORKER_URL}/api/prediction/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: currentUserId,
+            round: currentRound,
+            driver_name: chosen
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem(`f1_prediction_${currentUserId}_${currentRound}`, chosen);
+          document.getElementById('predictionActiveBox').style.display = 'none';
+          const resBox = document.getElementById('predictionResultBox');
+          resBox.style.display = 'block';
+          resBox.innerText = `✅ Прогноз успешно принят сервером: ${chosen}`;
+          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+          loadPredictionLeaderboard();
+        } else {
+          alert("Ошибка соединения. Попробуйте еще раз!");
+        }
+      } catch (e) {
+        alert("Ошибка сети при отправке на сервер.");
+      }
+    }
+
+    async function loadPredictionLeaderboard() {
+      try {
+        const res = await fetch(`${WORKER_URL}/api/prediction/leaderboard`);
+        const data = await res.json();
+        const listEl = document.getElementById('predictionLeaderboardList');
+        
+        if (!data.leaderboard || data.leaderboard.length === 0) {
+          listEl.innerHTML = 'Пока нет начисленных очков за гонки.';
+          return;
+        }
+
+        listEl.innerHTML = data.leaderboard.map((row, idx) => `
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);">
+            <span>#${idx + 1} Игрок: ...${String(row.user_id).slice(-4)}</span>
+            <span style="font-weight:900; color:var(--accent);">${row.total_points} очков</span>
+          </div>
+        `).join('');
+      } catch (e) {}
     }
 
     async function loadCatalogDatabase() {
@@ -1989,84 +1822,302 @@
       } catch (e) {}
     }
 
-    document.getElementById('deployV2Btn')?.addEventListener('click', async () => {
-      if (!confirm("Переключить версию для всех пользователей на V2?")) return;
+    // ========================================================================
+    // МИНИ-ИГРЫ - ДВИЖОК (НОВАЯ ARCADE ZONE)
+    // ========================================================================
+    let gameLoopRef = null;
+    function openMiniGame(gameId) {
+      const modal = document.getElementById('miniGameModal');
+      const content = document.getElementById('mgContent');
+      const title = document.getElementById('mgTitle');
+      content.innerHTML = '';
       
-      try {
-        const res = await fetch('https://твой-воркер.workers.dev/api/admin/set-version', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ version: 'v2', adminId: '301211351' })
-        });
-        const data = await res.json();
-        if (data.success) {
-          alert("Версия V2 успешно активирована для всех!");
-          location.reload();
-        } else {
-          alert("Ошибка сохранения");
-        }
-      } catch (e) { alert("Ошибка сети"); }
-    });
+      if (gameLoopRef) { cancelAnimationFrame(gameLoopRef); clearInterval(gameLoopRef); }
 
-      // --- КОД МИНИ-ИГРЫ СТАРТОВЫЕ ОГНИ ---
-      let f1GameState = 'IDLE'; 
-      let f1StartTime = 0;
-      let f1Timeout = null;
-      let f1Interval = null;
+      if (gameId === 'lights') {
+        title.innerText = 'Стартовые огни';
+        content.innerHTML = `
+          <div style="text-align:center; width:100%;">
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:30px;">Загораются 5 огней. Жди выключения и жми!</p>
+            <div style="display:flex; gap:10px; justify-content:center; margin-bottom:40px;" id="lContainer">
+              <div class="f1-light"></div><div class="f1-light"></div><div class="f1-light"></div><div class="f1-light"></div><div class="f1-light"></div>
+            </div>
+            <button id="lBtn" class="btn-action" style="padding:20px; font-size:18px;">НАЖМИ ДЛЯ СТАРТА</button>
+            <div id="lRes" style="margin-top:20px; font-size:18px; font-weight:900; color:var(--text);"></div>
+          </div>
+        `;
+        setupLightsGame();
+      } 
+      else if (gameId === 'pitstop') {
+        title.innerText = 'Pit-Stop';
+        content.innerHTML = `
+          <div style="text-align:center; width:100%;">
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:30px;">Смени 4 колеса как можно быстрее!</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; width:fit-content; margin:0 auto 30px auto;">
+              <div class="wheel-btn" id="pw1">🛞</div><div class="wheel-btn" id="pw2">🛞</div>
+              <div class="wheel-btn" id="pw3">🛞</div><div class="wheel-btn" id="pw4">🛞</div>
+            </div>
+            <div id="pRes" style="font-size:32px; font-weight:900; color:var(--text); margin-bottom:20px;">0.00s</div>
+            <button class="btn-action" id="pBtn">НАЧАТЬ</button>
+          </div>
+        `;
+        setupPitstopGame();
+      }
+      else if (gameId === 'traffic') {
+        title.innerText = 'Endless Run';
+        content.innerHTML = `
+          <div style="text-align:center; width:100%; height:100%; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+              <span style="font-weight:900; color:var(--text);">ОЧКИ: <span id="eScore" style="color:var(--accent);">0</span></span>
+            </div>
+            <canvas id="eCanvas" style="background:#222; border-radius:12px; flex:1; width:100%; max-height:400px; touch-action:none;"></canvas>
+            <button id="eBtn" class="btn-action" style="margin-top:16px;">СТАРТ</button>
+          </div>
+        `;
+        setupTrafficGame();
+      }
+      else if (gameId === 'slot') {
+        title.innerText = 'Time Attack';
+        content.innerHTML = `
+          <div style="text-align:center; width:100%; height:100%; display:flex; flex-direction:column;">
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:10px;">Зажми экран для газа. Отпусти в повороте!</p>
+            <canvas id="sCanvas" style="background:#222; border-radius:12px; flex:1; width:100%; max-height:350px; touch-action:none;"></canvas>
+            <div id="sRes" style="font-size:24px; font-weight:900; margin-top:16px; color:var(--text);">Кругов: 0</div>
+          </div>
+        `;
+        setupSlotGame();
+      }
+      else if (gameId === 'strategy') {
+        title.innerText = 'Гоночный Инженер';
+        content.innerHTML = `
+          <div style="width:100%; height:100%; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; background:var(--card-bg); padding:16px; border-radius:12px; border:1px solid var(--border); margin-bottom:16px;">
+              <div>
+                <div style="font-size:12px; color:var(--text-muted);">КРУГ</div>
+                <div style="font-size:24px; font-weight:900; color:var(--text);"><span id="stLap">1</span> / 15</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:12px; color:var(--text-muted);">ПОЗИЦИЯ</div>
+                <div style="font-size:24px; font-weight:900; color:var(--accent);">P<span id="stPos">5</span></div>
+              </div>
+            </div>
+            <div style="background:var(--card-sub); padding:16px; border-radius:12px; margin-bottom:16px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span style="font-weight:800;">Шины: <span id="stTyreName" style="color:#e80020;">Soft</span></span>
+                <span style="font-weight:800;">Износ: <span id="stWear">0%</span></span>
+              </div>
+              <div style="width:100%; height:8px; background:#ddd; border-radius:4px; overflow:hidden;"><div id="stWearBar" style="height:100%; background:#e80020; width:100%;"></div></div>
+            </div>
+            <div style="margin-bottom:16px; font-weight:800; text-align:center;">Погода: <span id="stWeather">☀️ Сухо</span></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <button class="btn-action" style="margin:0; background:#e80020;" onclick="stPit('Soft')">PIT -> SOFT</button>
+              <button class="btn-action" style="margin:0; background:#ddd; color:#111;" onclick="stPit('Hard')">PIT -> HARD</button>
+              <button class="btn-action" style="margin:0; background:#0090ff; grid-column:span 2;" onclick="stPit('Wet')">PIT -> WET (Дождь)</button>
+            </div>
+            <button id="stStartBtn" class="btn-action" style="margin-top:20px; background:var(--accent);">НАЧАТЬ ГОНКУ</button>
+            <div id="stLog" style="margin-top:16px; font-size:12px; color:var(--text-muted); text-align:center;"></div>
+          </div>
+        `;
+        setupStrategyGame();
+      }
 
-      document.getElementById('f1LightsBtn')?.addEventListener('click', () => {
-        const btn = document.getElementById('f1LightsBtn');
-        const lights = document.querySelectorAll('.f1-light');
-        const resultDiv = document.getElementById('f1LightsResult');
+      modal.classList.add('active');
+    }
 
-        if (f1GameState === 'IDLE' || f1GameState === 'FINISHED') {
-          f1GameState = 'COUNTING';
-          btn.innerText = "ЖДИ ОГНИ...";
-          btn.style.background = "#333";
-          resultDiv.innerText = "";
-    
-          lights.forEach(l => l.style.background = "#2a2a35");
+    function closeMiniGame() {
+      if (gameLoopRef) { cancelAnimationFrame(gameLoopRef); clearInterval(gameLoopRef); }
+      document.getElementById('miniGameModal').classList.remove('active');
+    }
 
-          let currentLight = 0;
-          f1Interval = setInterval(() => {
-            if (currentLight < 5) {
-              lights[currentLight].style.background = "#e10600";
-              currentLight++;
-            } else {
-              clearInterval(f1Interval);
-              f1GameState = 'WAITING';
-              btn.innerText = "ТУШИ СВЕТ!";
-              btn.style.background = "#e10600";
-
-              const randomDelay = Math.random() * 2000 + 1000;
-              f1Timeout = setTimeout(() => {
-                lights.forEach(l => l.style.background = "#2a2a35");
-                f1StartTime = performance.now();
-                f1GameState = 'READY_TO_CLICK';
-              }, randomDelay);
+    // --- ЛОГИКА ОГНЕЙ ---
+    function setupLightsGame() {
+      let st='IDLE', start=0, t=null, i=null;
+      const b=document.getElementById('lBtn'), ls=document.querySelectorAll('#lContainer .f1-light'), r=document.getElementById('lRes');
+      b.onclick = () => {
+        if(st==='IDLE' || st==='FINISHED') {
+          st='COUNT'; b.innerText='ЖДИ...'; b.style.background='#333'; r.innerText='';
+          ls.forEach(l=>l.classList.remove('on'));
+          let cur=0;
+          i = setInterval(()=> {
+            if(cur<5) { ls[cur].classList.add('on'); cur++; }
+            else {
+              clearInterval(i); st='WAIT'; b.innerText='ТУШИ!'; b.style.background='#e10600';
+              t = setTimeout(()=> { ls.forEach(l=>l.classList.remove('on')); start=performance.now(); st='GO'; }, Math.random()*2000+1000);
             }
           }, 1000);
+        } else if(st==='WAIT') {
+          clearTimeout(t); clearInterval(i); st='IDLE'; b.innerText='ФАЛЬСТАРТ! ЗАНОВО'; r.innerText='❌ Слишком рано'; ls.forEach(l=>l.classList.remove('on'));
+        } else if(st==='GO') {
+          const rt=Math.round(performance.now()-start); st='FINISHED'; b.innerText='ИГРАТЬ СНОВА'; r.innerText=`⏱ ${rt} мс!`;
+        }
+      }
+    }
 
-        } else if (f1GameState === 'WAITING') {
-          clearTimeout(f1Timeout);
-          clearInterval(f1Interval);
-          f1GameState = 'FALSE_START';
-          btn.innerText = "НАЖМИ ДЛЯ СТАРТА";
-          btn.style.background = "#e10600";
-          resultDiv.innerText = "❌ Фальстарт! Слишком рано.";
-          lights.forEach(l => l.style.background = "#2a2a35");
-
-        } else if (f1GameState === 'READY_TO_CLICK') {
-          const reactionTime = Math.round(performance.now() - f1StartTime);
-          f1GameState = 'FINISHED';
-          btn.innerText = "ИГРАТЬ СНОВА";
-          btn.style.background = "#e10600";
-          resultDiv.innerText = `⏱ Твое время реакции: ${reactionTime} мс!`;
+    // --- ЛОГИКА ПИТ-СТОПА ---
+    function setupPitstopGame() {
+      let active=false, start=0, done=0;
+      const b=document.getElementById('pBtn'), r=document.getElementById('pRes');
+      const ws = [1,2,3,4].map(i=>document.getElementById(`pw${i}`));
+      b.onclick = () => {
+        active=true; start=performance.now(); done=0; r.innerText='0.00s'; r.style.color='var(--text)';
+        ws.forEach(w=>{w.classList.remove('done'); w.innerText='🛞';});
+      };
+      ws.forEach(w => w.onclick = () => {
+        if(active && !w.classList.contains('done')) {
+          w.classList.add('done'); w.innerText='✅'; done++;
+          if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+          if(done===4) { active=false; const time=((performance.now()-start)/1000).toFixed(2); r.innerText=`${time}s`; r.style.color=time<2.5?'#28a745':'var(--accent)'; }
         }
       });
+    }
 
-      checkAppVersion();
-      initAppRouting();
+    // --- ЛОГИКА ENDLESS RUN ---
+    function setupTrafficGame() {
+      const cvs = document.getElementById('eCanvas'); const ctx = cvs.getContext('2d');
+      cvs.width = cvs.parentElement.clientWidth; cvs.height = 400;
+      let state='MENU', score=0, lane=1, speed=5, frames=0, obs=[];
+      const lanes = [cvs.width/6, cvs.width/2, cvs.width - cvs.width/6];
+      const cw = 40, ch = 80;
+
+      function reset() { score=0; lane=1; speed=5; frames=0; obs=[]; state='PLAY'; loop(); }
+      document.getElementById('eBtn').onclick = reset;
+
+      cvs.addEventListener('pointerdown', (e) => {
+        if(state!=='PLAY') return;
+        const rect = cvs.getBoundingClientRect();
+        if((e.clientX - rect.left) < cvs.width/2 && lane > 0) lane--;
+        else if((e.clientX - rect.left) >= cvs.width/2 && lane < 2) lane++;
+      });
+
+      function loop() {
+        if(state!=='PLAY') return;
+        ctx.clearRect(0,0,cvs.width,cvs.height);
+        
+        // Линии
+        ctx.fillStyle='#fff';
+        for(let i=0; i<400; i+=40) { ctx.fillRect(cvs.width/3 - 2, i + (frames%40), 4, 20); ctx.fillRect(cvs.width*2/3 - 2, i + (frames%40), 4, 20); }
+
+        // Игрок
+        ctx.fillStyle='#ff3b30';
+        ctx.fillRect(lanes[lane]-cw/2, cvs.height-100, cw, ch);
+
+        // Враги
+        if(frames%Math.max(20, 60-Math.floor(speed*2)) === 0) {
+          obs.push({l: Math.floor(Math.random()*3), y: -100});
+        }
+
+        for(let i=obs.length-1; i>=0; i--) {
+          let o = obs[i]; o.y += speed;
+          ctx.fillStyle='#00a0e9'; ctx.fillRect(lanes[o.l]-cw/2, o.y, cw, ch);
+          
+          if(o.l === lane && o.y+ch > cvs.height-100 && o.y < cvs.height-20) { state='GAME_OVER'; document.getElementById('eBtn').innerText='ЗАНОВО'; }
+          if(o.y > cvs.height) { obs.splice(i, 1); score++; speed+=0.05; }
+        }
+
+        document.getElementById('eScore').innerText = score;
+        frames++;
+        if(state==='PLAY') gameLoopRef = requestAnimationFrame(loop);
+      }
+    }
+
+    // --- ЛОГИКА ТАЙМ-АТАКА (SLOT RACING) ---
+    function setupSlotGame() {
+      const cvs = document.getElementById('sCanvas'); const ctx = cvs.getContext('2d');
+      cvs.width = cvs.parentElement.clientWidth; cvs.height = 350;
+      let state='PLAY', angle=0, speed=0, laps=0, isDown=false;
+      const cx=cvs.width/2, cy=cvs.height/2, rx=cvs.width/2.5, ry=cvs.height/2.5;
+
+      cvs.addEventListener('pointerdown', ()=>isDown=true);
+      cvs.addEventListener('pointerup', ()=>isDown=false);
+      cvs.addEventListener('pointercancel', ()=>isDown=false);
+
+      function loop() {
+        if(state!=='PLAY') return;
+        ctx.clearRect(0,0,cvs.width,cvs.height);
+        
+        ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+        ctx.strokeStyle='#444'; ctx.lineWidth=30; ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+        ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.setLineDash([10,10]); ctx.stroke(); ctx.setLineDash([]);
+
+        if(isDown) speed+=0.001; else speed-=0.002;
+        if(speed<0) speed=0; if(speed>0.08) speed=0.08;
+
+        // В поворотах (когда sin/cos близки к 1) максимальная скорость меньше
+        const cornerFactor = Math.abs(Math.sin(angle*2)); 
+        if(speed > 0.05 && cornerFactor > 0.8) {
+          state='CRASH'; document.getElementById('sRes').innerText='ВЫЛЕТ С ТРАССЫ!';
+          document.getElementById('sRes').style.color='red';
+        }
+
+        let oldAngle = angle;
+        angle += speed;
+        if(angle >= Math.PI*2) { angle=0; laps++; document.getElementById('sRes').innerText=`Кругов: ${laps}`; }
+
+        const x = cx + rx * Math.cos(angle); const y = cy + ry * Math.sin(angle);
+        ctx.fillStyle='#ff3b30'; ctx.beginPath(); ctx.arc(x,y, 10, 0, Math.PI*2); ctx.fill();
+
+        if(state==='PLAY') gameLoopRef = requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    // --- ЛОГИКА СТРАТЕГИИ ---
+    function setupStrategyGame() {
+      let lap=1, pos=15, wear=100, tyre='Soft', weather='☀️ Сухо';
+      const wBar = document.getElementById('stWearBar'), log = document.getElementById('stLog');
+      
+      function logMsg(m) { log.innerHTML = m + "<br>" + log.innerHTML; }
+      
+      window.stPit = (type) => {
+        if(!gameLoopRef) return;
+        tyre = type; wear = 100; pos += 4; // Штраф за пит-стоп
+        logMsg(`Пит-стоп! Поставили ${type}. Потеря позиций.`);
+        updateUI();
+      }
+
+      function updateUI() {
+        document.getElementById('stLap').innerText = lap;
+        document.getElementById('stPos').innerText = pos;
+        document.getElementById('stTyreName').innerText = tyre;
+        document.getElementById('stWear').innerText = Math.floor(wear) + '%';
+        wBar.style.width = Math.floor(wear)+'%';
+        wBar.style.background = tyre==='Soft'?'#e80020':tyre==='Hard'?'#fff':'#0090ff';
+        document.getElementById('stWeather').innerText = weather;
+      }
+
+      document.getElementById('stStartBtn').onclick = () => {
+        document.getElementById('stStartBtn').style.display='none';
+        logMsg('Гонка стартовала!');
+        
+        gameLoopRef = setInterval(() => {
+          lap++;
+          if(lap>15) { clearInterval(gameLoopRef); logMsg(`🏁 ФИНИШ! Твоя позиция: P${pos}`); return; }
+
+          if(lap===6 && Math.random()>0.5) weather = '🌧 Дождь';
+          if(lap===12 && Math.random()>0.5) weather = '☀️ Сухо';
+
+          // Логика износа
+          wear -= tyre==='Soft'? 15 : tyre==='Hard'? 8 : 10;
+          if(wear<0) wear=0;
+
+          // Логика темпа
+          let speed = tyre==='Soft'? 3 : tyre==='Hard'? 1 : 2;
+          if(weather==='🌧 Дождь' && tyre!=='Wet') speed -= 5;
+          if(weather==='☀️ Сухо' && tyre==='Wet') speed -= 5;
+          if(wear < 30) speed -= 3;
+
+          // Обгон или потеря позиций
+          if(speed > 1 && pos > 1) { pos--; logMsg(`L${lap}: Обогнал соперника!`); }
+          else if(speed < 1 && pos < 20) { pos++; logMsg(`L${lap}: Теряешь темп!`); }
+          
+          updateUI();
+        }, 2000); // 1 круг = 2 секунды
+      }
+    }
+
+    checkAppVersion();
+    initAppRouting();
   </script>
 </body>
 </html>
