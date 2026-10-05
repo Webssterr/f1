@@ -1066,8 +1066,7 @@
     }
 
     // ДИНАМИЧЕСКИЙ ТАЙМЕР И СЕТКА СЕССИЙ УИКЕНДА
-    let globalSessionInterval = null;
-    function initDynamicWeekendSessions(raceData) {
+        function initDynamicWeekendSessions(raceData) {
       const sessions = [];
       if (raceData) {
         const parseLocalDateTime = (dateStr, timeStr) => {
@@ -1076,13 +1075,27 @@
           return new Date(`${dateStr}T${cleanTime}Z`);
         };
 
-        if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
-        if (raceData.SecondPractice?.date) sessions.push({ name: "Практика 2", short: "П2", date: parseLocalDateTime(raceData.SecondPractice.date, raceData.SecondPractice.time), duration: 60 });
-        if (raceData.ThirdPractice?.date) sessions.push({ name: "Практика 3", short: "П3", date: parseLocalDateTime(raceData.ThirdPractice.date, raceData.ThirdPractice.time), duration: 60 });
-        if (raceData.SprintQualifying?.date) sessions.push({name: "Спринт-квалификация", short: "СПРИНТ-КВАЛА", date: parseLocalDateTime(raceData.SprintQualifying.date, raceData.SprintQualifying.time), duration: 60 });
-        if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 45 });
-        if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
-        if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+        // Проверяем, есть ли спринт на этом этапе
+        const isSprintWeekend = !!raceData.Sprint?.date;
+
+        if (isSprintWeekend) {
+          // Ровно 5 сессий для Спринт-уикенда
+          if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
+          // Если в API сессия называется SprintQualifying или Qualifying
+          const sqData = raceData.SprintQualifying || raceData.Qualifying; 
+          if (sqData?.date) sessions.push({ name: "Квалификация к спринту", short: "КВАЛА С", date: parseLocalDateTime(sqData.date, sqData.time), duration: 45 });
+          if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 45 });
+          // Основная квалификация
+          if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация к гонке", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
+          if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+        } else {
+          // Ровно 5 сессий для Обычного уикенда
+          if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
+          if (raceData.SecondPractice?.date) sessions.push({ name: "Практика 2", short: "П2", date: parseLocalDateTime(raceData.SecondPractice.date, raceData.SecondPractice.time), duration: 60 });
+          if (raceData.ThirdPractice?.date) sessions.push({ name: "Практика 3", short: "П3", date: parseLocalDateTime(raceData.ThirdPractice.date, raceData.ThirdPractice.time), duration: 60 });
+          if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
+          if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
+        }
       }
 
       const label = document.getElementById("heroStageLabel");
