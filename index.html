@@ -1192,12 +1192,16 @@
     async function submitUserPrediction() {
       const selectEl = document.getElementById('predictionDriverSelect');
       const chosen = selectEl.value;
+      
       if (!chosen) {
         alert('Пожалуйста, выберите гонщика!');
         return;
       }
 
       const currentRound = window.activeRaceRound || "17"; 
+      
+      // Собираем данные пользователя из Telegram
+      const tgUser = tg?.initDataUnsafe?.user || {};
 
       try {
         const res = await fetch(`${WORKER_URL}/api/prediction/submit`, {
@@ -1206,7 +1210,10 @@
           body: JSON.stringify({
             user_id: currentUserId,
             round: currentRound,
-            driver_name: chosen
+            driver_name: chosen,
+            first_name: tgUser.first_name || "Аноним",
+            last_name: tgUser.last_name || "",
+            username: tgUser.username || ""
           })
         });
         const data = await res.json();
@@ -1238,12 +1245,20 @@
           return;
         }
 
-        listEl.innerHTML = data.leaderboard.map((row, idx) => `
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);">
-            <span>#${idx + 1} Игрок: ...${String(row.user_id).slice(-4)}</span>
-            <span style="font-weight:900; color:var(--accent);">${row.total_points} очков</span>
-          </div>
-        `).join('');
+        listEl.innerHTML = data.leaderboard.map((row, idx) => {
+          // Формируем красивое имя (Имя + Фамилия, либо юзернейм)
+          let displayName = `${row.first_name || ''} ${row.last_name || ''}`.trim();
+          if (!displayName) {
+            displayName = row.username ? `@${row.username}` : `Игрок ...${String(row.user_id).slice(-4)}`;
+          }
+
+          return `
+            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);">
+              <span>#${idx + 1} ${displayName}</span>
+              <span style="font-weight:900; color:var(--accent);">${row.total_points} очков</span>
+            </div>
+          `;
+        }).join('');
       } catch (e) {}
     }
 
