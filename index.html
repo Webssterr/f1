@@ -661,7 +661,7 @@
         <div class="wheel-btn" id="w3" onclick="handleWheelTap(3)">🛞</div>
         <div class="wheel-btn" id="w4" onclick="handleWheelTap(4)">🛞</div>
       </div>
-      <div class="reaction-res" id="pitstopTimerDisplay" style="color:var(--text); font-size:22px;">2.40 сек</div>
+      <div class="reaction-res" id="pitstopTimerDisplay" style="color:var(--text); font-size:22px;">2.00 сек</div>
       <button class="btn-action" style="margin-top:10px;" onclick="resetPitstopGame()">НАЧАТЬ ПИТ-СТОП</button>
     </div>
   </div>
@@ -1034,7 +1034,7 @@
           if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
           const sqData = raceData.SprintQualifying || raceData.Qualifying; 
           if (sqData?.date) sessions.push({ name: "Квалификация к спринту", short: "КВАЛА С", date: parseLocalDateTime(sqData.date, sqData.time), duration: 45 });
-          if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 45 });
+          if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 60 });
           if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация к гонке", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
           if (raceData.date) sessions.push({ name: "Гонка", short: "ГОНКА", date: parseLocalDateTime(raceData.date, raceData.time), duration: 120 });
         } else {
