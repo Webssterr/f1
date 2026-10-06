@@ -2722,66 +2722,163 @@
       cvs.width = rect.width || window.innerWidth - 40; 
       cvs.height = 350;
       
-      let state = 'PLAY', angle = 0, speed = 0, laps = 0, isDown = false;
-      const cx = cvs.width/2, cy = cvs.height/2, rx = cvs.width/2.5, ry = cvs.height/2.5;
+      let state = 'PLAY', angle = Math.PI / 2, speed = 0, laps = 0, isDown = false;
+      let bestTime = 0, lapStartTime = performance.now();
+      let sparks = [];
+
+      const cx = cvs.width / 2, cy = cvs.height / 2;
+      const rx = cvs.width / 2.5, ry = cvs.height / 2.5;
 
       cvs.addEventListener('pointerdown', () => isDown = true);
       cvs.addEventListener('pointerup', () => isDown = false);
       cvs.addEventListener('pointercancel', () => isDown = false);
 
+      document.getElementById('sRes').innerHTML = `<span style="font-size:16px;">Круг: 0 | Лучший: --</span>`;
+
       function loop() {
         if(state !== 'PLAY') return;
-        ctx.clearRect(0, 0, cvs.width, cvs.height);
+        ctx.fillStyle = '#111317';
+        ctx.fillRect(0, 0, cvs.width, cvs.height);
         
+        // 1. Асфальтовое полотно
         ctx.beginPath(); 
         ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
-        ctx.strokeStyle = '#444'; 
-        ctx.lineWidth = 30; 
+        ctx.strokeStyle = '#2a2c36'; 
+        ctx.lineWidth = 42; 
         ctx.stroke();
         
+        // 2. Красно-белые поребрики (внутренняя часть)
+        ctx.lineWidth = 4; 
+        ctx.setLineDash([14, 14]); 
+        ctx.strokeStyle = '#ff3b30'; 
         ctx.beginPath(); 
-        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
-        ctx.strokeStyle = '#fff'; 
-        ctx.lineWidth = 2; 
-        ctx.setLineDash([10,10]); 
+        ctx.ellipse(cx, cy, rx - 21, ry - 21, 0, 0, Math.PI*2); 
         ctx.stroke(); 
-        ctx.setLineDash([]);
+        ctx.strokeStyle = '#ffffff'; 
+        ctx.lineDashOffset = 14; 
+        ctx.beginPath(); 
+        ctx.ellipse(cx, cy, rx - 21, ry - 21, 0, 0, Math.PI*2); 
+        ctx.stroke(); 
+        ctx.setLineDash([]); 
+        ctx.lineDashOffset = 0;
 
+        // 3. Стартовая прямая (клетчатый флаг)
+        ctx.save();
+        ctx.translate(cx, cy + ry);
+        ctx.fillStyle = '#fff';
+        for(let i = -20; i < 20; i += 8) {
+          ctx.fillRect(-2, i, 4, 4);
+          ctx.fillRect(2, i + 4, 4, 4);
+        }
+        ctx.restore();
+
+        // Физика разгона и торможения
         if(isDown) {
-          speed += 0.001; 
+          speed += 0.0015; 
         } else {
-          speed -= 0.002;
+          speed -= 0.0030;
         }
         
-        if(speed < 0) speed = 0; 
-        if(speed > 0.08) speed = 0.08;
+        if(speed < 0.015) speed = 0.015; // Скорость холостого хода
+        if(speed > 0.085) speed = 0.085;
 
-        const cornerFactor = Math.abs(Math.sin(angle*2)); 
-        if(speed > 0.05 && cornerFactor > 0.8) {
+        // Риск вылета (чем ближе к 0 или PI, тем острее поворот)
+        const cornerFactor = Math.abs(Math.cos(angle)); 
+        const gripLimit = 0.064;
+
+        if(speed > gripLimit && cornerFactor > 0.75) {
           state = 'CRASH'; 
-          document.getElementById('sRes').innerText = 'ВЫЛЕТ С ТРАССЫ!';
-          document.getElementById('sRes').style.color = 'red';
+          document.getElementById('sRes').innerHTML = '💥 <span style="color:#ff3b30;">ВЫЛЕТ В ГРАВИЙ!</span><br><span style="font-size:12px;color:#888;">Слишком высокая скорость в апексе</span>';
+          return;
         }
 
         angle += speed;
-        if(angle >= Math.PI*2) { 
-          angle = 0; 
+
+        // Регистрация круга (полный оборот = 2.5 PI из-за старта с 0.5 PI)
+        const trigger = Math.PI * 2.5;
+        if(angle >= trigger + (laps * Math.PI * 2)) { 
           laps++; 
-          document.getElementById('sRes').innerText = `Кругов: ${laps}`; 
+          const now = performance.now();
+          const lapTime = ((now - lapStartTime) / 1000).toFixed(3);
+          lapStartTime = now;
+          if (bestTime === 0 || parseFloat(lapTime) < bestTime) bestTime = parseFloat(lapTime);
+          document.getElementById('sRes').innerHTML = `<span style="font-size:16px;">Круг: <b style="color:#fff;">${laps}</b> | Лучший: <b style="color:#00a19b;">${bestTime.toFixed(3)}s</b></span>`;
         }
 
+        // 4. Центральная телеметрия (Спидометр)
+        ctx.beginPath();
+        ctx.arc(cx, cy, 38, Math.PI * 0.75, Math.PI * 2.25);
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = '#1d202b';
+        ctx.stroke();
+
+        ctx.beginPath();
+        const speedPct = (speed - 0.015) / (0.085 - 0.015);
+        ctx.arc(cx, cy, 38, Math.PI * 0.75, Math.PI * 0.75 + (Math.PI * 1.5 * Math.max(0, speedPct)));
+        ctx.strokeStyle = speed > gripLimit ? '#ff3b30' : '#00a19b';
+        ctx.stroke();
+
+        ctx.fillStyle = '#fff';
+        ctx.font = '900 16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(Math.floor(speedPct * 330) + ' kmh', cx, cy + 6);
+
+        // 5. Отрисовка болида и частиц
         const x = cx + rx * Math.cos(angle); 
         const y = cy + ry * Math.sin(angle);
+        const tangent = Math.atan2(ry * Math.cos(angle), -rx * Math.sin(angle));
+
+        // Генератор искр из-под днища
+        if (isDown && speed > 0.05) {
+          sparks.push({
+            x: x, y: y,
+            vx: -Math.cos(tangent) * (Math.random() * 4 + 2) + (Math.random() - 0.5) * 2,
+            vy: -Math.sin(tangent) * (Math.random() * 4 + 2) + (Math.random() - 0.5) * 2,
+            life: 1.0
+          });
+        }
+        for (let i = sparks.length - 1; i >= 0; i--) {
+          let s = sparks[i];
+          s.x += s.vx; s.y += s.vy; s.life -= 0.08;
+          if (s.life <= 0) { sparks.splice(i, 1); continue; }
+          ctx.fillStyle = `rgba(255, ${Math.floor(s.life * 200)}, 0, ${s.life})`;
+          ctx.fillRect(s.x, s.y, 3, 3);
+        }
+
+        // Рендер текстуры болида
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(tangent);
         
-        ctx.fillStyle = '#ff3b30'; 
-        ctx.beginPath(); 
-        ctx.arc(x, y, 10, 0, Math.PI*2); 
-        ctx.fill();
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 4;
+        
+        ctx.fillStyle = '#ff3b30'; // Корпус
+        ctx.fillRect(-10, -5, 20, 10);
+        ctx.fillRect(10, -2, 6, 4); // Нос
+        
+        ctx.fillStyle = '#111'; // Кокпит
+        ctx.fillRect(-1, -2, 6, 4);
+        
+        ctx.fillStyle = '#222'; // Переднее крыло
+        ctx.fillRect(14, -8, 3, 16);
+        ctx.fillRect(-12, -6, 4, 12); // Заднее крыло
+        
+        ctx.fillStyle = '#0a0a0a'; // Шины
+        ctx.fillRect(7, -9, 6, 3);
+        ctx.fillRect(7, 6, 6, 3);
+        ctx.fillRect(-10, -10, 7, 4);
+        ctx.fillRect(-10, 6, 7, 4);
+        
+        ctx.restore();
 
         if(state === 'PLAY') {
           gameLoopRef = requestAnimationFrame(loop);
         }
       }
+      
+      lapStartTime = performance.now();
       loop();
     }
 
@@ -2855,4 +2952,3 @@
   </script>
 </body>
 </html>
-
