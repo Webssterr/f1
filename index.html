@@ -1540,7 +1540,14 @@
     function renderCalendarList(races) {
       const list = races || DEFAULT_RACES_CALENDAR;
       const calEl = document.getElementById('calendarEventsList');
-      const currentStageIndex = 16;
+      
+      // Динамически определяем текущий этап по датам (точно так же, как на главной)
+      const nowTs = Date.now();
+      let activeRace = list.find(r => {
+        const raceTime = new Date(r.date + "T" + (r.time || "14:00:00")).getTime();
+        return (raceTime + 10800000) >= nowTs; 
+      });
+      const currentStageIndex = activeRace ? parseInt(activeRace.round) : (parseInt(window.activeRaceRound) || 17);
 
       calEl.innerHTML = list.map((r, idx) => {
         const roundNum = parseInt(r.round) || (idx + 1);
