@@ -776,13 +776,14 @@
       <input type="text" class="search-input" placeholder="🔍 Быстрый поиск в админке..." oninput="handleAdminSearch(this.value)">
       <div id="adminCatalogRecordsManageList" style="display:flex; flex-direction:column; gap:8px; max-height:400px; overflow-y:auto;"></div>
     </div>
-  </div>
 
-  <div class="hero-card">
+    <!-- БЛОК ПОРЯДКА ПАПОК ТЕПЕРЬ СТРОГО ВНУТРИ АДМИНКИ -->
+    <div class="hero-card">
       <h3 style="margin:0 0 8px 0; font-size:17px; font-weight:900;">📂 Порядок папок (категорий)</h3>
       <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Используй стрелочки, чтобы поднять нужную категорию выше:</div>
       <div id="adminCategoriesOrderList" style="display:flex; flex-direction:column; gap:8px;"></div>
     </div>
+  </div>
 
   <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (4 ВКЛАДКИ) -->
   <div class="bottom-nav">
@@ -869,7 +870,7 @@
 
       <div id="adminDirectEntryBlock" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
         <button class="btn-action" style="background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent);" onclick="toggleAppSettingsModal(false); openAdminDashboardScreen();">
-          ⚙️️ Открыть панель администратора
+          ⚙ Открыть панель администратора
         </button>
       </div>
 
@@ -1003,7 +1004,6 @@
 
         runCarAnimationOnTrack(circuitKey, data.path);
 
-        // Обновляем шапку карточки трассы
         if (data.name) {
           document.getElementById('specHeaderTitle').innerText = `Данные трассы • ${data.name}`;
           document.getElementById('specCircuitName').innerText = data.name;
@@ -1023,7 +1023,6 @@
       }
     }
 
-    // ДИНАМИЧЕСКИЙ ТАЙМЕР И СЕТКА СЕССИЙ УИКЕНДА (Строго 5 сессий)
     let globalSessionInterval = null;
     function initDynamicWeekendSessions(raceData) {
       const sessions = [];
@@ -1135,7 +1134,6 @@
       globalSessionInterval = setInterval(updateTimer, 1000);
     }
     
-    // ИГРА: ПИТ-СТОП
     let pitstopActive = false;
     let pitstopStartTime = 0;
     let wheelsDone = 0;
@@ -1172,7 +1170,6 @@
       }
     }
 
-    // ПРЕДИКШН МЕХАНИКА (С отправкой в D1)
     function initPredictionGame(driversList) {
       const selectEl = document.getElementById('predictionDriverSelect');
       const activeBox = document.getElementById('predictionActiveBox');
@@ -1205,8 +1202,6 @@
       }
 
       const currentRound = window.activeRaceRound || "17"; 
-      
-      // Собираем данные пользователя из Telegram
       const tgUser = tg?.initDataUnsafe?.user || {};
 
       try {
@@ -1252,7 +1247,6 @@
         }
 
         listEl.innerHTML = data.leaderboard.map((row, idx) => {
-          // Формируем красивое имя (Имя + Фамилия, либо юзернейм)
           let displayName = `${row.first_name || ''} ${row.last_name || ''}`.trim();
           if (!displayName) {
             displayName = row.username ? `@${row.username}` : `Игрок ...${String(row.user_id).slice(-4)}`;
@@ -1435,12 +1429,10 @@
       if (currentCard) currentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // НОВЫЙ ДИЗАЙН КАРТОЧЕК ПИЛОТОВ
     function renderDriversList(drivers) {
       const list = drivers || DEFAULT_DRIVERS_DATA;
       if (!list || list.length === 0) return;
 
-      // Умный поиск: используем короткие корни названий
       const TEAM_COLORS = {
         "mclaren": "#FF8000",
         "ferrari": "#E80020",
@@ -1457,20 +1449,18 @@
         "cadillac": "#222222"
       };
 
-      // Функция для получения цвета по фрагменту имени
       function getTeamColor(teamName) {
         const t = (teamName || "").toLowerCase();
         for (const key in TEAM_COLORS) {
           if (t.includes(key)) return TEAM_COLORS[key];
         }
-        return "#7e8494"; // Серый по умолчанию
+        return "#7e8494";
       }
 
-      // Генератор ссылок на фото
       function getDriverImage(name) {
         let lastName = name.split(' ').pop().toLowerCase();
         lastName = lastName.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-        if (lastName === 'russell') lastName = 'russel'; // патч для твоей картинки
+        if (lastName === 'russell') lastName = 'russel';
         return `https://raw.githubusercontent.com/Webssterr/f1/main/images/${lastName}.png`;
       }
 
@@ -1478,27 +1468,22 @@
       const leaderColor = getTeamColor(leader.team);
       const leaderImg = getDriverImage(leader.name);
 
-      // --- ОФОРМЛЕНИЕ КАРТОЧКИ ЛИДЕРА ---
       document.getElementById('leaderNameDisplay').innerText = leader.name;
       document.getElementById('leaderTeamDisplay').innerText = leader.team;
       document.getElementById('leaderPointsDisplay').innerText = leader.points;
       document.getElementById('leaderWinsDisplay').innerText = `${leader.wins || 0} побед • лидер чемпионата`;
       
       const leaderCard = document.querySelector('.leader-card');
-      // Заливаем фон карточки лидера цветом его команды
       leaderCard.style.background = `linear-gradient(135deg, ${leaderColor} 0%, #111317 120%)`;
       leaderCard.style.borderBottom = `4px solid ${leaderColor}`;
       
-      // Добавляем или обновляем фото лидера
       let lPhoto = document.getElementById('leaderPhotoEl');
       if (!lPhoto) {
         lPhoto = document.createElement('img');
         lPhoto.id = 'leaderPhotoEl';
-        // Позиционируем фото лидера справа
         lPhoto.style.cssText = 'position:absolute; right:-10px; bottom:0; height:120%; object-fit:contain; z-index:1; pointer-events:none; filter: drop-shadow(-4px 0 12px rgba(0,0,0,0.4));';
         leaderCard.appendChild(lPhoto);
         
-        // Поднимаем текст над фотографией
         const leaderBgNum = document.querySelector('.leader-bg-num');
         if (leaderBgNum) leaderBgNum.style.zIndex = '0';
         const leaderTexts = leaderCard.querySelectorAll('.leader-badge, .leader-name, .leader-team, .leader-pts-row');
@@ -1506,7 +1491,6 @@
       }
       lPhoto.src = leaderImg;
 
-      // --- ОФОРМЛЕНИЕ СПИСКА ОСТАЛЬНЫХ ПИЛОТОВ ---
       const driversListEl = document.getElementById('driversStandingsList');
       driversListEl.innerHTML = list.slice(1).map(d => {
         const teamColor = getTeamColor(d.team);
@@ -1528,7 +1512,6 @@
             
             <div style="width: 46px; height: 46px; border-radius: 50%; background: ${teamColor}40; margin-right: 14px; border: 2px solid ${teamColor}; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
               <span style="position: absolute; font-weight: 800; color: ${teamColor}; font-size: 14px;">${fallbackInitials}</span>
-              <!-- При успешной загрузке картинки она скрывает слой с буквами через onload -->
               <img src="${imgUrl}" onload="this.previousElementSibling.style.display='none'" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 2;" onerror="this.style.display='none'">
             </div>
             
@@ -1547,7 +1530,6 @@
       const list = races || DEFAULT_RACES_CALENDAR;
       const calEl = document.getElementById('calendarEventsList');
       
-      // Динамически определяем текущий этап по датам (точно так же, как на главной)
       const nowTs = Date.now();
       let activeRace = list.find(r => {
         const raceTime = new Date(r.date + "T" + (r.time || "14:00:00")).getTime();
@@ -1619,7 +1601,6 @@
           renderCalendarList(data.races);
           
           const nowTs = Date.now();
-          // Ищем этап, который еще идет или следующий в будущем (с запасом в 3 часа = 10800000 мс)
           let activeRace = data.races.find(r => {
             const raceTime = new Date(r.date + "T" + (r.time || "14:00:00")).getTime();
             return (raceTime + 10800000) >= nowTs; 
@@ -1669,7 +1650,10 @@
           `;
         }
         document.getElementById('catalogCategoriesContainer').innerHTML = html;
-        if (isAdmin) renderAdminCatalogList(allCatalogItems);
+        if (isAdmin) {
+          renderAdminCatalogList(allCatalogItems);
+          renderAdminCategoriesOrder(); // 👈 Добавлено сюда
+        }
       } catch (e) {
         document.getElementById('catalogCategoriesContainer').innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Ошибка подключения к D1.</div>';
       }
@@ -1756,6 +1740,7 @@
     function openAdminDashboardScreen() {
       openViewScreen('admin');
       loadAdminLiveStats();
+      renderAdminCategoriesOrder(); // 👈 Добавлено сюда
     }
 
     function navigateBackFromAdmin() {
@@ -2021,7 +2006,7 @@
       if (!confirm("Переключить версию для всех пользователей на V2?")) return;
       
       try {
-        const res = await fetch('https://твой-воркер.workers.dev/api/admin/set-version', {
+        const res = await fetch(`${WORKER_URL}/api/admin/set-version`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ version: 'v2', adminId: '301211351' })
@@ -2040,7 +2025,6 @@
       const box = document.getElementById('adminCategoriesOrderList');
       if (!box) return;
 
-      // Получаем уникальный список категорий из текущего каталога
       const categories = [...new Set(allCatalogItems.map(i => i.category))];
       
       if (!categories.length) {
@@ -2065,12 +2049,10 @@
       
       if (targetIndex < 0 || targetIndex >= categories.length) return;
 
-      // Меняем местами в массиве
       const temp = categories[index];
       categories[index] = categories[targetIndex];
       categories[targetIndex] = temp;
 
-      // Формируем payload с новыми индексами
       const payloadCategories = categories.map((cat, order) => ({ category: cat, order }));
 
       try {
@@ -2081,72 +2063,72 @@
         });
         const data = await res.json();
         if (data.success) {
-          loadCatalogDatabase(); // Перезагружаем каталог с новым порядком
+          loadCatalogDatabase();
+          renderAdminCategoriesOrder();
         }
       } catch (e) {
         alert("Ошибка при сохранении порядка категорий");
       }
     }
 
-      // --- КОД МИНИ-ИГРЫ СТАРТОВЫЕ ОГНИ ---
-      let f1GameState = 'IDLE'; 
-      let f1StartTime = 0;
-      let f1Timeout = null;
-      let f1Interval = null;
+    let f1GameState = 'IDLE'; 
+    let f1StartTime = 0;
+    let f1Timeout = null;
+    let f1Interval = null;
 
-      document.getElementById('f1LightsBtn')?.addEventListener('click', () => {
-        const btn = document.getElementById('f1LightsBtn');
-        const lights = document.querySelectorAll('.f1-light');
-        const resultDiv = document.getElementById('f1LightsResult');
+    document.getElementById('f1LightsBtn')?.addEventListener('click', () => {
+      const btn = document.getElementById('f1LightsBtn');
+      const lights = document.querySelectorAll('.f1-light');
+      const resultDiv = document.getElementById('f1LightsResult');
 
-        if (f1GameState === 'IDLE' || f1GameState === 'FINISHED') {
-          f1GameState = 'COUNTING';
-          btn.innerText = "ЖДИ ОГНИ...";
-          btn.style.background = "#333";
-          resultDiv.innerText = "";
-    
-          lights.forEach(l => l.style.background = "#2a2a35");
+      if (f1GameState === 'IDLE' || f1GameState === 'FINISHED') {
+        f1GameState = 'COUNTING';
+        btn.innerText = "ЖДИ ОГНИ...";
+        btn.style.background = "#333";
+        resultDiv.innerText = "";
+  
+        lights.forEach(l => l.style.background = "#2a2a35");
 
-          let currentLight = 0;
-          f1Interval = setInterval(() => {
-            if (currentLight < 5) {
-              lights[currentLight].style.background = "#e10600";
-              currentLight++;
-            } else {
-              clearInterval(f1Interval);
-              f1GameState = 'WAITING';
-              btn.innerText = "ТУШИ СВЕТ!";
-              btn.style.background = "#e10600";
+        let currentLight = 0;
+        f1Interval = setInterval(() => {
+          if (currentLight < 5) {
+            lights[currentLight].style.background = "#e10600";
+            currentLight++;
+          } else {
+            clearInterval(f1Interval);
+            f1GameState = 'WAITING';
+            btn.innerText = "ТУШИ СВЕТ!";
+            btn.style.background = "#e10600";
 
-              const randomDelay = Math.random() * 2000 + 1000;
-              f1Timeout = setTimeout(() => {
-                lights.forEach(l => l.style.background = "#2a2a35");
-                f1StartTime = performance.now();
-                f1GameState = 'READY_TO_CLICK';
-              }, randomDelay);
-            }
-          }, 1000);
+            const randomDelay = Math.random() * 2000 + 1000;
+            f1Timeout = setTimeout(() => {
+              lights.forEach(l => l.style.background = "#2a2a35");
+              f1StartTime = performance.now();
+              f1GameState = 'READY_TO_CLICK';
+            }, randomDelay);
+          }
+        }, 1000);
 
-        } else if (f1GameState === 'WAITING') {
-          clearTimeout(f1Timeout);
-          clearInterval(f1Interval);
-          f1GameState = 'FALSE_START';
-          btn.innerText = "НАЖМИ ДЛЯ СТАРТА";
-          btn.style.background = "#e10600";
-          resultDiv.innerText = "❌ Фальстарт! Слишком рано.";
-          lights.forEach(l => l.style.background = "#2a2a35");
+      } else if (f1GameState === 'WAITING') {
+        clearTimeout(f1Timeout);
+        clearInterval(f1Interval);
+        f1GameState = 'FALSE_START';
+        btn.innerText = "НАЖМИ ДЛЯ СТАРТА";
+        btn.style.background = "#e10600";
+        resultDiv.innerText = "❌ Фальстарт! Слишком рано.";
+        lights.forEach(l => l.style.background = "#2a2a35");
 
-        } else if (f1GameState === 'READY_TO_CLICK') {
-          const reactionTime = Math.round(performance.now() - f1StartTime);
-          f1GameState = 'FINISHED';
-          btn.innerText = "ИГРАТЬ СНОВА";
-          btn.style.background = "#e10600";
-          resultDiv.innerText = `⏱ Твое время реакции: ${reactionTime} мс!`;
-        }
-      });
+      } else if (f1GameState === 'READY_TO_CLICK') {
+        const reactionTime = Math.round(performance.now() - f1StartTime);
+        f1GameState = 'FINISHED';
+        btn.innerText = "ИГРАТЬ СНОВА";
+        btn.style.background = "#e10600";
+        resultDiv.innerText = `⏱ Твое время реакции: ${reactionTime} мс!`;
+      }
+    });
 
-      checkAppVersion();
-      initAppRouting();
+    checkAppVersion();
+    initAppRouting();
   </script>
 </body>
 </html>
