@@ -778,6 +778,12 @@
     </div>
   </div>
 
+  <div class="hero-card">
+      <h3 style="margin:0 0 8px 0; font-size:17px; font-weight:900;">📂 Порядок папок (категорий)</h3>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Используй стрелочки, чтобы поднять нужную категорию выше:</div>
+      <div id="adminCategoriesOrderList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+
   <!-- НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (4 ВКЛАДКИ) -->
   <div class="bottom-nav">
     <div class="nav-btn active" onclick="switchMainTab('home', this)">
@@ -2029,6 +2035,58 @@
         }
       } catch (e) { alert("Ошибка сети"); }
     });
+
+    function renderAdminCategoriesOrder() {
+      const box = document.getElementById('adminCategoriesOrderList');
+      if (!box) return;
+
+      // Получаем уникальный список категорий из текущего каталога
+      const categories = [...new Set(allCatalogItems.map(i => i.category))];
+      
+      if (!categories.length) {
+        box.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center;">Нет категорий</div>';
+        return;
+      }
+
+      box.innerHTML = categories.map((cat, idx) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:10px 14px; border-radius:12px; border:1px solid var(--border);">
+          <span style="font-size:14px; font-weight:800;">${cat}</span>
+          <div style="display:flex; gap:6px;">
+            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="moveCategoryOrder(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.3"' : ''}>⬆️</button>
+            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="moveCategoryOrder(${idx}, 1)" ${idx === categories.length - 1 ? 'disabled style="opacity:0.3"' : ''}>⬇️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function moveCategoryOrder(index, direction) {
+      const categories = [...new Set(allCatalogItems.map(i => i.category))];
+      const targetIndex = index + direction;
+      
+      if (targetIndex < 0 || targetIndex >= categories.length) return;
+
+      // Меняем местами в массиве
+      const temp = categories[index];
+      categories[index] = categories[targetIndex];
+      categories[targetIndex] = temp;
+
+      // Формируем payload с новыми индексами
+      const payloadCategories = categories.map((cat, order) => ({ category: cat, order }));
+
+      try {
+        const res = await fetch(`${WORKER_URL}/api/catalog/reorder`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+          body: JSON.stringify({ categories: payloadCategories })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadCatalogDatabase(); // Перезагружаем каталог с новым порядком
+        }
+      } catch (e) {
+        alert("Ошибка при сохранении порядка категорий");
+      }
+    }
 
       // --- КОД МИНИ-ИГРЫ СТАРТОВЫЕ ОГНИ ---
       let f1GameState = 'IDLE'; 
