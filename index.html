@@ -1668,8 +1668,16 @@
         const rows = data.leaderboard || [];
 
         const myRecord = rows.find(r => String(r.user_id) === String(currentUserId));
+        const userTotalPts = myRecord ? (myRecord.total_points || 0) : 0;
+
         if (userPtsEl) {
-          userPtsEl.innerText = myRecord ? (myRecord.total_points || 0) : 0;
+          userPtsEl.innerText = userTotalPts;
+        }
+
+        // --- СИНХРОНИЗАЦИЯ С ГАРАЖОМ / ПРОФИЛЕМ ---
+        const garagePtsEl = document.getElementById('profilePointsDisplay');
+        if (garagePtsEl) {
+          garagePtsEl.innerText = userTotalPts + ' PTS';
         }
 
         if (rows.length === 0) {
@@ -1844,17 +1852,33 @@
       const startBtnText = document.getElementById('pit-start-btn-text');
 
       if (pitState.step >= pitState.order.length) {
-        pitState.running = false;
-        clearInterval(pitState.timerInterval);
-        const total = ((performance.now() - pitState.startTime) / 1000 + pitState.penalty).toFixed(2);
-        timeDisp.innerText = `${total}s`;
-        timeDisp.style.color = '#34c759';
-        startBtn.style.display = 'flex';
-        startBtnText.innerText = 'ПОВТОРИТЬ ПИТ-СТОП';
-        note.innerHTML = `<span style="color:#34c759;">🏁 Пит-стоп завершен за ${total}s! (Штрафы: +${pitState.penalty.toFixed(1)}s)</span>`;
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        return;
+      pitState.running = false;
+      clearInterval(pitState.timerInterval);
+      const total = ((performance.now() - pitState.startTime) / 1000 + pitState.penalty).toFixed(2);
+      timeDisp.innerText = `${total}s`;
+      timeDisp.style.color = '#34c759';
+      startBtn.style.display = 'flex';
+      startBtnText.innerText = 'ПОВТОРИТЬ ПИТ-СТОП';
+      note.innerHTML = `<span style="color:#34c759;">🏁 Пит-стоп завершен за ${total}s! (Штрафы: +${pitState.penalty.toFixed(1)}s)</span>`;
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+      // --- НОВОЕ: Сохранение и обновление лучшего времени пит-стопа для профиля/гаража ---
+      const totalNum = parseFloat(total);
+      let bestPit = parseFloat(localStorage.getItem('f1_best_pit') || 999);
+      if (totalNum < bestPit) {
+        localStorage.setItem('f1_best_pit', totalNum.toFixed(2));
+        bestPit = totalNum;
       }
+      
+      // Обновляем отображение рекорда в интерфейсе Гаража/Профиля, если элемент существует
+      const profilePitEl = document.getElementById('profilePitDisplay');
+      if (profilePitEl) {
+        profilePitEl.innerText = bestPit.toFixed(2) + ' s';
+      }
+      // --------------------------------------------------------------------------------
+
+      return;
+    }
 
       const nextPos = pitState.order[pitState.step];
       pitState.currentTarget = nextPos;
