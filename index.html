@@ -1668,8 +1668,16 @@
         const rows = data.leaderboard || [];
 
         const myRecord = rows.find(r => String(r.user_id) === String(currentUserId));
+        const basePts = myRecord ? (parseInt(myRecord.total_points) || 0) : 0;
+        const bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0');
+        const totalUserPts = basePts + bonusPts;
+
         if (userPtsEl) {
-          userPtsEl.innerText = myRecord ? (myRecord.total_points || 0) : 0;
+          userPtsEl.innerText = totalUserPts;
+        }
+        const garagePtsEl = document.getElementById('garageStatPts');
+        if (garagePtsEl) {
+          garagePtsEl.innerText = `${totalUserPts} PTS`;
         }
 
         if (rows.length === 0) {
@@ -1693,7 +1701,7 @@
                 <div class="pred-rank-badge ${rankClass}">${idx + 1}</div>
                 <div style="font-weight:700;">${displayName}</div>
               </div>
-              <div style="font-weight:900; color:var(--accent);">${row.total_points || 0} PTS</div>
+              <div style="font-weight:900; color:var(--accent);">${isMe ? totalUserPts : (row.total_points || 0)} PTS</div>
             </div>
           `;
         }).join('');
@@ -1853,6 +1861,17 @@
         startBtnText.innerText = 'ПОВТОРИТЬ ПИТ-СТОП';
         note.innerHTML = `<span style="color:#34c759;">🏁 Пит-стоп завершен за ${total}s! (Штрафы: +${pitState.penalty.toFixed(1)}s)</span>`;
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+        // СОХРАНЯЕМ РЕКОРД В ТОТ ЖЕ КЛЮЧ, КОТОРЫЙ ЧИТАЕТ ГАРАЖ (f1_best_pitstop_time)
+        const prevBestPit = parseFloat(localStorage.getItem('f1_best_pitstop_time') || '999');
+        if (parseFloat(total) < prevBestPit) {
+          localStorage.setItem('f1_best_pitstop_time', total);
+        }
+        const garagePitEl = document.getElementById('garageStatPit');
+        if (garagePitEl) {
+          garagePitEl.innerText = `${localStorage.getItem('f1_best_pitstop_time')} s`;
+        }
+
         return;
       }
 
@@ -2365,7 +2384,7 @@
 
       // Вычисляем и выводим ранг (с защитой исторического максимума при обнулении сезона)
       if (rankEl) {
-        rankEl.innerText = calculateUserRank(totalUserPts);
+        rankEl.innerText = calculateUserRank(totalUserPts, currentUserId);
       }
 
       const bestReaction = localStorage.getItem('f1_best_reaction_time');
