@@ -1668,33 +1668,9 @@
         const rows = data.leaderboard || [];
 
         const myRecord = rows.find(r => String(r.user_id) === String(currentUserId));
-        const userTotalPts = myRecord ? (myRecord.total_points || 0) : 0;
-
-        // Обновляем очки в разделе предикшнов
         if (userPtsEl) {
-          userPtsEl.innerText = userTotalPts;
+          userPtsEl.innerText = myRecord ? (myRecord.total_points || 0) : 0;
         }
-
-        // --- УНИВЕРСАЛЬНОЕ ОБНОВЛЕНИЕ ДЛЯ ГАРАЖА И ПРОФИЛЯ ---
-        // Проходим по всем элементам, где могут выводиться очки или пит-стоп
-        document.querySelectorAll('[id*="Point"], [id*="Pts"], [id*="score"], [id*="PTS"]').forEach(el => {
-          if (el.id !== 'predictionLeaderboardList' && el.innerText.includes('PTS') || el.id.toLowerCase().includes('point')) {
-            if (!el.innerText.includes('очков')) {
-              el.innerText = userTotalPts + ' PTS';
-            }
-          }
-        });
-
-        // Также принудительно подтягиваем лучший пит-стоп из localStorage в Гараж
-        const bestPit = localStorage.getItem('f1_best_pit');
-        if (bestPit) {
-          document.querySelectorAll('[id*="Pit"], [id*="pit"]').forEach(el => {
-            if (el.id.toLowerCase().includes('pit') && (el.innerText.includes('s') || el.innerText.includes('—') || el.innerText.length < 8)) {
-              el.innerText = bestPit + ' s';
-            }
-          });
-        }
-        // -----------------------------------------------------
 
         if (rows.length === 0) {
           listEl.innerHTML = '<div style="text-align:center; padding:18px; color:var(--text-muted); font-size:13px;">Прогнозов пока нет. Сделайте первый прогноз на этап!</div>';
@@ -1725,6 +1701,7 @@
         listEl.innerHTML = '<div style="text-align:center; padding:18px; color:var(--text-muted);">Не удалось загрузить таблицу лидеров.</div>';
       }
     }
+
     // =========================================================================
     // ИГРА 2: СТАРТОВЫЕ ОГНИ F1 (ПОЛНЫЙ ФИКС БАГА С ФАЛЬСТАРТОМ)
     // =========================================================================
@@ -1867,33 +1844,17 @@
       const startBtnText = document.getElementById('pit-start-btn-text');
 
       if (pitState.step >= pitState.order.length) {
-      pitState.running = false;
-      clearInterval(pitState.timerInterval);
-      const total = ((performance.now() - pitState.startTime) / 1000 + pitState.penalty).toFixed(2);
-      timeDisp.innerText = `${total}s`;
-      timeDisp.style.color = '#34c759';
-      startBtn.style.display = 'flex';
-      startBtnText.innerText = 'ПОВТОРИТЬ ПИТ-СТОП';
-      note.innerHTML = `<span style="color:#34c759;">🏁 Пит-стоп завершен за ${total}s! (Штрафы: +${pitState.penalty.toFixed(1)}s)</span>`;
-      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-
-      // --- НОВОЕ: Сохранение и обновление лучшего времени пит-стопа для профиля/гаража ---
-      const totalNum = parseFloat(total);
-      let bestPit = parseFloat(localStorage.getItem('f1_best_pit') || 999);
-      if (totalNum < bestPit) {
-        localStorage.setItem('f1_best_pit', totalNum.toFixed(2));
-        bestPit = totalNum;
+        pitState.running = false;
+        clearInterval(pitState.timerInterval);
+        const total = ((performance.now() - pitState.startTime) / 1000 + pitState.penalty).toFixed(2);
+        timeDisp.innerText = `${total}s`;
+        timeDisp.style.color = '#34c759';
+        startBtn.style.display = 'flex';
+        startBtnText.innerText = 'ПОВТОРИТЬ ПИТ-СТОП';
+        note.innerHTML = `<span style="color:#34c759;">🏁 Пит-стоп завершен за ${total}s! (Штрафы: +${pitState.penalty.toFixed(1)}s)</span>`;
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        return;
       }
-      
-      // Обновляем отображение рекорда в интерфейсе Гаража/Профиля, если элемент существует
-      const profilePitEl = document.getElementById('profilePitDisplay');
-      if (profilePitEl) {
-        profilePitEl.innerText = bestPit.toFixed(2) + ' s';
-      }
-      // --------------------------------------------------------------------------------
-
-      return;
-    }
 
       const nextPos = pitState.order[pitState.step];
       pitState.currentTarget = nextPos;
@@ -3201,20 +3162,9 @@
         if (urlParams.has('start') || window.location.hash.includes('start')) {
           localStorage.setItem('f1_achievement_deeplink', 'true');
         }
-        // --- ТОЧКА СТАРТА ПРИЛОЖЕНИЯ ---
-    initThemeAndPreferences();
-    loadCatalogDatabase();
-    loadF1SeasonData();
-    loadPredictionLeaderboard(); // <--- Добавили загрузку очков предикшнов при старте
-
-    // --- Восстановление рекорда пит-стопа из памяти при старте ---
-    const savedBestPit = localStorage.getItem('f1_best_pit');
-    if (savedBestPit) {
-      const profilePitEl = document.getElementById('profilePitDisplay');
-      if (profilePitEl) {
-        profilePitEl.innerText = savedBestPit + ' s';
-      }
-    }
+        initThemeAndPreferences();
+        loadAndApplyAiPatches();
+        loadCatalogDatabase();
 
         const hasBetaAccess = isAdmin || isTester;
         let globalVersion = 'v1';
@@ -3245,42 +3195,7 @@
       }
     }
 
-    // Сюда вставляем саму функцию:
-    async function loadUserProfileStats() {
-      if (!currentUserId || currentUserId === "user_guest") return;
-      try {
-        const res = await fetch(`${WORKER_URL}/api/user/stats?user_id=${currentUserId}`);
-        const data = await res.json();
-        if (data.success) {
-          // 1. Точно находим блок очков в Гараже/Профиле по уникальному ID или классу
-          // Если у элемента в Гараже нет ID, пропиши его в HTML как id="garagePointsVal"
-          const garagePtsEl = document.getElementById('garagePointsVal') || document.getElementById('profilePointsDisplay');
-          if (garagePtsEl) {
-            garagePtsEl.innerText = data.total_points + ' PTS';
-          }
-
-          // 2. Очки на вкладке Игры (предикшн)
-          const predVal = document.getElementById('predUserPointsVal');
-          if (predVal) {
-            predVal.innerText = data.total_points;
-          }
-        }
-      } catch (e) {
-        console.error("Ошибка загрузки профиля:", e);
-      }
-
-      // 3. Фиксируем рекорд пит-стопа (берем из localStorage точное значение)
-      const bestPit = localStorage.getItem('f1_best_pit');
-      if (bestPit) {
-        const profilePitEl = document.getElementById('profilePitDisplay') || document.getElementById('garagePitVal');
-        if (profilePitEl) {
-          profilePitEl.innerText = bestPit + ' s';
-        }
-      }
-    }
-
     initAppRouting();
-    loadUserProfileStats(); // <--- А вызов ставим прямо здесь!
   </script>
 </body>
 </html>
