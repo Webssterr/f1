@@ -1674,6 +1674,12 @@
           userPtsEl.innerText = userTotalPts;
         }
 
+        // Универсальное обновление всех элементов очков в профиле и гараже
+        ['profilePointsDisplay', 'garagePointsVal', 'userScoreVal'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = userTotalPts + (id.includes('Display') ? ' PTS' : '');
+        });
+
         // --- СИНХРОНИЗАЦИЯ С ГАРАЖОМ / ПРОФИЛЕМ ---
         const garagePtsEl = document.getElementById('profilePointsDisplay');
         if (garagePtsEl) {
@@ -3186,9 +3192,20 @@
         if (urlParams.has('start') || window.location.hash.includes('start')) {
           localStorage.setItem('f1_achievement_deeplink', 'true');
         }
-        initThemeAndPreferences();
-        loadAndApplyAiPatches();
-        loadCatalogDatabase();
+        // --- ТОЧКА СТАРТА ПРИЛОЖЕНИЯ ---
+    initThemeAndPreferences();
+    loadCatalogDatabase();
+    loadF1SeasonData();
+    loadPredictionLeaderboard(); // <--- Добавили загрузку очков предикшнов при старте
+
+    // --- Восстановление рекорда пит-стопа из памяти при старте ---
+    const savedBestPit = localStorage.getItem('f1_best_pit');
+    if (savedBestPit) {
+      const profilePitEl = document.getElementById('profilePitDisplay');
+      if (profilePitEl) {
+        profilePitEl.innerText = savedBestPit + ' s';
+      }
+    }
 
         const hasBetaAccess = isAdmin || isTester;
         let globalVersion = 'v1';
