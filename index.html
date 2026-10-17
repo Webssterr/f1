@@ -1670,21 +1670,31 @@
         const myRecord = rows.find(r => String(r.user_id) === String(currentUserId));
         const userTotalPts = myRecord ? (myRecord.total_points || 0) : 0;
 
+        // Обновляем очки в разделе предикшнов
         if (userPtsEl) {
           userPtsEl.innerText = userTotalPts;
         }
 
-        // Универсальное обновление всех элементов очков в профиле и гараже
-        ['profilePointsDisplay', 'garagePointsVal', 'userScoreVal'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.innerText = userTotalPts + (id.includes('Display') ? ' PTS' : '');
+        // --- УНИВЕРСАЛЬНОЕ ОБНОВЛЕНИЕ ДЛЯ ГАРАЖА И ПРОФИЛЯ ---
+        // Проходим по всем элементам, где могут выводиться очки или пит-стоп
+        document.querySelectorAll('[id*="Point"], [id*="Pts"], [id*="score"], [id*="PTS"]').forEach(el => {
+          if (el.id !== 'predictionLeaderboardList' && el.innerText.includes('PTS') || el.id.toLowerCase().includes('point')) {
+            if (!el.innerText.includes('очков')) {
+              el.innerText = userTotalPts + ' PTS';
+            }
+          }
         });
 
-        // --- СИНХРОНИЗАЦИЯ С ГАРАЖОМ / ПРОФИЛЕМ ---
-        const garagePtsEl = document.getElementById('profilePointsDisplay');
-        if (garagePtsEl) {
-          garagePtsEl.innerText = userTotalPts + ' PTS';
+        // Также принудительно подтягиваем лучший пит-стоп из localStorage в Гараж
+        const bestPit = localStorage.getItem('f1_best_pit');
+        if (bestPit) {
+          document.querySelectorAll('[id*="Pit"], [id*="pit"]').forEach(el => {
+            if (el.id.toLowerCase().includes('pit') && (el.innerText.includes('s') || el.innerText.includes('—') || el.innerText.length < 8)) {
+              el.innerText = bestPit + ' s';
+            }
+          });
         }
+        // -----------------------------------------------------
 
         if (rows.length === 0) {
           listEl.innerHTML = '<div style="text-align:center; padding:18px; color:var(--text-muted); font-size:13px;">Прогнозов пока нет. Сделайте первый прогноз на этап!</div>';
@@ -1715,7 +1725,6 @@
         listEl.innerHTML = '<div style="text-align:center; padding:18px; color:var(--text-muted);">Не удалось загрузить таблицу лидеров.</div>';
       }
     }
-
     // =========================================================================
     // ИГРА 2: СТАРТОВЫЕ ОГНИ F1 (ПОЛНЫЙ ФИКС БАГА С ФАЛЬСТАРТОМ)
     // =========================================================================
