@@ -3252,23 +3252,30 @@
         const res = await fetch(`${WORKER_URL}/api/user/stats?user_id=${currentUserId}`);
         const data = await res.json();
         if (data.success) {
-          document.querySelectorAll('[id*="Points"], [id*="PTS"], [id*="score"]').forEach(el => {
-            if (el.innerText.includes('PTS') || el.id.toLowerCase().includes('point')) {
-              el.innerText = data.total_points + ' PTS';
-            }
-          });
-          const predVal = document.getElementById('predUserPointsVal');
-          if (predVal) predVal.innerText = data.total_points;
-        }
-      } catch (e) {}
+          // 1. Точно находим блок очков в Гараже/Профиле по уникальному ID или классу
+          // Если у элемента в Гараже нет ID, пропиши его в HTML как id="garagePointsVal"
+          const garagePtsEl = document.getElementById('garagePointsVal') || document.getElementById('profilePointsDisplay');
+          if (garagePtsEl) {
+            garagePtsEl.innerText = data.total_points + ' PTS';
+          }
 
+          // 2. Очки на вкладке Игры (предикшн)
+          const predVal = document.getElementById('predUserPointsVal');
+          if (predVal) {
+            predVal.innerText = data.total_points;
+          }
+        }
+      } catch (e) {
+        console.error("Ошибка загрузки профиля:", e);
+      }
+
+      // 3. Фиксируем рекорд пит-стопа (берем из localStorage точное значение)
       const bestPit = localStorage.getItem('f1_best_pit');
       if (bestPit) {
-        document.querySelectorAll('[id*="Pit"], [id*="pit"]').forEach(el => {
-          if (el.id.toLowerCase().includes('pit')) {
-            el.innerText = bestPit + ' s';
-          }
-        });
+        const profilePitEl = document.getElementById('profilePitDisplay') || document.getElementById('garagePitVal');
+        if (profilePitEl) {
+          profilePitEl.innerText = bestPit + ' s';
+        }
       }
     }
 
