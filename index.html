@@ -3245,7 +3245,35 @@
       }
     }
 
+    // Сюда вставляем саму функцию:
+    async function loadUserProfileStats() {
+      if (!currentUserId || currentUserId === "user_guest") return;
+      try {
+        const res = await fetch(`${WORKER_URL}/api/user/stats?user_id=${currentUserId}`);
+        const data = await res.json();
+        if (data.success) {
+          document.querySelectorAll('[id*="Points"], [id*="PTS"], [id*="score"]').forEach(el => {
+            if (el.innerText.includes('PTS') || el.id.toLowerCase().includes('point')) {
+              el.innerText = data.total_points + ' PTS';
+            }
+          });
+          const predVal = document.getElementById('predUserPointsVal');
+          if (predVal) predVal.innerText = data.total_points;
+        }
+      } catch (e) {}
+
+      const bestPit = localStorage.getItem('f1_best_pit');
+      if (bestPit) {
+        document.querySelectorAll('[id*="Pit"], [id*="pit"]').forEach(el => {
+          if (el.id.toLowerCase().includes('pit')) {
+            el.innerText = bestPit + ' s';
+          }
+        });
+      }
+    }
+
     initAppRouting();
+    loadUserProfileStats(); // <--- А вызов ставим прямо здесь!
   </script>
 </body>
 </html>
