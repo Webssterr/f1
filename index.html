@@ -2731,15 +2731,8 @@
         catalogTree[cat][title].items.push(item);
       });
 
+      // Порядок берется напрямую из allCatalogItems (который уже отсортирован базой D1 для всех!)
       const catNames = Object.keys(catalogTree);
-      const savedCatOrder = JSON.parse(localStorage.getItem('f1_custom_cat_order') || '[]');
-      if (savedCatOrder.length > 0) {
-        catNames.sort((a, b) => {
-          const ia = savedCatOrder.indexOf(a);
-          const ib = savedCatOrder.indexOf(b);
-          return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-        });
-      }
 
       const container = document.getElementById('catalogCategoriesContainer');
       if (!container) return;
@@ -2782,8 +2775,6 @@
       const temp = catArray[idx];
       catArray[idx] = catArray[target];
       catArray[target] = temp;
-      localStorage.setItem('f1_custom_cat_order', JSON.stringify(catArray));
-      buildCatalogTreeAndRender();
 
       const payloadCategories = catArray.map((cat, order) => ({ category: cat, order }));
       try {
@@ -2792,6 +2783,7 @@
           headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
           body: JSON.stringify({ categories: payloadCategories })
         });
+        await loadCatalogDatabase();
       } catch (e) {}
     }
 
@@ -2801,13 +2793,17 @@
       listEl.innerHTML = '';
 
       const titles = Object.keys(catalogTree[categoryName] || {});
-      const savedTitleOrder = JSON.parse(localStorage.getItem(`f1_order_titles_${categoryName}`) || '[]');
-      if (savedTitleOrder.length > 0) {
-        titles.sort((a, b) => {
-          const ia = savedTitleOrder.indexOf(a);
-          const ib = savedTitleOrder.indexOf(b);
-          return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-        });
+
+      async function reorderTitlesInDb(newTitlesOrder) {
+        try {
+          await fetch(`${WORKER_URL}/api/catalog/reorder`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+            body: JSON.stringify({ category: categoryName, titles: newTitlesOrder })
+          });
+          await loadCatalogDatabase();
+          openCatalogCategory(categoryName);
+        } catch (e) {}
       }
 
       titles.forEach((titleKey, idx) => {
@@ -2834,15 +2830,13 @@
             e.stopPropagation();
             if (idx === 0) return;
             const t = titles[idx]; titles[idx] = titles[idx - 1]; titles[idx - 1] = t;
-            localStorage.setItem(`f1_order_titles_${categoryName}`, JSON.stringify(titles));
-            openCatalogCategory(categoryName);
+            reorderTitlesInDb(titles);
           };
           downBtn.onclick = (e) => {
             e.stopPropagation();
             if (idx === titles.length - 1) return;
             const t = titles[idx]; titles[idx] = titles[idx + 1]; titles[idx + 1] = t;
-            localStorage.setItem(`f1_order_titles_${categoryName}`, JSON.stringify(titles));
-            openCatalogCategory(categoryName);
+            reorderTitlesInDb(titles);
           };
           btn.appendChild(ctrls);
         } else {
@@ -2864,18 +2858,22 @@
 
       header.innerHTML = `
         ${data.image ? `<img src="${data.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:18px; margin-bottom:12px;">` : ''}
-        <h2 style="margin:0 0 6px 0; font-size:22px; font-weight:900;">${titleKey}</h2>
+        <h2 style="margin:0 0 6px 0; font-weight:900; font-size:22px;">${titleKey}</h2>
         ${data.description ? `<div style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">${data.description}</div>` : ''}
       `;
 
       const items = [...data.items];
-      const savedSessionOrder = JSON.parse(localStorage.getItem(`f1_order_sess_${activeCatalogCategory}_${titleKey}`) || '[]');
-      if (savedSessionOrder.length > 0) {
-        items.sort((a, b) => {
-          const ia = savedSessionOrder.indexOf(a.id);
-          const ib = savedSessionOrder.indexOf(b.id);
-          return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-        });
+
+      async function reorderSessionsInDb(newItemsArray) {
+        try {
+          await fetch(`${WORKER_URL}/api/catalog/reorder`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+            body: JSON.stringify({ itemIds: newItemsArray.map(x => x.id) })
+          });
+          await loadCatalogDatabase();
+          openCatalogDetails(titleKey);
+        } catch (e) {}
       }
 
       btnsBox.innerHTML = '';
@@ -2915,15 +2913,13 @@
             e.stopPropagation();
             if (idx === 0) return;
             const t = items[idx]; items[idx] = items[idx - 1]; items[idx - 1] = t;
-            localStorage.setItem(`f1_order_sess_${activeCatalogCategory}_${titleKey}`, JSON.stringify(items.map(x => x.id)));
-            openCatalogDetails(titleKey);
+            reorderSessionsInDb(items);
           };
           downBtn.onclick = (e) => {
             e.stopPropagation();
             if (idx === items.length - 1) return;
             const t = items[idx]; items[idx] = items[idx + 1]; items[idx + 1] = t;
-            localStorage.setItem(`f1_order_sess_${activeCatalogCategory}_${titleKey}`, JSON.stringify(items.map(x => x.id)));
-            openCatalogDetails(titleKey);
+            reorderSessionsInDb(items);
           };
           rightWrap.appendChild(ctrls);
         }
