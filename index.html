@@ -1701,12 +1701,12 @@
 
         // Вспомогательная функция для определения звания по очкам
         function getRankTitle(pts) {
-          if (pts >= 850) return "👑 Чемпион Мира";
-          if (pts >= 700) return "⚡ Легенда";
-          if (pts >= 500) return "🔥 Пилот F1";
-          if (pts >= 300) return "🏆 Пилот F2";
-          if (pts >= 150) return "🚀 Пилот F3";
-          if (pts >= 50) return "🏁 Пилот F4";
+          if (pts >= 2500) return "👑 Чемпион Мира";
+          if (pts >= 1500) return "⚡ Легенда";
+          if (pts >= 1000) return "🔥 Пилот F1";
+          if (pts >= 600) return "🏆 Пилот F2";
+          if (pts >= 300) return "🚀 Пилот F3";
+          if (pts >= 100) return "🏁 Пилот F4";
           return "🏎️ Картингист";
         }
 
@@ -2302,12 +2302,12 @@
     // Шкала рангов от 0 до 850 очков с бонусами за достижение
     const F1_RANKS_SCALE = [
       { threshold: 0, title: "🏎️ Картингист", bonusKey: "rank_bonus_0" },
-      { threshold: 50, title: "🏁 Пилот Формулы-4", bonusKey: "rank_bonus_50" },
-      { threshold: 150, title: "🚀 Пилот Формулы-3", bonusKey: "rank_bonus_150" },
-      { threshold: 300, title: "🏆 Пилот Формулы-2", bonusKey: "rank_bonus_300" },
-      { threshold: 500, title: "🔥 Пилот Формулы-1", bonusKey: "rank_bonus_500" },
-      { threshold: 700, title: "⚡ Легенда Паддока", bonusKey: "rank_bonus_700" },
-      { threshold: 850, title: "👑 Чемпион Мира F1", bonusKey: "rank_bonus_850" }
+      { threshold: 100, title: "🏁 Пилот Формулы-4", bonusKey: "rank_bonus_50" },
+      { threshold: 300, title: "🚀 Пилот Формулы-3", bonusKey: "rank_bonus_150" },
+      { threshold: 600, title: "🏆 Пилот Формулы-2", bonusKey: "rank_bonus_300" },
+      { threshold: 1000, title: "🔥 Пилот Формулы-1", bonusKey: "rank_bonus_500" },
+      { threshold: 1500, title: "⚡ Легенда Паддока", bonusKey: "rank_bonus_700" },
+      { threshold: 2500, title: "👑 Чемпион Мира F1", bonusKey: "rank_bonus_850" }
     ];
 
     function calculateUserRank(currentPts, userId) {
