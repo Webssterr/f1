@@ -751,17 +751,22 @@
       display: none;
     }
 
-    /* --- СТИЛИ ЭКРАНА "ГАРАЖ" И АЧИВОК --- */
+    /* ================= СТИЛИ ЭКРАНА "ГАРАЖ", РАНГОВ И 28 ТРОФЕЕВ ================= */
     .garage-profile-card {
-      background: linear-gradient(135deg, rgba(255, 59, 48, 0.15), var(--card-bg));
-      border: 1px solid rgba(255, 59, 48, 0.3);
+      background: linear-gradient(135deg, rgba(255, 59, 48, 0.16), var(--card-bg));
+      border: 1px solid rgba(255, 59, 48, 0.35);
       border-radius: 24px;
       padding: 20px;
       display: flex;
-      align-items: center;
-      gap: 16px;
+      flex-direction: column;
+      gap: 14px;
       margin-bottom: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      box-shadow: 0 6px 22px rgba(0,0,0,0.06);
+    }
+    .garage-profile-top {
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
     .garage-avatar {
       width: 64px;
@@ -778,10 +783,68 @@
       color: var(--accent);
       overflow: hidden;
       flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.15s ease;
     }
-    .garage-user-info h3 { margin: 0 0 4px 0; font-size: 18px; font-weight: 900; color: var(--text); }
+    .garage-avatar:active { transform: scale(0.92); }
+    .garage-user-info { flex: 1; min-width: 0; }
+    .garage-user-info h3 { margin: 0 0 3px 0; font-size: 18px; font-weight: 900; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .garage-user-info p { margin: 0; font-size: 12px; color: var(--text-muted); font-weight: 700; }
-    
+
+    .rank-roadmap-box {
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rank-roadmap-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .rank-current-badge {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--accent);
+    }
+    .rank-ladder-btn {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .rank-ladder-btn:active { transform: scale(0.96); }
+    .rank-progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .rank-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #ff9500);
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .rank-progress-sub {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
     .garage-stats-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -798,11 +861,54 @@
     .garage-stat-val { font-size: 20px; font-weight: 900; color: var(--text); margin-top: 4px; }
     .garage-stat-lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 
+    /* Шапка коллекции трофеев */
+    .trophy-collection-bar {
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .trophy-collection-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .trophy-filter-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .trophy-filter-btn {
+      border: 1px solid var(--border);
+      background: var(--card-sub);
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .trophy-filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 3px 10px rgba(255, 59, 48, 0.3);
+    }
+
     .achievements-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }
     .achievement-card {
       background: var(--card-bg);
@@ -813,59 +919,148 @@
       flex-direction: column;
       gap: 6px;
       position: relative;
-      opacity: 0.5;
+      opacity: 0.65;
       transition: all 0.25s ease;
     }
     .achievement-card.unlocked {
       opacity: 1;
       border-color: #34c759;
-      background: linear-gradient(135deg, rgba(52, 199, 89, 0.1), var(--card-bg));
-      box-shadow: 0 0 15px rgba(52, 199, 89, 0.25);
+      background: linear-gradient(135deg, rgba(52, 199, 89, 0.12), var(--card-bg));
+      box-shadow: 0 4px 15px rgba(52, 199, 89, 0.18);
     }
-    .achievement-icon { font-size: 24px; }
-    .achievement-title { font-size: 13px; font-weight: 800; color: var(--text); }
-    .achievement-desc { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+    /* Эпические / Хардкорные карточки во всю ширину */
+    .achievement-card.tier-hardcore {
+      grid-column: span 2;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), var(--card-bg));
+      border: 1.5px solid rgba(255, 180, 0, 0.45);
+      padding: 16px;
+      opacity: 0.85;
+    }
+    .achievement-card.tier-hardcore.unlocked {
+      opacity: 1;
+      border-color: #ffd700;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.24), var(--card-bg));
+      box-shadow: 0 0 22px rgba(255, 215, 0, 0.3);
+    }
+    .ach-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .achievement-icon { font-size: 26px; line-height: 1; }
+    .achievement-card.tier-hardcore .achievement-icon { font-size: 32px; }
+    .ach-pts-pill {
+      font-size: 10px;
+      font-weight: 900;
+      padding: 3px 7px;
+      border-radius: 8px;
+      background: var(--card-sub);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .achievement-card.tier-hardcore .ach-pts-pill {
+      background: rgba(255, 215, 0, 0.18);
+      color: #d4a000;
+      border-color: rgba(255, 215, 0, 0.4);
+    }
+    body.dark-theme .achievement-card.tier-hardcore .ach-pts-pill { color: #ffd700; }
+    .achievement-card.unlocked .ach-pts-pill {
+      background: rgba(52, 199, 89, 0.18);
+      color: #34c759;
+      border-color: rgba(52, 199, 89, 0.35);
+    }
+    .achievement-title { font-size: 13.5px; font-weight: 900; color: var(--text); margin-top: 2px; }
+    .achievement-card.tier-hardcore .achievement-title { font-size: 15px; }
+    .achievement-desc { font-size: 11px; color: var(--text-muted); line-height: 1.35; }
+    .ach-prog-wrap {
+      margin-top: auto;
+      padding-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ach-prog-bar {
+      width: 100%;
+      height: 5px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .ach-prog-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+    .achievement-card.tier-hardcore .ach-prog-fill {
+      background: linear-gradient(90deg, #ff9500, #ffd700);
+    }
+    .achievement-card.unlocked .ach-prog-fill {
+      background: #34c759;
+    }
     .achievement-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 10px;
       font-weight: 800;
       text-transform: uppercase;
-      margin-top: auto;
-      padding-top: 6px;
       color: var(--text-muted);
     }
     .achievement-card.unlocked .achievement-status { color: #34c759; }
+
+    /* Карьерная лестница в модалке */
+    .rank-ladder-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .rank-ladder-item.unlocked {
+      border-color: rgba(52, 199, 89, 0.45);
+      background: linear-gradient(90deg, rgba(52, 199, 89, 0.1), var(--card-sub));
+    }
+    .rank-ladder-item.current {
+      border: 2px solid var(--accent);
+      background: linear-gradient(90deg, var(--accent-soft), var(--card-sub));
+    }
 
     /* --- СТИЛИ ВСПЛЫВАЮЩЕГО ОКНА АЧИВКИ (TOAST) --- */
     .achievement-toast {
       position: fixed;
       top: 20px;
       left: 50%;
-      transform: translateX(-50%) translateY(-100px);
+      transform: translateX(-50%) translateY(-120px);
       background: var(--card-bg);
       border: 2px solid #34c759;
       color: var(--text);
       padding: 14px 20px;
       border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
       display: flex;
       align-items: center;
       gap: 12px;
       z-index: 99999;
       transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      max-width: 90%;
+      max-width: 92%;
       width: 340px;
     }
     .achievement-toast.show {
       transform: translateX(-50%) translateY(0);
     }
     .toast-icon { font-size: 32px; flex-shrink: 0; }
-    .toast-content h4 { margin: 0 0 2px 0; font-size: 13px; color: #34c759; text-transform: uppercase; font-weight: 800; }
+    .toast-content h4 { margin: 0 0 2px 0; font-size: 12px; color: #34c759; text-transform: uppercase; font-weight: 800; }
     .toast-content p { margin: 0; font-size: 13px; font-weight: 900; color: var(--text); }
   </style>
   <style id="ai-live-patch-style"></style>
 </head>
 <body>
-  <body>
   <!-- ВСПЛЫВАЮЩЕЕ ОКНО НОВОЙ АЧИВКИ -->
   <div id="achievementToast" class="achievement-toast">
     <div class="toast-icon" id="toastIcon">🏆</div>
@@ -975,7 +1170,6 @@
 
   <!-- ================= 4. ЭКРАН: ИГРЫ F1 (НОВАЯ СИСТЕМА SUB-TABS) ================= -->
   <div id="view-games" class="view-screen">
-    <!-- Подвкладки Игр -->
     <div class="games-subtabs-nav" id="gamesSubtabsNav">
       <button class="games-subtab-btn active" onclick="switchGamesSubTab('pred', this)">🏎️ Предикшн</button>
       <button class="games-subtab-btn" onclick="switchGamesSubTab('lights', this)">🚦 Огни</button>
@@ -985,7 +1179,6 @@
     <!-- Подвкладка 1: Продвинутый Предикшн V2 -->
     <div id="tab-content-pred" class="games-tab-content active">
       <div class="f1-pred-container">
-        <!-- Карточка баланса игрока -->
         <div class="pred-score-card">
           <div>
             <div style="font-size:11px; color:rgba(255,255,255,0.65); text-transform:uppercase; font-weight:800;">Ваш баланс очков</div>
@@ -994,7 +1187,6 @@
           <span class="f1-pred-badge f1-badge-active" id="predRoundBadge" onclick="handleSecretSimTap()">Раунд 18 / 23 • Сезон 2026</span>
         </div>
 
-        <!-- Форма прогноза на актуальный этап (Без Safety Car) -->
         <div class="pred-stage-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div>
@@ -1039,11 +1231,10 @@
           <button class="pred-vote-btn" onclick="runAdminSettleStage()">🏁 Завершить этап и начислить очки</button>
         </div>
 
-        <!-- Прокручиваемая таблица лидеров (Реальные игроки из БД) -->
         <div class="pred-leaderboard-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="font-size:15px; font-weight:900;">🏁 Таблица лидеров сообщества</div>
-            <button class="icon-circle-btn" style="width:30px; height:30px; font-size:13px;" onclick="loadPredictionLeaderboard()">🔄</button>
+            <button class="icon-circle-btn" style="width:30px; height:30px; font-size:13px;" onclick="handleManualLeaderboardRefresh()">🔄</button>
           </div>
           <div id="predictionLeaderboardList" class="pred-leaderboard-list">
             <div style="text-align:center; padding:20px; color:var(--text-muted); font-size:13px;">Загрузка рейтинга игроков...</div>
@@ -1052,7 +1243,7 @@
       </div>
     </div>
 
-    <!-- Подвкладка 2: Стартовые огни F1 (Без бага с фальстартом) -->
+    <!-- Подвкладка 2: Стартовые огни F1 -->
     <div id="tab-content-lights" class="games-tab-content">
       <div class="pred-stage-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1080,7 +1271,7 @@
       </div>
     </div>
 
-    <!-- Подвкладка 3: Усложненный Пит-стоп Челлендж (0.7с задержка + подсветка колес) -->
+    <!-- Подвкладка 3: Пит-стоп Челлендж -->
     <div id="tab-content-pitstop" class="games-tab-content">
       <div class="pred-stage-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1110,20 +1301,36 @@
     </div>
   </div>
 
-  <!-- ================= ЭКРАН: ГАРАЖ (ПРОФИЛЬ И АЧИВКИ) ================= -->
+  <!-- ================= ЭКРАН: ГАРАЖ (ЗАЛ СЛАВЫ ПАДДОКА, ПРОГРЕСС РАНГОВ И 28 ТРОФЕЕВ) ================= -->
   <div id="view-garage" class="view-screen">
     <div class="garage-profile-card">
-      <div class="garage-avatar" id="garageAvatarEl">🏎️</div>
-      <div class="garage-user-info">
-        <h3 id="garageUserName">Пилот F1</h3>
-        <p id="garageUserHandle">@username • ID: —</p>
-        <p id="garageUserRank" style="color: var(--accent); font-weight: 900; margin-top: 4px;">🏅 Картингист</p>
+      <div class="garage-profile-top">
+        <div class="garage-avatar" id="garageAvatarEl" onclick="handleSecretEasterEggTap()" title="Нажми 5 раз для секрета!">🏎️</div>
+        <div class="garage-user-info">
+          <h3 id="garageUserName">Пилот F1</h3>
+          <p id="garageUserHandle">@username • Участник сезона</p>
+        </div>
+      </div>
+
+      <!-- Шкала прогресса до следующего ранга и кнопка Карьерной лестницы -->
+      <div class="rank-roadmap-box">
+        <div class="rank-roadmap-header">
+          <span class="rank-current-badge" id="garageUserRank">🏎️ Картингист</span>
+          <button class="rank-ladder-btn" onclick="toggleRankRoadmapModal(true)">📜 Карьерная лестница</button>
+        </div>
+        <div class="rank-progress-bar-bg">
+          <div class="rank-progress-bar-fill" id="garageRankProgressFill"></div>
+        </div>
+        <div class="rank-progress-sub">
+          <span id="garageRankProgressText">0 / 150 PTS</span>
+          <span id="garageRankNextHint">До Ф-4: 150 PTS</span>
+        </div>
       </div>
     </div>
 
     <div class="garage-stats-grid">
       <div class="garage-stat-box">
-        <div class="garage-stat-lbl">Очки предикшна</div>
+        <div class="garage-stat-lbl">Общий баланс</div>
         <div class="garage-stat-val" id="garageStatPts">0 PTS</div>
       </div>
       <div class="garage-stat-box">
@@ -1141,11 +1348,48 @@
     </div>
 
     <div class="hero-card" style="padding: 18px;">
-      <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 900;">🏆 Достижения гонщика</h3>
-      <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Выполняйте реальные действия в приложении и открывайте трофеи:</div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 style="margin: 0; font-size: 17px; font-weight: 900;">🏆 Зал Славы Паддока</h3>
+        <span class="badge" id="garageTrophyCounterBadge">0 / 28</span>
+      </div>
+
+      <!-- Прогресс-бар собранной коллекции -->
+      <div class="trophy-collection-bar">
+        <div class="trophy-collection-top">
+          <span>Прогресс коллекции трофеев</span>
+          <span id="garageTrophyPercentText" style="color:var(--accent);">0%</span>
+        </div>
+        <div class="rank-progress-bar-bg">
+          <div class="rank-progress-bar-fill" id="garageTrophyCollectionFill" style="background: linear-gradient(90deg, #34c759, #00c7be);"></div>
+        </div>
+      </div>
+
+      <!-- Фильтры категорий трофеев -->
+      <div class="trophy-filter-tabs" id="trophyFilterTabs">
+        <button class="trophy-filter-btn active" onclick="filterGarageAchievements('all', this)">Все (28)</button>
+        <button class="trophy-filter-btn" onclick="filterGarageAchievements('hardcore', this)">👑 Легендарные (3)</button>
+        <button class="trophy-filter-btn" onclick="filterGarageAchievements('medium', this)">🏎️ Средние (10)</button>
+        <button class="trophy-filter-btn" onclick="filterGarageAchievements('normal', this)">🏁 Обычные (15)</button>
+      </div>
+
       <div class="achievements-grid" id="garageAchievementsGrid">
         <!-- Динамически заполняется скриптом -->
       </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА КАРЬЕРНОЙ ЛЕСТНИЦЫ (ROADMAP РАНГОВ) -->
+  <div id="rankRoadmapModal" class="modal-overlay" onclick="if(event.target.id==='rankRoadmapModal') toggleRankRoadmapModal(false)">
+    <div class="modal-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h3 style="margin:0; font-size:18px; font-weight:900;">📜 Карьерная лестница F1</h3>
+        <button style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer;" onclick="toggleRankRoadmapModal(false)">✕</button>
+      </div>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+        Зарабатывайте очки (PTS) в прогнозах на этапы и открывайте трофеи в Гараже, чтобы продвигаться от Картингиста до Чемпиона Мира F1! За каждый новый ранг начисляется бонус <b>+50 PTS</b>.
+      </div>
+      <div id="rankRoadmapListContainer"></div>
+      <button class="btn-action" onclick="toggleRankRoadmapModal(false)">Понятно</button>
     </div>
   </div>
 
@@ -1161,11 +1405,10 @@
     <div id="catalogItemButtonsList"></div>
   </div>
 
-  <!-- ================= 6. ПАНЕЛЬ АДМИНИСТРАТОРА (БЕЗ УПРАВЛЕНИЯ ЭТАПОМ НА ГЛАВНОЙ) ================= -->
+  <!-- ================= 6. ПАНЕЛЬ АДМИНИСТРАТОРА ================= -->
   <div id="view-admin" class="view-screen">
     <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromAdmin()">← Выйти из админки</button>
 
-    <!-- БЛОК ИИ-АГЕНТА РАЗРАБОТЧИКА -->
     <div class="hero-card" style="border: 2px solid var(--accent); background: linear-gradient(180deg, var(--card-bg) 0%, var(--card-sub) 100%);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <h3 style="margin:0; font-size:17px; font-weight:900;">🤖 ИИ-Агент Разработчик (Gemini)</h3>
@@ -1386,6 +1629,43 @@
     const isTester = (isAdmin || currentUserId === TESTER_ID);
 
     // =========================================================================
+    // ОТСЛЕЖИВАНИЕ ЕЖЕДНЕВНОГО СТРИКА (ВХОД 5 ДНЕЙ ПОДРЯД) И ВКЛАДОК
+    // =========================================================================
+    function updateDailyLoginStreak() {
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const lastDate = localStorage.getItem(`f1_last_login_date_${currentUserId}`);
+      let streak = parseInt(localStorage.getItem(`f1_login_streak_${currentUserId}`) || '0');
+
+      if (!lastDate) {
+        streak = 1;
+        localStorage.setItem(`f1_last_login_date_${currentUserId}`, todayStr);
+        localStorage.setItem(`f1_login_streak_${currentUserId}`, String(streak));
+      } else if (lastDate !== todayStr) {
+        const prev = new Date(lastDate + "T00:00:00");
+        const curr = new Date(todayStr + "T00:00:00");
+        const diffDays = Math.round((curr - prev) / 86400000);
+        if (diffDays === 1) {
+          streak += 1;
+        } else {
+          streak = 1;
+        }
+        localStorage.setItem(`f1_last_login_date_${currentUserId}`, todayStr);
+        localStorage.setItem(`f1_login_streak_${currentUserId}`, String(streak));
+      }
+    }
+
+    function markVisitedMainTab(tabName) {
+      try {
+        let visited = JSON.parse(localStorage.getItem(`f1_visited_tabs_${currentUserId}`) || '[]');
+        if (!visited.includes(tabName)) {
+          visited.push(tabName);
+          localStorage.setItem(`f1_visited_tabs_${currentUserId}`, JSON.stringify(visited));
+        }
+      } catch (e) {}
+    }
+
+    // =========================================================================
     // ИИ-АГЕНТ: ЗАГРУЗКА И ИСПОЛНЕНИЕ ДОПОЛНИТЕЛЬНЫХ LIVE-ПАТЧЕЙ
     // =========================================================================
     function applyLivePatchToDom(patch) {
@@ -1503,6 +1783,7 @@
     window.totalSeasonRounds = "23";
     window.activeRaceName = "Гран-при США";
 
+    // Админская панель симуляции (СТРОГО ТОЛЬКО ДЛЯ АДМИНА)
     let simTapCounter = 0;
     let simTapTimer = null;
     function handleSecretSimTap() {
@@ -1511,12 +1792,34 @@
       clearTimeout(simTapTimer);
       simTapTimer = setTimeout(() => { simTapCounter = 0; }, 1200);
       if (simTapCounter >= 5) {
-        localStorage.setItem('f1_achievement_admin_sim', 'true');
         const simCard = document.getElementById('adminSimPanelCard');
         if (simCard) {
           simCard.style.display = simCard.style.display === 'none' ? 'flex' : 'none';
         }
       }
+    }
+
+    // Безопасная пасхалка для всех пользователей (5 кликов по аватару в Гараже)
+    let easterEggTapCount = 0;
+    let easterEggTapTimer = null;
+    function handleSecretEasterEggTap() {
+      easterEggTapCount++;
+      clearTimeout(easterEggTapTimer);
+      easterEggTapTimer = setTimeout(() => { easterEggTapCount = 0; }, 1400);
+      if (easterEggTapCount >= 5) {
+        easterEggTapCount = 0;
+        localStorage.setItem('f1_achievement_admin_sim', 'true');
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        showAchievementToast("🎉 Поздравляем, вы нашли секрет паддока!", "🕵️‍♂️");
+        renderGarageProfileData();
+      }
+    }
+
+    function handleManualLeaderboardRefresh() {
+      let count = parseInt(localStorage.getItem('f1_leaderboard_refresh_count') || '0') + 1;
+      localStorage.setItem('f1_leaderboard_refresh_count', String(count));
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+      loadPredictionLeaderboard();
     }
 
     function initPredictionGame(driversList) {
@@ -1657,6 +1960,28 @@
       }
     }
 
+    // =========================================================================
+    // ОБНОВЛЕННАЯ 8-СТУПЕНЧАТАЯ ШКАЛА РАНГОВ (ДО 4500 ОЧКОВ)
+    // =========================================================================
+    const F1_RANKS_SCALE = [
+      { threshold: 0,    title: "🏎️ Картингист",       short: "Картингист", bonusKey: "rank_bonus_0" },
+      { threshold: 150,  title: "🏁 Пилот Формулы-4",  short: "Пилот Ф-4",  bonusKey: "rank_bonus_150" },
+      { threshold: 400,  title: "🚀 Пилот Формулы-3",  short: "Пилот Ф-3",  bonusKey: "rank_bonus_400" },
+      { threshold: 800,  title: "🏆 Пилот Формулы-2",  short: "Пилот Ф-2",  bonusKey: "rank_bonus_800" },
+      { threshold: 1400, title: "🔥 Пилот Формулы-1",  short: "Пилот Ф-1",  bonusKey: "rank_bonus_1400" },
+      { threshold: 2200, title: "⭐ Звезда паддока",   short: "Звезда",     bonusKey: "rank_bonus_2200" },
+      { threshold: 3200, title: "⚡ Легенда F1",       short: "Легенда F1", bonusKey: "rank_bonus_3200" },
+      { threshold: 4500, title: "👑 Чемпион Мира F1",  short: "Чемпион F1", bonusKey: "rank_bonus_4500" }
+    ];
+
+    function getRankTitle(pts) {
+      let title = F1_RANKS_SCALE[0].title;
+      for (const r of F1_RANKS_SCALE) {
+        if (pts >= r.threshold) title = r.title;
+      }
+      return title;
+    }
+
     async function loadPredictionLeaderboard() {
       const listEl = document.getElementById('predictionLeaderboardList');
       const userPtsEl = document.getElementById('predUserPointsVal');
@@ -1684,30 +2009,23 @@
         const rows = data.leaderboard || [];
 
         const myRecord = rows.find(r => String(r.user_id) === String(currentUserId));
-        const totalUserPts = myRecord ? (parseInt(myRecord.total_points) || 0) : localBonus;
+        if (myRecord) {
+          localStorage.setItem(`f1_db_preds_count_${currentUserId}`, String(myRecord.predictions_count || 0));
+          localStorage.setItem(`f1_db_podium_hits_${currentUserId}`, String(myRecord.podium_hits || 0));
+          localStorage.setItem(`f1_db_double_hits_${currentUserId}`, String(myRecord.double_hits || 0));
+          localStorage.setItem(`f1_user_base_points_${currentUserId}`, String(myRecord.base_points || 0));
+        }
 
-        if (userPtsEl) {
-          userPtsEl.innerText = totalUserPts;
-        }
+        const basePts = myRecord ? (parseInt(myRecord.base_points) || 0) : 0;
+        const totalUserPts = basePts + localBonus;
+
+        if (userPtsEl) userPtsEl.innerText = totalUserPts;
         const garagePtsEl = document.getElementById('garageStatPts');
-        if (garagePtsEl) {
-          garagePtsEl.innerText = `${totalUserPts} PTS`;
-        }
+        if (garagePtsEl) garagePtsEl.innerText = `${totalUserPts} PTS`;
 
         if (rows.length === 0) {
           listEl.innerHTML = '<div style="text-align:center; padding:18px; color:var(--text-muted); font-size:13px;">Прогнозов пока нет. Сделайте первый прогноз на этап!</div>';
           return;
-        }
-
-        // Вспомогательная функция для определения звания по очкам
-        function getRankTitle(pts) {
-          if (pts >= 2500) return "👑 Чемпион Мира";
-          if (pts >= 1500) return "⚡ Легенда";
-          if (pts >= 1000) return "🔥 Пилот F1";
-          if (pts >= 600) return "🏆 Пилот F2";
-          if (pts >= 300) return "🚀 Пилот F3";
-          if (pts >= 100) return "🏁 Пилот F4";
-          return "🏎️ Картингист";
         }
 
         listEl.innerHTML = rows.map((row, idx) => {
@@ -1742,7 +2060,7 @@
     }
 
     // =========================================================================
-    // ИГРА 2: СТАРТОВЫЕ ОГНИ F1 (ПОЛНЫЙ ФИКС БАГА С ФАЛЬСТАРТОМ)
+    // ИГРА 2: СТАРТОВЫЕ ОГНИ F1 (БЕЗ ОШИБКИ REACTION И ФАЛЬСТАРТА)
     // =========================================================================
     let lightsGameState = { status: 'idle', startTime: 0, stepTimer: null, outTimer: null };
 
@@ -1777,6 +2095,7 @@
       const bestBadge = document.getElementById('lights-best-badge');
 
       if (lightsGameState.status === 'idle') {
+        localStorage.setItem('f1_lights_played_once', 'true');
         clearAllLightsTimers();
         resetLightBulbs();
         lightsGameState.status = 'countdown';
@@ -1815,7 +2134,6 @@
         lightsGameState.stepTimer = setTimeout(lightNextBulb, 550);
 
       } else if (lightsGameState.status === 'countdown') {
-        // Фальстарт — сбрасываем все таймеры и сразу переводим в 'idle', чтобы следующий клик сразу запускал новую игру
         localStorage.setItem('f1_achievement_false_start', 'true');
         clearAllLightsTimers();
         resetLightBulbs();
@@ -1846,16 +2164,16 @@
           localStorage.setItem('f1_best_reaction_time', reaction);
           if (bestBadge) bestBadge.innerText = `Рекорд: ${reaction} ms`;
         }
+        if (reaction < 210) {
+          let streak = parseInt(localStorage.getItem('f1_fast_reactions_streak') || '0') + 1;
+          localStorage.setItem('f1_fast_reactions_streak', String(streak));
+        }
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-      }
-      if (reaction < 210) {
-        let streak = parseInt(localStorage.getItem('f1_fast_reactions_streak') || '0') + 1;
-        localStorage.setItem('f1_fast_reactions_streak', streak);
       }
     }
 
     // =========================================================================
-    // ИГРА 3: ПИТ-СТОП ЧЕЛЛЕНДЖ (ЗАДЕРЖКА 0.7С + ПОДСВЕТКА КОЛЕС + ШТРАФЫ)
+    // ИГРА 3: ПИТ-СТОП ЧЕЛЛЕНДЖ
     // =========================================================================
     let pitState = {
       running: false,
@@ -1885,7 +2203,8 @@
       if (pitState.step >= pitState.order.length) {
         pitState.running = false;
         clearInterval(pitState.timerInterval);
-        const total = ((performance.now() - pitState.startTime) / 1000 + pitState.penalty).toFixed(2);
+        const totalNum = (performance.now() - pitState.startTime) / 1000 + pitState.penalty;
+        const total = totalNum.toFixed(2);
         timeDisp.innerText = `${total}s`;
         timeDisp.style.color = '#34c759';
         startBtn.style.display = 'flex';
@@ -1893,16 +2212,18 @@
         note.innerHTML = `<span style="color:#34c759;">🏁 Пит-стоп завершен за ${total}s! (Штрафы: +${pitState.penalty.toFixed(1)}s)</span>`;
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
-        // СОХРАНЯЕМ РЕКОРД В ТОТ ЖЕ КЛЮЧ, КОТОРЫЙ ЧИТАЕТ ГАРАЖ (f1_best_pitstop_time)
+        if (pitState.penalty === 0 && totalNum <= 2.2) {
+          localStorage.setItem('f1_pit_clean_fast', 'true');
+        }
+
         const prevBestPit = parseFloat(localStorage.getItem('f1_best_pitstop_time') || '999');
-        if (parseFloat(total) < prevBestPit) {
+        if (totalNum < prevBestPit) {
           localStorage.setItem('f1_best_pitstop_time', total);
         }
         const garagePitEl = document.getElementById('garageStatPit');
         if (garagePitEl) {
           garagePitEl.innerText = `${localStorage.getItem('f1_best_pitstop_time')} s`;
         }
-
         return;
       }
 
@@ -1913,6 +2234,7 @@
     }
 
     function startAdvancedPitstopGame() {
+      localStorage.setItem('f1_pitstop_played_once', 'true');
       const timeDisp = document.getElementById('pit-time-display');
       const note = document.getElementById('pit-status-note');
       const startBtn = document.getElementById('pit-start-btn');
@@ -1931,7 +2253,6 @@
       carBody.classList.add('entering');
       note.innerHTML = '<span style="color:#ff9500;">🏎️ Болид заезжает на пит-лейн... Приготовьте пальцы!</span>';
 
-      // Задержка 0.7 секунды перед стартом секундомера
       setTimeout(() => {
         carBody.classList.remove('entering');
         note.innerText = '🔥 МЕНЯЙТЕ ПОДСВЕЧЕННЫЕ КОЛЕСА!';
@@ -1961,11 +2282,11 @@
         pitState.step++;
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
-        // Короткая динамическая задержка (120-220 мс), чтобы все 4 колеса укладывались в ~2 секунды
         const stepDelay = pitState.step >= 4 ? 50 : (120 + Math.random() * 100);
         pitState.nextWheelTimer = setTimeout(highlightNextPitWheel, stepDelay);
       } else if (!btnEl.classList.contains('done-green')) {
         pitState.penalty += 0.5;
+        localStorage.setItem('f1_pit_had_penalty', 'true');
         note.innerHTML = '<span style="color:var(--accent);">⚠️ ОШИБКА КОЛЕСА! +0.5 сек штрафа!</span>';
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
       }
@@ -2153,7 +2474,7 @@
     }
 
     // =========================================================================
-    // КАТАЛОГ И ПОЛНОЕ ПЕРЕМЕЩЕНИЕ ЭЛЕМЕНТОВ В АРХИВЕ (КАТЕГОРИИ, ЭТАПЫ, СЕССИИ)
+    // КАТАЛОГ И НАВИГАЦИЯ
     // =========================================================================
     let allCatalogItems = [];
     let catalogTree = {};
@@ -2230,6 +2551,8 @@
         if (adminBtn) adminBtn.style.display = 'block';
       }
       initLightsBestRecord();
+      updateDailyLoginStreak();
+      markVisitedMainTab('home');
     }
 
     function saveUserSettings() {
@@ -2286,54 +2609,43 @@
       if (target) target.classList.add('active');
       window.scrollTo(0, 0);
 
+      markVisitedMainTab(tabName);
+
       if (tabName === 'season') {
+        localStorage.setItem('f1_viewed_drivers_tab', 'true');
         setTimeout(scrollToCurrentCalendarStage, 250);
       }
       
       if (tabName === 'garage') {
+        localStorage.setItem('f1_got_first_rank', 'true');
         renderGarageProfileData();
       }
     }
 
     // =========================================================================
-    // ЛОГИКА ЭКРАНА "ГАРАЖ" (ПРОФИЛЬ, СТАТИСТИКА, ТЕХНИЧЕСКИЕ АЧИВКИ)
+    // ЛОГИКА ЭКРАНА "ГАРАЖ" (ПРОГРЕСС РАНГОВ, МОДАЛКА КАРЬЕРЫ, 28 ДОСТИЖЕНИЙ)
     // =========================================================================
-    // Шкала рангов от 0 до 850 очков
-    // Шкала рангов от 0 до 850 очков с бонусами за достижение
-    const F1_RANKS_SCALE = [
-      { threshold: 0, title: "🏎️ Картингист", bonusKey: "rank_bonus_0" },
-      { threshold: 100, title: "🏁 Пилот Формулы-4", bonusKey: "rank_bonus_50" },
-      { threshold: 300, title: "🚀 Пилот Формулы-3", bonusKey: "rank_bonus_150" },
-      { threshold: 600, title: "🏆 Пилот Формулы-2", bonusKey: "rank_bonus_300" },
-      { threshold: 1000, title: "🔥 Пилот Формулы-1", bonusKey: "rank_bonus_500" },
-      { threshold: 1500, title: "⚡ Легенда Паддока", bonusKey: "rank_bonus_700" },
-      { threshold: 2500, title: "👑 Чемпион Мира F1", bonusKey: "rank_bonus_850" }
-    ];
+    window.currentAchievementFilter = 'all';
+    window.lastGarageStatsSnapshot = null;
 
-    function calculateUserRank(currentPts, userId) {
+    function calculateUserRankAndRoadmap(currentPts, userId) {
       let maxPtsEver = parseInt(localStorage.getItem(`f1_max_pts_ever_${userId}`) || '0');
       if (currentPts > maxPtsEver) {
         maxPtsEver = currentPts;
-        localStorage.setItem(`f1_max_pts_ever_${userId}`, maxPtsEver);
+        localStorage.setItem(`f1_max_pts_ever_${userId}`, String(maxPtsEver));
       }
 
-      let currentRankTitle = "🏎️ Картингист";
-      
-      for (const rank of F1_RANKS_SCALE) {
+      let currentRankIdx = 0;
+      for (let i = 0; i < F1_RANKS_SCALE.length; i++) {
+        const rank = F1_RANKS_SCALE[i];
         if (maxPtsEver >= rank.threshold) {
-          currentRankTitle = rank.title;
-          
-          // Проверяем, получал ли игрок бонус за этот ранг ранее
+          currentRankIdx = i;
           if (rank.threshold > 0) {
             const rankBonusKey = `f1_ach_unlocked_${userId}_${rank.bonusKey}`;
             if (localStorage.getItem(rankBonusKey) !== 'true') {
               localStorage.setItem(rankBonusKey, 'true');
-              
-              // Начисляем бонус +50 PTS за новый ранг
               let bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${userId}`) || '0') + 50;
-              localStorage.setItem(`f1_bonus_pts_${userId}`, bonusPts);
-              
-              // Показываем всплывающее окно
+              localStorage.setItem(`f1_bonus_pts_${userId}`, String(bonusPts));
               setTimeout(() => {
                 showAchievementToast(`+50 PTS • Новый ранг: ${rank.title}!`, '🏆');
               }, 600);
@@ -2341,7 +2653,72 @@
           }
         }
       }
-      return currentRankTitle;
+
+      const currentRank = F1_RANKS_SCALE[currentRankIdx];
+      const nextRank = F1_RANKS_SCALE[currentRankIdx + 1] || null;
+
+      const fillEl = document.getElementById('garageRankProgressFill');
+      const textEl = document.getElementById('garageRankProgressText');
+      const hintEl = document.getElementById('garageRankNextHint');
+
+      if (nextRank) {
+        const prevThreshold = currentRank.threshold;
+        const span = Math.max(1, nextRank.threshold - prevThreshold);
+        const progressInTier = Math.max(0, maxPtsEver - prevThreshold);
+        const pct = Math.min(100, Math.round((progressInTier / span) * 100));
+        const leftPts = Math.max(0, nextRank.threshold - maxPtsEver);
+
+        if (fillEl) fillEl.style.width = `${pct}%`;
+        if (textEl) textEl.innerText = `${maxPtsEver} / ${nextRank.threshold} PTS`;
+        if (hintEl) hintEl.innerText = `До «${nextRank.short}»: ${leftPts} PTS`;
+      } else {
+        if (fillEl) fillEl.style.width = `100%`;
+        if (textEl) textEl.innerText = `${maxPtsEver} / 4500+ PTS`;
+        if (hintEl) hintEl.innerText = `Максимальный титул Чемпиона! 👑`;
+      }
+
+      renderRankRoadmapModalList(maxPtsEver, currentRankIdx);
+      return currentRank.title;
+    }
+
+    function renderRankRoadmapModalList(maxPtsEver, currentRankIdx) {
+      const container = document.getElementById('rankRoadmapListContainer');
+      if (!container) return;
+
+      container.innerHTML = F1_RANKS_SCALE.map((r, idx) => {
+        const isUnlocked = maxPtsEver >= r.threshold;
+        const isCurrent = idx === currentRankIdx;
+        let statusHtml = '';
+        if (isCurrent) {
+          statusHtml = `<span class="badge">ТЕКУЩИЙ РАНГ</span>`;
+        } else if (isUnlocked) {
+          statusHtml = `<span style="font-size:11px; font-weight:800; color:#34c759;">✓ ПОЛУЧЕНО</span>`;
+        } else {
+          const need = r.threshold - maxPtsEver;
+          statusHtml = `<span style="font-size:11px; font-weight:800; color:var(--text-muted);">🔒 Ещё ${need} PTS</span>`;
+        }
+
+        return `
+          <div class="rank-ladder-item ${isCurrent ? 'current' : (isUnlocked ? 'unlocked' : '')}">
+            <div>
+              <div style="font-size:14px; font-weight:900; color:var(--text);">${r.title}</div>
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-top:2px;">Порог: ${r.threshold} PTS ${r.threshold > 0 ? '• Награда +50 PTS' : ''}</div>
+            </div>
+            ${statusHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleRankRoadmapModal(show) {
+      const modal = document.getElementById('rankRoadmapModal');
+      if (!modal) return;
+      if (show) {
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        modal.classList.add('active');
+      } else {
+        modal.classList.remove('active');
+      }
     }
 
     function showAchievementToast(title, icon) {
@@ -2361,19 +2738,31 @@
       }, 3800);
     }
 
-    // Проверка и выдача ачивок с начислением +15 бонусных PTS
-    function checkAndAwardAchievement(achId, title, icon) {
+    // Проверка и выдача ачивок с индивидуальной наградой PTS (10, 15, 20, 25, 50, 100)
+    function checkAndAwardAchievement(achId, title, icon, rewardPts = 15) {
       const storageKey = `f1_ach_unlocked_${currentUserId}_${achId}`;
       const isAlreadyUnlocked = localStorage.getItem(storageKey) === 'true';
 
       if (!isAlreadyUnlocked) {
         localStorage.setItem(storageKey, 'true');
         
-        // Начисляем бонус +15 PTS
-        let bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0') + 15;
-        localStorage.setItem(`f1_bonus_pts_${currentUserId}`, bonusPts);
+        let bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0') + rewardPts;
+        localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(bonusPts));
 
-        showAchievementToast(`+15 PTS • ${title}`, icon);
+        showAchievementToast(`+${rewardPts} PTS • ${title}`, icon);
+        return true;
+      }
+      return false;
+    }
+
+    function filterGarageAchievements(category, btnEl) {
+      if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      window.currentAchievementFilter = category;
+      document.querySelectorAll('#trophyFilterTabs .trophy-filter-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+
+      if (window.lastGarageStatsSnapshot) {
+        renderAchievementsList(window.lastGarageStatsSnapshot);
       }
     }
     
@@ -2397,26 +2786,33 @@
         avatarEl.innerText = realName.charAt(0).toUpperCase();
       }
 
-      // Получаем очки из лидерборда БД + добавляем бонусные баллы за ачивки (+15 за штуку)
-      let basePts = 0;
+      let basePts = parseInt(localStorage.getItem(`f1_user_base_points_${currentUserId}`) || '0');
+      let dbPredsCount = parseInt(localStorage.getItem(`f1_db_preds_count_${currentUserId}`) || '0');
+      let dbPodiumHits = parseInt(localStorage.getItem(`f1_db_podium_hits_${currentUserId}`) || '0');
+      let dbDoubleHits = parseInt(localStorage.getItem(`f1_db_double_hits_${currentUserId}`) || '0');
+
       try {
         const res = await fetch(`${WORKER_URL}/api/prediction/leaderboard`);
         const data = await res.json();
         const me = (data.leaderboard || []).find(r => String(r.user_id) === String(currentUserId));
-        if (me) basePts = parseInt(me.base_points ?? me.total_points) || 0;
-      } catch (e) {
-        basePts = parseInt(localStorage.getItem('f1_user_pred_points') || '0');
+        if (me) {
+          basePts = parseInt(me.base_points ?? me.total_points) || 0;
+          dbPredsCount = parseInt(me.predictions_count) || 0;
+          dbPodiumHits = parseInt(me.podium_hits) || 0;
+          dbDoubleHits = parseInt(me.double_hits) || 0;
+          localStorage.setItem(`f1_user_base_points_${currentUserId}`, String(basePts));
+          localStorage.setItem(`f1_db_preds_count_${currentUserId}`, String(dbPredsCount));
+          localStorage.setItem(`f1_db_podium_hits_${currentUserId}`, String(dbPodiumHits));
+          localStorage.setItem(`f1_db_double_hits_${currentUserId}`, String(dbDoubleHits));
+        }
+      } catch (e) {}
+
+      let localVotesCount = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(`f1_pred_v2_${currentUserId}`)) localVotesCount++;
       }
-
-      const bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0');
-      const totalUserPts = basePts + bonusPts;
-
-      document.getElementById('garageStatPts').innerText = `${totalUserPts} PTS`;
-
-      // Вычисляем и выводим ранг (с защитой исторического максимума при обнулении сезона)
-      if (rankEl) {
-        rankEl.innerText = calculateUserRank(totalUserPts, currentUserId);
-      }
+      const finalVotesCount = Math.max(localVotesCount, dbPredsCount);
 
       const bestReaction = localStorage.getItem('f1_best_reaction_time');
       document.getElementById('garageStatReaction').innerText = bestReaction ? `${bestReaction} ms` : '— ms';
@@ -2424,62 +2820,167 @@
       const bestPit = localStorage.getItem('f1_best_pitstop_time');
       document.getElementById('garageStatPit').innerText = bestPit ? `${bestPit} s` : '— s';
 
-      let votesCount = 0;
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(`f1_pred_v2_${currentUserId}`)) votesCount++;
-      }
-      document.getElementById('garageStatVotes').innerText = votesCount;
+      document.getElementById('garageStatVotes').innerText = finalVotesCount;
 
-      renderAchievementsList({
+      let bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0');
+      let totalUserPts = basePts + bonusPts;
+
+      const snapshot = {
         userPts: totalUserPts,
         bestReaction: parseInt(bestReaction) || 9999,
         bestPit: parseFloat(bestPit) || 99,
-        votesCount: votesCount,
+        votesCount: finalVotesCount,
+        podiumHits: dbPodiumHits,
+        doubleHits: dbDoubleHits,
         isDarkTheme: document.body.classList.contains('dark-theme')
-      });
+      };
+      window.lastGarageStatsSnapshot = snapshot;
+
+      const newlyUnlockedBonus = renderAchievementsList(snapshot);
+      if (newlyUnlockedBonus) {
+        bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0');
+        totalUserPts = basePts + bonusPts;
+        snapshot.userPts = totalUserPts;
+        renderAchievementsList(snapshot);
+      }
+
+      document.getElementById('garageStatPts').innerText = `${totalUserPts} PTS`;
+      const predPtsVal = document.getElementById('predUserPointsVal');
+      if (predPtsVal) predPtsVal.innerText = totalUserPts;
+
+      if (rankEl) {
+        rankEl.innerText = calculateUserRankAndRoadmap(totalUserPts, currentUserId);
+      }
+
+      // Тихая синхронизация обновленных бонусов в БД D1
+      if (currentUserId && currentUserId !== "user_guest") {
+        fetch(`${WORKER_URL}/api/user/sync_bonus`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: currentUserId,
+            username: tgUser.username || '',
+            first_name: tgUser.first_name || '',
+            last_name: tgUser.last_name || '',
+            bonus_points: parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0')
+          })
+        }).catch(() => {});
+      }
     }
 
     function renderAchievementsList(stats) {
       const grid = document.getElementById('garageAchievementsGrid');
-      if (!grid) return;
+      if (!grid) return false;
 
       const hasFalseStart = localStorage.getItem('f1_achievement_false_start') === 'true';
-      const foundAdminSim = localStorage.getItem('f1_achievement_admin_sim') === 'true';
-      const usedDeepLink = localStorage.getItem('f1_achievement_deeplink') === 'true';
+      const foundSecret = localStorage.getItem('f1_achievement_admin_sim') === 'true';
       const archiveViewsCount = parseInt(localStorage.getItem('f1_archive_views_count') || '0');
       const hasNightView = localStorage.getItem('f1_achievement_night_view') === 'true';
       const fastReactionCount = parseInt(localStorage.getItem('f1_fast_reactions_streak') || '0');
+      const cleanFastPit = localStorage.getItem('f1_pit_clean_fast') === 'true' || (stats.bestPit <= 2.2 && stats.bestPit > 0 && localStorage.getItem('f1_pit_had_penalty') !== 'true');
+      const sprinterDone = (stats.bestReaction > 0 && stats.bestReaction <= 195) || (stats.bestPit > 0 && stats.bestPit <= 2.0);
+      const loginStreak = parseInt(localStorage.getItem(`f1_login_streak_${currentUserId}`) || '1');
+      const seasonSubSwitches = parseInt(localStorage.getItem('f1_season_subtab_switches') || '0');
+      const lightsPlayed = localStorage.getItem('f1_lights_played_once') === 'true' || stats.bestReaction < 9999 || hasFalseStart;
+      const pitPlayed = localStorage.getItem('f1_pitstop_played_once') === 'true' || stats.bestPit < 99;
+      let visitedTabs = [];
+      try { visitedTabs = JSON.parse(localStorage.getItem(`f1_visited_tabs_${currentUserId}`) || '[]'); } catch (e) {}
+      const viewedDrivers = localStorage.getItem('f1_viewed_drivers_tab') === 'true';
+      const viewedCalendar = localStorage.getItem('f1_viewed_calendar_tab') === 'true';
+      const gotFirstRank = localStorage.getItem('f1_got_first_rank') === 'true' || stats.userPts >= 0;
+      const hadPitPenalty = localStorage.getItem('f1_pit_had_penalty') === 'true';
+      const lbRefreshes = parseInt(localStorage.getItem('f1_leaderboard_refresh_count') || '0');
 
       const achievementsDefs = [
-        { id: 'first_vote', icon: '📝', title: 'Первая кровь', desc: 'Сделайте хотя бы 1 прогноз на этап.', unlocked: stats.votesCount >= 1 },
-        { id: 'veteran_tribun', icon: '🏛️', title: 'Ветеран трибун', desc: 'Примите участие в предикшнах на 10 этапах сезона.', unlocked: stats.votesCount >= 10 },
-        { id: 'max_reaction', icon: '⚡', title: 'Реакция Макса', desc: 'Продемонстрируйте время реакции быстрее 200 мс.', unlocked: stats.bestReaction < 200 && stats.bestReaction > 0 },
-        { id: 'false_start', icon: '🚨', title: 'Фальстарт!', desc: 'Поторопитесь и нажмите кнопку старта до погашения огней.', unlocked: hasFalseStart },
-        { id: 'ferrari_crew', icon: '🔧', title: 'Бригада Ferrari', desc: 'Пройдите пит-стоп быстрее чем за 2.2 сек.', unlocked: stats.bestPit <= 2.2 && stats.bestPit > 0 },
-        { id: 'iron_nerves', icon: '🏎️', title: 'Железные нервы', desc: 'Покажите идеальную реакцию (<210мс) 5 раз.', unlocked: fastReactionCount >= 5 },
-        { id: 'cinemaniac', icon: '🎬', title: 'Киноман F1', desc: 'Посмотрите 5 полных записей заездов из архива.', unlocked: archiveViewsCount >= 5 },
-        { id: 'night_view', icon: '🌙', title: 'Ночной просмотр', desc: 'Откройте заезд в ночное время (00:00 - 05:00).', unlocked: hasNightView },
-        { id: 'treasure_hunter', icon: '🗺️', title: 'Искатель сокровищ', desc: 'Откройте архивный этап по прямой ссылке (?start=code).', unlocked: usedDeepLink },
-        { id: 'secret_advisor', icon: '🕵️‍♂️', title: 'Тайный советник', desc: 'Найдите секретную админ-панель симуляции.', unlocked: foundAdminSim },
-        { id: 'night_watch', icon: '🖤', title: 'Ночной дозор', desc: 'Измените тему оформления приложения на темную.', unlocked: stats.isDarkTheme }
+        // 👑 ХАРДКОРНЫЕ / ДОЛГОСРОЧНЫЕ (3 штуки)
+        { id: 'paddock_legend', tier: 'hardcore', pts: 100, icon: '👑', title: 'Легенда паддока', desc: 'Достичь высшего ранга «Чемпион Мира F1» (набрать 4500+ очков).', cur: Math.min(stats.userPts, 4500), max: 4500, unlocked: stats.userPts >= 4500 },
+        { id: 'history_keeper', tier: 'hardcore', pts: 50, icon: '🎞️', title: 'Хранитель истории', desc: 'Посмотреть суммарно 30 записей заездов из архива.', cur: Math.min(archiveViewsCount, 30), max: 30, unlocked: archiveViewsCount >= 30 },
+        { id: 'veteran_tribun', tier: 'hardcore', pts: 50, icon: '🏛️', title: 'Ветеран трибун', desc: 'Принять участие в предикшнах на 10 этапах сезона.', cur: Math.min(stats.votesCount, 10), max: 10, unlocked: stats.votesCount >= 10 },
+
+        // 🏎️ СРЕДНЕЙ СЛОЖНОСТИ (10 штук)
+        { id: 'iron_nerves', tier: 'medium', pts: 20, icon: '🏎️', title: 'Железные нервы', desc: 'Показать идеальную реакцию в светофорах (<210 мс) 5 раз.', cur: Math.min(fastReactionCount, 5), max: 5, unlocked: fastReactionCount >= 5 },
+        { id: 'cinemaniac', tier: 'medium', pts: 15, icon: '🎬', title: 'Киноман F1', desc: 'Посмотреть 5 полных записей заездов из архива.', cur: Math.min(archiveViewsCount, 5), max: 5, unlocked: archiveViewsCount >= 5 },
+        { id: 'night_view', tier: 'medium', pts: 15, icon: '🌙', title: 'Ночной просмотр', desc: 'Открыть заезд в ночное время (с 00:00 до 05:00).', cur: hasNightView ? 1 : 0, max: 1, unlocked: hasNightView },
+        { id: 'serial_analyst', tier: 'medium', pts: 25, icon: '🎯', title: 'Серийный аналитик', desc: 'Угадать и победителя гонки (P1), и быстрейший круг (FL) в одном прогнозе.', cur: Math.min(stats.doubleHits, 1), max: 1, unlocked: stats.doubleHits >= 1 },
+        { id: 'pit_storm', tier: 'medium', pts: 15, icon: '🔧', title: 'Гроза пит-лейна', desc: 'Пройти «Пит-стоп» без единого штрафа быстрее чем за 2.2 сек.', cur: cleanFastPit ? 1 : 0, max: 1, unlocked: cleanFastPit },
+        { id: 'paddock_sprinter', tier: 'medium', pts: 15, icon: '⚡', title: 'Спринтер паддока', desc: 'Показать топовое время реакции (<195 мс) или пит-стопа (<2.0 с).', cur: sprinterDone ? 1 : 0, max: 1, unlocked: sprinterDone },
+        { id: 'loyal_fan', tier: 'medium', pts: 15, icon: '📅', title: 'Преданный фанат', desc: 'Открывать приложение 5 дней подряд.', cur: Math.min(loginStreak, 5), max: 5, unlocked: loginStreak >= 5 },
+        { id: 'peloton_explorer', tier: 'medium', pts: 15, icon: '📖', title: 'Исследователь пелотона', desc: 'Переключиться между вкладками раздела «Сезон» 3 раза.', cur: Math.min(seasonSubSwitches, 3), max: 3, unlocked: seasonSubSwitches >= 3 },
+        { id: 'first_capital', tier: 'medium', pts: 15, icon: '💰', title: 'Первый капитал', desc: 'Набрать суммарно 150 очков в общем рейтинге.', cur: Math.min(stats.userPts, 150), max: 150, unlocked: stats.userPts >= 150 },
+        { id: 'podium_collector', tier: 'medium', pts: 15, icon: '🏆', title: 'Коллекционер подиумов', desc: 'Угадать пилота в тройке лидеров в предикшнах 5 раз.', cur: Math.min(stats.podiumHits, 5), max: 5, unlocked: stats.podiumHits >= 5 },
+
+        // 🏁 ОБЫЧНЫЕ / БЫСТРЫЕ (15 штук)
+        { id: 'first_vote', tier: 'normal', pts: 15, icon: '📝', title: 'Первая кровь', desc: 'Сделать свой первый прогноз на этап.', cur: Math.min(stats.votesCount, 1), max: 1, unlocked: stats.votesCount >= 1 },
+        { id: 'max_reaction', tier: 'normal', pts: 15, icon: '⚡', title: 'Реакция Макса', desc: 'Продемонстрировать время реакции быстрее 200 мс.', cur: (stats.bestReaction < 200 && stats.bestReaction > 0) ? 1 : 0, max: 1, unlocked: stats.bestReaction < 200 && stats.bestReaction > 0 },
+        { id: 'false_start', tier: 'normal', pts: 15, icon: '🚨', title: 'Фальстарт!', desc: 'Нажать кнопку старта до того, как погасли огни.', cur: hasFalseStart ? 1 : 0, max: 1, unlocked: hasFalseStart },
+        { id: 'ferrari_crew', tier: 'normal', pts: 15, icon: '🔧', title: 'Бригада Ferrari', desc: 'Пройти мини-игру «Пит-стоп» быстрее чем за 2.2 сек.', cur: (stats.bestPit <= 2.2 && stats.bestPit > 0) ? 1 : 0, max: 1, unlocked: stats.bestPit <= 2.2 && stats.bestPit > 0 },
+        { id: 'secret_advisor', tier: 'normal', pts: 15, icon: '🕵️‍♂️', title: 'Тайный советник', desc: 'Найти пасхалку в приложении и нажать на неё 5 раз.', cur: foundSecret ? 1 : 0, max: 1, unlocked: foundSecret },
+        { id: 'night_watch', tier: 'normal', pts: 15, icon: '🖤', title: 'Ночной дозор', desc: 'Переключить тему оформления приложения на темную.', cur: stats.isDarkTheme ? 1 : 0, max: 1, unlocked: stats.isDarkTheme },
+        { id: 'tire_test', tier: 'normal', pts: 10, icon: '🎮', title: 'Проба шин', desc: 'Запустить мини-игру «Стартовые огни» в первый раз.', cur: lightsPlayed ? 1 : 0, max: 1, unlocked: lightsPlayed },
+        { id: 'first_jack', tier: 'normal', pts: 10, icon: '🚗', title: 'Первый домкрат', desc: 'Совершить первую попытку смены колес в «Пит-стопе».', cur: pitPlayed ? 1 : 0, max: 1, unlocked: pitPlayed },
+        { id: 'first_lap', tier: 'normal', pts: 10, icon: '▶️', title: 'Первый круг', desc: 'Открыть любой видеозаезд из архива.', cur: Math.min(archiveViewsCount, 1), max: 1, unlocked: archiveViewsCount >= 1 },
+        { id: 'paddock_tourist', tier: 'normal', pts: 10, icon: '🗺️', title: 'Турист в паддоке', desc: 'Поочередно открыть все 5 основных вкладок приложения.', cur: Math.min(visitedTabs.length, 5), max: 5, unlocked: visitedTabs.length >= 5 },
+        { id: 'peloton_glance', tier: 'normal', pts: 10, icon: '👥', title: 'Взгляд на пелотон', desc: 'Открыть вкладку со списком пилотов текущего сезона.', cur: viewedDrivers ? 1 : 0, max: 1, unlocked: viewedDrivers },
+        { id: 'schedule_expert', tier: 'normal', pts: 10, icon: '🏁', title: 'Знаток расписания', desc: 'Открыть вкладку календаря сезона.', cur: viewedCalendar ? 1 : 0, max: 1, unlocked: viewedCalendar },
+        { id: 'karting_driver', tier: 'normal', pts: 10, icon: '🏎️', title: 'Картингист', desc: 'Официально получить свое первое звание в профиле.', cur: gotFirstRank ? 1 : 0, max: 1, unlocked: gotFirstRank },
+        { id: 'penalty_half_sec', tier: 'normal', pts: 10, icon: '⚠️', title: 'Штрафные 0,5 секунд', desc: 'Нарваться на штраф в пит-стопе, кликнув не по тому колесу.', cur: hadPitPenalty ? 1 : 0, max: 1, unlocked: hadPitPenalty },
+        { id: 'peloton_refresh', tier: 'normal', pts: 10, icon: '🔄', title: 'Обновление пелотона', desc: 'Вручную обновить таблицу лидеров кнопкой сброса.', cur: Math.min(lbRefreshes, 1), max: 1, unlocked: lbRefreshes >= 1 }
       ];
 
-      // Проверяем и выдаем бонусы за разблокированные ачивки
+      let anyNewAwarded = false;
       achievementsDefs.forEach(ach => {
-        if (ach.unlocked) {
-          checkAndAwardAchievement(ach.id, ach.title, ach.icon);
+        const storageKey = `f1_ach_unlocked_${currentUserId}_${ach.id}`;
+        if (localStorage.getItem(storageKey) === 'true') {
+          ach.unlocked = true;
+          ach.cur = ach.max;
+        } else if (ach.unlocked) {
+          const awarded = checkAndAwardAchievement(ach.id, ach.title, ach.icon, ach.pts);
+          if (awarded) anyNewAwarded = true;
         }
       });
 
-      grid.innerHTML = achievementsDefs.map(ach => `
-        <div class="achievement-card ${ach.unlocked ? 'unlocked' : ''}">
-          <div class="achievement-icon">${ach.icon}</div>
-          <div class="achievement-title">${ach.title}</div>
-          <div class="achievement-desc">${ach.desc}</div>
-          <div class="achievement-status">${ach.unlocked ? '✓ Получено' : '🔒 Заблокировано'}</div>
-        </div>
-      `).join('');
+      const totalCount = achievementsDefs.length;
+      const unlockedCount = achievementsDefs.filter(a => a.unlocked).length;
+      const pctCollection = Math.round((unlockedCount / totalCount) * 100);
+
+      const counterBadge = document.getElementById('garageTrophyCounterBadge');
+      const pctText = document.getElementById('garageTrophyPercentText');
+      const colFill = document.getElementById('garageTrophyCollectionFill');
+
+      if (counterBadge) counterBadge.innerText = `🏆 ${unlockedCount} / ${totalCount}`;
+      if (pctText) pctText.innerText = `${pctCollection}%`;
+      if (colFill) colFill.style.width = `${pctCollection}%`;
+
+      const activeFilter = window.currentAchievementFilter || 'all';
+      const filteredList = activeFilter === 'all'
+        ? achievementsDefs
+        : achievementsDefs.filter(a => a.tier === activeFilter);
+
+      grid.innerHTML = filteredList.map(ach => {
+        const pct = Math.min(100, Math.round((ach.cur / ach.max) * 100));
+        const tierClass = ach.tier === 'hardcore' ? 'tier-hardcore' : '';
+        return `
+          <div class="achievement-card ${tierClass} ${ach.unlocked ? 'unlocked' : ''}">
+            <div class="ach-top-row">
+              <div class="achievement-icon">${ach.icon}</div>
+              <span class="ach-pts-pill">+${ach.pts} PTS</span>
+            </div>
+            <div class="achievement-title">${ach.title}</div>
+            <div class="achievement-desc">${ach.desc}</div>
+            <div class="ach-prog-wrap">
+              <div class="ach-prog-bar">
+                <div class="ach-prog-fill" style="width:${pct}%;"></div>
+              </div>
+              <div class="achievement-status">
+                <span>${ach.unlocked ? '✓ Получено' : '🔒 В процессе'}</span>
+                <span>${ach.cur} / ${ach.max}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return anyNewAwarded;
     }
 
     function openViewScreen(screenName) {
@@ -2492,6 +2993,12 @@
     function switchSeasonSubTab(subTab, btn) {
       document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+
+      let switches = parseInt(localStorage.getItem('f1_season_subtab_switches') || '0') + 1;
+      localStorage.setItem('f1_season_subtab_switches', String(switches));
+
+      if (subTab === 'standings') localStorage.setItem('f1_viewed_drivers_tab', 'true');
+      if (subTab === 'calendar') localStorage.setItem('f1_viewed_calendar_tab', 'true');
 
       document.getElementById('seasonSubStandings').style.display = subTab === 'standings' ? 'block' : 'none';
       document.getElementById('seasonSubCalendar').style.display = subTab === 'calendar' ? 'block' : 'none';
@@ -2731,7 +3238,6 @@
         catalogTree[cat][title].items.push(item);
       });
 
-      // Порядок берется напрямую из allCatalogItems (который уже отсортирован базой D1 для всех!)
       const catNames = Object.keys(catalogTree);
 
       const container = document.getElementById('catalogCategoriesContainer');
@@ -2883,7 +3389,7 @@
         b.onclick = () => {
           if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
           let vCount = parseInt(localStorage.getItem('f1_archive_views_count') || '0') + 1;
-          localStorage.setItem('f1_archive_views_count', vCount);
+          localStorage.setItem('f1_archive_views_count', String(vCount));
 
           const currentHour = new Date().getHours();
           if (currentHour >= 0 && currentHour < 5) {
@@ -2958,6 +3464,8 @@
         b.className = 'menu-btn';
         b.innerHTML = `<span>${e.title} — ${e.item}</span><span class="badge">${e.badge || '1080p'}</span>`;
         b.onclick = () => {
+          let vCount = parseInt(localStorage.getItem('f1_archive_views_count') || '0') + 1;
+          localStorage.setItem('f1_archive_views_count', String(vCount));
           tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${e.code}`);
           tg?.close();
         };
@@ -3204,10 +3712,6 @@
 
     async function initAppRouting() {
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('start') || window.location.hash.includes('start')) {
-          localStorage.setItem('f1_achievement_deeplink', 'true');
-        }
         initThemeAndPreferences();
         loadAndApplyAiPatches();
         loadCatalogDatabase();
