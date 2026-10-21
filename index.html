@@ -313,7 +313,7 @@
     .cal-info h4 { margin: 0; font-size: 15px; font-weight: 800; color: var(--text); }
     .cal-info span { font-size: 12px; color: var(--text-muted); }
 
-    /* ================= СТИЛИ ВКЛАДКИ ИГРЫ (SUB-TABS, ПРЕДИКШН V2, ОГНИ, ПИТ-СТОП) ================= */
+    /* ================= СТИЛИ ВКЛАДКИ ИГРЫ ================= */
     .games-subtabs-nav {
       display: flex;
       gap: 8px;
@@ -1168,7 +1168,7 @@
     <div id="seasonSubTeams" style="display: none;"><div id="constructorsStandingsList"></div></div>
   </div>
 
-  <!-- ================= 4. ЭКРАН: ИГРЫ F1 (НОВАЯ СИСТЕМА SUB-TABS) ================= -->
+  <!-- ================= 4. ЭКРАН: ИГРЫ F1 ================= -->
   <div id="view-games" class="view-screen">
     <div class="games-subtabs-nav" id="gamesSubtabsNav">
       <button class="games-subtab-btn active" onclick="switchGamesSubTab('pred', this)">🏎️ Предикшн</button>
@@ -1176,7 +1176,7 @@
       <button class="games-subtab-btn" onclick="switchGamesSubTab('pitstop', this)">🔧 Пит-стоп</button>
     </div>
 
-    <!-- Подвкладка 1: Продвинутый Предикшн V2 -->
+    <!-- Подвкладка 1: Предикшн V2 -->
     <div id="tab-content-pred" class="games-tab-content active">
       <div class="f1-pred-container">
         <div class="pred-score-card">
@@ -1312,7 +1312,6 @@
         </div>
       </div>
 
-      <!-- Шкала прогресса до следующего ранга и кнопка Карьерной лестницы -->
       <div class="rank-roadmap-box">
         <div class="rank-roadmap-header">
           <span class="rank-current-badge" id="garageUserRank">🏎️ Картингист</span>
@@ -1353,7 +1352,6 @@
         <span class="badge" id="garageTrophyCounterBadge">0 / 28</span>
       </div>
 
-      <!-- Прогресс-бар собранной коллекции -->
       <div class="trophy-collection-bar">
         <div class="trophy-collection-top">
           <span>Прогресс коллекции трофеев</span>
@@ -1364,7 +1362,6 @@
         </div>
       </div>
 
-      <!-- Фильтры категорий трофеев -->
       <div class="trophy-filter-tabs" id="trophyFilterTabs">
         <button class="trophy-filter-btn active" onclick="filterGarageAchievements('all', this)">Все (28)</button>
         <button class="trophy-filter-btn" onclick="filterGarageAchievements('hardcore', this)">👑 Легендарные (3)</button>
@@ -1372,9 +1369,7 @@
         <button class="trophy-filter-btn" onclick="filterGarageAchievements('normal', this)">🏁 Обычные (15)</button>
       </div>
 
-      <div class="achievements-grid" id="garageAchievementsGrid">
-        <!-- Динамически заполняется скриптом -->
-      </div>
+      <div class="achievements-grid" id="garageAchievementsGrid"></div>
     </div>
   </div>
 
@@ -1595,7 +1590,7 @@
   </div>
 
   <script>
-    const tg = window.Telegram?.WebApp;
+    const tg = window.Telegram ? window.Telegram.WebApp : null;
     if (tg) {
       tg.ready();
       tg.expand();
@@ -1606,36 +1601,128 @@
     const ADMIN_ID = "301211351";
     const TESTER_ID = "8061233590";
 
+    // Умная нормализация слипшихся имен ("Andrea KimiAntonelli" -> "Andrea Kimi Antonelli")
+    function cleanDriverName(rawName) {
+      if (!rawName) return "";
+      const camelRx = new RegExp("([a-zа-яё])([A-ZА-ЯЁ])", "g");
+      const spaceRx = new RegExp("\\s+", "g");
+      return String(rawName)
+        .replace(camelRx, "$1 $2")
+        .replace(spaceRx, " ")
+        .trim();
+    }
+
     function resolveTelegramUser() {
       let uid = "";
       if (tg?.initDataUnsafe?.user?.id) uid = String(tg.initDataUnsafe.user.id);
       if (!uid && tg?.initData) {
         try {
           const p = new URLSearchParams(tg.initData);
-          const uStr = p.get('user');
+          const uStr = p.get("user");
           if (uStr) {
             const parsed = JSON.parse(decodeURIComponent(uStr));
             if (parsed?.id) uid = String(parsed.id);
           }
         } catch (e) {}
       }
-      if (uid) localStorage.setItem('f1_cached_uid', uid);
-      else uid = localStorage.getItem('f1_cached_uid') || "user_guest";
+      if (uid) {
+        localStorage.setItem("f1_cached_uid", uid);
+      } else {
+        const cached = localStorage.getItem("f1_cached_uid");
+        uid = cached ? cached : "user_guest";
+      }
       return uid;
     }
 
     const currentUserId = resolveTelegramUser();
     const isAdmin = (currentUserId === ADMIN_ID);
-    const isTester = (isAdmin || currentUserId === TESTER_ID);
+    const isTester = isAdmin ? true : (currentUserId === TESTER_ID);
 
     // =========================================================================
-    // ОТСЛЕЖИВАНИЕ ЕЖЕДНЕВНОГО СТРИКА (ВХОД 5 ДНЕЙ ПОДРЯД) И ВКЛАДОК
+    // МЕЖУСТРОЙСТВЕННАЯ ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ (ТЕЛЕФОН <-> ПК)
+    // =========================================================================
+    function getLocalUnlockedAchievementIds() {
+      const list = [];
+      const prefix = `f1_ach_unlocked_${currentUserId}_`;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(prefix) && localStorage.getItem(k) === "true") {
+          list.push(k.replace(prefix, ""));
+        }
+      }
+      return list;
+    }
+
+    async function syncCloudUserProfile() {
+      if (!currentUserId || currentUserId === "user_guest") return null;
+      const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : {};
+      const localBonus = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) ? localStorage.getItem(`f1_bonus_pts_${currentUserId}`) : "0");
+      const localReact = parseInt(localStorage.getItem("f1_best_reaction_time") ? localStorage.getItem("f1_best_reaction_time") : "0");
+      const localPit = parseFloat(localStorage.getItem("f1_best_pitstop_time") ? localStorage.getItem("f1_best_pitstop_time") : "0");
+      const localStreak = parseInt(localStorage.getItem("f1_fast_reactions_streak") ? localStorage.getItem("f1_fast_reactions_streak") : "0");
+      const localViews = parseInt(localStorage.getItem("f1_archive_views_count") ? localStorage.getItem("f1_archive_views_count") : "0");
+      const unlockedAch = getLocalUnlockedAchievementIds();
+
+      try {
+        const res = await fetch(`${WORKER_URL}/api/user/sync_bonus`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: currentUserId,
+            username: tgUser.username ? tgUser.username : "",
+            first_name: tgUser.first_name ? tgUser.first_name : "",
+            last_name: tgUser.last_name ? tgUser.last_name : "",
+            bonus_points: localBonus,
+            best_reaction: localReact,
+            best_pit: localPit,
+            fast_reaction_streak: localStreak,
+            archive_views: localViews,
+            unlocked_ach: unlockedAch
+          })
+        });
+        const data = await res.json();
+        if (data && data.success && data.profile) {
+          const p = data.profile;
+          if (p.bonusPts && Number(p.bonusPts) > localBonus) {
+            localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(p.bonusPts));
+          }
+          if (p.bestReaction && Number(p.bestReaction) > 0) {
+            if (localReact === 0 || Number(p.bestReaction) < localReact) {
+              localStorage.setItem("f1_best_reaction_time", String(p.bestReaction));
+              initLightsBestRecord();
+            }
+          }
+          if (p.bestPit && Number(p.bestPit) > 0) {
+            if (localPit === 0 || Number(p.bestPit) < localPit) {
+              localStorage.setItem("f1_best_pitstop_time", Number(p.bestPit).toFixed(2));
+            }
+          }
+          if (p.fastReactionStreak && Number(p.fastReactionStreak) > localStreak) {
+            localStorage.setItem("f1_fast_reactions_streak", String(p.fastReactionStreak));
+          }
+          if (p.archiveViews && Number(p.archiveViews) > localViews) {
+            localStorage.setItem("f1_archive_views_count", String(p.archiveViews));
+          }
+          if (Array.isArray(p.unlockedAch)) {
+            p.unlockedAch.forEach(achId => {
+              localStorage.setItem(`f1_ach_unlocked_${currentUserId}_${achId}`, "true");
+            });
+          }
+          return p;
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    // =========================================================================
+    // ОТСЛЕЖИВАНИЕ ЕЖЕДНЕВНОГО СТРИКА И ВКЛАДОК
     // =========================================================================
     function updateDailyLoginStreak() {
       const now = new Date();
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
       const lastDate = localStorage.getItem(`f1_last_login_date_${currentUserId}`);
-      let streak = parseInt(localStorage.getItem(`f1_login_streak_${currentUserId}`) || '0');
+      const savedStreak = localStorage.getItem(`f1_login_streak_${currentUserId}`);
+      let streak = parseInt(savedStreak ? savedStreak : "0");
 
       if (!lastDate) {
         streak = 1;
@@ -1657,7 +1744,8 @@
 
     function markVisitedMainTab(tabName) {
       try {
-        let visited = JSON.parse(localStorage.getItem(`f1_visited_tabs_${currentUserId}`) || '[]');
+        const raw = localStorage.getItem(`f1_visited_tabs_${currentUserId}`);
+        let visited = JSON.parse(raw ? raw : "[]");
         if (!visited.includes(tabName)) {
           visited.push(tabName);
           localStorage.setItem(`f1_visited_tabs_${currentUserId}`, JSON.stringify(visited));
@@ -1666,19 +1754,19 @@
     }
 
     // =========================================================================
-    // ИИ-АГЕНТ: ЗАГРУЗКА И ИСПОЛНЕНИЕ ДОПОЛНИТЕЛЬНЫХ LIVE-ПАТЧЕЙ
+    // ИИ-АГЕНТ: LIVE-ПАТЧИ
     // =========================================================================
     function applyLivePatchToDom(patch) {
       if (!patch) return;
-      const styleEl = document.getElementById('ai-live-patch-style');
-      if (styleEl && typeof patch.css === 'string') {
+      const styleEl = document.getElementById("ai-live-patch-style");
+      if (styleEl && typeof patch.css === "string") {
         styleEl.textContent = patch.css;
       }
-      const htmlEl = document.getElementById('ai-live-patch-html');
-      if (htmlEl && typeof patch.html === 'string') {
+      const htmlEl = document.getElementById("ai-live-patch-html");
+      if (htmlEl && typeof patch.html === "string") {
         htmlEl.innerHTML = patch.html;
       }
-      if (patch.js && typeof patch.js === 'string' && patch.js.trim().length > 0) {
+      if (patch.js && typeof patch.js === "string" && patch.js.trim().length > 0) {
         try {
           const runner = new Function(patch.js);
           runner();
@@ -1699,10 +1787,10 @@
     }
 
     async function executeAdminAiAgent() {
-      const promptEl = document.getElementById('aiAgentPromptInput');
-      const modeEl = document.getElementById('aiAgentModeSelect');
-      const btnEl = document.getElementById('aiAgentRunBtn');
-      const termEl = document.getElementById('aiAgentTerminalOutput');
+      const promptEl = document.getElementById("aiAgentPromptInput");
+      const modeEl = document.getElementById("aiAgentModeSelect");
+      const btnEl = document.getElementById("aiAgentRunBtn");
+      const termEl = document.getElementById("aiAgentTerminalOutput");
 
       const prompt = promptEl.value.trim();
       const mode = modeEl.value;
@@ -1719,22 +1807,22 @@
 
       try {
         const res = await fetch(`${WORKER_URL}/api/ai/agent`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'X-Admin-Id': ADMIN_ID
+            "Content-Type": "application/json",
+            "X-Admin-Id": ADMIN_ID
           },
           body: JSON.stringify({ prompt, mode })
         });
 
         const data = await res.json();
         if (!data.success) {
-          termEl.innerText = `❌ Ошибка: ${data.error || "Неизвестная ошибка"}`;
+          termEl.innerText = `❌ Ошибка: ${data.error ? data.error : "Неизвестная ошибка"}`;
         } else if (data.mode === "patch") {
           applyLivePatchToDom(data.patch);
           termEl.innerText = `✅ LIVE-ПАТЧ УСПЕШНО ПРИМЕНЕН!\n\n🛠 Что сделано:\n${data.explanation}`;
           promptEl.value = "";
-          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
         } else {
           termEl.innerText = `💻 ОТВЕТ РАЗРАБОТЧИКА:\n\n${data.explanation}`;
         }
@@ -1747,11 +1835,11 @@
     }
 
     async function resetAllAiLivePatches() {
-      if (!confirm("Сбросить дополнительные Live-патчи ИИ-агента?")) return;
+      if (!confirm("Сбросить дополнительные Live-патчи ИИ-агента и обновить кэш сезона?")) return;
       try {
         const res = await fetch(`${WORKER_URL}/api/ai/reset_patch`, {
-          method: 'POST',
-          headers: { 'X-Admin-Id': ADMIN_ID }
+          method: "POST",
+          headers: { "X-Admin-Id": ADMIN_ID }
         });
         const data = await res.json();
         if (data.success) {
@@ -1768,22 +1856,21 @@
     // =========================================================================
     function switchGamesSubTab(tabKey, btnEl) {
       if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-      document.querySelectorAll('#gamesSubtabsNav .games-subtab-btn').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
+      document.querySelectorAll("#gamesSubtabsNav .games-subtab-btn").forEach(b => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
 
-      document.getElementById('tab-content-pred').classList.toggle('active', tabKey === 'pred');
-      document.getElementById('tab-content-lights').classList.toggle('active', tabKey === 'lights');
-      document.getElementById('tab-content-pitstop').classList.toggle('active', tabKey === 'pitstop');
+      document.getElementById("tab-content-pred").classList.toggle("active", tabKey === "pred");
+      document.getElementById("tab-content-lights").classList.toggle("active", tabKey === "lights");
+      document.getElementById("tab-content-pitstop").classList.toggle("active", tabKey === "pitstop");
     }
 
     // =========================================================================
-    // ИГРА 1: ПРОДВИНУТЫЙ ПРЕДИКШН V2 (СВЯЗАН С API ПИЛОТОВ И БД D1)
+    // ИГРА 1: ПРОДВИНУТЫЙ ПРЕДИКШН V2
     // =========================================================================
     window.activeRaceRound = "18";
     window.totalSeasonRounds = "23";
     window.activeRaceName = "Гран-при США";
 
-    // Админская панель симуляции (СТРОГО ТОЛЬКО ДЛЯ АДМИНА)
     let simTapCounter = 0;
     let simTapTimer = null;
     function handleSecretSimTap() {
@@ -1792,14 +1879,13 @@
       clearTimeout(simTapTimer);
       simTapTimer = setTimeout(() => { simTapCounter = 0; }, 1200);
       if (simTapCounter >= 5) {
-        const simCard = document.getElementById('adminSimPanelCard');
+        const simCard = document.getElementById("adminSimPanelCard");
         if (simCard) {
-          simCard.style.display = simCard.style.display === 'none' ? 'flex' : 'none';
+          simCard.style.display = simCard.style.display === "none" ? "flex" : "none";
         }
       }
     }
 
-    // Безопасная пасхалка для всех пользователей (5 кликов по аватару в Гараже)
     let easterEggTapCount = 0;
     let easterEggTapTimer = null;
     function handleSecretEasterEggTap() {
@@ -1808,56 +1894,60 @@
       easterEggTapTimer = setTimeout(() => { easterEggTapCount = 0; }, 1400);
       if (easterEggTapCount >= 5) {
         easterEggTapCount = 0;
-        localStorage.setItem('f1_achievement_admin_sim', 'true');
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        localStorage.setItem("f1_achievement_admin_sim", "true");
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
         showAchievementToast("🎉 Поздравляем, вы нашли секрет паддока!", "🕵️‍♂️");
         renderGarageProfileData();
       }
     }
 
     function handleManualLeaderboardRefresh() {
-      let count = parseInt(localStorage.getItem('f1_leaderboard_refresh_count') || '0') + 1;
-      localStorage.setItem('f1_leaderboard_refresh_count', String(count));
-      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+      const prev = localStorage.getItem("f1_leaderboard_refresh_count");
+      let count = parseInt(prev ? prev : "0") + 1;
+      localStorage.setItem("f1_leaderboard_refresh_count", String(count));
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
       loadPredictionLeaderboard();
     }
 
     function initPredictionGame(driversList) {
-      const p1Select = document.getElementById('pred-p1-select');
-      const flSelect = document.getElementById('pred-fl-select');
-      const submitBtn = document.getElementById('pred-submit-btn');
-      const statusBadge = document.getElementById('predStatusBadge');
-      const roundBadge = document.getElementById('predRoundBadge');
-      const stageTitle = document.getElementById('predStageTitleDisplay');
+      const p1Select = document.getElementById("pred-p1-select");
+      const flSelect = document.getElementById("pred-fl-select");
+      const submitBtn = document.getElementById("pred-submit-btn");
+      const statusBadge = document.getElementById("predStatusBadge");
+      const roundBadge = document.getElementById("predRoundBadge");
+      const stageTitle = document.getElementById("predStageTitleDisplay");
 
       if (!p1Select || !flSelect) return;
 
-      const currentRound = String(window.activeRaceRound || "18");
-      const totalRounds = String(window.totalSeasonRounds || "23");
+      const currentRound = String(window.activeRaceRound ? window.activeRaceRound : "18");
+      const totalRounds = String(window.totalSeasonRounds ? window.totalSeasonRounds : "23");
 
       if (roundBadge) roundBadge.innerText = `Раунд ${currentRound} / ${totalRounds} • Сезон 2026`;
-      if (stageTitle) stageTitle.innerText = window.activeRaceName || "Гран-при Формулы 1";
+      if (stageTitle) stageTitle.innerText = window.activeRaceName ? window.activeRaceName : "Гран-при Формулы 1";
 
-      const optionsHtml = driversList.map(d => `<option value="${d.name}">${d.name} (${d.team})</option>`).join('');
+      const optionsHtml = driversList.map(d => {
+        const cleanName = cleanDriverName(d.name);
+        return `<option value="${cleanName}">${cleanName} (${d.team})</option>`;
+      }).join("");
       p1Select.innerHTML = optionsHtml;
       flSelect.innerHTML = optionsHtml;
 
-      const simP1 = document.getElementById('sim-p1-select');
-      const simFl = document.getElementById('sim-fl-select');
+      const simP1 = document.getElementById("sim-p1-select");
+      const simFl = document.getElementById("sim-fl-select");
       if (simP1) simP1.innerHTML = optionsHtml;
       if (simFl) simFl.innerHTML = optionsHtml;
 
       if (isAdmin) {
-        const simCard = document.getElementById('adminSimPanelCard');
-        if (simCard) simCard.style.display = 'flex';
+        const simCard = document.getElementById("adminSimPanelCard");
+        if (simCard) simCard.style.display = "flex";
       }
 
       const savedVoteRaw = localStorage.getItem(`f1_pred_v2_${currentUserId}_r${currentRound}`);
       if (savedVoteRaw) {
         try {
           const v = JSON.parse(savedVoteRaw);
-          if (v.p1) p1Select.value = v.p1;
-          if (v.fl) flSelect.value = v.fl;
+          if (v.p1) p1Select.value = cleanDriverName(v.p1);
+          if (v.fl) flSelect.value = cleanDriverName(v.fl);
         } catch (e) {}
         p1Select.disabled = true;
         flSelect.disabled = true;
@@ -1878,52 +1968,52 @@
     }
 
     async function submitUserPredictionV2() {
-      const p1 = document.getElementById('pred-p1-select').value;
-      const fl = document.getElementById('pred-fl-select').value;
-      const currentRound = String(window.activeRaceRound || "18");
-      const tgUser = tg?.initDataUnsafe?.user || {};
+      const p1 = document.getElementById("pred-p1-select").value;
+      const fl = document.getElementById("pred-fl-select").value;
+      const currentRound = String(window.activeRaceRound ? window.activeRaceRound : "18");
+      const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : {};
 
       if (!p1) {
         alert("Выберите победителя гонки!");
         return;
       }
 
-      const btn = document.getElementById('pred-submit-btn');
+      const btn = document.getElementById("pred-submit-btn");
       btn.disabled = true;
       btn.innerText = "⏳ Сохранение в БД...";
 
       try {
         const res = await fetch(`${WORKER_URL}/api/prediction/submit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_id: currentUserId,
             round: currentRound,
             driver_name: p1,
             fastest_lap: fl,
-            first_name: tgUser.first_name || "",
-            last_name: tgUser.last_name || "",
-            username: tgUser.username || ""
+            first_name: tgUser.first_name ? tgUser.first_name : "",
+            last_name: tgUser.last_name ? tgUser.last_name : "",
+            username: tgUser.username ? tgUser.username : ""
           })
         });
         const data = await res.json();
 
         if (data.success) {
           localStorage.setItem(`f1_pred_v2_${currentUserId}_r${currentRound}`, JSON.stringify({ p1, fl, ts: Date.now() }));
-          document.getElementById('pred-p1-select').disabled = true;
-          document.getElementById('pred-fl-select').disabled = true;
+          document.getElementById("pred-p1-select").disabled = true;
+          document.getElementById("pred-fl-select").disabled = true;
           btn.innerText = "Прогноз успешно зафиксирован ✓";
 
-          const statusBadge = document.getElementById('predStatusBadge');
+          const statusBadge = document.getElementById("predStatusBadge");
           statusBadge.className = "f1-pred-badge f1-badge-settled";
           statusBadge.innerText = "Принят ✓";
 
-          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+          if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
           loadPredictionLeaderboard();
         } else {
           btn.disabled = false;
           btn.innerText = "Отправить прогноз";
-          alert("Ошибка сохранения: " + (data.error || "Попробуйте снова"));
+          alert("Ошибка сохранения: " + (data.error ? data.error : "Попробуйте снова"));
         }
       } catch (e) {
         btn.disabled = false;
@@ -1934,26 +2024,26 @@
 
     async function runAdminSettleStage() {
       if (!isAdmin) return;
-      const currentRound = String(window.activeRaceRound || "18");
-      const p1 = document.getElementById('sim-p1-select').value;
-      const fl = document.getElementById('sim-fl-select').value;
+      const currentRound = String(window.activeRaceRound ? window.activeRaceRound : "18");
+      const p1 = document.getElementById("sim-p1-select").value;
+      const fl = document.getElementById("sim-fl-select").value;
 
       if (!confirm(`Завершить Раунд ${currentRound} (Победитель: ${p1}, Быстрейший круг: ${fl}) и начислить очки всем участникам в БД?`)) return;
 
       try {
         const res = await fetch(`${WORKER_URL}/api/prediction/settle`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
           body: JSON.stringify({ round: currentRound, p1, fl })
         });
         const data = await res.json();
         if (data.success) {
           const nextRound = String(parseInt(currentRound) + 1);
           window.activeRaceRound = nextRound;
-          alert(`✅ Очки начислены (обработано прогнозов: ${data.settledCount || 0})! Выполнен переход на Раунд ${nextRound}.`);
-          initPredictionGame(window.currentLoadedDrivers || DEFAULT_DRIVERS_DATA);
+          alert(`✅ Очки начислены (обработано прогнозов: ${data.settledCount ? data.settledCount : 0})! Выполнен переход на Раунд ${nextRound}.`);
+          initPredictionGame(window.currentLoadedDrivers ? window.currentLoadedDrivers : DEFAULT_DRIVERS_DATA);
         } else {
-          alert("Ошибка расчета: " + (data.error || ""));
+          alert("Ошибка расчета: " + (data.error ? data.error : ""));
         }
       } catch (e) {
         alert("Ошибка сети при расчете этапа");
@@ -1961,7 +2051,7 @@
     }
 
     // =========================================================================
-    // ОБНОВЛЕННАЯ 8-СТУПЕНЧАТАЯ ШКАЛА РАНГОВ (ДО 4500 ОЧКОВ)
+    // 8-СТУПЕНЧАТАЯ ШКАЛА РАНГОВ (ДО 4500 ОЧКОВ)
     // =========================================================================
     const F1_RANKS_SCALE = [
       { threshold: 0,    title: "🏎️ Картингист",       short: "Картингист", bonusKey: "rank_bonus_0" },
@@ -1983,44 +2073,42 @@
     }
 
     async function loadPredictionLeaderboard() {
-      const listEl = document.getElementById('predictionLeaderboardList');
-      const userPtsEl = document.getElementById('predUserPointsVal');
+      const listEl = document.getElementById("predictionLeaderboardList");
+      const userPtsEl = document.getElementById("predUserPointsVal");
       if (!listEl) return;
 
       try {
-        const tgUser = tg?.initDataUnsafe?.user || {};
-        const localBonus = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0');
-        if (currentUserId && currentUserId !== "user_guest") {
-          await fetch(`${WORKER_URL}/api/user/sync_bonus`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: currentUserId,
-              username: tgUser.username || '',
-              first_name: tgUser.first_name || '',
-              last_name: tgUser.last_name || '',
-              bonus_points: localBonus
-            })
-          }).catch(() => {});
-        }
+        await syncCloudUserProfile();
 
         const res = await fetch(`${WORKER_URL}/api/prediction/leaderboard`);
         const data = await res.json();
-        const rows = data.leaderboard || [];
+        const rows = (data && data.leaderboard) ? data.leaderboard : [];
 
         const myRecord = rows.find(r => String(r.user_id) === String(currentUserId));
+        const localBonus = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) ? localStorage.getItem(`f1_bonus_pts_${currentUserId}`) : "0");
+
         if (myRecord) {
-          localStorage.setItem(`f1_db_preds_count_${currentUserId}`, String(myRecord.predictions_count || 0));
-          localStorage.setItem(`f1_db_podium_hits_${currentUserId}`, String(myRecord.podium_hits || 0));
-          localStorage.setItem(`f1_db_double_hits_${currentUserId}`, String(myRecord.double_hits || 0));
-          localStorage.setItem(`f1_user_base_points_${currentUserId}`, String(myRecord.base_points || 0));
+          localStorage.setItem(`f1_db_preds_count_${currentUserId}`, String(myRecord.predictions_count ? myRecord.predictions_count : 0));
+          localStorage.setItem(`f1_db_podium_hits_${currentUserId}`, String(myRecord.podium_hits ? myRecord.podium_hits : 0));
+          localStorage.setItem(`f1_db_double_hits_${currentUserId}`, String(myRecord.double_hits ? myRecord.double_hits : 0));
+          localStorage.setItem(`f1_user_base_points_${currentUserId}`, String(myRecord.base_points ? myRecord.base_points : 0));
+
+          const dbBonus = parseInt(myRecord.bonus_points ? myRecord.bonus_points : "0");
+          if (dbBonus > localBonus) {
+            localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(dbBonus));
+          }
         }
 
-        const basePts = myRecord ? (parseInt(myRecord.base_points) || 0) : 0;
-        const totalUserPts = basePts + localBonus;
+        const effectiveBonus = Math.max(
+          localBonus,
+          myRecord && myRecord.bonus_points ? parseInt(myRecord.bonus_points) : 0
+        );
+        const basePts = (myRecord && myRecord.base_points) ? parseInt(myRecord.base_points) : 0;
+        const dbTotalPts = (myRecord && myRecord.total_points) ? parseInt(myRecord.total_points) : 0;
+        const totalUserPts = Math.max(dbTotalPts, basePts + effectiveBonus);
 
         if (userPtsEl) userPtsEl.innerText = totalUserPts;
-        const garagePtsEl = document.getElementById('garageStatPts');
+        const garagePtsEl = document.getElementById("garageStatPts");
         if (garagePtsEl) garagePtsEl.innerText = `${totalUserPts} PTS`;
 
         if (rows.length === 0) {
@@ -2028,21 +2116,33 @@
           return;
         }
 
-        listEl.innerHTML = rows.map((row, idx) => {
+        // Пересортируем массив с учетом актуального максимума очков, чтобы 1-е место всегда было строго у того, у кого больше PTS
+        const displayRows = rows.map(row => {
           const isMe = String(row.user_id) === String(currentUserId);
-          const pPts = isMe ? totalUserPts : (parseInt(row.total_points) || 0);
+          const rowTotal = parseInt(row.total_points ? row.total_points : "0");
+          return {
+            ...row,
+            isMe,
+            finalPts: isMe ? totalUserPts : rowTotal
+          };
+        }).sort((a, b) => b.finalPts - a.finalPts);
+
+        listEl.innerHTML = displayRows.map((row, idx) => {
+          const pPts = row.finalPts;
           const rankTitle = getRankTitle(pPts);
 
-          let displayName = `${row.first_name || ''} ${row.last_name || ''}`.trim();
+          const fName = row.first_name ? row.first_name : "";
+          const lName = row.last_name ? row.last_name : "";
+          let displayName = `${fName} ${lName}`.trim();
           if (!displayName) {
             displayName = row.username ? `@${row.username}` : `Пилот #${String(row.user_id).slice(-4)}`;
           }
-          if (isMe) displayName += " (Вы)";
+          if (row.isMe) displayName += " (Вы)";
 
-          const rankClass = idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : '';
+          const rankClass = idx === 0 ? "rank-1" : (idx === 1 ? "rank-2" : (idx === 2 ? "rank-3" : ""));
 
           return `
-            <div class="pred-leaderboard-item ${isMe ? 'is-me' : ''}">
+            <div class="pred-leaderboard-item ${row.isMe ? "is-me" : ""}">
               <div style="display:flex; align-items:center; gap:10px; min-width: 0; flex: 1;">
                 <div class="pred-rank-badge ${rankClass}">${idx + 1}</div>
                 <div style="min-width: 0; overflow: hidden;">
@@ -2053,20 +2153,20 @@
               <div style="font-weight:900; color:var(--accent); white-space: nowrap; margin-left: 8px;">${pPts} PTS</div>
             </div>
           `;
-        }).join('');
+        }).join("");
       } catch (e) {
         listEl.innerHTML = '<div style="text-align:center; padding:18px; color:var(--text-muted);">Не удалось загрузить таблицу лидеров.</div>';
       }
     }
 
     // =========================================================================
-    // ИГРА 2: СТАРТОВЫЕ ОГНИ F1 (БЕЗ ОШИБКИ REACTION И ФАЛЬСТАРТА)
+    // ИГРА 2: СТАРТОВЫЕ ОГНИ F1
     // =========================================================================
-    let lightsGameState = { status: 'idle', startTime: 0, stepTimer: null, outTimer: null };
+    let lightsGameState = { status: "idle", startTime: 0, stepTimer: null, outTimer: null };
 
     function initLightsBestRecord() {
-      const best = localStorage.getItem('f1_best_reaction_time');
-      const badge = document.getElementById('lights-best-badge');
+      const best = localStorage.getItem("f1_best_reaction_time");
+      const badge = document.getElementById("lights-best-badge");
       if (best && badge) badge.innerText = `Рекорд: ${best} ms`;
     }
 
@@ -2084,35 +2184,35 @@
     function resetLightBulbs() {
       for (let i = 1; i <= 5; i++) {
         const b = document.getElementById(`f1_bulb_${i}`);
-        if (b) b.classList.remove('lit');
+        if (b) b.classList.remove("lit");
       }
     }
 
     function handleF1LightsAction() {
-      const btn = document.getElementById('lights-action-btn');
-      const stTitle = document.getElementById('lights-status-title');
-      const stSub = document.getElementById('lights-status-sub');
-      const bestBadge = document.getElementById('lights-best-badge');
+      const btn = document.getElementById("lights-action-btn");
+      const stTitle = document.getElementById("lights-status-title");
+      const stSub = document.getElementById("lights-status-sub");
+      const bestBadge = document.getElementById("lights-best-badge");
 
-      if (lightsGameState.status === 'idle') {
-        localStorage.setItem('f1_lights_played_once', 'true');
+      if (lightsGameState.status === "idle") {
+        localStorage.setItem("f1_lights_played_once", "true");
         clearAllLightsTimers();
         resetLightBulbs();
-        lightsGameState.status = 'countdown';
+        lightsGameState.status = "countdown";
 
-        btn.innerText = 'ЖДИТЕ ПОГАСАНИЯ...';
-        btn.style.background = '#222';
-        btn.style.color = '#fff';
-        stTitle.innerText = 'Огни загораются...';
-        stTitle.style.color = 'var(--text)';
-        stSub.innerText = 'Не нажимайте раньше времени!';
+        btn.innerText = "ЖДИТЕ ПОГАСАНИЯ...";
+        btn.style.background = "#222";
+        btn.style.color = "#fff";
+        stTitle.innerText = "Огни загораются...";
+        stTitle.style.color = "var(--text)";
+        stSub.innerText = "Не нажимайте раньше времени!";
 
         let count = 0;
         function lightNextBulb() {
           count++;
           const bulb = document.getElementById(`f1_bulb_${count}`);
-          if (bulb) bulb.classList.add('lit');
-          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+          if (bulb) bulb.classList.add("lit");
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
 
           if (count < 5) {
             lightsGameState.stepTimer = setTimeout(lightNextBulb, 750);
@@ -2120,55 +2220,58 @@
             const randomDelay = 900 + Math.random() * 2100;
             lightsGameState.outTimer = setTimeout(() => {
               resetLightBulbs();
-              lightsGameState.status = 'go';
+              lightsGameState.status = "go";
               lightsGameState.startTime = performance.now();
-              btn.innerText = 'ЖМИ СЕЙЧАС!';
-              btn.style.background = '#34c759';
-              btn.style.color = '#fff';
-              stTitle.innerText = '🟢 ГАЗ В ПОЛ!';
-              stTitle.style.color = '#34c759';
-              stSub.innerText = 'Нажмите как можно быстрее!';
+              btn.innerText = "ЖМИ СЕЙЧАС!";
+              btn.style.background = "#34c759";
+              btn.style.color = "#fff";
+              stTitle.innerText = "🟢 ГАЗ В ПОЛ!";
+              stTitle.style.color = "#34c759";
+              stSub.innerText = "Нажмите как можно быстрее!";
             }, randomDelay);
           }
         }
         lightsGameState.stepTimer = setTimeout(lightNextBulb, 550);
 
-      } else if (lightsGameState.status === 'countdown') {
-        localStorage.setItem('f1_achievement_false_start', 'true');
+      } else if (lightsGameState.status === "countdown") {
+        localStorage.setItem("f1_achievement_false_start", "true");
         clearAllLightsTimers();
         resetLightBulbs();
-        lightsGameState.status = 'idle';
+        lightsGameState.status = "idle";
 
-        btn.innerText = 'ПОПРОБОВАТЬ СНОВА';
-        btn.style.background = 'var(--accent)';
-        btn.style.color = '#fff';
-        stTitle.innerText = '🚨 ФАЛЬСТАРТ!';
-        stTitle.style.color = 'var(--accent)';
-        stSub.innerText = 'Вы нажали до того, как огни погасли. Нажмите кнопку для новой попытки!';
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        btn.innerText = "ПОПРОБОВАТЬ СНОВА";
+        btn.style.background = "var(--accent)";
+        btn.style.color = "#fff";
+        stTitle.innerText = "🚨 ФАЛЬСТАРТ!";
+        stTitle.style.color = "var(--accent)";
+        stSub.innerText = "Вы нажали до того, как огни погасли. Нажмите кнопку для новой попытки!";
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("error");
 
-      } else if (lightsGameState.status === 'go') {
+      } else if (lightsGameState.status === "go") {
         const reaction = Math.round(performance.now() - lightsGameState.startTime);
         clearAllLightsTimers();
-        lightsGameState.status = 'idle';
+        lightsGameState.status = "idle";
 
-        btn.innerText = 'ИГРАТЬ ЕЩЕ РАЗ';
-        btn.style.background = 'var(--accent)';
-        btn.style.color = '#fff';
+        btn.innerText = "ИГРАТЬ ЕЩЕ РАЗ";
+        btn.style.background = "var(--accent)";
+        btn.style.color = "#fff";
         stTitle.innerText = `⚡ Ваша реакция: ${reaction} ms!`;
-        stTitle.style.color = '#34c759';
-        stSub.innerText = reaction < 230 ? 'Уровень пилота Формулы 1!' : 'Отличный старт! Нажмите для новой попытки.';
+        stTitle.style.color = "#34c759";
+        stSub.innerText = reaction < 230 ? "Уровень пилота Формулы 1!" : "Отличный старт! Нажмите для новой попытки.";
 
-        const oldBest = parseInt(localStorage.getItem('f1_best_reaction_time')) || 99999;
+        const savedOld = localStorage.getItem("f1_best_reaction_time");
+        const oldBest = savedOld ? parseInt(savedOld) : 99999;
         if (reaction < oldBest) {
-          localStorage.setItem('f1_best_reaction_time', reaction);
+          localStorage.setItem("f1_best_reaction_time", String(reaction));
           if (bestBadge) bestBadge.innerText = `Рекорд: ${reaction} ms`;
         }
         if (reaction < 210) {
-          let streak = parseInt(localStorage.getItem('f1_fast_reactions_streak') || '0') + 1;
-          localStorage.setItem('f1_fast_reactions_streak', String(streak));
+          const prevStr = localStorage.getItem("f1_fast_reactions_streak");
+          let streak = parseInt(prevStr ? prevStr : "0") + 1;
+          localStorage.setItem("f1_fast_reactions_streak", String(streak));
         }
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+        syncCloudUserProfile();
       }
     }
 
@@ -2178,7 +2281,7 @@
     let pitState = {
       running: false,
       step: 0,
-      order: ['fl', 'fr', 'rl', 'rr'],
+      order: ["fl", "fr", "rl", "rr"],
       currentTarget: null,
       penalty: 0,
       startTime: 0,
@@ -2187,18 +2290,18 @@
     };
 
     function resetPitWheelsUI() {
-      document.querySelectorAll('.pit-wheel-btn').forEach(w => {
-        const pos = w.getAttribute('data-pos');
+      document.querySelectorAll(".pit-wheel-btn").forEach(w => {
+        const pos = w.getAttribute("data-pos");
         w.className = `pit-wheel-btn wheel-${pos}`;
       });
     }
 
     function highlightNextPitWheel() {
       if (!pitState.running) return;
-      const timeDisp = document.getElementById('pit-time-display');
-      const note = document.getElementById('pit-status-note');
-      const startBtn = document.getElementById('pit-start-btn');
-      const startBtnText = document.getElementById('pit-start-btn-text');
+      const timeDisp = document.getElementById("pit-time-display");
+      const note = document.getElementById("pit-status-note");
+      const startBtn = document.getElementById("pit-start-btn");
+      const startBtnText = document.getElementById("pit-start-btn-text");
 
       if (pitState.step >= pitState.order.length) {
         pitState.running = false;
@@ -2206,60 +2309,62 @@
         const totalNum = (performance.now() - pitState.startTime) / 1000 + pitState.penalty;
         const total = totalNum.toFixed(2);
         timeDisp.innerText = `${total}s`;
-        timeDisp.style.color = '#34c759';
-        startBtn.style.display = 'flex';
-        startBtnText.innerText = 'ПОВТОРИТЬ ПИТ-СТОП';
+        timeDisp.style.color = "#34c759";
+        startBtn.style.display = "flex";
+        startBtnText.innerText = "ПОВТОРИТЬ ПИТ-СТОП";
         note.innerHTML = `<span style="color:#34c759;">🏁 Пит-стоп завершен за ${total}s! (Штрафы: +${pitState.penalty.toFixed(1)}s)</span>`;
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
 
         if (pitState.penalty === 0 && totalNum <= 2.2) {
-          localStorage.setItem('f1_pit_clean_fast', 'true');
+          localStorage.setItem("f1_pit_clean_fast", "true");
         }
 
-        const prevBestPit = parseFloat(localStorage.getItem('f1_best_pitstop_time') || '999');
+        const savedPit = localStorage.getItem("f1_best_pitstop_time");
+        const prevBestPit = parseFloat(savedPit ? savedPit : "999");
         if (totalNum < prevBestPit) {
-          localStorage.setItem('f1_best_pitstop_time', total);
+          localStorage.setItem("f1_best_pitstop_time", total);
         }
-        const garagePitEl = document.getElementById('garageStatPit');
+        const garagePitEl = document.getElementById("garageStatPit");
         if (garagePitEl) {
-          garagePitEl.innerText = `${localStorage.getItem('f1_best_pitstop_time')} s`;
+          garagePitEl.innerText = `${localStorage.getItem("f1_best_pitstop_time")} s`;
         }
+        syncCloudUserProfile();
         return;
       }
 
       const nextPos = pitState.order[pitState.step];
       pitState.currentTarget = nextPos;
       const targetBtn = document.querySelector(`.pit-wheel-btn[data-pos="${nextPos}"]`);
-      if (targetBtn) targetBtn.classList.add('target-orange');
+      if (targetBtn) targetBtn.classList.add("target-orange");
     }
 
     function startAdvancedPitstopGame() {
-      localStorage.setItem('f1_pitstop_played_once', 'true');
-      const timeDisp = document.getElementById('pit-time-display');
-      const note = document.getElementById('pit-status-note');
-      const startBtn = document.getElementById('pit-start-btn');
-      const carBody = document.getElementById('pit-car');
+      localStorage.setItem("f1_pitstop_played_once", "true");
+      const timeDisp = document.getElementById("pit-time-display");
+      const note = document.getElementById("pit-status-note");
+      const startBtn = document.getElementById("pit-start-btn");
+      const carBody = document.getElementById("pit-car");
 
       if (pitState.timerInterval) clearInterval(pitState.timerInterval);
       if (pitState.nextWheelTimer) clearTimeout(pitState.nextWheelTimer);
 
       pitState.running = false;
       pitState.currentTarget = null;
-      startBtn.style.display = 'none';
+      startBtn.style.display = "none";
       resetPitWheelsUI();
 
-      timeDisp.style.color = 'var(--text)';
-      timeDisp.innerText = '0.00s';
-      carBody.classList.add('entering');
+      timeDisp.style.color = "var(--text)";
+      timeDisp.innerText = "0.00s";
+      carBody.classList.add("entering");
       note.innerHTML = '<span style="color:#ff9500;">🏎️ Болид заезжает на пит-лейн... Приготовьте пальцы!</span>';
 
       setTimeout(() => {
-        carBody.classList.remove('entering');
-        note.innerText = '🔥 МЕНЯЙТЕ ПОДСВЕЧЕННЫЕ КОЛЕСА!';
+        carBody.classList.remove("entering");
+        note.innerText = "🔥 МЕНЯЙТЕ ПОДСВЕЧЕННЫЕ КОЛЕСА!";
         pitState.running = true;
         pitState.step = 0;
         pitState.penalty = 0;
-        pitState.order = ['fl', 'fr', 'rl', 'rr'].sort(() => Math.random() - 0.5);
+        pitState.order = ["fl", "fr", "rl", "rr"].sort(() => Math.random() - 0.5);
         pitState.startTime = performance.now();
 
         pitState.timerInterval = setInterval(() => {
@@ -2273,22 +2378,22 @@
 
     function handlePitWheelClick(pos, btnEl) {
       if (!pitState.running) return;
-      const note = document.getElementById('pit-status-note');
+      const note = document.getElementById("pit-status-note");
 
       if (pos === pitState.currentTarget) {
-        btnEl.classList.remove('target-orange');
-        btnEl.classList.add('done-green');
+        btnEl.classList.remove("target-orange");
+        btnEl.classList.add("done-green");
         pitState.currentTarget = null;
         pitState.step++;
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
 
         const stepDelay = pitState.step >= 4 ? 50 : (120 + Math.random() * 100);
         pitState.nextWheelTimer = setTimeout(highlightNextPitWheel, stepDelay);
-      } else if (!btnEl.classList.contains('done-green')) {
+      } else if (!btnEl.classList.contains("done-green")) {
         pitState.penalty += 0.5;
-        localStorage.setItem('f1_pit_had_penalty', 'true');
+        localStorage.setItem("f1_pit_had_penalty", "true");
         note.innerHTML = '<span style="color:var(--accent);">⚠️ ОШИБКА КОЛЕСА! +0.5 сек штрафа!</span>';
-        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("error");
       }
     }
 
@@ -2301,10 +2406,10 @@
 
     let trackAnimInterval = null;
     function runCarAnimationOnTrack(circuitKey = "sepang", customPath = null) {
-      const svgEl = document.getElementById('trackSvgEl');
+      const svgEl = document.getElementById("trackSvgEl");
       if (!svgEl) return;
 
-      let groupEl = document.getElementById('trackGroup');
+      let groupEl = document.getElementById("trackGroup");
       if (!groupEl) {
         groupEl = document.createElementNS("http://www.w3.org/2000/svg", "g");
         groupEl.id = "trackGroup";
@@ -2314,16 +2419,17 @@
         svgEl.appendChild(groupEl);
       }
 
-      const pathEl = document.getElementById('trackPath');
-      const carDot = document.getElementById('carPoint');
-      const racingLine = document.getElementById('trackLine');
+      const pathEl = document.getElementById("trackPath");
+      const carDot = document.getElementById("carPoint");
+      const racingLine = document.getElementById("trackLine");
       if (!pathEl || !carDot) return;
 
-      const pathData = customPath || CIRCUITS_SVG_DATABASE[circuitKey] || CIRCUITS_SVG_DATABASE["sepang"];
-      pathEl.setAttribute('d', pathData);
-      if (racingLine) racingLine.setAttribute('d', pathData);
+      const fallbackTrack = CIRCUITS_SVG_DATABASE[circuitKey] ? CIRCUITS_SVG_DATABASE[circuitKey] : CIRCUITS_SVG_DATABASE["sepang"];
+      const pathData = customPath ? customPath : fallbackTrack;
+      pathEl.setAttribute("d", pathData);
+      if (racingLine) racingLine.setAttribute("d", pathData);
 
-      groupEl.removeAttribute('transform');
+      groupEl.removeAttribute("transform");
 
       let bbox = { x: 0, y: 0, width: 400, height: 200 };
       try { bbox = pathEl.getBBox(); } catch (e) { bbox = { x: -400, y: -400, width: 800, height: 800 }; }
@@ -2332,7 +2438,7 @@
       const scale = Math.min(400 / bbox.width, 170 / bbox.height);
       const cx = bbox.x + bbox.width / 2;
       const cy = bbox.y + bbox.height / 2;
-      groupEl.setAttribute('transform', `translate(${250 - cx * scale}, ${125 - cy * scale}) scale(${scale})`);
+      groupEl.setAttribute("transform", `translate(${250 - cx * scale}, ${125 - cy * scale}) scale(${scale})`);
 
       let pathLength = 1000;
       try { pathLength = pathEl.getTotalLength(); } catch (e) {}
@@ -2340,14 +2446,14 @@
       let currentDistance = 0;
       if (trackAnimInterval) clearInterval(trackAnimInterval);
 
-      const isReversed = ['catalunya', 'yas_marina'].includes(circuitKey);
+      const isReversed = ["catalunya", "yas_marina"].includes(circuitKey);
       trackAnimInterval = setInterval(() => {
-        if (document.body.classList.contains('lite-mode')) return;
+        if (document.body.classList.contains("lite-mode")) return;
         currentDistance = isReversed ? (currentDistance - 2.5 + pathLength) % pathLength : (currentDistance + 2.5) % pathLength;
         try {
           const coords = pathEl.getPointAtLength(currentDistance);
-          carDot.setAttribute('cx', coords.x);
-          carDot.setAttribute('cy', coords.y);
+          carDot.setAttribute("cx", coords.x);
+          carDot.setAttribute("cy", coords.y);
         } catch (e) {}
       }, 35);
     }
@@ -2362,15 +2468,15 @@
         runCarAnimationOnTrack(circuitKey, data.path);
 
         if (data.name) {
-          document.getElementById('specHeaderTitle').innerText = `Данные трассы • ${data.name}`;
-          document.getElementById('specCircuitName').innerText = data.name;
+          document.getElementById("specHeaderTitle").innerText = `Данные трассы • ${data.name}`;
+          document.getElementById("specCircuitName").innerText = data.name;
         }
-        if (data.length) document.getElementById('specLength').innerText = `${data.length} км`;
-        if (data.laps) document.getElementById('specLaps').innerText = data.laps;
-        if (data.firstYear) document.getElementById('specFirstYear').innerText = data.firstYear;
-        if (data.distance) document.getElementById('specDistance').innerText = `${data.distance} км`;
-        if (data.fastLap) document.getElementById('specFastLap').innerText = data.fastLap;
-        if (data.fastDriver) document.getElementById('specFastDriver').innerText = data.fastDriver;
+        if (data.length) document.getElementById("specLength").innerText = `${data.length} км`;
+        if (data.laps) document.getElementById("specLaps").innerText = data.laps;
+        if (data.firstYear) document.getElementById("specFirstYear").innerText = data.firstYear;
+        if (data.distance) document.getElementById("specDistance").innerText = `${data.distance} км`;
+        if (data.fastLap) document.getElementById("specFastLap").innerText = data.fastLap;
+        if (data.fastDriver) document.getElementById("specFastDriver").innerText = data.fastDriver;
         return true;
       } catch (error) {
         runCarAnimationOnTrack(circuitKey);
@@ -2384,14 +2490,15 @@
       if (raceData) {
         const parseLocalDateTime = (dateStr, timeStr) => {
           if (!dateStr) return null;
-          let cleanTime = (timeStr || '14:00:00').replace('Z', '');
+          const tVal = timeStr ? timeStr : "14:00:00";
+          let cleanTime = tVal.replace("Z", "");
           return new Date(`${dateStr}T${cleanTime}Z`);
         };
 
-        const isSprintWeekend = !!(raceData.Sprint?.date || raceData.SprintQualifying?.date);
-        if (isSprintWeekend) {
+        const hasSprint = (raceData.Sprint && raceData.Sprint.date) ? true : Boolean(raceData.SprintQualifying && raceData.SprintQualifying.date);
+        if (hasSprint) {
           if (raceData.FirstPractice?.date) sessions.push({ name: "Практика 1", short: "П1", date: parseLocalDateTime(raceData.FirstPractice.date, raceData.FirstPractice.time), duration: 60 });
-          const sqData = raceData.SprintQualifying || raceData.Qualifying; 
+          const sqData = raceData.SprintQualifying ? raceData.SprintQualifying : raceData.Qualifying; 
           if (sqData?.date) sessions.push({ name: "Квалификация к спринту", short: "КВАЛА С", date: parseLocalDateTime(sqData.date, sqData.time), duration: 45 });
           if (raceData.Sprint?.date) sessions.push({ name: "Спринт", short: "СПРИНТ", date: parseLocalDateTime(raceData.Sprint.date, raceData.Sprint.time), duration: 60 });
           if (raceData.Qualifying?.date) sessions.push({ name: "Квалификация к гонке", short: "КВАЛА", date: parseLocalDateTime(raceData.Qualifying.date, raceData.Qualifying.time), duration: 60 });
@@ -2424,8 +2531,8 @@
         if (label) label.innerText = "🔴 Ожидание уикенда";
         Object.values(timer).forEach(el => { if (el) el.innerText = "00"; });
         if (grid) {
-          grid.style.gridTemplateColumns = `repeat(1, minmax(0, 1fr))`;
-          grid.innerHTML = `<div class="sess-chip"><div class="sess-name">ГОНКА</div><div class="sess-time">— : —</div></div>`;
+          grid.style.gridTemplateColumns = "repeat(1, minmax(0, 1fr))";
+          grid.innerHTML = '<div class="sess-chip"><div class="sess-name">ГОНКА</div><div class="sess-time">— : —</div></div>';
         }
         return;
       }
@@ -2440,8 +2547,8 @@
           const start = s.date.getTime();
           const end = start + (s.duration * 60000); 
           const cur = now.getTime();
-          let status = cur >= end ? "✓ Завершено" : cur >= start ? "● Идёт" : formatTime(s.date);
-          let cls = "sess-chip" + (cur >= end ? " past" : cur >= start ? " active" : "");
+          let status = cur >= end ? "✓ Завершено" : (cur >= start ? "● Идёт" : formatTime(s.date));
+          let cls = "sess-chip" + (cur >= end ? " past" : (cur >= start ? " active" : ""));
           return `<div class="${cls}"><div class="sess-name">${formatDate(s.date)} • ${s.short}</div><div class="sess-time">${status}</div></div>`;
         }).join("");
       }
@@ -2458,7 +2565,7 @@
           return;
         }
 
-        const genitiveName = sessionGenitiveNames[next.name] || next.name.toLowerCase();
+        const genitiveName = sessionGenitiveNames[next.name] ? sessionGenitiveNames[next.name] : next.name.toLowerCase();
         if (label) label.innerText = "До " + genitiveName.charAt(0).toUpperCase() + genitiveName.slice(1);
 
         const diff = Math.max(0, next.date.getTime() - nowTs);
@@ -2495,7 +2602,7 @@
       { pos: "11", name: "Carlos Sainz", team: "Williams Racing", points: "68", wins: 0 },
       { pos: "12", name: "Alexander Albon", team: "Williams Racing", points: "46", wins: 0 },
       { pos: "13", name: "Pierre Gasly", team: "Alpine F1 Team", points: "38", wins: 0 },
-      { pos: "14", name: "Jack Doohan", team: "Alpine F1 Team", points: "24", wins: 0 },
+      { pos: "14", name: "Franco Colapinto", team: "Alpine F1 Team", points: "24", wins: 0 },
       { pos: "15", name: "Yuki Tsunoda", team: "Racing Bulls (VCARB)", points: "22", wins: 0 },
       { pos: "16", name: "Isack Hadjar", team: "Racing Bulls (VCARB)", points: "18", wins: 0 },
       { pos: "17", name: "Nico Hülkenberg", team: "Stake F1 Team Kick Sauber / Audi", points: "16", wins: 0 },
@@ -2531,68 +2638,68 @@
     ];
 
     function initThemeAndPreferences() {
-      const savedTheme = localStorage.getItem('f1_theme_mode') || 'light';
-      if (savedTheme === 'dark') document.body.classList.add('dark-theme');
+      const savedTheme = localStorage.getItem("f1_theme_mode") ? localStorage.getItem("f1_theme_mode") : "light";
+      if (savedTheme === "dark") document.body.classList.add("dark-theme");
 
-      const isLite = localStorage.getItem('f1_lite_mode') === 'true';
+      const isLite = localStorage.getItem("f1_lite_mode") === "true";
       if (isLite) {
-        document.body.classList.add('lite-mode');
-        const liteCheck = document.getElementById('userSettingLiteToggle');
+        document.body.classList.add("lite-mode");
+        const liteCheck = document.getElementById("userSettingLiteToggle");
         if (liteCheck) liteCheck.checked = true;
       }
 
-      document.getElementById('userSettingVideoNotify').checked = localStorage.getItem('f1_set_video') !== 'false';
-      document.getElementById('userSettingTextNotify').checked = localStorage.getItem('f1_set_text') !== 'false';
-      document.getElementById('userSettingNewsNotify').checked = localStorage.getItem('f1_set_news') !== 'false';
-      document.getElementById('userSettingSilentMode').checked = localStorage.getItem('f1_set_silent') === 'true';
+      document.getElementById("userSettingVideoNotify").checked = localStorage.getItem("f1_set_video") !== "false";
+      document.getElementById("userSettingTextNotify").checked = localStorage.getItem("f1_set_text") !== "false";
+      document.getElementById("userSettingNewsNotify").checked = localStorage.getItem("f1_set_news") !== "false";
+      document.getElementById("userSettingSilentMode").checked = localStorage.getItem("f1_set_silent") === "true";
 
       if (isAdmin) {
-        const adminBtn = document.getElementById('adminDirectEntryBlock');
-        if (adminBtn) adminBtn.style.display = 'block';
+        const adminBtn = document.getElementById("adminDirectEntryBlock");
+        if (adminBtn) adminBtn.style.display = "block";
       }
       initLightsBestRecord();
       updateDailyLoginStreak();
-      markVisitedMainTab('home');
+      markVisitedMainTab("home");
     }
 
     function saveUserSettings() {
-      localStorage.setItem('f1_set_video', document.getElementById('userSettingVideoNotify').checked);
-      localStorage.setItem('f1_set_text', document.getElementById('userSettingTextNotify').checked);
-      localStorage.setItem('f1_set_news', document.getElementById('userSettingNewsNotify').checked);
-      localStorage.setItem('f1_set_silent', document.getElementById('userSettingSilentMode').checked);
+      localStorage.setItem("f1_set_video", document.getElementById("userSettingVideoNotify").checked);
+      localStorage.setItem("f1_set_text", document.getElementById("userSettingTextNotify").checked);
+      localStorage.setItem("f1_set_news", document.getElementById("userSettingNewsNotify").checked);
+      localStorage.setItem("f1_set_silent", document.getElementById("userSettingSilentMode").checked);
     }
 
     function toggleAppTheme() {
-      const isDark = document.body.classList.toggle('dark-theme');
-      localStorage.setItem('f1_theme_mode', isDark ? 'dark' : 'light');
+      const isDark = document.body.classList.toggle("dark-theme");
+      localStorage.setItem("f1_theme_mode", isDark ? "dark" : "light");
     }
 
     function handleLiteModeToggle(enabled) {
-      if (enabled) document.body.classList.add('lite-mode');
-      else document.body.classList.remove('lite-mode');
-      localStorage.setItem('f1_lite_mode', enabled ? 'true' : 'false');
+      if (enabled) document.body.classList.add("lite-mode");
+      else document.body.classList.remove("lite-mode");
+      localStorage.setItem("f1_lite_mode", enabled ? "true" : "false");
     }
 
     function openSettingsModal() {
-      document.getElementById('appSettingsModal').classList.add('active');
+      document.getElementById("appSettingsModal").classList.add("active");
     }
 
     function toggleAppSettingsModal(show) {
-      const modal = document.getElementById('appSettingsModal');
-      if (show) modal.classList.add('active');
-      else modal.classList.remove('active');
+      const modal = document.getElementById("appSettingsModal");
+      if (show) modal.classList.add("active");
+      else modal.classList.remove("active");
     }
 
     let brandClickCount = 0;
     let brandClickTimer = null;
-    document.getElementById('topBrandLogo')?.addEventListener('click', () => {
+    document.getElementById("topBrandLogo")?.addEventListener("click", () => {
       brandClickCount++;
       clearTimeout(brandClickTimer);
       brandClickTimer = setTimeout(() => { brandClickCount = 0; }, 1000);
       if (brandClickCount >= 3) {
         const enteredId = prompt("Telegram ID администратора:");
         if (enteredId === ADMIN_ID) {
-          localStorage.setItem('f1_cached_uid', enteredId);
+          localStorage.setItem("f1_cached_uid", enteredId);
           alert("✅ Доступ администратора активирован!");
           location.reload();
         }
@@ -2601,23 +2708,23 @@
 
     function switchMainTab(tabName, btnEl) {
       if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-      document.querySelectorAll('.bottom-nav .nav-btn').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
+      document.querySelectorAll(".bottom-nav .nav-btn").forEach(b => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
 
-      document.querySelectorAll('.view-screen').forEach(s => s.classList.remove('active'));
-      const target = document.getElementById('view-' + tabName);
-      if (target) target.classList.add('active');
+      document.querySelectorAll(".view-screen").forEach(s => s.classList.remove("active"));
+      const target = document.getElementById("view-" + tabName);
+      if (target) target.classList.add("active");
       window.scrollTo(0, 0);
 
       markVisitedMainTab(tabName);
 
-      if (tabName === 'season') {
-        localStorage.setItem('f1_viewed_drivers_tab', 'true');
+      if (tabName === "season") {
+        localStorage.setItem("f1_viewed_drivers_tab", "true");
         setTimeout(scrollToCurrentCalendarStage, 250);
       }
       
-      if (tabName === 'garage') {
-        localStorage.setItem('f1_got_first_rank', 'true');
+      if (tabName === "garage") {
+        localStorage.setItem("f1_got_first_rank", "true");
         renderGarageProfileData();
       }
     }
@@ -2625,11 +2732,12 @@
     // =========================================================================
     // ЛОГИКА ЭКРАНА "ГАРАЖ" (ПРОГРЕСС РАНГОВ, МОДАЛКА КАРЬЕРЫ, 28 ДОСТИЖЕНИЙ)
     // =========================================================================
-    window.currentAchievementFilter = 'all';
+    window.currentAchievementFilter = "all";
     window.lastGarageStatsSnapshot = null;
 
     function calculateUserRankAndRoadmap(currentPts, userId) {
-      let maxPtsEver = parseInt(localStorage.getItem(`f1_max_pts_ever_${userId}`) || '0');
+      const savedMax = localStorage.getItem(`f1_max_pts_ever_${userId}`);
+      let maxPtsEver = parseInt(savedMax ? savedMax : "0");
       if (currentPts > maxPtsEver) {
         maxPtsEver = currentPts;
         localStorage.setItem(`f1_max_pts_ever_${userId}`, String(maxPtsEver));
@@ -2642,12 +2750,13 @@
           currentRankIdx = i;
           if (rank.threshold > 0) {
             const rankBonusKey = `f1_ach_unlocked_${userId}_${rank.bonusKey}`;
-            if (localStorage.getItem(rankBonusKey) !== 'true') {
-              localStorage.setItem(rankBonusKey, 'true');
-              let bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${userId}`) || '0') + 50;
+            if (localStorage.getItem(rankBonusKey) !== "true") {
+              localStorage.setItem(rankBonusKey, "true");
+              const prevB = localStorage.getItem(`f1_bonus_pts_${userId}`);
+              let bonusPts = parseInt(prevB ? prevB : "0") + 50;
               localStorage.setItem(`f1_bonus_pts_${userId}`, String(bonusPts));
               setTimeout(() => {
-                showAchievementToast(`+50 PTS • Новый ранг: ${rank.title}!`, '🏆');
+                showAchievementToast(`+50 PTS • Новый ранг: ${rank.title}!`, "🏆");
               }, 600);
             }
           }
@@ -2655,11 +2764,11 @@
       }
 
       const currentRank = F1_RANKS_SCALE[currentRankIdx];
-      const nextRank = F1_RANKS_SCALE[currentRankIdx + 1] || null;
+      const nextRank = F1_RANKS_SCALE[currentRankIdx + 1] ? F1_RANKS_SCALE[currentRankIdx + 1] : null;
 
-      const fillEl = document.getElementById('garageRankProgressFill');
-      const textEl = document.getElementById('garageRankProgressText');
-      const hintEl = document.getElementById('garageRankNextHint');
+      const fillEl = document.getElementById("garageRankProgressFill");
+      const textEl = document.getElementById("garageRankProgressText");
+      const hintEl = document.getElementById("garageRankNextHint");
 
       if (nextRank) {
         const prevThreshold = currentRank.threshold;
@@ -2672,9 +2781,9 @@
         if (textEl) textEl.innerText = `${maxPtsEver} / ${nextRank.threshold} PTS`;
         if (hintEl) hintEl.innerText = `До «${nextRank.short}»: ${leftPts} PTS`;
       } else {
-        if (fillEl) fillEl.style.width = `100%`;
+        if (fillEl) fillEl.style.width = "100%";
         if (textEl) textEl.innerText = `${maxPtsEver} / 4500+ PTS`;
-        if (hintEl) hintEl.innerText = `Максимальный титул Чемпиона! 👑`;
+        if (hintEl) hintEl.innerText = "Максимальный титул Чемпиона! 👑";
       }
 
       renderRankRoadmapModalList(maxPtsEver, currentRankIdx);
@@ -2682,71 +2791,71 @@
     }
 
     function renderRankRoadmapModalList(maxPtsEver, currentRankIdx) {
-      const container = document.getElementById('rankRoadmapListContainer');
+      const container = document.getElementById("rankRoadmapListContainer");
       if (!container) return;
 
       container.innerHTML = F1_RANKS_SCALE.map((r, idx) => {
         const isUnlocked = maxPtsEver >= r.threshold;
         const isCurrent = idx === currentRankIdx;
-        let statusHtml = '';
+        let statusHtml = "";
         if (isCurrent) {
-          statusHtml = `<span class="badge">ТЕКУЩИЙ РАНГ</span>`;
+          statusHtml = '<span class="badge">ТЕКУЩИЙ РАНГ</span>';
         } else if (isUnlocked) {
-          statusHtml = `<span style="font-size:11px; font-weight:800; color:#34c759;">✓ ПОЛУЧЕНО</span>`;
+          statusHtml = '<span style="font-size:11px; font-weight:800; color:#34c759;">✓ ПОЛУЧЕНО</span>';
         } else {
           const need = r.threshold - maxPtsEver;
           statusHtml = `<span style="font-size:11px; font-weight:800; color:var(--text-muted);">🔒 Ещё ${need} PTS</span>`;
         }
 
         return `
-          <div class="rank-ladder-item ${isCurrent ? 'current' : (isUnlocked ? 'unlocked' : '')}">
+          <div class="rank-ladder-item ${isCurrent ? "current" : (isUnlocked ? "unlocked" : "")}">
             <div>
               <div style="font-size:14px; font-weight:900; color:var(--text);">${r.title}</div>
-              <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-top:2px;">Порог: ${r.threshold} PTS ${r.threshold > 0 ? '• Награда +50 PTS' : ''}</div>
+              <div style="font-size:11px; color:var(--text-muted); font-weight:700; margin-top:2px;">Порог: ${r.threshold} PTS ${r.threshold > 0 ? "• Награда +50 PTS" : ""}</div>
             </div>
             ${statusHtml}
           </div>
         `;
-      }).join('');
+      }).join("");
     }
 
     function toggleRankRoadmapModal(show) {
-      const modal = document.getElementById('rankRoadmapModal');
+      const modal = document.getElementById("rankRoadmapModal");
       if (!modal) return;
       if (show) {
-        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        modal.classList.add('active');
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+        modal.classList.add("active");
       } else {
-        modal.classList.remove('active');
+        modal.classList.remove("active");
       }
     }
 
     function showAchievementToast(title, icon) {
-      const toast = document.getElementById('achievementToast');
-      const titleEl = document.getElementById('toastTitle');
-      const iconEl = document.getElementById('toastIcon');
+      const toast = document.getElementById("achievementToast");
+      const titleEl = document.getElementById("toastTitle");
+      const iconEl = document.getElementById("toastIcon");
       if (!toast || !titleEl) return;
 
       titleEl.innerText = title;
       if (icon) iconEl.innerText = icon;
 
-      toast.classList.add('show');
-      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      toast.classList.add("show");
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
 
       setTimeout(() => {
-        toast.classList.remove('show');
+        toast.classList.remove("show");
       }, 3800);
     }
 
-    // Проверка и выдача ачивок с индивидуальной наградой PTS (10, 15, 20, 25, 50, 100)
     function checkAndAwardAchievement(achId, title, icon, rewardPts = 15) {
       const storageKey = `f1_ach_unlocked_${currentUserId}_${achId}`;
-      const isAlreadyUnlocked = localStorage.getItem(storageKey) === 'true';
+      const isAlreadyUnlocked = localStorage.getItem(storageKey) === "true";
 
       if (!isAlreadyUnlocked) {
-        localStorage.setItem(storageKey, 'true');
+        localStorage.setItem(storageKey, "true");
         
-        let bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0') + rewardPts;
+        const prevB = localStorage.getItem(`f1_bonus_pts_${currentUserId}`);
+        let bonusPts = parseInt(prevB ? prevB : "0") + rewardPts;
         localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(bonusPts));
 
         showAchievementToast(`+${rewardPts} PTS • ${title}`, icon);
@@ -2758,8 +2867,8 @@
     function filterGarageAchievements(category, btnEl) {
       if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
       window.currentAchievementFilter = category;
-      document.querySelectorAll('#trophyFilterTabs .trophy-filter-btn').forEach(b => b.classList.remove('active'));
-      if (btnEl) btnEl.classList.add('active');
+      document.querySelectorAll("#trophyFilterTabs .trophy-filter-btn").forEach(b => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
 
       if (window.lastGarageStatsSnapshot) {
         renderAchievementsList(window.lastGarageStatsSnapshot);
@@ -2767,14 +2876,17 @@
     }
     
     async function renderGarageProfileData() {
-      const tgUser = tg?.initDataUnsafe?.user || {};
+      const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : {};
       
-      const nameEl = document.getElementById('garageUserName');
-      const handleEl = document.getElementById('garageUserHandle');
-      const avatarEl = document.getElementById('garageAvatarEl');
-      const rankEl = document.getElementById('garageUserRank');
+      const nameEl = document.getElementById("garageUserName");
+      const handleEl = document.getElementById("garageUserHandle");
+      const avatarEl = document.getElementById("garageAvatarEl");
+      const rankEl = document.getElementById("garageUserRank");
 
-      const realName = `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || "Пилот Формулы-1";
+      const fName = tgUser.first_name ? tgUser.first_name : "";
+      const lName = tgUser.last_name ? tgUser.last_name : "";
+      const fullName = `${fName} ${lName}`.trim();
+      const realName = fullName ? fullName : "Пилот Формулы-1";
       const realHandle = tgUser.username ? `@${tgUser.username}` : `ID: ${currentUserId}`;
 
       if (nameEl) nameEl.innerText = realName;
@@ -2786,24 +2898,40 @@
         avatarEl.innerText = realName.charAt(0).toUpperCase();
       }
 
-      let basePts = parseInt(localStorage.getItem(`f1_user_base_points_${currentUserId}`) || '0');
-      let dbPredsCount = parseInt(localStorage.getItem(`f1_db_preds_count_${currentUserId}`) || '0');
-      let dbPodiumHits = parseInt(localStorage.getItem(`f1_db_podium_hits_${currentUserId}`) || '0');
-      let dbDoubleHits = parseInt(localStorage.getItem(`f1_db_double_hits_${currentUserId}`) || '0');
+      // 1. Синхронизируем облачный профиль (подтягиваем рекорды и очки с телефона на ПК и наоборот)
+      await syncCloudUserProfile();
+
+      const savedBase = localStorage.getItem(`f1_user_base_points_${currentUserId}`);
+      const savedPreds = localStorage.getItem(`f1_db_preds_count_${currentUserId}`);
+      const savedPodiums = localStorage.getItem(`f1_db_podium_hits_${currentUserId}`);
+      const savedDoubles = localStorage.getItem(`f1_db_double_hits_${currentUserId}`);
+
+      let basePts = parseInt(savedBase ? savedBase : "0");
+      let dbPredsCount = parseInt(savedPreds ? savedPreds : "0");
+      let dbPodiumHits = parseInt(savedPodiums ? savedPodiums : "0");
+      let dbDoubleHits = parseInt(savedDoubles ? savedDoubles : "0");
+      let dbBonusPts = 0;
 
       try {
         const res = await fetch(`${WORKER_URL}/api/prediction/leaderboard`);
         const data = await res.json();
-        const me = (data.leaderboard || []).find(r => String(r.user_id) === String(currentUserId));
+        const lbList = (data && data.leaderboard) ? data.leaderboard : [];
+        const me = lbList.find(r => String(r.user_id) === String(currentUserId));
         if (me) {
-          basePts = parseInt(me.base_points ?? me.total_points) || 0;
-          dbPredsCount = parseInt(me.predictions_count) || 0;
-          dbPodiumHits = parseInt(me.podium_hits) || 0;
-          dbDoubleHits = parseInt(me.double_hits) || 0;
+          basePts = parseInt(me.base_points ? me.base_points : "0");
+          dbBonusPts = parseInt(me.bonus_points ? me.bonus_points : "0");
+          dbPredsCount = parseInt(me.predictions_count ? me.predictions_count : "0");
+          dbPodiumHits = parseInt(me.podium_hits ? me.podium_hits : "0");
+          dbDoubleHits = parseInt(me.double_hits ? me.double_hits : "0");
           localStorage.setItem(`f1_user_base_points_${currentUserId}`, String(basePts));
           localStorage.setItem(`f1_db_preds_count_${currentUserId}`, String(dbPredsCount));
           localStorage.setItem(`f1_db_podium_hits_${currentUserId}`, String(dbPodiumHits));
           localStorage.setItem(`f1_db_double_hits_${currentUserId}`, String(dbDoubleHits));
+
+          const curLocBonus = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) ? localStorage.getItem(`f1_bonus_pts_${currentUserId}`) : "0");
+          if (dbBonusPts > curLocBonus) {
+            localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(dbBonusPts));
+          }
         }
       } catch (e) {}
 
@@ -2814,123 +2942,123 @@
       }
       const finalVotesCount = Math.max(localVotesCount, dbPredsCount);
 
-      const bestReaction = localStorage.getItem('f1_best_reaction_time');
-      document.getElementById('garageStatReaction').innerText = bestReaction ? `${bestReaction} ms` : '— ms';
+      const bestReaction = localStorage.getItem("f1_best_reaction_time");
+      document.getElementById("garageStatReaction").innerText = bestReaction ? `${bestReaction} ms` : "— ms";
 
-      const bestPit = localStorage.getItem('f1_best_pitstop_time');
-      document.getElementById('garageStatPit').innerText = bestPit ? `${bestPit} s` : '— s';
+      const bestPit = localStorage.getItem("f1_best_pitstop_time");
+      document.getElementById("garageStatPit").innerText = bestPit ? `${bestPit} s` : "— s";
 
-      document.getElementById('garageStatVotes').innerText = finalVotesCount;
+      document.getElementById("garageStatVotes").innerText = finalVotesCount;
 
-      let bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0');
+      const locBonusStr = localStorage.getItem(`f1_bonus_pts_${currentUserId}`);
+      let bonusPts = Math.max(dbBonusPts, parseInt(locBonusStr ? locBonusStr : "0"));
       let totalUserPts = basePts + bonusPts;
 
       const snapshot = {
         userPts: totalUserPts,
-        bestReaction: parseInt(bestReaction) || 9999,
-        bestPit: parseFloat(bestPit) || 99,
+        bestReaction: bestReaction ? parseInt(bestReaction) : 9999,
+        bestPit: bestPit ? parseFloat(bestPit) : 99,
         votesCount: finalVotesCount,
         podiumHits: dbPodiumHits,
         doubleHits: dbDoubleHits,
-        isDarkTheme: document.body.classList.contains('dark-theme')
+        isDarkTheme: document.body.classList.contains("dark-theme")
       };
       window.lastGarageStatsSnapshot = snapshot;
 
       const newlyUnlockedBonus = renderAchievementsList(snapshot);
       if (newlyUnlockedBonus) {
-        bonusPts = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0');
+        const updatedBonusStr = localStorage.getItem(`f1_bonus_pts_${currentUserId}`);
+        bonusPts = Math.max(dbBonusPts, parseInt(updatedBonusStr ? updatedBonusStr : "0"));
         totalUserPts = basePts + bonusPts;
         snapshot.userPts = totalUserPts;
         renderAchievementsList(snapshot);
+        syncCloudUserProfile();
       }
 
-      document.getElementById('garageStatPts').innerText = `${totalUserPts} PTS`;
-      const predPtsVal = document.getElementById('predUserPointsVal');
+      document.getElementById("garageStatPts").innerText = `${totalUserPts} PTS`;
+      const predPtsVal = document.getElementById("predUserPointsVal");
       if (predPtsVal) predPtsVal.innerText = totalUserPts;
 
       if (rankEl) {
         rankEl.innerText = calculateUserRankAndRoadmap(totalUserPts, currentUserId);
       }
-
-      // Тихая синхронизация обновленных бонусов в БД D1
-      if (currentUserId && currentUserId !== "user_guest") {
-        fetch(`${WORKER_URL}/api/user/sync_bonus`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: currentUserId,
-            username: tgUser.username || '',
-            first_name: tgUser.first_name || '',
-            last_name: tgUser.last_name || '',
-            bonus_points: parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) || '0')
-          })
-        }).catch(() => {});
-      }
     }
 
     function renderAchievementsList(stats) {
-      const grid = document.getElementById('garageAchievementsGrid');
+      const grid = document.getElementById("garageAchievementsGrid");
       if (!grid) return false;
 
-      const hasFalseStart = localStorage.getItem('f1_achievement_false_start') === 'true';
-      const foundSecret = localStorage.getItem('f1_achievement_admin_sim') === 'true';
-      const archiveViewsCount = parseInt(localStorage.getItem('f1_archive_views_count') || '0');
-      const hasNightView = localStorage.getItem('f1_achievement_night_view') === 'true';
-      const fastReactionCount = parseInt(localStorage.getItem('f1_fast_reactions_streak') || '0');
-      const cleanFastPit = localStorage.getItem('f1_pit_clean_fast') === 'true' || (stats.bestPit <= 2.2 && stats.bestPit > 0 && localStorage.getItem('f1_pit_had_penalty') !== 'true');
-      const sprinterDone = (stats.bestReaction > 0 && stats.bestReaction <= 195) || (stats.bestPit > 0 && stats.bestPit <= 2.0);
-      const loginStreak = parseInt(localStorage.getItem(`f1_login_streak_${currentUserId}`) || '1');
-      const seasonSubSwitches = parseInt(localStorage.getItem('f1_season_subtab_switches') || '0');
-      const lightsPlayed = localStorage.getItem('f1_lights_played_once') === 'true' || stats.bestReaction < 9999 || hasFalseStart;
-      const pitPlayed = localStorage.getItem('f1_pitstop_played_once') === 'true' || stats.bestPit < 99;
+      const hasFalseStart = localStorage.getItem("f1_achievement_false_start") === "true";
+      const foundSecret = localStorage.getItem("f1_achievement_admin_sim") === "true";
+      const viewsRaw = localStorage.getItem("f1_archive_views_count");
+      const archiveViewsCount = parseInt(viewsRaw ? viewsRaw : "0");
+      const hasNightView = localStorage.getItem("f1_achievement_night_view") === "true";
+      const streakRaw = localStorage.getItem("f1_fast_reactions_streak");
+      const fastReactionCount = parseInt(streakRaw ? streakRaw : "0");
+      const isCleanFastStored = localStorage.getItem("f1_pit_clean_fast") === "true";
+      const isCleanFastCalc = (stats.bestPit <= 2.2 && stats.bestPit > 0 && localStorage.getItem("f1_pit_had_penalty") !== "true");
+      const cleanFastPit = isCleanFastStored ? true : isCleanFastCalc;
+      const isFastReact = (stats.bestReaction > 0 && stats.bestReaction <= 195);
+      const isFastPit = (stats.bestPit > 0 && stats.bestPit <= 2.0);
+      const sprinterDone = isFastReact ? true : isFastPit;
+      const loginRaw = localStorage.getItem(`f1_login_streak_${currentUserId}`);
+      const loginStreak = parseInt(loginRaw ? loginRaw : "1");
+      const swRaw = localStorage.getItem("f1_season_subtab_switches");
+      const seasonSubSwitches = parseInt(swRaw ? swRaw : "0");
+      const lightsPlayed = (localStorage.getItem("f1_lights_played_once") === "true") ? true : ((stats.bestReaction < 9999) ? true : hasFalseStart);
+      const pitPlayed = (localStorage.getItem("f1_pitstop_played_once") === "true") ? true : (stats.bestPit < 99);
       let visitedTabs = [];
-      try { visitedTabs = JSON.parse(localStorage.getItem(`f1_visited_tabs_${currentUserId}`) || '[]'); } catch (e) {}
-      const viewedDrivers = localStorage.getItem('f1_viewed_drivers_tab') === 'true';
-      const viewedCalendar = localStorage.getItem('f1_viewed_calendar_tab') === 'true';
-      const gotFirstRank = localStorage.getItem('f1_got_first_rank') === 'true' || stats.userPts >= 0;
-      const hadPitPenalty = localStorage.getItem('f1_pit_had_penalty') === 'true';
-      const lbRefreshes = parseInt(localStorage.getItem('f1_leaderboard_refresh_count') || '0');
+      try {
+        const vRaw = localStorage.getItem(`f1_visited_tabs_${currentUserId}`);
+        visitedTabs = JSON.parse(vRaw ? vRaw : "[]");
+      } catch (e) {}
+      const viewedDrivers = localStorage.getItem("f1_viewed_drivers_tab") === "true";
+      const viewedCalendar = localStorage.getItem("f1_viewed_calendar_tab") === "true";
+      const gotFirstRank = (localStorage.getItem("f1_got_first_rank") === "true") ? true : (stats.userPts >= 0);
+      const hadPitPenalty = localStorage.getItem("f1_pit_had_penalty") === "true";
+      const refRaw = localStorage.getItem("f1_leaderboard_refresh_count");
+      const lbRefreshes = parseInt(refRaw ? refRaw : "0");
 
       const achievementsDefs = [
         // 👑 ХАРДКОРНЫЕ / ДОЛГОСРОЧНЫЕ (3 штуки)
-        { id: 'paddock_legend', tier: 'hardcore', pts: 100, icon: '👑', title: 'Легенда паддока', desc: 'Достичь высшего ранга «Чемпион Мира F1» (набрать 4500+ очков).', cur: Math.min(stats.userPts, 4500), max: 4500, unlocked: stats.userPts >= 4500 },
-        { id: 'history_keeper', tier: 'hardcore', pts: 50, icon: '🎞️', title: 'Хранитель истории', desc: 'Посмотреть суммарно 30 записей заездов из архива.', cur: Math.min(archiveViewsCount, 30), max: 30, unlocked: archiveViewsCount >= 30 },
-        { id: 'veteran_tribun', tier: 'hardcore', pts: 50, icon: '🏛️', title: 'Ветеран трибун', desc: 'Принять участие в предикшнах на 10 этапах сезона.', cur: Math.min(stats.votesCount, 10), max: 10, unlocked: stats.votesCount >= 10 },
+        { id: "paddock_legend", tier: "hardcore", pts: 100, icon: "👑", title: "Легенда паддока", desc: "Достичь высшего ранга «Чемпион Мира F1» (набрать 4500+ очков).", cur: Math.min(stats.userPts, 4500), max: 4500, unlocked: stats.userPts >= 4500 },
+        { id: "history_keeper", tier: "hardcore", pts: 50, icon: "🎞️", title: "Хранитель истории", desc: "Посмотреть суммарно 30 записей заездов из архива.", cur: Math.min(archiveViewsCount, 30), max: 30, unlocked: archiveViewsCount >= 30 },
+        { id: "veteran_tribun", tier: "hardcore", pts: 50, icon: "🏛️", title: "Ветеран трибун", desc: "Принять участие в предикшнах на 10 этапах сезона.", cur: Math.min(stats.votesCount, 10), max: 10, unlocked: stats.votesCount >= 10 },
 
         // 🏎️ СРЕДНЕЙ СЛОЖНОСТИ (10 штук)
-        { id: 'iron_nerves', tier: 'medium', pts: 20, icon: '🏎️', title: 'Железные нервы', desc: 'Показать идеальную реакцию в светофорах (<210 мс) 5 раз.', cur: Math.min(fastReactionCount, 5), max: 5, unlocked: fastReactionCount >= 5 },
-        { id: 'cinemaniac', tier: 'medium', pts: 15, icon: '🎬', title: 'Киноман F1', desc: 'Посмотреть 5 полных записей заездов из архива.', cur: Math.min(archiveViewsCount, 5), max: 5, unlocked: archiveViewsCount >= 5 },
-        { id: 'night_view', tier: 'medium', pts: 15, icon: '🌙', title: 'Ночной просмотр', desc: 'Открыть заезд в ночное время (с 00:00 до 05:00).', cur: hasNightView ? 1 : 0, max: 1, unlocked: hasNightView },
-        { id: 'serial_analyst', tier: 'medium', pts: 25, icon: '🎯', title: 'Серийный аналитик', desc: 'Угадать и победителя гонки (P1), и быстрейший круг (FL) в одном прогнозе.', cur: Math.min(stats.doubleHits, 1), max: 1, unlocked: stats.doubleHits >= 1 },
-        { id: 'pit_storm', tier: 'medium', pts: 15, icon: '🔧', title: 'Гроза пит-лейна', desc: 'Пройти «Пит-стоп» без единого штрафа быстрее чем за 2.2 сек.', cur: cleanFastPit ? 1 : 0, max: 1, unlocked: cleanFastPit },
-        { id: 'paddock_sprinter', tier: 'medium', pts: 15, icon: '⚡', title: 'Спринтер паддока', desc: 'Показать топовое время реакции (<195 мс) или пит-стопа (<2.0 с).', cur: sprinterDone ? 1 : 0, max: 1, unlocked: sprinterDone },
-        { id: 'loyal_fan', tier: 'medium', pts: 15, icon: '📅', title: 'Преданный фанат', desc: 'Открывать приложение 5 дней подряд.', cur: Math.min(loginStreak, 5), max: 5, unlocked: loginStreak >= 5 },
-        { id: 'peloton_explorer', tier: 'medium', pts: 15, icon: '📖', title: 'Исследователь пелотона', desc: 'Переключиться между вкладками раздела «Сезон» 3 раза.', cur: Math.min(seasonSubSwitches, 3), max: 3, unlocked: seasonSubSwitches >= 3 },
-        { id: 'first_capital', tier: 'medium', pts: 15, icon: '💰', title: 'Первый капитал', desc: 'Набрать суммарно 150 очков в общем рейтинге.', cur: Math.min(stats.userPts, 150), max: 150, unlocked: stats.userPts >= 150 },
-        { id: 'podium_collector', tier: 'medium', pts: 15, icon: '🏆', title: 'Коллекционер подиумов', desc: 'Угадать пилота в тройке лидеров в предикшнах 5 раз.', cur: Math.min(stats.podiumHits, 5), max: 5, unlocked: stats.podiumHits >= 5 },
+        { id: "iron_nerves", tier: "medium", pts: 20, icon: "🏎️", title: "Железные нервы", desc: "Показать идеальную реакцию в светофорах (<210 мс) 5 раз.", cur: Math.min(fastReactionCount, 5), max: 5, unlocked: fastReactionCount >= 5 },
+        { id: "cinemaniac", tier: "medium", pts: 15, icon: "🎬", title: "Киноман F1", desc: "Посмотреть 5 полных записей заездов из архива.", cur: Math.min(archiveViewsCount, 5), max: 5, unlocked: archiveViewsCount >= 5 },
+        { id: "night_view", tier: "medium", pts: 15, icon: "🌙", title: "Ночной просмотр", desc: "Открыть заезд в ночное время (с 00:00 до 05:00).", cur: hasNightView ? 1 : 0, max: 1, unlocked: hasNightView },
+        { id: "serial_analyst", tier: "medium", pts: 25, icon: "🎯", title: "Серийный аналитик", desc: "Угадать и победителя гонки (P1), и быстрейший круг (FL) в одном прогнозе.", cur: Math.min(stats.doubleHits, 1), max: 1, unlocked: stats.doubleHits >= 1 },
+        { id: "pit_storm", tier: "medium", pts: 15, icon: "🔧", title: "Гроза пит-лейна", desc: "Пройти «Пит-стоп» без единого штрафа быстрее чем за 2.2 сек.", cur: cleanFastPit ? 1 : 0, max: 1, unlocked: cleanFastPit },
+        { id: "paddock_sprinter", tier: "medium", pts: 15, icon: "⚡", title: "Спринтер паддока", desc: "Показать топовое время реакции (<195 мс) или пит-стопа (<2.0 с).", cur: sprinterDone ? 1 : 0, max: 1, unlocked: sprinterDone },
+        { id: "loyal_fan", tier: "medium", pts: 15, icon: "📅", title: "Преданный фанат", desc: "Открывать приложение 5 дней подряд.", cur: Math.min(loginStreak, 5), max: 5, unlocked: loginStreak >= 5 },
+        { id: "peloton_explorer", tier: "medium", pts: 15, icon: "📖", title: "Исследователь пелотона", desc: "Переключиться между вкладками раздела «Сезон» 3 раза.", cur: Math.min(seasonSubSwitches, 3), max: 3, unlocked: seasonSubSwitches >= 3 },
+        { id: "first_capital", tier: "medium", pts: 15, icon: "💰", title: "Первый капитал", desc: "Набрать суммарно 150 очков в общем рейтинге.", cur: Math.min(stats.userPts, 150), max: 150, unlocked: stats.userPts >= 150 },
+        { id: "podium_collector", tier: "medium", pts: 15, icon: "🏆", title: "Коллекционер подиумов", desc: "Угадать пилота в тройке лидеров в предикшнах 5 раз.", cur: Math.min(stats.podiumHits, 5), max: 5, unlocked: stats.podiumHits >= 5 },
 
         // 🏁 ОБЫЧНЫЕ / БЫСТРЫЕ (15 штук)
-        { id: 'first_vote', tier: 'normal', pts: 15, icon: '📝', title: 'Первая кровь', desc: 'Сделать свой первый прогноз на этап.', cur: Math.min(stats.votesCount, 1), max: 1, unlocked: stats.votesCount >= 1 },
-        { id: 'max_reaction', tier: 'normal', pts: 15, icon: '⚡', title: 'Реакция Макса', desc: 'Продемонстрировать время реакции быстрее 200 мс.', cur: (stats.bestReaction < 200 && stats.bestReaction > 0) ? 1 : 0, max: 1, unlocked: stats.bestReaction < 200 && stats.bestReaction > 0 },
-        { id: 'false_start', tier: 'normal', pts: 15, icon: '🚨', title: 'Фальстарт!', desc: 'Нажать кнопку старта до того, как погасли огни.', cur: hasFalseStart ? 1 : 0, max: 1, unlocked: hasFalseStart },
-        { id: 'ferrari_crew', tier: 'normal', pts: 15, icon: '🔧', title: 'Бригада Ferrari', desc: 'Пройти мини-игру «Пит-стоп» быстрее чем за 2.2 сек.', cur: (stats.bestPit <= 2.2 && stats.bestPit > 0) ? 1 : 0, max: 1, unlocked: stats.bestPit <= 2.2 && stats.bestPit > 0 },
-        { id: 'secret_advisor', tier: 'normal', pts: 15, icon: '🕵️‍♂️', title: 'Тайный советник', desc: 'Найти пасхалку в приложении и нажать на неё 5 раз.', cur: foundSecret ? 1 : 0, max: 1, unlocked: foundSecret },
-        { id: 'night_watch', tier: 'normal', pts: 15, icon: '🖤', title: 'Ночной дозор', desc: 'Переключить тему оформления приложения на темную.', cur: stats.isDarkTheme ? 1 : 0, max: 1, unlocked: stats.isDarkTheme },
-        { id: 'tire_test', tier: 'normal', pts: 10, icon: '🎮', title: 'Проба шин', desc: 'Запустить мини-игру «Стартовые огни» в первый раз.', cur: lightsPlayed ? 1 : 0, max: 1, unlocked: lightsPlayed },
-        { id: 'first_jack', tier: 'normal', pts: 10, icon: '🚗', title: 'Первый домкрат', desc: 'Совершить первую попытку смены колес в «Пит-стопе».', cur: pitPlayed ? 1 : 0, max: 1, unlocked: pitPlayed },
-        { id: 'first_lap', tier: 'normal', pts: 10, icon: '▶️', title: 'Первый круг', desc: 'Открыть любой видеозаезд из архива.', cur: Math.min(archiveViewsCount, 1), max: 1, unlocked: archiveViewsCount >= 1 },
-        { id: 'paddock_tourist', tier: 'normal', pts: 10, icon: '🗺️', title: 'Турист в паддоке', desc: 'Поочередно открыть все 5 основных вкладок приложения.', cur: Math.min(visitedTabs.length, 5), max: 5, unlocked: visitedTabs.length >= 5 },
-        { id: 'peloton_glance', tier: 'normal', pts: 10, icon: '👥', title: 'Взгляд на пелотон', desc: 'Открыть вкладку со списком пилотов текущего сезона.', cur: viewedDrivers ? 1 : 0, max: 1, unlocked: viewedDrivers },
-        { id: 'schedule_expert', tier: 'normal', pts: 10, icon: '🏁', title: 'Знаток расписания', desc: 'Открыть вкладку календаря сезона.', cur: viewedCalendar ? 1 : 0, max: 1, unlocked: viewedCalendar },
-        { id: 'karting_driver', tier: 'normal', pts: 10, icon: '🏎️', title: 'Картингист', desc: 'Официально получить свое первое звание в профиле.', cur: gotFirstRank ? 1 : 0, max: 1, unlocked: gotFirstRank },
-        { id: 'penalty_half_sec', tier: 'normal', pts: 10, icon: '⚠️', title: 'Штрафные 0,5 секунд', desc: 'Нарваться на штраф в пит-стопе, кликнув не по тому колесу.', cur: hadPitPenalty ? 1 : 0, max: 1, unlocked: hadPitPenalty },
-        { id: 'peloton_refresh', tier: 'normal', pts: 10, icon: '🔄', title: 'Обновление пелотона', desc: 'Вручную обновить таблицу лидеров кнопкой сброса.', cur: Math.min(lbRefreshes, 1), max: 1, unlocked: lbRefreshes >= 1 }
+        { id: "first_vote", tier: "normal", pts: 15, icon: "📝", title: "Первая кровь", desc: "Сделать свой первый прогноз на этап.", cur: Math.min(stats.votesCount, 1), max: 1, unlocked: stats.votesCount >= 1 },
+        { id: "max_reaction", tier: "normal", pts: 15, icon: "⚡", title: "Реакция Макса", desc: "Продемонстрировать время реакции быстрее 200 мс.", cur: (stats.bestReaction < 200 && stats.bestReaction > 0) ? 1 : 0, max: 1, unlocked: stats.bestReaction < 200 && stats.bestReaction > 0 },
+        { id: "false_start", tier: "normal", pts: 15, icon: "🚨", title: "Фальстарт!", desc: "Нажать кнопку старта до того, как погасли огни.", cur: hasFalseStart ? 1 : 0, max: 1, unlocked: hasFalseStart },
+        { id: "ferrari_crew", tier: "normal", pts: 15, icon: "🔧", title: "Бригада Ferrari", desc: "Пройти мини-игру «Пит-стоп» быстрее чем за 2.2 секунды.", cur: (stats.bestPit <= 2.2 && stats.bestPit > 0) ? 1 : 0, max: 1, unlocked: stats.bestPit <= 2.2 && stats.bestPit > 0 },
+        { id: "secret_advisor", tier: "normal", pts: 15, icon: "🕵️‍♂️", title: "Тайный советник", desc: "Найти пасхалку в приложении и нажать на неё 5 раз.", cur: foundSecret ? 1 : 0, max: 1, unlocked: foundSecret },
+        { id: "night_watch", tier: "normal", pts: 15, icon: "🖤", title: "Ночной дозор", desc: "Переключить тему оформления приложения на темную.", cur: stats.isDarkTheme ? 1 : 0, max: 1, unlocked: stats.isDarkTheme },
+        { id: "tire_test", tier: "normal", pts: 10, icon: "🎮", title: "Проба шин", desc: "Запустить мини-игру «Стартовые огни» в первый раз.", cur: lightsPlayed ? 1 : 0, max: 1, unlocked: lightsPlayed },
+        { id: "first_jack", tier: "normal", pts: 10, icon: "🚗", title: "Первый домкрат", desc: "Совершить первую попытку смены колес в «Пит-стопе».", cur: pitPlayed ? 1 : 0, max: 1, unlocked: pitPlayed },
+        { id: "first_lap", tier: "normal", pts: 10, icon: "▶️", title: "Первый круг", desc: "Открыть любой видеозаезд из архива.", cur: Math.min(archiveViewsCount, 1), max: 1, unlocked: archiveViewsCount >= 1 },
+        { id: "paddock_tourist", tier: "normal", pts: 10, icon: "🗺️", title: "Турист в паддоке", desc: "Поочередно открыть все 5 основных вкладок приложения.", cur: Math.min(visitedTabs.length, 5), max: 5, unlocked: visitedTabs.length >= 5 },
+        { id: "peloton_glance", tier: "normal", pts: 10, icon: "👥", title: "Взгляд на пелотон", desc: "Открыть вкладку со списком пилотов текущего сезона.", cur: viewedDrivers ? 1 : 0, max: 1, unlocked: viewedDrivers },
+        { id: "schedule_expert", tier: "normal", pts: 10, icon: "🏁", title: "Знаток расписания", desc: "Открыть вкладку календаря сезона.", cur: viewedCalendar ? 1 : 0, max: 1, unlocked: viewedCalendar },
+        { id: "karting_driver", tier: "normal", pts: 10, icon: "🏎️", title: "Картингист", desc: "Официально получить свое первое звание в профиле.", cur: gotFirstRank ? 1 : 0, max: 1, unlocked: gotFirstRank },
+        { id: "penalty_half_sec", tier: "normal", pts: 10, icon: "⚠️", title: "Штрафные 0,5 секунд", desc: "Нарваться на штраф в пит-стопе, кликнув не по тому колесу.", cur: hadPitPenalty ? 1 : 0, max: 1, unlocked: hadPitPenalty },
+        { id: "peloton_refresh", tier: "normal", pts: 10, icon: "🔄", title: "Обновление пелотона", desc: "Вручную обновить таблицу лидеров кнопкой сброса.", cur: Math.min(lbRefreshes, 1), max: 1, unlocked: lbRefreshes >= 1 }
       ];
 
       let anyNewAwarded = false;
       achievementsDefs.forEach(ach => {
         const storageKey = `f1_ach_unlocked_${currentUserId}_${ach.id}`;
-        if (localStorage.getItem(storageKey) === 'true') {
+        if (localStorage.getItem(storageKey) === "true") {
           ach.unlocked = true;
           ach.cur = ach.max;
         } else if (ach.unlocked) {
@@ -2943,24 +3071,24 @@
       const unlockedCount = achievementsDefs.filter(a => a.unlocked).length;
       const pctCollection = Math.round((unlockedCount / totalCount) * 100);
 
-      const counterBadge = document.getElementById('garageTrophyCounterBadge');
-      const pctText = document.getElementById('garageTrophyPercentText');
-      const colFill = document.getElementById('garageTrophyCollectionFill');
+      const counterBadge = document.getElementById("garageTrophyCounterBadge");
+      const pctText = document.getElementById("garageTrophyPercentText");
+      const colFill = document.getElementById("garageTrophyCollectionFill");
 
       if (counterBadge) counterBadge.innerText = `🏆 ${unlockedCount} / ${totalCount}`;
       if (pctText) pctText.innerText = `${pctCollection}%`;
       if (colFill) colFill.style.width = `${pctCollection}%`;
 
-      const activeFilter = window.currentAchievementFilter || 'all';
-      const filteredList = activeFilter === 'all'
+      const activeFilter = window.currentAchievementFilter ? window.currentAchievementFilter : "all";
+      const filteredList = activeFilter === "all"
         ? achievementsDefs
         : achievementsDefs.filter(a => a.tier === activeFilter);
 
       grid.innerHTML = filteredList.map(ach => {
         const pct = Math.min(100, Math.round((ach.cur / ach.max) * 100));
-        const tierClass = ach.tier === 'hardcore' ? 'tier-hardcore' : '';
+        const tierClass = ach.tier === "hardcore" ? "tier-hardcore" : "";
         return `
-          <div class="achievement-card ${tierClass} ${ach.unlocked ? 'unlocked' : ''}">
+          <div class="achievement-card ${tierClass} ${ach.unlocked ? "unlocked" : ""}">
             <div class="ach-top-row">
               <div class="achievement-icon">${ach.icon}</div>
               <span class="ach-pts-pill">+${ach.pts} PTS</span>
@@ -2972,50 +3100,62 @@
                 <div class="ach-prog-fill" style="width:${pct}%;"></div>
               </div>
               <div class="achievement-status">
-                <span>${ach.unlocked ? '✓ Получено' : '🔒 В процессе'}</span>
+                <span>${ach.unlocked ? "✓ Получено" : "🔒 В процессе"}</span>
                 <span>${ach.cur} / ${ach.max}</span>
               </div>
             </div>
           </div>
         `;
-      }).join('');
+      }).join("");
 
       return anyNewAwarded;
     }
 
     function openViewScreen(screenName) {
-      document.querySelectorAll('.view-screen').forEach(s => s.classList.remove('active'));
-      const screen = document.getElementById('view-' + screenName);
-      if (screen) screen.classList.add('active');
+      document.querySelectorAll(".view-screen").forEach(s => s.classList.remove("active"));
+      const screen = document.getElementById("view-" + screenName);
+      if (screen) screen.classList.add("active");
       window.scrollTo(0, 0);
     }
 
     function switchSeasonSubTab(subTab, btn) {
-      document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      document.querySelectorAll(".sub-tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
 
-      let switches = parseInt(localStorage.getItem('f1_season_subtab_switches') || '0') + 1;
-      localStorage.setItem('f1_season_subtab_switches', String(switches));
+      const prevSw = localStorage.getItem("f1_season_subtab_switches");
+      let switches = parseInt(prevSw ? prevSw : "0") + 1;
+      localStorage.setItem("f1_season_subtab_switches", String(switches));
 
-      if (subTab === 'standings') localStorage.setItem('f1_viewed_drivers_tab', 'true');
-      if (subTab === 'calendar') localStorage.setItem('f1_viewed_calendar_tab', 'true');
+      if (subTab === "standings") localStorage.setItem("f1_viewed_drivers_tab", "true");
+      if (subTab === "calendar") localStorage.setItem("f1_viewed_calendar_tab", "true");
 
-      document.getElementById('seasonSubStandings').style.display = subTab === 'standings' ? 'block' : 'none';
-      document.getElementById('seasonSubCalendar').style.display = subTab === 'calendar' ? 'block' : 'none';
-      document.getElementById('seasonSubTeams').style.display = subTab === 'teams' ? 'block' : 'none';
+      document.getElementById("seasonSubStandings").style.display = subTab === "standings" ? "block" : "none";
+      document.getElementById("seasonSubCalendar").style.display = subTab === "calendar" ? "block" : "none";
+      document.getElementById("seasonSubTeams").style.display = subTab === "teams" ? "block" : "none";
 
-      if (subTab === 'calendar') {
+      if (subTab === "calendar") {
         setTimeout(scrollToCurrentCalendarStage, 150);
       }
     }
 
     function scrollToCurrentCalendarStage() {
-      const currentCard = document.querySelector('.cal-card.current');
-      if (currentCard) currentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const currentCard = document.querySelector(".cal-card.current");
+      if (currentCard) currentCard.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
+    // =========================================================================
+    // ОТРИСОВКА ПИЛОТОВ С НАДЕЖНЫМ ПОИСКОМ ФОТО И ЧИСТЫМИ ИМЕНАМИ
+    // =========================================================================
+    const KNOWN_DRIVER_IMAGES = [
+      "albon", "alonso", "antonelli", "bearman", "bortoleto",
+      "bottas", "colapinto", "gasly", "hadjar", "hamilton",
+      "hulkenberg", "lawson", "leclerc", "lindblad", "norris",
+      "ocon", "perez", "piastri", "russel", "sainz",
+      "stroll", "tsunoda", "verstappen"
+    ];
+
     function renderDriversList(drivers) {
-      const list = drivers || DEFAULT_DRIVERS_DATA;
+      const list = drivers ? drivers : DEFAULT_DRIVERS_DATA;
       if (!list || list.length === 0) return;
 
       const TEAM_COLORS = {
@@ -3035,53 +3175,67 @@
       };
 
       function getTeamColor(teamName) {
-        const t = (teamName || "").toLowerCase();
+        const t = (teamName ? teamName : "").toLowerCase();
         for (const key in TEAM_COLORS) {
           if (t.includes(key)) return TEAM_COLORS[key];
         }
         return "#7e8494";
       }
 
-      function getDriverImage(name) {
-        let lastName = name.split(' ').pop().toLowerCase();
-        lastName = lastName.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-        if (lastName === 'russell') lastName = 'russel';
+      function getDriverImage(rawName) {
+        const clean = cleanDriverName(rawName);
+        const diacriticRx = new RegExp("[\\u0300-\\u036f]", "g");
+        const normalizedFull = clean.toLowerCase().normalize("NFD").replace(diacriticRx, "");
+
+        if (normalizedFull.includes("russell") ? true : normalizedFull.includes("russel")) {
+          return "https://raw.githubusercontent.com/Webssterr/f1/main/images/russel.png";
+        }
+        for (const known of KNOWN_DRIVER_IMAGES) {
+          if (normalizedFull.includes(known)) {
+            return `https://raw.githubusercontent.com/Webssterr/f1/main/images/${known}.png`;
+          }
+        }
+        let lastName = normalizedFull.split(" ").pop();
+        if (lastName === "russell") lastName = "russel";
         return `https://raw.githubusercontent.com/Webssterr/f1/main/images/${lastName}.png`;
       }
 
       const leader = list[0];
+      const leaderCleanName = cleanDriverName(leader.name);
       const leaderColor = getTeamColor(leader.team);
-      const leaderImg = getDriverImage(leader.name);
+      const leaderImg = getDriverImage(leaderCleanName);
 
-      document.getElementById('leaderNameDisplay').innerText = leader.name;
-      document.getElementById('leaderTeamDisplay').innerText = leader.team;
-      document.getElementById('leaderPointsDisplay').innerText = leader.points;
-      document.getElementById('leaderWinsDisplay').innerText = `${leader.wins || 0} побед • лидер чемпионата`;
+      document.getElementById("leaderNameDisplay").innerText = leaderCleanName;
+      document.getElementById("leaderTeamDisplay").innerText = leader.team;
+      document.getElementById("leaderPointsDisplay").innerText = leader.points;
+      document.getElementById("leaderWinsDisplay").innerText = `${leader.wins ? leader.wins : 0} побед • лидер чемпионата`;
       
-      const leaderCard = document.querySelector('.leader-card');
+      const leaderCard = document.querySelector(".leader-card");
       leaderCard.style.background = `linear-gradient(135deg, ${leaderColor} 0%, #111317 120%)`;
       leaderCard.style.borderBottom = `4px solid ${leaderColor}`;
       
-      let lPhoto = document.getElementById('leaderPhotoEl');
+      let lPhoto = document.getElementById("leaderPhotoEl");
       if (!lPhoto) {
-        lPhoto = document.createElement('img');
-        lPhoto.id = 'leaderPhotoEl';
-        lPhoto.style.cssText = 'position:absolute; right:-10px; bottom:0; height:120%; object-fit:contain; z-index:1; pointer-events:none; filter: drop-shadow(-4px 0 12px rgba(0,0,0,0.4));';
+        lPhoto = document.createElement("img");
+        lPhoto.id = "leaderPhotoEl";
+        lPhoto.style.cssText = "position:absolute; right:-10px; bottom:0; height:120%; object-fit:contain; z-index:1; pointer-events:none; filter: drop-shadow(-4px 0 12px rgba(0,0,0,0.4));";
         leaderCard.appendChild(lPhoto);
         
-        const leaderBgNum = document.querySelector('.leader-bg-num');
-        if (leaderBgNum) leaderBgNum.style.zIndex = '0';
-        const leaderTexts = leaderCard.querySelectorAll('.leader-badge, .leader-name, .leader-team, .leader-pts-row');
-        leaderTexts.forEach(el => { el.style.position = 'relative'; el.style.zIndex = '2'; });
+        const leaderBgNum = document.querySelector(".leader-bg-num");
+        if (leaderBgNum) leaderBgNum.style.zIndex = "0";
+        const leaderTexts = leaderCard.querySelectorAll(".leader-badge, .leader-name, .leader-team, .leader-pts-row");
+        leaderTexts.forEach(el => { el.style.position = "relative"; el.style.zIndex = "2"; });
       }
+      lPhoto.style.display = "block";
       lPhoto.src = leaderImg;
 
-      const driversListEl = document.getElementById('driversStandingsList');
+      const driversListEl = document.getElementById("driversStandingsList");
       driversListEl.innerHTML = list.slice(1).map(d => {
+        const cleanName = cleanDriverName(d.name);
         const teamColor = getTeamColor(d.team);
         const gradientBg = `${teamColor}26`; 
-        const fallbackInitials = d.name.split(' ').map(n => n[0]).join('').substring(0, 2);
-        const imgUrl = getDriverImage(d.name);
+        const fallbackInitials = cleanName.split(" ").map(n => n[0]).join("").substring(0, 2);
+        const imgUrl = getDriverImage(cleanName);
 
         return `
           <div class="stand-item" style="
@@ -3093,7 +3247,7 @@
             display: flex;
             align-items: center;
           ">
-            <div class="stand-pos" style="width: 28px; font-size: 15px; font-weight: 900; color: var(--text-muted);">${String(d.pos).padStart(2, '0')}</div>
+            <div class="stand-pos" style="width: 28px; font-size: 15px; font-weight: 900; color: var(--text-muted);">${String(d.pos).padStart(2, "0")}</div>
             
             <div style="width: 46px; height: 46px; border-radius: 50%; background: ${teamColor}40; margin-right: 14px; border: 2px solid ${teamColor}; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
               <span style="position: absolute; font-weight: 800; color: ${teamColor}; font-size: 14px;">${fallbackInitials}</span>
@@ -3101,37 +3255,39 @@
             </div>
             
             <div class="stand-details" style="flex: 1; z-index: 2;">
-              <div class="stand-name" style="font-size: 16px; font-weight: 800; color: var(--text);">${d.name}</div>
+              <div class="stand-name" style="font-size: 16px; font-weight: 800; color: var(--text);">${cleanName}</div>
               <div class="stand-team" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">${d.team}</div>
             </div>
             
             <div class="stand-pts" style="font-size: 18px; font-weight: 900; color: var(--text); z-index: 2;">${d.points}</div>
           </div>
         `;
-      }).join('');
+      }).join("");
     }
 
     function renderCalendarList(races) {
-      const list = races || DEFAULT_RACES_CALENDAR;
-      const calEl = document.getElementById('calendarEventsList');
+      const list = races ? races : DEFAULT_RACES_CALENDAR;
+      const calEl = document.getElementById("calendarEventsList");
       
       const nowTs = Date.now();
       let activeRace = list.find(r => {
-        const raceTime = new Date(r.date + "T" + (r.time || "14:00:00")).getTime();
+        const tPart = r.time ? r.time : "14:00:00";
+        const raceTime = new Date(r.date + "T" + tPart).getTime();
         return !isNaN(raceTime) && (raceTime + 10800000) >= nowTs; 
       });
-      const currentStageIndex = activeRace ? parseInt(activeRace.round) : (parseInt(window.activeRaceRound) || 18);
+      const fallbackRound = window.activeRaceRound ? parseInt(window.activeRaceRound) : 18;
+      const currentStageIndex = activeRace ? parseInt(activeRace.round) : fallbackRound;
 
       calEl.innerHTML = list.map((r, idx) => {
-        const roundNum = parseInt(r.round) || (idx + 1);
-        let statusBadge = '';
-        let cardClass = 'cal-card';
+        const roundNum = r.round ? parseInt(r.round) : (idx + 1);
+        let statusBadge = "";
+        let cardClass = "cal-card";
 
         if (roundNum < currentStageIndex) {
-          cardClass += ' past';
+          cardClass += " past";
           statusBadge = '<span style="font-size:11px; font-weight:800; color:var(--text-muted);">ЗАВЕРШЕН</span>';
         } else if (roundNum === currentStageIndex) {
-          cardClass += ' current';
+          cardClass += " current";
           statusBadge = '<span class="badge">ТЕКУЩИЙ ЭТАП</span>';
         } else if (roundNum === currentStageIndex + 1) {
           statusBadge = '<span class="badge" style="background:#fff3cd; color:#856404;">СЛЕДУЮЩИЙ</span>';
@@ -3142,7 +3298,7 @@
         return `
           <div class="${cardClass}" id="cal-round-${roundNum}">
             <div style="display:flex; align-items:center; gap:12px;">
-              <div class="cal-round">${String(roundNum).padStart(2, '0')}</div>
+              <div class="cal-round">${String(roundNum).padStart(2, "0")}</div>
               <div class="cal-info">
                 <h4>${r.name}</h4>
                 <span>${r.circuit}</span>
@@ -3151,7 +3307,7 @@
             ${statusBadge}
           </div>
         `;
-      }).join('');
+      }).join("");
     }
 
     async function loadF1SeasonData() {
@@ -3161,22 +3317,25 @@
 
         let driversData = DEFAULT_DRIVERS_DATA;
         if (data.drivers && data.drivers.length > 0) {
-          driversData = data.drivers;
+          driversData = data.drivers.map(d => ({
+            ...d,
+            name: cleanDriverName(d.name)
+          }));
         }
         window.currentLoadedDrivers = driversData;
         renderDriversList(driversData);
 
         if (data.constructors && data.constructors.length > 0) {
-          const teamsListEl = document.getElementById('constructorsStandingsList');
+          const teamsListEl = document.getElementById("constructorsStandingsList");
           teamsListEl.innerHTML = data.constructors.map(t => `
             <div class="stand-item">
-              <div class="stand-pos ${parseInt(t.pos) <= 3 ? 'top' : ''}">${t.pos}</div>
+              <div class="stand-pos ${parseInt(t.pos) <= 3 ? "top" : ""}">${t.pos}</div>
               <div class="stand-details">
                 <div class="stand-name">${t.team}</div>
               </div>
               <div class="stand-pts">${t.points}</div>
             </div>
-          `).join('');
+          `).join("");
         }
 
         if (data.races && data.races.length > 0) {
@@ -3185,7 +3344,8 @@
           
           const nowTs = Date.now();
           let activeRace = data.races.find(r => {
-            const raceTime = new Date(r.date + "T" + (r.time || "14:00:00")).getTime();
+            const tPart = r.time ? r.time : "14:00:00";
+            const raceTime = new Date(r.date + "T" + tPart).getTime();
             return (raceTime + 10800000) >= nowTs; 
           });
           
@@ -3194,9 +3354,9 @@
           if (activeRace) {
             window.activeRaceRound = String(activeRace.round);
             window.activeRaceName = activeRace.name;
-            document.getElementById('gpTitleDisplay').innerText = activeRace.name;
-            document.getElementById('gpSubDisplay').innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
-            const circuitKey = activeRace.circuitId || "sepang";
+            document.getElementById("gpTitleDisplay").innerText = activeRace.name;
+            document.getElementById("gpSubDisplay").innerText = `Этап ${activeRace.round} • ${activeRace.circuit}`;
+            const circuitKey = activeRace.circuitId ? activeRace.circuitId : "sepang";
             loadCircuitFromDatabase(circuitKey);
             initDynamicWeekendSessions(activeRace);
           }
@@ -3216,7 +3376,7 @@
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog`);
         const rows = await res.json();
-        allCatalogItems = rows || [];
+        allCatalogItems = rows ? rows : [];
         buildCatalogTreeAndRender();
 
         if (isAdmin) {
@@ -3224,14 +3384,14 @@
           renderAdminCategoriesOrder();
         }
       } catch (e) {
-        document.getElementById('catalogCategoriesContainer').innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Ошибка подключения к D1.</div>';
+        document.getElementById("catalogCategoriesContainer").innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Ошибка подключения к D1.</div>';
       }
     }
 
     function buildCatalogTreeAndRender() {
       catalogTree = {};
       allCatalogItems.forEach(item => {
-        const cat = item.category || 'Архив';
+        const cat = item.category ? item.category : "Архив";
         const title = item.title;
         if (!catalogTree[cat]) catalogTree[cat] = {};
         if (!catalogTree[cat][title]) catalogTree[cat][title] = { image: item.image, description: item.description, items: [] };
@@ -3239,36 +3399,35 @@
       });
 
       const catNames = Object.keys(catalogTree);
-
-      const container = document.getElementById('catalogCategoriesContainer');
+      const container = document.getElementById("catalogCategoriesContainer");
       if (!container) return;
 
-      container.innerHTML = '';
+      container.innerHTML = "";
       catNames.forEach((catName, idx) => {
-        const btn = document.createElement('div');
-        btn.className = 'menu-btn';
+        const btn = document.createElement("div");
+        btn.className = "menu-btn";
         btn.onclick = () => openCatalogCategory(catName);
 
-        const content = document.createElement('div');
-        content.className = 'menu-btn-content';
+        const content = document.createElement("div");
+        content.className = "menu-btn-content";
         content.innerHTML = `<span>${catName}</span>`;
         btn.appendChild(content);
 
         if (isAdmin) {
-          const ctrls = document.createElement('div');
-          ctrls.className = 'archive-reorder-ctrls';
+          const ctrls = document.createElement("div");
+          ctrls.className = "archive-reorder-ctrls";
           ctrls.innerHTML = `
             <button class="archive-reorder-btn" title="Вверх">⬆</button>
             <button class="archive-reorder-btn" title="Вниз">⬇</button>
           `;
-          const [upBtn, downBtn] = ctrls.querySelectorAll('button');
+          const [upBtn, downBtn] = ctrls.querySelectorAll("button");
           upBtn.onclick = (e) => { e.stopPropagation(); moveArchiveCategoryInline(catNames, idx, -1); };
           downBtn.onclick = (e) => { e.stopPropagation(); moveArchiveCategoryInline(catNames, idx, 1); };
           btn.appendChild(ctrls);
         } else {
-          const arrow = document.createElement('span');
-          arrow.style.opacity = '0.4';
-          arrow.innerText = '›';
+          const arrow = document.createElement("span");
+          arrow.style.opacity = "0.4";
+          arrow.innerText = "›";
           btn.appendChild(arrow);
         }
         container.appendChild(btn);
@@ -3285,8 +3444,8 @@
       const payloadCategories = catArray.map((cat, order) => ({ category: cat, order }));
       try {
         await fetch(`${WORKER_URL}/api/catalog/reorder`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
           body: JSON.stringify({ categories: payloadCategories })
         });
         await loadCatalogDatabase();
@@ -3295,16 +3454,17 @@
 
     function openCatalogCategory(categoryName) {
       activeCatalogCategory = categoryName;
-      const listEl = document.getElementById('catalogTitlesList');
-      listEl.innerHTML = '';
+      const listEl = document.getElementById("catalogTitlesList");
+      listEl.innerHTML = "";
 
-      const titles = Object.keys(catalogTree[categoryName] || {});
+      const catObj = catalogTree[categoryName] ? catalogTree[categoryName] : {};
+      const titles = Object.keys(catObj);
 
       async function reorderTitlesInDb(newTitlesOrder) {
         try {
           await fetch(`${WORKER_URL}/api/catalog/reorder`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
             body: JSON.stringify({ category: categoryName, titles: newTitlesOrder })
           });
           await loadCatalogDatabase();
@@ -3314,24 +3474,24 @@
 
       titles.forEach((titleKey, idx) => {
         const itemObj = catalogTree[categoryName][titleKey];
-        const thumb = itemObj.image ? `<img class="menu-btn-thumb" src="${itemObj.image}">` : '';
-        const btn = document.createElement('div');
-        btn.className = 'menu-btn';
+        const thumb = itemObj.image ? `<img class="menu-btn-thumb" src="${itemObj.image}">` : "";
+        const btn = document.createElement("div");
+        btn.className = "menu-btn";
         btn.onclick = () => openCatalogDetails(titleKey);
 
-        const content = document.createElement('div');
-        content.className = 'menu-btn-content';
+        const content = document.createElement("div");
+        content.className = "menu-btn-content";
         content.innerHTML = `${thumb}<span>${titleKey}</span>`;
         btn.appendChild(content);
 
         if (isAdmin) {
-          const ctrls = document.createElement('div');
-          ctrls.className = 'archive-reorder-ctrls';
+          const ctrls = document.createElement("div");
+          ctrls.className = "archive-reorder-ctrls";
           ctrls.innerHTML = `
             <button class="archive-reorder-btn" title="Вверх">⬆</button>
             <button class="archive-reorder-btn" title="Вниз">⬇</button>
           `;
-          const [upBtn, downBtn] = ctrls.querySelectorAll('button');
+          const [upBtn, downBtn] = ctrls.querySelectorAll("button");
           upBtn.onclick = (e) => {
             e.stopPropagation();
             if (idx === 0) return;
@@ -3346,26 +3506,26 @@
           };
           btn.appendChild(ctrls);
         } else {
-          const arrow = document.createElement('span');
-          arrow.innerText = '›';
+          const arrow = document.createElement("span");
+          arrow.innerText = "›";
           btn.appendChild(arrow);
         }
 
         listEl.appendChild(btn);
       });
-      openViewScreen('titles');
+      openViewScreen("titles");
     }
 
     function openCatalogDetails(titleKey) {
       activeCatalogTitle = titleKey;
       const data = catalogTree[activeCatalogCategory][titleKey];
-      const header = document.getElementById('catalogItemHeader');
-      const btnsBox = document.getElementById('catalogItemButtonsList');
+      const header = document.getElementById("catalogItemHeader");
+      const btnsBox = document.getElementById("catalogItemButtonsList");
 
       header.innerHTML = `
-        ${data.image ? `<img src="${data.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:18px; margin-bottom:12px;">` : ''}
+        ${data.image ? `<img src="${data.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:18px; margin-bottom:12px;">` : ""}
         <h2 style="margin:0 0 6px 0; font-weight:900; font-size:22px;">${titleKey}</h2>
-        ${data.description ? `<div style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">${data.description}</div>` : ''}
+        ${data.description ? `<div style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">${data.description}</div>` : ""}
       `;
 
       const items = [...data.items];
@@ -3373,8 +3533,8 @@
       async function reorderSessionsInDb(newItemsArray) {
         try {
           await fetch(`${WORKER_URL}/api/catalog/reorder`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
             body: JSON.stringify({ itemIds: newItemsArray.map(x => x.id) })
           });
           await loadCatalogDatabase();
@@ -3382,39 +3542,42 @@
         } catch (e) {}
       }
 
-      btnsBox.innerHTML = '';
+      btnsBox.innerHTML = "";
       items.forEach((it, idx) => {
-        const b = document.createElement('div');
-        b.className = 'menu-btn';
+        const b = document.createElement("div");
+        b.className = "menu-btn";
         b.onclick = () => {
-          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-          let vCount = parseInt(localStorage.getItem('f1_archive_views_count') || '0') + 1;
-          localStorage.setItem('f1_archive_views_count', String(vCount));
+          if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("medium");
+          const prevV = localStorage.getItem("f1_archive_views_count");
+          let vCount = parseInt(prevV ? prevV : "0") + 1;
+          localStorage.setItem("f1_archive_views_count", String(vCount));
 
           const currentHour = new Date().getHours();
           if (currentHour >= 0 && currentHour < 5) {
-            localStorage.setItem('f1_achievement_night_view', 'true');
+            localStorage.setItem("f1_achievement_night_view", "true");
           }
+          syncCloudUserProfile();
           tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${it.code}`);
           tg?.close();
         };
 
-        const leftSpan = document.createElement('span');
+        const leftSpan = document.createElement("span");
         leftSpan.innerText = it.item;
         b.appendChild(leftSpan);
 
-        const rightWrap = document.createElement('div');
-        rightWrap.style.cssText = 'display:flex; align-items:center; gap:8px;';
-        rightWrap.innerHTML = `<span class="badge">${it.badge || '1080p'}</span>`;
+        const rightWrap = document.createElement("div");
+        rightWrap.style.cssText = "display:flex; align-items:center; gap:8px;";
+        const badgeTxt = it.badge ? it.badge : "1080p";
+        rightWrap.innerHTML = `<span class="badge">${badgeTxt}</span>`;
 
         if (isAdmin) {
-          const ctrls = document.createElement('div');
-          ctrls.className = 'archive-reorder-ctrls';
+          const ctrls = document.createElement("div");
+          ctrls.className = "archive-reorder-ctrls";
           ctrls.innerHTML = `
             <button class="archive-reorder-btn" title="Вверх">⬆</button>
             <button class="archive-reorder-btn" title="Вниз">⬇</button>
           `;
-          const [upBtn, downBtn] = ctrls.querySelectorAll('button');
+          const [upBtn, downBtn] = ctrls.querySelectorAll("button");
           upBtn.onclick = (e) => {
             e.stopPropagation();
             if (idx === 0) return;
@@ -3433,39 +3596,42 @@
         b.appendChild(rightWrap);
         btnsBox.appendChild(b);
       });
-      openViewScreen('details');
+      openViewScreen("details");
     }
 
     function navigateBackFromTitles() {
-      openViewScreen('archive');
+      openViewScreen("archive");
     }
 
     function handleSearch(queryText) {
       const query = queryText.trim().toLowerCase();
-      const def = document.getElementById('archiveDefaultList');
-      const res = document.getElementById('archiveSearchResults');
+      const def = document.getElementById("archiveDefaultList");
+      const res = document.getElementById("archiveSearchResults");
       if (!query) {
-        def.style.display = 'block';
-        res.style.display = 'none';
+        def.style.display = "block";
+        res.style.display = "none";
         return;
       }
-      def.style.display = 'none';
-      res.style.display = 'block';
-      res.innerHTML = '';
+      def.style.display = "none";
+      res.style.display = "block";
+      res.innerHTML = "";
 
-      const matched = allCatalogItems.filter(e => e.title.toLowerCase().includes(query) || e.item.toLowerCase().includes(query));
+      const matched = allCatalogItems.filter(e => e.title.toLowerCase().includes(query) ? true : e.item.toLowerCase().includes(query));
       if (!matched.length) {
         res.innerHTML = '<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Ничего не найдено 🏎</div>';
         return;
       }
 
       matched.forEach(e => {
-        const b = document.createElement('div');
-        b.className = 'menu-btn';
-        b.innerHTML = `<span>${e.title} — ${e.item}</span><span class="badge">${e.badge || '1080p'}</span>`;
+        const b = document.createElement("div");
+        b.className = "menu-btn";
+        const badgeTxt = e.badge ? e.badge : "1080p";
+        b.innerHTML = `<span>${e.title} — ${e.item}</span><span class="badge">${badgeTxt}</span>`;
         b.onclick = () => {
-          let vCount = parseInt(localStorage.getItem('f1_archive_views_count') || '0') + 1;
-          localStorage.setItem('f1_archive_views_count', String(vCount));
+          const prevV = localStorage.getItem("f1_archive_views_count");
+          let vCount = parseInt(prevV ? prevV : "0") + 1;
+          localStorage.setItem("f1_archive_views_count", String(vCount));
+          syncCloudUserProfile();
           tg?.openTelegramLink(`https://t.me/${BOT_USERNAME}?start=${e.code}`);
           tg?.close();
         };
@@ -3474,40 +3640,40 @@
     }
 
     function openAdminDashboardScreen() {
-      openViewScreen('admin');
+      openViewScreen("admin");
       loadAdminLiveStats();
       renderAdminCategoriesOrder();
     }
 
     function navigateBackFromAdmin() {
-      openViewScreen('home');
+      openViewScreen("home");
     }
 
     async function loadAdminLiveStats() {
       try {
-        const res = await fetch(`${WORKER_URL}/api/stats`, { headers: { 'X-Admin-Id': ADMIN_ID } });
+        const res = await fetch(`${WORKER_URL}/api/stats`, { headers: { "X-Admin-Id": ADMIN_ID } });
         const stats = await res.json();
-        document.getElementById('statTotalUsers').innerText = stats.total_users || 0;
-        document.getElementById('statActive24').innerText = stats.active_24h || 0;
-        document.getElementById('statViewsToday').innerText = stats.views_today || 0;
-        document.getElementById('statVideoClicks').innerText = stats.video_clicks || 0;
+        document.getElementById("statTotalUsers").innerText = stats.total_users ? stats.total_users : 0;
+        document.getElementById("statActive24").innerText = stats.active_24h ? stats.active_24h : 0;
+        document.getElementById("statViewsToday").innerText = stats.views_today ? stats.views_today : 0;
+        document.getElementById("statVideoClicks").innerText = stats.video_clicks ? stats.video_clicks : 0;
 
-        const curVer = stats.current_version || 'v1';
-        document.getElementById('adminCurVerText').innerText = curVer.toUpperCase();
-        document.getElementById('adminToggleVersionBtn').innerText = curVer === 'v2' 
-          ? 'Откатить релиз до v1 для всех' 
-          : 'Выкатить v2 для всех пользователей';
+        const curVer = stats.current_version ? stats.current_version : "v1";
+        document.getElementById("adminCurVerText").innerText = curVer.toUpperCase();
+        document.getElementById("adminToggleVersionBtn").innerText = curVer === "v2" 
+          ? "Откатить релиз до v1 для всех" 
+          : "Выкатить v2 для всех пользователей";
       } catch (e) {}
     }
 
     async function toggleGlobalSystemVersion() {
-      const cur = document.getElementById('adminCurVerText').innerText.toLowerCase();
-      const target = cur === 'v2' ? 'v1' : 'v2';
+      const cur = document.getElementById("adminCurVerText").innerText.toLowerCase();
+      const target = cur === "v2" ? "v1" : "v2";
       if (!confirm(`Переключить версию для всех пользователей на ${target.toUpperCase()}?`)) return;
 
       const res = await fetch(`${WORKER_URL}/api/system/set_version`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
         body: JSON.stringify({ version: target })
       });
       const data = await res.json();
@@ -3519,18 +3685,18 @@
 
     function handleAdminSearch(val) {
       const q = val.trim().toLowerCase();
-      const filtered = allCatalogItems.filter(i => 
-        i.title.toLowerCase().includes(q) || 
-        i.item.toLowerCase().includes(q) || 
-        i.code.toLowerCase().includes(q)
-      );
+      const filtered = allCatalogItems.filter(i => {
+        if (i.title.toLowerCase().includes(q)) return true;
+        if (i.item.toLowerCase().includes(q)) return true;
+        return i.code.toLowerCase().includes(q);
+      });
       renderAdminCatalogList(filtered);
     }
 
     function renderAdminCatalogList(itemsToRender) {
-      const box = document.getElementById('adminCatalogRecordsManageList');
+      const box = document.getElementById("adminCatalogRecordsManageList");
       if (!box) return;
-      const list = itemsToRender || allCatalogItems;
+      const list = itemsToRender ? itemsToRender : allCatalogItems;
 
       if (!list.length) {
         box.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:15px;">Записей не найдено</div>';
@@ -3541,14 +3707,14 @@
         <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:10px 14px; border-radius:12px; border:1px solid var(--border);">
           <div style="font-size:13px; font-weight:700;">
             ${item.title} — ${item.item}
-            <div style="font-size:11px; color:var(--text-muted);">Код: ${item.code} | ID: ${item.post_id}</div>
+            <div style="font-size:11px; color:var(--text-muted);">Код: ${item.code} • Пост ID: ${item.post_id}</div>
           </div>
           <div style="display:flex; gap:6px;">
             <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="editCatalogRecord(${item.id})">✏️</button>
             <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px; color:var(--accent);" onclick="deleteCatalogRecord(${item.id})">🗑</button>
           </div>
         </div>
-      `).join('');
+      `).join("");
     }
 
     function handleImageFileUpload(e) {
@@ -3558,9 +3724,9 @@
       const reader = new FileReader();
       reader.onload = function(evt) {
         const base64Data = evt.target.result;
-        document.getElementById('admFormImg').value = base64Data;
-        document.getElementById('admImgPreviewEl').src = base64Data;
-        document.getElementById('admImgPreviewBox').style.display = 'block';
+        document.getElementById("admFormImg").value = base64Data;
+        document.getElementById("admImgPreviewEl").src = base64Data;
+        document.getElementById("admImgPreviewBox").style.display = "block";
       };
       reader.readAsDataURL(file);
     }
@@ -3569,91 +3735,91 @@
       const record = allCatalogItems.find(r => r.id === id);
       if (!record) return;
 
-      document.getElementById('adminEditRecordId').value = record.id;
-      document.getElementById('admFormCat').value = record.category;
-      document.getElementById('admFormTitle').value = record.title;
-      document.getElementById('admFormImg').value = record.image || '';
-      document.getElementById('admFormDesc').value = record.description || '';
-      document.getElementById('admFormItem').value = record.item;
-      document.getElementById('admFormBadge').value = record.badge || '1080p';
-      document.getElementById('admFormCode').value = record.code;
-      document.getElementById('admFormPostId').value = record.post_id;
+      document.getElementById("adminEditRecordId").value = record.id;
+      document.getElementById("admFormCat").value = record.category;
+      document.getElementById("admFormTitle").value = record.title;
+      document.getElementById("admFormImg").value = record.image ? record.image : "";
+      document.getElementById("admFormDesc").value = record.description ? record.description : "";
+      document.getElementById("admFormItem").value = record.item;
+      document.getElementById("admFormBadge").value = record.badge ? record.badge : "1080p";
+      document.getElementById("admFormCode").value = record.code;
+      document.getElementById("admFormPostId").value = record.post_id;
 
       if (record.image) {
-        document.getElementById('admImgPreviewEl').src = record.image;
-        document.getElementById('admImgPreviewBox').style.display = 'block';
+        document.getElementById("admImgPreviewEl").src = record.image;
+        document.getElementById("admImgPreviewBox").style.display = "block";
       } else {
-        document.getElementById('admImgPreviewBox').style.display = 'none';
+        document.getElementById("admImgPreviewBox").style.display = "none";
       }
 
-      document.getElementById('adminFormHeaderTitle').innerText = '✏️ Редактировать запись';
-      document.getElementById('adminSubmitRecordBtn').innerText = '💾 Обновить запись';
-      document.getElementById('adminCancelEditBtn').style.display = 'block';
-      window.scrollTo(0, document.getElementById('adminFormHeaderTitle').offsetTop - 30);
+      document.getElementById("adminFormHeaderTitle").innerText = "✏️ Редактировать запись";
+      document.getElementById("adminSubmitRecordBtn").innerText = "💾 Обновить запись";
+      document.getElementById("adminCancelEditBtn").style.display = "block";
+      window.scrollTo(0, document.getElementById("adminFormHeaderTitle").offsetTop - 30);
     }
 
     function cancelCatalogEditMode() {
-      document.getElementById('adminEditRecordId').value = '';
-      document.getElementById('admFormCat').value = '';
-      document.getElementById('admFormTitle').value = '';
-      document.getElementById('admFormImg').value = '';
-      document.getElementById('admFormDesc').value = '';
-      document.getElementById('admFormItem').value = '';
-      document.getElementById('admFormBadge').value = '1080p';
-      document.getElementById('admFormCode').value = '';
-      document.getElementById('admFormPostId').value = '';
-      document.getElementById('admImgPreviewBox').style.display = 'none';
+      document.getElementById("adminEditRecordId").value = "";
+      document.getElementById("admFormCat").value = "";
+      document.getElementById("admFormTitle").value = "";
+      document.getElementById("admFormImg").value = "";
+      document.getElementById("admFormDesc").value = "";
+      document.getElementById("admFormItem").value = "";
+      document.getElementById("admFormBadge").value = "1080p";
+      document.getElementById("admFormCode").value = "";
+      document.getElementById("admFormPostId").value = "";
+      document.getElementById("admImgPreviewBox").style.display = "none";
 
-      document.getElementById('adminFormHeaderTitle').innerText = '➕ Добавить запись в базу D1';
-      document.getElementById('adminSubmitRecordBtn').innerText = '💾 Сохранить запись';
-      document.getElementById('adminCancelEditBtn').style.display = 'none';
+      document.getElementById("adminFormHeaderTitle").innerText = "➕ Добавить запись в базу D1";
+      document.getElementById("adminSubmitRecordBtn").innerText = "💾 Сохранить запись";
+      document.getElementById("adminCancelEditBtn").style.display = "none";
     }
 
     async function submitCatalogRecordForm() {
-      const editId = document.getElementById('adminEditRecordId').value;
+      const editId = document.getElementById("adminEditRecordId").value;
       const payload = {
-        category: document.getElementById('admFormCat').value,
-        title: document.getElementById('admFormTitle').value,
-        image: document.getElementById('admFormImg').value,
-        description: document.getElementById('admFormDesc').value,
-        item: document.getElementById('admFormItem').value,
-        badge: document.getElementById('admFormBadge').value,
-        code: document.getElementById('admFormCode').value,
-        post_id: document.getElementById('admFormPostId').value,
+        category: document.getElementById("admFormCat").value,
+        title: document.getElementById("admFormTitle").value,
+        image: document.getElementById("admFormImg").value,
+        description: document.getElementById("admFormDesc").value,
+        item: document.getElementById("admFormItem").value,
+        badge: document.getElementById("admFormBadge").value,
+        code: document.getElementById("admFormCode").value,
+        post_id: document.getElementById("admFormPostId").value,
       };
 
       if (!payload.category || !payload.title || !payload.item || !payload.code || !payload.post_id) {
-        alert('Заполните все обязательные поля!');
+        alert("Заполните все обязательные поля!");
         return;
       }
 
       if (editId) {
         await fetch(`${WORKER_URL}/api/catalog/delete`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
           body: JSON.stringify({ id: editId })
         });
       }
 
       const res = await fetch(`${WORKER_URL}/api/catalog/add`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.success) {
-        alert(editId ? '✅ Запись успешно обновлена!' : '✅ Запись успешно создана в D1!');
+        alert(editId ? "✅ Запись успешно обновлена!" : "✅ Запись успешно создана в D1!");
         cancelCatalogEditMode();
         loadCatalogDatabase();
       }
     }
 
     async function deleteCatalogRecord(id) {
-      if (!confirm('Удалить эту запись из архива?')) return;
+      if (!confirm("Удалить эту запись из архива?")) return;
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog/delete`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
           body: JSON.stringify({ id })
         });
         const data = await res.json();
@@ -3662,7 +3828,7 @@
     }
 
     function renderAdminCategoriesOrder() {
-      const box = document.getElementById('adminCategoriesOrderList');
+      const box = document.getElementById("adminCategoriesOrderList");
       if (!box) return;
 
       const categories = [...new Set(allCatalogItems.map(i => i.category))];
@@ -3675,11 +3841,11 @@
         <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:10px 14px; border-radius:12px; border:1px solid var(--border);">
           <span style="font-size:14px; font-weight:800;">${cat}</span>
           <div style="display:flex; gap:6px;">
-            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="moveCategoryOrder(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.3"' : ''}>⬆️</button>
-            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="moveCategoryOrder(${idx}, 1)" ${idx === categories.length - 1 ? 'disabled style="opacity:0.3"' : ''}>⬇️</button>
+            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="moveCategoryOrder(${idx}, -1)" ${idx === 0 ? 'disabled style="opacity:0.3"' : ""}>⬆️</button>
+            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="moveCategoryOrder(${idx}, 1)" ${idx === categories.length - 1 ? 'disabled style="opacity:0.3"' : ""}>⬇️</button>
           </div>
         </div>
-      `).join('');
+      `).join("");
     }
 
     async function moveCategoryOrder(index, direction) {
@@ -3691,13 +3857,13 @@
       categories[index] = categories[targetIndex];
       categories[targetIndex] = temp;
 
-      localStorage.setItem('f1_custom_cat_order', JSON.stringify(categories));
+      localStorage.setItem("f1_custom_cat_order", JSON.stringify(categories));
       const payloadCategories = categories.map((cat, order) => ({ category: cat, order }));
 
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog/reorder`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Id': ADMIN_ID },
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
           body: JSON.stringify({ categories: payloadCategories })
         });
         const data = await res.json();
@@ -3715,9 +3881,10 @@
         initThemeAndPreferences();
         loadAndApplyAiPatches();
         loadCatalogDatabase();
+        syncCloudUserProfile();
 
-        const hasBetaAccess = isAdmin || isTester;
-        let globalVersion = 'v1';
+        const hasBetaAccess = isAdmin ? true : isTester;
+        let globalVersion = "v1";
         if (!hasBetaAccess) {
           try {
             const controller = new AbortController();
@@ -3725,23 +3892,23 @@
             const res = await fetch(`${WORKER_URL}/api/system/version`, { signal: controller.signal });
             clearTimeout(timeoutId);
             const data = await res.json();
-            globalVersion = data.version || 'v1';
+            globalVersion = data.version ? data.version : "v1";
           } catch (e) {
-            globalVersion = 'v1';
+            globalVersion = "v1";
           }
         }
 
-        if (!hasBetaAccess && globalVersion !== 'v2') {
-          const nav = document.querySelector('.bottom-nav');
-          if (nav) nav.style.display = 'none';
-          openViewScreen('archive');
+        if (!hasBetaAccess && globalVersion !== "v2") {
+          const nav = document.querySelector(".bottom-nav");
+          if (nav) nav.style.display = "none";
+          openViewScreen("archive");
           return;
         }
 
         loadCircuitFromDatabase("sepang");
         loadF1SeasonData();
       } catch (fatalErr) {
-        openViewScreen('archive');
+        openViewScreen("archive");
       }
     }
 
