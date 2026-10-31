@@ -69,7 +69,6 @@
       font-weight: 900;
       letter-spacing: -0.4px;
       color: var(--text);
-      cursor: pointer;
     }
     .brand-square {
       width: 14px;
@@ -439,7 +438,7 @@
       gap: 12px;
     }
     .pred-leaderboard-list {
-      max-height: 260px;
+      max-height: 280px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -861,7 +860,6 @@
     .garage-stat-val { font-size: 20px; font-weight: 900; color: var(--text); margin-top: 4px; }
     .garage-stat-lbl { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 
-    /* Шапка коллекции трофеев */
     .trophy-collection-bar {
       background: var(--card-sub);
       border: 1px solid var(--border);
@@ -928,7 +926,6 @@
       background: linear-gradient(135deg, rgba(52, 199, 89, 0.12), var(--card-bg));
       box-shadow: 0 4px 15px rgba(52, 199, 89, 0.18);
     }
-    /* Эпические / Хардкорные карточки во всю ширину */
     .achievement-card.tier-hardcore {
       grid-column: span 2;
       background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), var(--card-bg));
@@ -1011,7 +1008,6 @@
     }
     .achievement-card.unlocked .achievement-status { color: #34c759; }
 
-    /* Карьерная лестница в модалке */
     .rank-ladder-item {
       display: flex;
       align-items: center;
@@ -1031,7 +1027,6 @@
       background: linear-gradient(90deg, var(--accent-soft), var(--card-sub));
     }
 
-    /* --- СТИЛИ ВСПЛЫВАЮЩЕГО ОКНА АЧИВКИ (TOAST) --- */
     .achievement-toast {
       position: fixed;
       top: 20px;
@@ -1073,7 +1068,7 @@
   <!-- Контейнер для дополнительных Live-патчей ИИ -->
   <div id="ai-live-patch-html"></div>
 
-  <!-- ШАПКА -->
+  <!-- ШАПКА (БЕЗ PROMPT ВВОДА АДМИНСКОГО ID) -->
   <div class="app-header">
     <div class="brand-wrap" id="topBrandLogo">
       <div class="brand-square"></div>
@@ -1137,11 +1132,36 @@
     </div>
   </div>
 
-  <!-- ================= 2. ЭКРАН: АРХИВ ВИДЕО ================= -->
+  <!-- ================= 2. ЭКРАН: АРХИВ ВИДЕО (4-УРОВНЕВЫЕ СЭНДВИЧ-ПАПКИ) ================= -->
   <div id="view-archive" class="view-screen">
     <input type="text" class="search-input" id="archiveSearchInput" placeholder="🔍 Поиск заездов..." oninput="handleSearch(this.value)">
-    <div id="archiveDefaultList"><div id="catalogCategoriesContainer"><div style="text-align:center; padding:35px 0; color:var(--text-muted);">Загрузка архива...</div></div></div>
+    <div id="archiveDefaultList">
+      <div id="catalogSectionsContainer">
+        <div style="text-align:center; padding:35px 0; color:var(--text-muted);">Загрузка архива...</div>
+      </div>
+    </div>
     <div id="archiveSearchResults" style="display: none;"></div>
+  </div>
+
+  <!-- Уровень 2: Категории / Сезоны внутри выбранного Раздела -->
+  <div id="view-subcategories" class="view-screen">
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('archive')">← Назад к разделам</button>
+    <h3 id="activeSectionHeaderTitle" style="margin:0 0 12px 4px; font-size:18px; font-weight:900;"></h3>
+    <div id="catalogCategoriesContainer"></div>
+  </div>
+
+  <!-- Уровень 3: События / Гран-при внутри выбранной Категории -->
+  <div id="view-titles" class="view-screen">
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromTitles()">← Назад</button>
+    <h3 id="activeCategoryHeaderTitle" style="margin:0 0 12px 4px; font-size:18px; font-weight:900;"></h3>
+    <div id="catalogTitlesList"></div>
+  </div>
+
+  <!-- Уровень 4: Сессии внутри выбранного Гран-при -->
+  <div id="view-details" class="view-screen">
+    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromDetails()">← Назад к заездам</button>
+    <div id="catalogItemHeader"></div>
+    <div id="catalogItemButtonsList"></div>
   </div>
 
   <!-- ================= 3. ЭКРАН: СЕЗОН ================= -->
@@ -1196,8 +1216,12 @@
             <span class="f1-pred-badge f1-badge-active" id="predStatusBadge">Открыт</span>
           </div>
 
+          <div style="font-size:11.5px; color:var(--text-muted); line-height:1.35; background:var(--card-sub); padding:10px 12px; border-radius:12px; border:1px solid var(--border);">
+            🎯 <b>Правила начисления:</b> Если выбранный пилот финиширует на <b>1 месте — +25 очков</b>, на <b>2 месте — +18 очков</b>, на <b>3 месте — +16 очков</b>! За угаданный <b>Быстрейший круг — +10 очков</b>, и <b>+5 очков</b> каждому за участие.
+          </div>
+
           <div>
-            <label style="font-size:12px; color:var(--text-muted); font-weight:700; display:block; margin-bottom:6px;">🏆 Победитель гонки (P1, +25 очков):</label>
+            <label style="font-size:12px; color:var(--text-muted); font-weight:700; display:block; margin-bottom:6px;">🏆 Ваш фаворит на победу / подиум (P1: +25, P2: +18, P3: +16):</label>
             <select id="pred-p1-select" class="pred-driver-select"></select>
           </div>
 
@@ -1211,34 +1235,58 @@
           </button>
         </div>
 
-        <!-- Секретная панель симуляции финиша (СТРОГО ТОЛЬКО ДЛЯ АДМИНА) -->
+        <!-- ПАНЕЛЬ РУЧНОГО РАСЧЕТА ОЧКОВ ЭТАПА (СТРОГО ТОЛЬКО ДЛЯ АДМИНА: ВЫБОР РАУНДА + ПОДИУМ P1-P3 + FL) -->
         <div id="adminSimPanelCard" class="pred-stage-card" style="display:none; border: 2px dashed var(--accent);">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-size:14px; font-weight:900; color:var(--accent);">⚙️ Админ-симуляция финиша гонки</div>
+            <div style="font-size:14px; font-weight:900; color:var(--accent);">⚙️ Ручной расчет очков за этап</div>
             <span class="badge">ADMIN ONLY</span>
           </div>
           <div style="font-size:12px; color:var(--text-muted);">
-            Выбери результаты этапа для ручного теста начисления очков в БД D1 (в реальных гонках очки начисляются автоматически):
+            Выбери этап (даже если уже начался следующий) и укажи реальный подиум (1–3 места) и быстрейший круг. Очки начислятся всем автоматически (P1: 25, P2: 18, P3: 16, FL: 10, Участие: 5):
           </div>
+
           <div>
-            <label style="font-size:11px; font-weight:700; color:var(--text-muted);">Победитель (P1):</label>
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted);">📅 За какой этап начислить очки:</label>
+            <select id="sim-round-select" class="pred-driver-select" style="margin-top:4px;"></select>
+          </div>
+
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted);">🥇 1 место (Победитель — +25 PTS):</label>
             <select id="sim-p1-select" class="pred-driver-select" style="margin-top:4px;"></select>
           </div>
+
           <div>
-            <label style="font-size:11px; font-weight:700; color:var(--text-muted);">Быстрейший круг (FL):</label>
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted);">🥈 2 место (Подиум — +18 PTS):</label>
+            <select id="sim-p2-select" class="pred-driver-select" style="margin-top:4px;"></select>
+          </div>
+
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted);">🥉 3 место (Подиум — +16 PTS):</label>
+            <select id="sim-p3-select" class="pred-driver-select" style="margin-top:4px;"></select>
+          </div>
+
+          <div>
+            <label style="font-size:11px; font-weight:700; color:var(--text-muted);">⚡ Быстрейший круг (FL — +10 PTS):</label>
             <select id="sim-fl-select" class="pred-driver-select" style="margin-top:4px;"></select>
           </div>
-          <button class="pred-vote-btn" onclick="runAdminSettleStage()">🏁 Завершить этап и начислить очки</button>
+
+          <button class="pred-vote-btn" onclick="runAdminSettleStage()">🏁 Начислить очки за выбранный этап</button>
         </div>
 
         <div class="pred-leaderboard-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-size:15px; font-weight:900;">🏁 Таблица лидеров сообщества</div>
+            <div style="font-size:15px; font-weight:900;" id="leaderboardHeaderTitle">🏁 Таблица лидеров сообщества</div>
             <button class="icon-circle-btn" style="width:30px; height:30px; font-size:13px;" onclick="handleManualLeaderboardRefresh()">🔄</button>
           </div>
           <div id="predictionLeaderboardList" class="pred-leaderboard-list">
             <div style="text-align:center; padding:20px; color:var(--text-muted); font-size:13px;">Загрузка рейтинга игроков...</div>
           </div>
+        </div>
+
+        <!-- Вечный Зал Славы прошлых сезонов (показывается, когда есть архивные сезоны) -->
+        <div id="hallOfFameSeasonsCard" class="pred-leaderboard-card" style="display:none;">
+          <div style="font-size:15px; font-weight:900;">👑 Вечный Зал Славы (Чемпионы прошлых сезонов)</div>
+          <div id="hallOfFameSeasonsList" style="display:flex; flex-direction:column; gap:10px;"></div>
         </div>
       </div>
     </div>
@@ -1301,7 +1349,7 @@
     </div>
   </div>
 
-  <!-- ================= ЭКРАН: ГАРАЖ (ЗАЛ СЛАВЫ ПАДДОКА, ПРОГРЕСС РАНГОВ И 28 ТРОФЕЕВ) ================= -->
+  <!-- ================= 5. ЭКРАН: ГАРАЖ (ЗАЛ СЛАВЫ ПАДДОКА, ПРОГРЕСС РАНГОВ И 28 ТРОФЕЕВ) ================= -->
   <div id="view-garage" class="view-screen">
     <div class="garage-profile-card">
       <div class="garage-profile-top">
@@ -1388,22 +1436,11 @@
     </div>
   </div>
 
-  <!-- ДЕТАЛИЗАЦИЯ КАТАЛОГА -->
-  <div id="view-titles" class="view-screen">
-    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromTitles()">← Назад к категориям</button>
-    <div id="catalogTitlesList"></div>
-  </div>
-
-  <div id="view-details" class="view-screen">
-    <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="openViewScreen('titles')">← Назад к заездам</button>
-    <div id="catalogItemHeader"></div>
-    <div id="catalogItemButtonsList"></div>
-  </div>
-
   <!-- ================= 6. ПАНЕЛЬ АДМИНИСТРАТОРА ================= -->
   <div id="view-admin" class="view-screen">
     <button class="icon-circle-btn" style="width:auto; padding:0 14px; border-radius:12px; margin-bottom:14px; font-size:13px; font-weight:800;" onclick="navigateBackFromAdmin()">← Выйти из админки</button>
 
+    <!-- ИИ-АГЕНТ -->
     <div class="hero-card" style="border: 2px solid var(--accent); background: linear-gradient(180deg, var(--card-bg) 0%, var(--card-sub) 100%);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <h3 style="margin:0; font-size:17px; font-weight:900;">🤖 ИИ-Агент Разработчик (Gemini)</h3>
@@ -1428,36 +1465,39 @@
       <div id="aiAgentTerminalOutput" class="ai-terminal-output"></div>
     </div>
 
+    <!-- РЕАЛЬНАЯ СТАТИСТИКА БОТА И MINI APP -->
     <div class="hero-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <h3 style="margin:0; font-size:17px; font-weight:900;">📊 Статистика бота и архива</h3>
+        <h3 style="margin:0; font-size:17px; font-weight:900;">📊 Реальная статистика бота и архива</h3>
         <button class="icon-circle-btn" style="width:34px; height:34px; font-size:14px;" onclick="loadAdminLiveStats()">🔄</button>
       </div>
       <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-bottom:14px;">
-        <div class="sess-chip"><div class="sess-name">Пользователей</div><div class="sess-time" id="statTotalUsers">—</div></div>
+        <div class="sess-chip"><div class="sess-name">Всего уникальных</div><div class="sess-time" id="statTotalUsers">—</div></div>
         <div class="sess-chip"><div class="sess-name">Активны (24ч)</div><div class="sess-time" id="statActive24">—</div></div>
-        <div class="sess-chip"><div class="sess-name">Просмотров сегодня</div><div class="sess-time" id="statViewsToday">—</div></div>
+        <div class="sess-chip"><div class="sess-name">В предикшнах</div><div class="sess-time" id="statPredictorsCount">—</div></div>
         <div class="sess-chip"><div class="sess-name">Выдано видео</div><div class="sess-time" id="statVideoClicks">—</div></div>
       </div>
     </div>
 
+    <!-- ФОРМА ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ С ВЫПАДАЮЩИМИ СПИСКАМИ И 4-М УРОВНЕМ (СЭНДВИЧ-ПАПКАМИ) -->
     <div class="hero-card">
-      <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🚀 Глобальный релиз</h3>
-      <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
-        Текущая версия для всех: <b id="adminCurVerText" style="color:var(--accent);">V1</b>
+      <h3 id="adminFormHeaderTitle" style="margin:0 0 8px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
+        Нажми на поле, чтобы выбрать из уже существующих вариантов, или введи новое название. Любой уровень можно оставить пустым — запись всё равно корректно добавится!
       </div>
-      <button class="btn-action" id="adminToggleVersionBtn" onclick="toggleGlobalSystemVersion()">Выкатить v2 для всех пользователей</button>
-    </div>
-
-    <div class="hero-card">
-      <h3 id="adminFormHeaderTitle" style="margin:0 0 12px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
       <input type="hidden" id="adminEditRecordId" value="">
 
-      <input class="search-input" id="admFormCat" placeholder="Категория (🔴Сезон 2026)">
-      <input class="search-input" id="admFormTitle" placeholder="Событие (Гран-при Бахрейна)">
+      <input class="search-input" id="admFormSection" list="existingSectionsDatalist" placeholder="1. Глобальный раздел (напр. 🏎️ Формула 1 — необязательно)">
+      <datalist id="existingSectionsDatalist"></datalist>
+
+      <input class="search-input" id="admFormCat" list="existingCategoriesDatalist" placeholder="2. Категория / Сезон (напр. 🔴 Сезон 2026)">
+      <datalist id="existingCategoriesDatalist"></datalist>
+
+      <input class="search-input" id="admFormTitle" list="existingTitlesDatalist" placeholder="3. Событие / Этап (напр. Гран-при Бахрейна)">
+      <datalist id="existingTitlesDatalist"></datalist>
       
       <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
-        <input class="search-input" id="admFormImg" placeholder="Ссылка на постер" style="margin-bottom:0;">
+        <input class="search-input" id="admFormImg" placeholder="Ссылка на постер (необязательно)" style="margin-bottom:0;">
         <label class="icon-circle-btn" style="flex-shrink:0; cursor:pointer;" title="Загрузить фото с телефона">
           📁
           <input type="file" id="admFileUpload" accept="image/*" style="display:none;" onchange="handleImageFileUpload(event)">
@@ -1467,10 +1507,13 @@
         <img id="admImgPreviewEl" src="" style="width:100%; max-height:140px; object-fit:cover; border-radius:10px;">
       </div>
 
-      <textarea class="search-input" id="admFormDesc" rows="2" placeholder="Описание заезда..."></textarea>
-      <input class="search-input" id="admFormItem" placeholder="Сессия (Гонка, Квалификация, П1)">
-      <input class="search-input" id="admFormBadge" value="1080p">
-      <input class="search-input" id="admFormCode" placeholder="Код выдачи (bahrain26_race)">
+      <textarea class="search-input" id="admFormDesc" rows="2" placeholder="Описание заезда (необязательно)..."></textarea>
+
+      <input class="search-input" id="admFormItem" list="existingItemsDatalist" placeholder="4. Сессия (напр. Гонка, Квалификация, П1)">
+      <datalist id="existingItemsDatalist"></datalist>
+
+      <input class="search-input" id="admFormBadge" value="1080p" placeholder="Качество (1080p)">
+      <input class="search-input" id="admFormCode" placeholder="Код выдачи в боте (напр. bahrain26_race)">
       <input type="number" class="search-input" id="admFormPostId" placeholder="ID поста на канале-складе">
 
       <button class="btn-action" id="adminSubmitRecordBtn" onclick="submitCatalogRecordForm()">💾 Сохранить запись</button>
@@ -1484,9 +1527,28 @@
     </div>
 
     <div class="hero-card">
-      <h3 style="margin:0 0 8px 0; font-size:17px; font-weight:900;">📂 Порядок папок (категорий)</h3>
-      <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Используй стрелочки, чтобы поднять нужную категорию выше:</div>
+      <h3 style="margin:0 0 8px 0; font-size:17px; font-weight:900;">📂 Порядок глобальных разделов и категорий</h3>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">Используй стрелочки для сортировки:</div>
       <div id="adminCategoriesOrderList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+
+    <!-- МЯГКИЙ СБРОС СЕЗОНА И ВЕЧНЫЙ ЗАЛ СЛАВЫ -->
+    <div class="hero-card" style="border: 1px dashed var(--accent);">
+      <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🏆 Завершение сезона и Зал Славы (Мягкий сброс)</h3>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">
+        Активный сезон предикшнов: <b id="adminActiveSeasonText" style="color:var(--accent);">2026</b>.<br>
+        При переходе на новый сезон топ-3 лидеров текущего сезона навсегда записываются в <b>Вечный Зал Славы</b>, очки за прогнозы обнуляются для новой битвы, а <b>все открытые ачивки, звания и рекорды мини-игр остаются у игроков навсегда!</b>
+      </div>
+      <input class="search-input" id="adminNextSeasonInput" placeholder="Новый сезон (например: 2027)" value="2027">
+      <button class="btn-action" onclick="runAdminSoftSeasonReset()">👑 Заархивировать сезон в Зал Славы и начать новый</button>
+    </div>
+
+    <div class="hero-card">
+      <h3 style="margin:0 0 6px 0; font-size:17px; font-weight:900;">🚀 Глобальный релиз</h3>
+      <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+        Текущая версия для всех: <b id="adminCurVerText" style="color:var(--accent);">V1</b>
+      </div>
+      <button class="btn-action" id="adminToggleVersionBtn" onclick="toggleGlobalSystemVersion()">Выкатить v2 для всех пользователей</button>
     </div>
   </div>
 
@@ -1601,7 +1663,6 @@
     const ADMIN_ID = "301211351";
     const TESTER_ID = "8061233590";
 
-    // Умная нормализация слипшихся имен ("Andrea KimiAntonelli" -> "Andrea Kimi Antonelli")
     function cleanDriverName(rawName) {
       if (!rawName) return "";
       const camelRx = new RegExp("([a-zа-яё])([A-ZА-ЯЁ])", "g");
@@ -1612,6 +1673,7 @@
         .trim();
     }
 
+    // Безопасное определение пользователя строго через Telegram WebApp (без возможности подмены через prompt)
     function resolveTelegramUser() {
       let uid = "";
       if (tg?.initDataUnsafe?.user?.id) uid = String(tg.initDataUnsafe.user.id);
@@ -1639,29 +1701,38 @@
     const isTester = isAdmin ? true : (currentUserId === TESTER_ID);
 
     // =========================================================================
-    // МЕЖУСТРОЙСТВЕННАЯ ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ (ТЕЛЕФОН <-> ПК)
+    // СЕРВЕРНАЯ СИНХРОНИЗАЦИЯ И ВАЛИДАЦИЯ ПРОФИЛЯ / АЧИВОК / HEARTBEAT
     // =========================================================================
-    function getLocalUnlockedAchievementIds() {
-      const list = [];
-      const prefix = `f1_ach_unlocked_${currentUserId}_`;
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith(prefix) && localStorage.getItem(k) === "true") {
-          list.push(k.replace(prefix, ""));
-        }
-      }
-      return list;
-    }
-
     async function syncCloudUserProfile() {
       if (!currentUserId || currentUserId === "user_guest") return null;
       const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : {};
-      const localBonus = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) ? localStorage.getItem(`f1_bonus_pts_${currentUserId}`) : "0");
       const localReact = parseInt(localStorage.getItem("f1_best_reaction_time") ? localStorage.getItem("f1_best_reaction_time") : "0");
       const localPit = parseFloat(localStorage.getItem("f1_best_pitstop_time") ? localStorage.getItem("f1_best_pitstop_time") : "0");
       const localStreak = parseInt(localStorage.getItem("f1_fast_reactions_streak") ? localStorage.getItem("f1_fast_reactions_streak") : "0");
       const localViews = parseInt(localStorage.getItem("f1_archive_views_count") ? localStorage.getItem("f1_archive_views_count") : "0");
-      const unlockedAch = getLocalUnlockedAchievementIds();
+      const loginStreak = parseInt(localStorage.getItem(`f1_login_streak_${currentUserId}`) ? localStorage.getItem(`f1_login_streak_${currentUserId}`) : "1");
+      const seasonSwitches = parseInt(localStorage.getItem("f1_season_subtab_switches") ? localStorage.getItem("f1_season_subtab_switches") : "0");
+      const lbRefreshes = parseInt(localStorage.getItem("f1_leaderboard_refresh_count") ? localStorage.getItem("f1_leaderboard_refresh_count") : "0");
+
+      let visitedTabs = [];
+      try {
+        const vRaw = localStorage.getItem(`f1_visited_tabs_${currentUserId}`);
+        visitedTabs = JSON.parse(vRaw ? vRaw : "[]");
+      } catch (e) {}
+
+      const flags = {
+        falseStart: localStorage.getItem("f1_achievement_false_start") === "true",
+        secretAdvisor: localStorage.getItem("f1_achievement_admin_sim") === "true",
+        nightWatch: document.body.classList.contains("dark-theme"),
+        nightView: localStorage.getItem("f1_achievement_night_view") === "true",
+        tireTest: localStorage.getItem("f1_lights_played_once") === "true",
+        firstJack: localStorage.getItem("f1_pitstop_played_once") === "true",
+        viewedDrivers: localStorage.getItem("f1_viewed_drivers_tab") === "true",
+        viewedCalendar: localStorage.getItem("f1_viewed_calendar_tab") === "true",
+        kartingDriver: localStorage.getItem("f1_got_first_rank") === "true",
+        pitPenalty: localStorage.getItem("f1_pit_had_penalty") === "true",
+        cleanFastPit: localStorage.getItem("f1_pit_clean_fast") === "true"
+      };
 
       try {
         const res = await fetch(`${WORKER_URL}/api/user/sync_bonus`, {
@@ -1672,28 +1743,33 @@
             username: tgUser.username ? tgUser.username : "",
             first_name: tgUser.first_name ? tgUser.first_name : "",
             last_name: tgUser.last_name ? tgUser.last_name : "",
-            bonus_points: localBonus,
             best_reaction: localReact,
             best_pit: localPit,
             fast_reaction_streak: localStreak,
             archive_views: localViews,
-            unlocked_ach: unlockedAch
+            login_streak: loginStreak,
+            season_switches: seasonSwitches,
+            visited_tabs_count: visitedTabs.length,
+            lb_refreshes: lbRefreshes,
+            flags
           })
         });
         const data = await res.json();
         if (data && data.success && data.profile) {
           const p = data.profile;
-          if (p.bonusPts && Number(p.bonusPts) > localBonus) {
-            localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(p.bonusPts));
+          // Записываем строго подтвержденный сервером бонус (любая локальная накрутка перезаписывается честным числом с сервера!)
+          localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(p.bonusPts ? p.bonusPts : 0));
+          if (p.maxPtsEver) {
+            localStorage.setItem(`f1_max_pts_ever_${currentUserId}`, String(p.maxPtsEver));
           }
           if (p.bestReaction && Number(p.bestReaction) > 0) {
-            if (localReact === 0 || Number(p.bestReaction) < localReact) {
+            if (localReact === 0 ? true : (Number(p.bestReaction) < localReact)) {
               localStorage.setItem("f1_best_reaction_time", String(p.bestReaction));
               initLightsBestRecord();
             }
           }
           if (p.bestPit && Number(p.bestPit) > 0) {
-            if (localPit === 0 || Number(p.bestPit) < localPit) {
+            if (localPit === 0 ? true : (Number(p.bestPit) < localPit)) {
               localStorage.setItem("f1_best_pitstop_time", Number(p.bestPit).toFixed(2));
             }
           }
@@ -1707,6 +1783,12 @@
             p.unlockedAch.forEach(achId => {
               localStorage.setItem(`f1_ach_unlocked_${currentUserId}_${achId}`, "true");
             });
+          }
+          if (data.verifiedStats) {
+            localStorage.setItem(`f1_user_base_points_${currentUserId}`, String(data.verifiedStats.basePoints ? data.verifiedStats.basePoints : 0));
+            localStorage.setItem(`f1_db_preds_count_${currentUserId}`, String(data.verifiedStats.predictionsCount ? data.verifiedStats.predictionsCount : 0));
+            localStorage.setItem(`f1_db_podium_hits_${currentUserId}`, String(data.verifiedStats.podiumHits ? data.verifiedStats.podiumHits : 0));
+            localStorage.setItem(`f1_db_double_hits_${currentUserId}`, String(data.verifiedStats.doubleHits ? data.verifiedStats.doubleHits : 0));
           }
           return p;
         }
@@ -1851,9 +1933,6 @@
       }
     }
 
-    // =========================================================================
-    // ПЕРЕКЛЮЧЕНИЕ ПОДВКЛАДОК В РАЗДЕЛЕ "ИГРЫ"
-    // =========================================================================
     function switchGamesSubTab(tabKey, btnEl) {
       if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
       document.querySelectorAll("#gamesSubtabsNav .games-subtab-btn").forEach(b => b.classList.remove("active"));
@@ -1865,7 +1944,7 @@
     }
 
     // =========================================================================
-    // ИГРА 1: ПРОДВИНУТЫЙ ПРЕДИКШН V2
+    // ИГРА 1: ПРЕДИКШН V2 + АДМИН-РАСЧЕТ ПОДИУМА (P1: 25, P2: 18, P3: 16, FL: 10, УЧАСТИЕ: 5)
     // =========================================================================
     window.activeRaceRound = "18";
     window.totalSeasonRounds = "23";
@@ -1909,7 +1988,7 @@
       loadPredictionLeaderboard();
     }
 
-    function initPredictionGame(driversList) {
+    function initPredictionGame(driversList, racesList) {
       const p1Select = document.getElementById("pred-p1-select");
       const flSelect = document.getElementById("pred-fl-select");
       const submitBtn = document.getElementById("pred-submit-btn");
@@ -1932,10 +2011,29 @@
       p1Select.innerHTML = optionsHtml;
       flSelect.innerHTML = optionsHtml;
 
+      // Заполняем селекты админской панели расчета этапа (Раунд + P1 + P2 + P3 + FL)
+      const simRound = document.getElementById("sim-round-select");
       const simP1 = document.getElementById("sim-p1-select");
+      const simP2 = document.getElementById("sim-p2-select");
+      const simP3 = document.getElementById("sim-p3-select");
       const simFl = document.getElementById("sim-fl-select");
+
       if (simP1) simP1.innerHTML = optionsHtml;
+      if (simP2) {
+        simP2.innerHTML = optionsHtml;
+        if (driversList.length > 1) simP2.selectedIndex = 1;
+      }
+      if (simP3) {
+        simP3.innerHTML = optionsHtml;
+        if (driversList.length > 2) simP3.selectedIndex = 2;
+      }
       if (simFl) simFl.innerHTML = optionsHtml;
+
+      if (simRound) {
+        const calList = (racesList && racesList.length > 0) ? racesList : DEFAULT_RACES_CALENDAR;
+        simRound.innerHTML = calList.map(r => `<option value="${r.round}">Этап ${r.round} — ${r.name}</option>`).join("");
+        simRound.value = currentRound;
+      }
 
       if (isAdmin) {
         const simCard = document.getElementById("adminSimPanelCard");
@@ -1974,7 +2072,7 @@
       const tgUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user : {};
 
       if (!p1) {
-        alert("Выберите победителя гонки!");
+        alert("Выберите фаворита гонки!");
         return;
       }
 
@@ -2009,6 +2107,7 @@
           statusBadge.innerText = "Принят ✓";
 
           if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+          await syncCloudUserProfile();
           loadPredictionLeaderboard();
         } else {
           btn.disabled = false;
@@ -2024,24 +2123,33 @@
 
     async function runAdminSettleStage() {
       if (!isAdmin) return;
-      const currentRound = String(window.activeRaceRound ? window.activeRaceRound : "18");
+      const roundSel = document.getElementById("sim-round-select");
+      const selectedRound = roundSel ? String(roundSel.value) : String(window.activeRaceRound ? window.activeRaceRound : "18");
       const p1 = document.getElementById("sim-p1-select").value;
+      const p2 = document.getElementById("sim-p2-select").value;
+      const p3 = document.getElementById("sim-p3-select").value;
       const fl = document.getElementById("sim-fl-select").value;
 
-      if (!confirm(`Завершить Раунд ${currentRound} (Победитель: ${p1}, Быстрейший круг: ${fl}) и начислить очки всем участникам в БД?`)) return;
+      const msg = `Начислить очки за Этап ${selectedRound}?\n\n` +
+        `🥇 P1 (+25 PTS): ${p1}\n` +
+        `🥈 P2 (+18 PTS): ${p2}\n` +
+        `🥉 P3 (+16 PTS): ${p3}\n` +
+        `⚡ Быстрейший круг (+10 PTS): ${fl}\n` +
+        `🏁 Всем участникам этапа: +5 PTS`;
+
+      if (!confirm(msg)) return;
 
       try {
         const res = await fetch(`${WORKER_URL}/api/prediction/settle`, {
           method: "POST",
           headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
-          body: JSON.stringify({ round: currentRound, p1, fl })
+          body: JSON.stringify({ round: selectedRound, p1, p2, p3, fl })
         });
         const data = await res.json();
         if (data.success) {
-          const nextRound = String(parseInt(currentRound) + 1);
-          window.activeRaceRound = nextRound;
-          alert(`✅ Очки начислены (обработано прогнозов: ${data.settledCount ? data.settledCount : 0})! Выполнен переход на Раунд ${nextRound}.`);
-          initPredictionGame(window.currentLoadedDrivers ? window.currentLoadedDrivers : DEFAULT_DRIVERS_DATA);
+          alert(`✅ Этап ${selectedRound} успешно рассчитан! Обработано прогнозов: ${data.settledCount ? data.settledCount : 0}.`);
+          await syncCloudUserProfile();
+          loadPredictionLeaderboard();
         } else {
           alert("Ошибка расчета: " + (data.error ? data.error : ""));
         }
@@ -2072,6 +2180,35 @@
       return title;
     }
 
+    function renderHallOfFameBlock(hallOfFame) {
+      const card = document.getElementById("hallOfFameSeasonsCard");
+      const list = document.getElementById("hallOfFameSeasonsList");
+      if (!card || !list) return;
+
+      if (!Array.isArray(hallOfFame) || hallOfFame.length === 0) {
+        card.style.display = "none";
+        return;
+      }
+
+      card.style.display = "flex";
+      list.innerHTML = hallOfFame.map(seasonObj => {
+        const winnersHtml = (seasonObj.winners ? seasonObj.winners : []).map(w => {
+          const medal = w.place === 1 ? "🥇" : (w.place === 2 ? "🥈" : "🥉");
+          return `<div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0;">
+            <span>${medal} <b>${w.name}</b></span>
+            <span style="color:var(--accent); font-weight:800;">${w.points} PTS</span>
+          </div>`;
+        }).join("");
+
+        return `
+          <div style="background:var(--card-sub); border:1px solid var(--border); border-radius:14px; padding:12px;">
+            <div style="font-size:13px; font-weight:900; color:var(--accent); margin-bottom:6px;">🏆 Сезон ${seasonObj.season}</div>
+            ${winnersHtml}
+          </div>
+        `;
+      }).join("");
+    }
+
     async function loadPredictionLeaderboard() {
       const listEl = document.getElementById("predictionLeaderboardList");
       const userPtsEl = document.getElementById("predUserPointsVal");
@@ -2084,28 +2221,25 @@
         const data = await res.json();
         const rows = (data && data.leaderboard) ? data.leaderboard : [];
 
-        const myRecord = rows.find(r => String(r.user_id) === String(currentUserId));
-        const localBonus = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) ? localStorage.getItem(`f1_bonus_pts_${currentUserId}`) : "0");
+        if (data && data.seasonYear) {
+          const lbHeader = document.getElementById("leaderboardHeaderTitle");
+          if (lbHeader) lbHeader.innerText = `🏁 Лидеры сезона ${data.seasonYear}`;
+        }
 
+        if (data && data.hallOfFame) {
+          renderHallOfFameBlock(data.hallOfFame);
+        }
+
+        const myRecord = rows.find(r => String(r.user_id) === String(currentUserId));
         if (myRecord) {
           localStorage.setItem(`f1_db_preds_count_${currentUserId}`, String(myRecord.predictions_count ? myRecord.predictions_count : 0));
           localStorage.setItem(`f1_db_podium_hits_${currentUserId}`, String(myRecord.podium_hits ? myRecord.podium_hits : 0));
           localStorage.setItem(`f1_db_double_hits_${currentUserId}`, String(myRecord.double_hits ? myRecord.double_hits : 0));
           localStorage.setItem(`f1_user_base_points_${currentUserId}`, String(myRecord.base_points ? myRecord.base_points : 0));
-
-          const dbBonus = parseInt(myRecord.bonus_points ? myRecord.bonus_points : "0");
-          if (dbBonus > localBonus) {
-            localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(dbBonus));
-          }
+          localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(myRecord.bonus_points ? myRecord.bonus_points : 0));
         }
 
-        const effectiveBonus = Math.max(
-          localBonus,
-          myRecord && myRecord.bonus_points ? parseInt(myRecord.bonus_points) : 0
-        );
-        const basePts = (myRecord && myRecord.base_points) ? parseInt(myRecord.base_points) : 0;
-        const dbTotalPts = (myRecord && myRecord.total_points) ? parseInt(myRecord.total_points) : 0;
-        const totalUserPts = Math.max(dbTotalPts, basePts + effectiveBonus);
+        const totalUserPts = (myRecord && myRecord.total_points) ? parseInt(myRecord.total_points) : parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) ? localStorage.getItem(`f1_bonus_pts_${currentUserId}`) : "0");
 
         if (userPtsEl) userPtsEl.innerText = totalUserPts;
         const garagePtsEl = document.getElementById("garageStatPts");
@@ -2116,19 +2250,9 @@
           return;
         }
 
-        // Пересортируем массив с учетом актуального максимума очков, чтобы 1-е место всегда было строго у того, у кого больше PTS
-        const displayRows = rows.map(row => {
+        listEl.innerHTML = rows.map((row, idx) => {
           const isMe = String(row.user_id) === String(currentUserId);
-          const rowTotal = parseInt(row.total_points ? row.total_points : "0");
-          return {
-            ...row,
-            isMe,
-            finalPts: isMe ? totalUserPts : rowTotal
-          };
-        }).sort((a, b) => b.finalPts - a.finalPts);
-
-        listEl.innerHTML = displayRows.map((row, idx) => {
-          const pPts = row.finalPts;
+          const pPts = parseInt(row.total_points ? row.total_points : "0");
           const rankTitle = getRankTitle(pPts);
 
           const fName = row.first_name ? row.first_name : "";
@@ -2137,12 +2261,12 @@
           if (!displayName) {
             displayName = row.username ? `@${row.username}` : `Пилот #${String(row.user_id).slice(-4)}`;
           }
-          if (row.isMe) displayName += " (Вы)";
+          if (isMe) displayName += " (Вы)";
 
           const rankClass = idx === 0 ? "rank-1" : (idx === 1 ? "rank-2" : (idx === 2 ? "rank-3" : ""));
 
           return `
-            <div class="pred-leaderboard-item ${row.isMe ? "is-me" : ""}">
+            <div class="pred-leaderboard-item ${isMe ? "is-me" : ""}">
               <div style="display:flex; align-items:center; gap:10px; min-width: 0; flex: 1;">
                 <div class="pred-rank-badge ${rankClass}">${idx + 1}</div>
                 <div style="min-width: 0; overflow: hidden;">
@@ -2246,6 +2370,7 @@
         stTitle.style.color = "var(--accent)";
         stSub.innerText = "Вы нажали до того, как огни погасли. Нажмите кнопку для новой попытки!";
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("error");
+        syncCloudUserProfile();
 
       } else if (lightsGameState.status === "go") {
         const reaction = Math.round(performance.now() - lightsGameState.startTime);
@@ -2581,12 +2706,14 @@
     }
 
     // =========================================================================
-    // КАТАЛОГ И НАВИГАЦИЯ
+    // 4-УРОВНЕВЫЙ КАТАЛОГ (СЭНДВИЧ-ПАПКИ С ПРОПУСКОМ НЕЗАПОЛНЕННЫХ ПОЛЕЙ)
     // =========================================================================
     let allCatalogItems = [];
-    let catalogTree = {};
-    let activeCatalogCategory = null;
-    let activeCatalogTitle = null;
+    let activeCatalogSection = "";
+    let activeCatalogCategory = "";
+    let activeCatalogTitle = "";
+    let titlesBackTargetScreen = "archive";
+    let detailsBackTargetScreen = "titles";
 
     const DEFAULT_DRIVERS_DATA = [
       { pos: "01", name: "Kimi Antonelli", team: "Mercedes-AMG Petronas F1 Team", points: "302", wins: 8 },
@@ -2672,6 +2799,7 @@
     function toggleAppTheme() {
       const isDark = document.body.classList.toggle("dark-theme");
       localStorage.setItem("f1_theme_mode", isDark ? "dark" : "light");
+      syncCloudUserProfile();
     }
 
     function handleLiteModeToggle(enabled) {
@@ -2689,22 +2817,6 @@
       if (show) modal.classList.add("active");
       else modal.classList.remove("active");
     }
-
-    let brandClickCount = 0;
-    let brandClickTimer = null;
-    document.getElementById("topBrandLogo")?.addEventListener("click", () => {
-      brandClickCount++;
-      clearTimeout(brandClickTimer);
-      brandClickTimer = setTimeout(() => { brandClickCount = 0; }, 1000);
-      if (brandClickCount >= 3) {
-        const enteredId = prompt("Telegram ID администратора:");
-        if (enteredId === ADMIN_ID) {
-          localStorage.setItem("f1_cached_uid", enteredId);
-          alert("✅ Доступ администратора активирован!");
-          location.reload();
-        }
-      }
-    });
 
     function switchMainTab(tabName, btnEl) {
       if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
@@ -2737,29 +2849,14 @@
 
     function calculateUserRankAndRoadmap(currentPts, userId) {
       const savedMax = localStorage.getItem(`f1_max_pts_ever_${userId}`);
-      let maxPtsEver = parseInt(savedMax ? savedMax : "0");
-      if (currentPts > maxPtsEver) {
-        maxPtsEver = currentPts;
-        localStorage.setItem(`f1_max_pts_ever_${userId}`, String(maxPtsEver));
-      }
+      let maxPtsEver = Math.max(currentPts, parseInt(savedMax ? savedMax : "0"));
+      localStorage.setItem(`f1_max_pts_ever_${userId}`, String(maxPtsEver));
 
       let currentRankIdx = 0;
       for (let i = 0; i < F1_RANKS_SCALE.length; i++) {
         const rank = F1_RANKS_SCALE[i];
         if (maxPtsEver >= rank.threshold) {
           currentRankIdx = i;
-          if (rank.threshold > 0) {
-            const rankBonusKey = `f1_ach_unlocked_${userId}_${rank.bonusKey}`;
-            if (localStorage.getItem(rankBonusKey) !== "true") {
-              localStorage.setItem(rankBonusKey, "true");
-              const prevB = localStorage.getItem(`f1_bonus_pts_${userId}`);
-              let bonusPts = parseInt(prevB ? prevB : "0") + 50;
-              localStorage.setItem(`f1_bonus_pts_${userId}`, String(bonusPts));
-              setTimeout(() => {
-                showAchievementToast(`+50 PTS • Новый ранг: ${rank.title}!`, "🏆");
-              }, 600);
-            }
-          }
         }
       }
 
@@ -2847,23 +2944,6 @@
       }, 3800);
     }
 
-    function checkAndAwardAchievement(achId, title, icon, rewardPts = 15) {
-      const storageKey = `f1_ach_unlocked_${currentUserId}_${achId}`;
-      const isAlreadyUnlocked = localStorage.getItem(storageKey) === "true";
-
-      if (!isAlreadyUnlocked) {
-        localStorage.setItem(storageKey, "true");
-        
-        const prevB = localStorage.getItem(`f1_bonus_pts_${currentUserId}`);
-        let bonusPts = parseInt(prevB ? prevB : "0") + rewardPts;
-        localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(bonusPts));
-
-        showAchievementToast(`+${rewardPts} PTS • ${title}`, icon);
-        return true;
-      }
-      return false;
-    }
-
     function filterGarageAchievements(category, btnEl) {
       if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
       window.currentAchievementFilter = category;
@@ -2898,49 +2978,21 @@
         avatarEl.innerText = realName.charAt(0).toUpperCase();
       }
 
-      // 1. Синхронизируем облачный профиль (подтягиваем рекорды и очки с телефона на ПК и наоборот)
+      // Получаем строго проверенный сервером профиль и бонус
       await syncCloudUserProfile();
 
       const savedBase = localStorage.getItem(`f1_user_base_points_${currentUserId}`);
       const savedPreds = localStorage.getItem(`f1_db_preds_count_${currentUserId}`);
       const savedPodiums = localStorage.getItem(`f1_db_podium_hits_${currentUserId}`);
       const savedDoubles = localStorage.getItem(`f1_db_double_hits_${currentUserId}`);
+      const savedBonus = localStorage.getItem(`f1_bonus_pts_${currentUserId}`);
 
-      let basePts = parseInt(savedBase ? savedBase : "0");
-      let dbPredsCount = parseInt(savedPreds ? savedPreds : "0");
-      let dbPodiumHits = parseInt(savedPodiums ? savedPodiums : "0");
-      let dbDoubleHits = parseInt(savedDoubles ? savedDoubles : "0");
-      let dbBonusPts = 0;
-
-      try {
-        const res = await fetch(`${WORKER_URL}/api/prediction/leaderboard`);
-        const data = await res.json();
-        const lbList = (data && data.leaderboard) ? data.leaderboard : [];
-        const me = lbList.find(r => String(r.user_id) === String(currentUserId));
-        if (me) {
-          basePts = parseInt(me.base_points ? me.base_points : "0");
-          dbBonusPts = parseInt(me.bonus_points ? me.bonus_points : "0");
-          dbPredsCount = parseInt(me.predictions_count ? me.predictions_count : "0");
-          dbPodiumHits = parseInt(me.podium_hits ? me.podium_hits : "0");
-          dbDoubleHits = parseInt(me.double_hits ? me.double_hits : "0");
-          localStorage.setItem(`f1_user_base_points_${currentUserId}`, String(basePts));
-          localStorage.setItem(`f1_db_preds_count_${currentUserId}`, String(dbPredsCount));
-          localStorage.setItem(`f1_db_podium_hits_${currentUserId}`, String(dbPodiumHits));
-          localStorage.setItem(`f1_db_double_hits_${currentUserId}`, String(dbDoubleHits));
-
-          const curLocBonus = parseInt(localStorage.getItem(`f1_bonus_pts_${currentUserId}`) ? localStorage.getItem(`f1_bonus_pts_${currentUserId}`) : "0");
-          if (dbBonusPts > curLocBonus) {
-            localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(dbBonusPts));
-          }
-        }
-      } catch (e) {}
-
-      let localVotesCount = 0;
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(`f1_pred_v2_${currentUserId}`)) localVotesCount++;
-      }
-      const finalVotesCount = Math.max(localVotesCount, dbPredsCount);
+      const basePts = parseInt(savedBase ? savedBase : "0");
+      const bonusPts = parseInt(savedBonus ? savedBonus : "0");
+      const dbPredsCount = parseInt(savedPreds ? savedPreds : "0");
+      const dbPodiumHits = parseInt(savedPodiums ? savedPodiums : "0");
+      const dbDoubleHits = parseInt(savedDoubles ? savedDoubles : "0");
+      const totalUserPts = basePts + bonusPts;
 
       const bestReaction = localStorage.getItem("f1_best_reaction_time");
       document.getElementById("garageStatReaction").innerText = bestReaction ? `${bestReaction} ms` : "— ms";
@@ -2948,45 +3000,32 @@
       const bestPit = localStorage.getItem("f1_best_pitstop_time");
       document.getElementById("garageStatPit").innerText = bestPit ? `${bestPit} s` : "— s";
 
-      document.getElementById("garageStatVotes").innerText = finalVotesCount;
-
-      const locBonusStr = localStorage.getItem(`f1_bonus_pts_${currentUserId}`);
-      let bonusPts = Math.max(dbBonusPts, parseInt(locBonusStr ? locBonusStr : "0"));
-      let totalUserPts = basePts + bonusPts;
-
-      const snapshot = {
-        userPts: totalUserPts,
-        bestReaction: bestReaction ? parseInt(bestReaction) : 9999,
-        bestPit: bestPit ? parseFloat(bestPit) : 99,
-        votesCount: finalVotesCount,
-        podiumHits: dbPodiumHits,
-        doubleHits: dbDoubleHits,
-        isDarkTheme: document.body.classList.contains("dark-theme")
-      };
-      window.lastGarageStatsSnapshot = snapshot;
-
-      const newlyUnlockedBonus = renderAchievementsList(snapshot);
-      if (newlyUnlockedBonus) {
-        const updatedBonusStr = localStorage.getItem(`f1_bonus_pts_${currentUserId}`);
-        bonusPts = Math.max(dbBonusPts, parseInt(updatedBonusStr ? updatedBonusStr : "0"));
-        totalUserPts = basePts + bonusPts;
-        snapshot.userPts = totalUserPts;
-        renderAchievementsList(snapshot);
-        syncCloudUserProfile();
-      }
-
+      document.getElementById("garageStatVotes").innerText = dbPredsCount;
       document.getElementById("garageStatPts").innerText = `${totalUserPts} PTS`;
+
       const predPtsVal = document.getElementById("predUserPointsVal");
       if (predPtsVal) predPtsVal.innerText = totalUserPts;
 
       if (rankEl) {
         rankEl.innerText = calculateUserRankAndRoadmap(totalUserPts, currentUserId);
       }
+
+      const snapshot = {
+        userPts: totalUserPts,
+        bestReaction: bestReaction ? parseInt(bestReaction) : 9999,
+        bestPit: bestPit ? parseFloat(bestPit) : 99,
+        votesCount: dbPredsCount,
+        podiumHits: dbPodiumHits,
+        doubleHits: dbDoubleHits,
+        isDarkTheme: document.body.classList.contains("dark-theme")
+      };
+      window.lastGarageStatsSnapshot = snapshot;
+      renderAchievementsList(snapshot);
     }
 
     function renderAchievementsList(stats) {
       const grid = document.getElementById("garageAchievementsGrid");
-      if (!grid) return false;
+      if (!grid) return;
 
       const hasFalseStart = localStorage.getItem("f1_achievement_false_start") === "true";
       const foundSecret = localStorage.getItem("f1_achievement_admin_sim") === "true";
@@ -2995,9 +3034,7 @@
       const hasNightView = localStorage.getItem("f1_achievement_night_view") === "true";
       const streakRaw = localStorage.getItem("f1_fast_reactions_streak");
       const fastReactionCount = parseInt(streakRaw ? streakRaw : "0");
-      const isCleanFastStored = localStorage.getItem("f1_pit_clean_fast") === "true";
-      const isCleanFastCalc = (stats.bestPit <= 2.2 && stats.bestPit > 0 && localStorage.getItem("f1_pit_had_penalty") !== "true");
-      const cleanFastPit = isCleanFastStored ? true : isCleanFastCalc;
+      const cleanFastPit = localStorage.getItem("f1_pit_clean_fast") === "true";
       const isFastReact = (stats.bestReaction > 0 && stats.bestReaction <= 195);
       const isFastPit = (stats.bestPit > 0 && stats.bestPit <= 2.0);
       const sprinterDone = isFastReact ? true : isFastPit;
@@ -3005,7 +3042,7 @@
       const loginStreak = parseInt(loginRaw ? loginRaw : "1");
       const swRaw = localStorage.getItem("f1_season_subtab_switches");
       const seasonSubSwitches = parseInt(swRaw ? swRaw : "0");
-      const lightsPlayed = (localStorage.getItem("f1_lights_played_once") === "true") ? true : ((stats.bestReaction < 9999) ? true : hasFalseStart);
+      const lightsPlayed = (localStorage.getItem("f1_lights_played_once") === "true") ? true : (stats.bestReaction < 9999);
       const pitPlayed = (localStorage.getItem("f1_pitstop_played_once") === "true") ? true : (stats.bestPit < 99);
       let visitedTabs = [];
       try {
@@ -3014,19 +3051,17 @@
       } catch (e) {}
       const viewedDrivers = localStorage.getItem("f1_viewed_drivers_tab") === "true";
       const viewedCalendar = localStorage.getItem("f1_viewed_calendar_tab") === "true";
-      const gotFirstRank = (localStorage.getItem("f1_got_first_rank") === "true") ? true : (stats.userPts >= 0);
+      const gotFirstRank = localStorage.getItem("f1_got_first_rank") === "true";
       const hadPitPenalty = localStorage.getItem("f1_pit_had_penalty") === "true";
       const refRaw = localStorage.getItem("f1_leaderboard_refresh_count");
       const lbRefreshes = parseInt(refRaw ? refRaw : "0");
 
       const achievementsDefs = [
-        // 👑 ХАРДКОРНЫЕ / ДОЛГОСРОЧНЫЕ (3 штуки)
         { id: "paddock_legend", tier: "hardcore", pts: 100, icon: "👑", title: "Легенда паддока", desc: "Достичь высшего ранга «Чемпион Мира F1» (набрать 4500+ очков).", cur: Math.min(stats.userPts, 4500), max: 4500, unlocked: stats.userPts >= 4500 },
         { id: "history_keeper", tier: "hardcore", pts: 50, icon: "🎞️", title: "Хранитель истории", desc: "Посмотреть суммарно 30 записей заездов из архива.", cur: Math.min(archiveViewsCount, 30), max: 30, unlocked: archiveViewsCount >= 30 },
         { id: "veteran_tribun", tier: "hardcore", pts: 50, icon: "🏛️", title: "Ветеран трибун", desc: "Принять участие в предикшнах на 10 этапах сезона.", cur: Math.min(stats.votesCount, 10), max: 10, unlocked: stats.votesCount >= 10 },
 
-        // 🏎️ СРЕДНЕЙ СЛОЖНОСТИ (10 штук)
-        { id: "iron_nerves", tier: "medium", pts: 20, icon: "🏎️", title: "Железные нервы", desc: "Показать идеальную реакцию в светофорах (<210 мс) 5 раз.", cur: Math.min(fastReactionCount, 5), max: 5, unlocked: fastReactionCount >= 5 },
+        { id: "iron_nerves", tier: "medium", pts: 20, icon: "🏎️", title: "Железные нервы", desc: "Показать идеальную реакцию в светофорах (<210 мс) 5 раз.", cur: Math.min(fastReactionCount, 5), max: 5, unlocked: fastReactionCount >= 5 && stats.bestReaction < 210 },
         { id: "cinemaniac", tier: "medium", pts: 15, icon: "🎬", title: "Киноман F1", desc: "Посмотреть 5 полных записей заездов из архива.", cur: Math.min(archiveViewsCount, 5), max: 5, unlocked: archiveViewsCount >= 5 },
         { id: "night_view", tier: "medium", pts: 15, icon: "🌙", title: "Ночной просмотр", desc: "Открыть заезд в ночное время (с 00:00 до 05:00).", cur: hasNightView ? 1 : 0, max: 1, unlocked: hasNightView },
         { id: "serial_analyst", tier: "medium", pts: 25, icon: "🎯", title: "Серийный аналитик", desc: "Угадать и победителя гонки (P1), и быстрейший круг (FL) в одном прогнозе.", cur: Math.min(stats.doubleHits, 1), max: 1, unlocked: stats.doubleHits >= 1 },
@@ -3037,7 +3072,6 @@
         { id: "first_capital", tier: "medium", pts: 15, icon: "💰", title: "Первый капитал", desc: "Набрать суммарно 150 очков в общем рейтинге.", cur: Math.min(stats.userPts, 150), max: 150, unlocked: stats.userPts >= 150 },
         { id: "podium_collector", tier: "medium", pts: 15, icon: "🏆", title: "Коллекционер подиумов", desc: "Угадать пилота в тройке лидеров в предикшнах 5 раз.", cur: Math.min(stats.podiumHits, 5), max: 5, unlocked: stats.podiumHits >= 5 },
 
-        // 🏁 ОБЫЧНЫЕ / БЫСТРЫЕ (15 штук)
         { id: "first_vote", tier: "normal", pts: 15, icon: "📝", title: "Первая кровь", desc: "Сделать свой первый прогноз на этап.", cur: Math.min(stats.votesCount, 1), max: 1, unlocked: stats.votesCount >= 1 },
         { id: "max_reaction", tier: "normal", pts: 15, icon: "⚡", title: "Реакция Макса", desc: "Продемонстрировать время реакции быстрее 200 мс.", cur: (stats.bestReaction < 200 && stats.bestReaction > 0) ? 1 : 0, max: 1, unlocked: stats.bestReaction < 200 && stats.bestReaction > 0 },
         { id: "false_start", tier: "normal", pts: 15, icon: "🚨", title: "Фальстарт!", desc: "Нажать кнопку старта до того, как погасли огни.", cur: hasFalseStart ? 1 : 0, max: 1, unlocked: hasFalseStart },
@@ -3055,15 +3089,14 @@
         { id: "peloton_refresh", tier: "normal", pts: 10, icon: "🔄", title: "Обновление пелотона", desc: "Вручную обновить таблицу лидеров кнопкой сброса.", cur: Math.min(lbRefreshes, 1), max: 1, unlocked: lbRefreshes >= 1 }
       ];
 
-      let anyNewAwarded = false;
       achievementsDefs.forEach(ach => {
-        const storageKey = `f1_ach_unlocked_${currentUserId}_${ach.id}`;
-        if (localStorage.getItem(storageKey) === "true") {
-          ach.unlocked = true;
+        if (ach.unlocked) {
           ach.cur = ach.max;
-        } else if (ach.unlocked) {
-          const awarded = checkAndAwardAchievement(ach.id, ach.title, ach.icon, ach.pts);
-          if (awarded) anyNewAwarded = true;
+          const toastKey = `f1_toast_shown_${currentUserId}_${ach.id}`;
+          if (localStorage.getItem(toastKey) !== "true") {
+            localStorage.setItem(toastKey, "true");
+            showAchievementToast(`+${ach.pts} PTS • ${ach.title}`, ach.icon);
+          }
         }
       });
 
@@ -3107,8 +3140,6 @@
           </div>
         `;
       }).join("");
-
-      return anyNewAwarded;
     }
 
     function openViewScreen(screenName) {
@@ -3136,6 +3167,7 @@
       if (subTab === "calendar") {
         setTimeout(scrollToCurrentCalendarStage, 150);
       }
+      syncCloudUserProfile();
     }
 
     function scrollToCurrentCalendarStage() {
@@ -3144,7 +3176,7 @@
     }
 
     // =========================================================================
-    // ОТРИСОВКА ПИЛОТОВ С НАДЕЖНЫМ ПОИСКОМ ФОТО И ЧИСТЫМИ ИМЕНАМИ
+    // ОТРИСОВКА ПИЛОТОВ
     // =========================================================================
     const KNOWN_DRIVER_IMAGES = [
       "albon", "alonso", "antonelli", "bearman", "bortoleto",
@@ -3338,7 +3370,9 @@
           `).join("");
         }
 
+        let racesList = DEFAULT_RACES_CALENDAR;
         if (data.races && data.races.length > 0) {
+          racesList = data.races;
           window.totalSeasonRounds = String(data.races.length);
           renderCalendarList(data.races);
           
@@ -3362,67 +3396,110 @@
           }
         }
 
-        initPredictionGame(driversData);
+        window.currentLoadedRaces = racesList;
+        initPredictionGame(driversData, racesList);
       } catch (e) {
         window.currentLoadedDrivers = DEFAULT_DRIVERS_DATA;
+        window.currentLoadedRaces = DEFAULT_RACES_CALENDAR;
         renderDriversList(DEFAULT_DRIVERS_DATA);
         renderCalendarList(DEFAULT_RACES_CALENDAR);
-        initPredictionGame(DEFAULT_DRIVERS_DATA);
+        initPredictionGame(DEFAULT_DRIVERS_DATA, DEFAULT_RACES_CALENDAR);
         initDynamicWeekendSessions(null);
       }
     }
 
+    // =========================================================================
+    // ЗАГРУЗКА КАТАЛОГА, АВТОЗАПОЛНЕНИЕ DATALIST И РЕНДЕР 4-УРОВНЕВЫХ СЭНДВИЧ-ПАПОК
+    // =========================================================================
     async function loadCatalogDatabase() {
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog`);
         const rows = await res.json();
         allCatalogItems = rows ? rows : [];
-        buildCatalogTreeAndRender();
+        populateAdminDatalists();
+        renderArchiveRootScreen();
 
         if (isAdmin) {
           renderAdminCatalogList(allCatalogItems);
           renderAdminCategoriesOrder();
         }
       } catch (e) {
-        document.getElementById("catalogCategoriesContainer").innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Ошибка подключения к D1.</div>';
+        document.getElementById("catalogSectionsContainer").innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted);">Ошибка подключения к D1.</div>';
       }
     }
 
-    function buildCatalogTreeAndRender() {
-      catalogTree = {};
-      allCatalogItems.forEach(item => {
-        const cat = item.category ? item.category : "Архив";
-        const title = item.title;
-        if (!catalogTree[cat]) catalogTree[cat] = {};
-        if (!catalogTree[cat][title]) catalogTree[cat][title] = { image: item.image, description: item.description, items: [] };
-        catalogTree[cat][title].items.push(item);
+    function populateAdminDatalists() {
+      const secSet = new Set();
+      const catSet = new Set();
+      const titleSet = new Set();
+      const itemSet = new Set(["Гонка", "Квалификация", "Спринт", "Спринт-квалификация", "Практика 1", "Практика 2", "Практика 3"]);
+
+      allCatalogItems.forEach(r => {
+        if (r.section && String(r.section).trim()) secSet.add(String(r.section).trim());
+        if (r.category && String(r.category).trim()) catSet.add(String(r.category).trim());
+        if (r.title && String(r.title).trim()) titleSet.add(String(r.title).trim());
+        if (r.item && String(r.item).trim()) itemSet.add(String(r.item).trim());
       });
 
-      const catNames = Object.keys(catalogTree);
-      const container = document.getElementById("catalogCategoriesContainer");
-      if (!container) return;
+      const secEl = document.getElementById("existingSectionsDatalist");
+      const catEl = document.getElementById("existingCategoriesDatalist");
+      const titleEl = document.getElementById("existingTitlesDatalist");
+      const itemEl = document.getElementById("existingItemsDatalist");
 
+      if (secEl) secEl.innerHTML = [...secSet].map(v => `<option value="${v.replace(/"/g, "&quot;")}">`).join("");
+      if (catEl) catEl.innerHTML = [...catSet].map(v => `<option value="${v.replace(/"/g, "&quot;")}">`).join("");
+      if (titleEl) titleEl.innerHTML = [...titleSet].map(v => `<option value="${v.replace(/"/g, "&quot;")}">`).join("");
+      if (itemEl) itemEl.innerHTML = [...itemSet].map(v => `<option value="${v.replace(/"/g, "&quot;")}">`).join("");
+    }
+
+    // Уровень 1 (Корневой экран Архива): Показывает Глобальные Разделы (если есть) + Категории без раздела + События без категории
+    function renderArchiveRootScreen() {
+      const container = document.getElementById("catalogSectionsContainer");
+      if (!container) return;
       container.innerHTML = "";
-      catNames.forEach((catName, idx) => {
+
+      const sectionsList = [];
+      const rootCategoriesList = [];
+      const rootTitlesMap = {};
+
+      allCatalogItems.forEach(item => {
+        const sec = item.section ? String(item.section).trim() : "";
+        const cat = item.category ? String(item.category).trim() : "";
+        const title = item.title ? String(item.title).trim() : "";
+
+        if (sec) {
+          if (!sectionsList.includes(sec)) sectionsList.push(sec);
+        } else if (cat) {
+          if (!rootCategoriesList.includes(cat)) rootCategoriesList.push(cat);
+        } else if (title) {
+          if (!rootTitlesMap[title]) rootTitlesMap[title] = { image: item.image, description: item.description, items: [] };
+          rootTitlesMap[title].items.push(item);
+        } else {
+          // Даже если не заполнены ни раздел, ни категория, ни событие — выводим саму сессию
+          const fallbackTitle = item.item ? String(item.item).trim() : "Заезд";
+          if (!rootTitlesMap[fallbackTitle]) rootTitlesMap[fallbackTitle] = { image: item.image, description: item.description, items: [] };
+          rootTitlesMap[fallbackTitle].items.push(item);
+        }
+      });
+
+      // 1. Отрисовываем Глобальные разделы (1-й уровень Сэндвича, напр. «Формула 1»)
+      sectionsList.forEach((secName, idx) => {
         const btn = document.createElement("div");
         btn.className = "menu-btn";
-        btn.onclick = () => openCatalogCategory(catName);
+        btn.onclick = () => openCatalogSection(secName);
 
         const content = document.createElement("div");
         content.className = "menu-btn-content";
-        content.innerHTML = `<span>${catName}</span>`;
+        content.innerHTML = `<span>📁 ${secName}</span>`;
         btn.appendChild(content);
 
         if (isAdmin) {
           const ctrls = document.createElement("div");
           ctrls.className = "archive-reorder-ctrls";
-          ctrls.innerHTML = `
-            <button class="archive-reorder-btn" title="Вверх">⬆</button>
-            <button class="archive-reorder-btn" title="Вниз">⬇</button>
-          `;
+          ctrls.innerHTML = `<button class="archive-reorder-btn">⬆</button><button class="archive-reorder-btn">⬇</button>`;
           const [upBtn, downBtn] = ctrls.querySelectorAll("button");
-          upBtn.onclick = (e) => { e.stopPropagation(); moveArchiveCategoryInline(catNames, idx, -1); };
-          downBtn.onclick = (e) => { e.stopPropagation(); moveArchiveCategoryInline(catNames, idx, 1); };
+          upBtn.onclick = (e) => { e.stopPropagation(); moveSectionOrderInline(sectionsList, idx, -1); };
+          downBtn.onclick = (e) => { e.stopPropagation(); moveSectionOrderInline(sectionsList, idx, 1); };
           btn.appendChild(ctrls);
         } else {
           const arrow = document.createElement("span");
@@ -3432,33 +3509,143 @@
         }
         container.appendChild(btn);
       });
+
+      // 2. Отрисовываем Категории (Сезоны), у которых не задан глобальный раздел (полная обратная совместимость!)
+      rootCategoriesList.forEach((catName, idx) => {
+        const btn = document.createElement("div");
+        btn.className = "menu-btn";
+        btn.onclick = () => openCatalogCategory("", catName, "archive");
+
+        const content = document.createElement("div");
+        content.className = "menu-btn-content";
+        content.innerHTML = `<span>${catName}</span>`;
+        btn.appendChild(content);
+
+        if (isAdmin) {
+          const ctrls = document.createElement("div");
+          ctrls.className = "archive-reorder-ctrls";
+          ctrls.innerHTML = `<button class="archive-reorder-btn">⬆</button><button class="archive-reorder-btn">⬇</button>`;
+          const [upBtn, downBtn] = ctrls.querySelectorAll("button");
+          upBtn.onclick = (e) => { e.stopPropagation(); moveArchiveCategoryInline(rootCategoriesList, idx, -1); };
+          downBtn.onclick = (e) => { e.stopPropagation(); moveArchiveCategoryInline(rootCategoriesList, idx, 1); };
+          btn.appendChild(ctrls);
+        } else {
+          const arrow = document.createElement("span");
+          arrow.style.opacity = "0.4";
+          arrow.innerText = "›";
+          btn.appendChild(arrow);
+        }
+        container.appendChild(btn);
+      });
+
+      // 3. Отрисовываем События, если у них не были заполнены ни раздел, ни категория
+      Object.keys(rootTitlesMap).forEach(titleKey => {
+        const itemObj = rootTitlesMap[titleKey];
+        const thumb = itemObj.image ? `<img class="menu-btn-thumb" src="${itemObj.image}">` : "";
+        const btn = document.createElement("div");
+        btn.className = "menu-btn";
+        btn.onclick = () => openCatalogDetails("", "", titleKey, "archive");
+        btn.innerHTML = `<div class="menu-btn-content">${thumb}<span>${titleKey}</span></div><span>›</span>`;
+        container.appendChild(btn);
+      });
     }
 
-    async function moveArchiveCategoryInline(catArray, idx, dir) {
-      const target = idx + dir;
-      if (target < 0 || target >= catArray.length) return;
-      const temp = catArray[idx];
-      catArray[idx] = catArray[target];
-      catArray[target] = temp;
+    // Уровень 2: Открытие Глобального Раздела (показывает его Категории/Сезоны + События без категории)
+    function openCatalogSection(sectionName) {
+      activeCatalogSection = sectionName;
+      const headerEl = document.getElementById("activeSectionHeaderTitle");
+      if (headerEl) headerEl.innerText = sectionName;
 
-      const payloadCategories = catArray.map((cat, order) => ({ category: cat, order }));
-      try {
-        await fetch(`${WORKER_URL}/api/catalog/reorder`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
-          body: JSON.stringify({ categories: payloadCategories })
-        });
-        await loadCatalogDatabase();
-      } catch (e) {}
+      const container = document.getElementById("catalogCategoriesContainer");
+      container.innerHTML = "";
+
+      const sectionItems = allCatalogItems.filter(i => (i.section ? String(i.section).trim() : "") === sectionName);
+      const catsInSec = [];
+      const directTitlesMap = {};
+
+      sectionItems.forEach(item => {
+        const cat = item.category ? String(item.category).trim() : "";
+        const title = item.title ? String(item.title).trim() : (item.item ? String(item.item).trim() : "Заезд");
+        if (cat) {
+          if (!catsInSec.includes(cat)) catsInSec.push(cat);
+        } else {
+          if (!directTitlesMap[title]) directTitlesMap[title] = { image: item.image, description: item.description, items: [] };
+          directTitlesMap[title].items.push(item);
+        }
+      });
+
+      catsInSec.forEach((catName, idx) => {
+        const btn = document.createElement("div");
+        btn.className = "menu-btn";
+        btn.onclick = () => openCatalogCategory(sectionName, catName, "subcategories");
+
+        const content = document.createElement("div");
+        content.className = "menu-btn-content";
+        content.innerHTML = `<span>${catName}</span>`;
+        btn.appendChild(content);
+
+        if (isAdmin) {
+          const ctrls = document.createElement("div");
+          ctrls.className = "archive-reorder-ctrls";
+          ctrls.innerHTML = `<button class="archive-reorder-btn">⬆</button><button class="archive-reorder-btn">⬇</button>`;
+          const [upBtn, downBtn] = ctrls.querySelectorAll("button");
+          upBtn.onclick = (e) => {
+            e.stopPropagation();
+            moveArchiveCategoryInline(catsInSec, idx, -1, () => openCatalogSection(sectionName));
+          };
+          downBtn.onclick = (e) => {
+            e.stopPropagation();
+            moveArchiveCategoryInline(catsInSec, idx, 1, () => openCatalogSection(sectionName));
+          };
+          btn.appendChild(ctrls);
+        } else {
+          const arrow = document.createElement("span");
+          arrow.style.opacity = "0.4";
+          arrow.innerText = "›";
+          btn.appendChild(arrow);
+        }
+        container.appendChild(btn);
+      });
+
+      Object.keys(directTitlesMap).forEach(titleKey => {
+        const itemObj = directTitlesMap[titleKey];
+        const thumb = itemObj.image ? `<img class="menu-btn-thumb" src="${itemObj.image}">` : "";
+        const btn = document.createElement("div");
+        btn.className = "menu-btn";
+        btn.onclick = () => openCatalogDetails(sectionName, "", titleKey, "subcategories");
+        btn.innerHTML = `<div class="menu-btn-content">${thumb}<span>${titleKey}</span></div><span>›</span>`;
+        container.appendChild(btn);
+      });
+
+      openViewScreen("subcategories");
     }
 
-    function openCatalogCategory(categoryName) {
+    // Уровень 3: Открытие Категории / Сезона (показывает События / Гран-при)
+    function openCatalogCategory(sectionName, categoryName, fromScreen = "archive") {
+      activeCatalogSection = sectionName;
       activeCatalogCategory = categoryName;
+      titlesBackTargetScreen = fromScreen;
+
+      const headerEl = document.getElementById("activeCategoryHeaderTitle");
+      if (headerEl) headerEl.innerText = sectionName ? `${sectionName} • ${categoryName}` : categoryName;
+
       const listEl = document.getElementById("catalogTitlesList");
       listEl.innerHTML = "";
 
-      const catObj = catalogTree[categoryName] ? catalogTree[categoryName] : {};
-      const titles = Object.keys(catObj);
+      const matchingItems = allCatalogItems.filter(i => {
+        const s = i.section ? String(i.section).trim() : "";
+        const c = i.category ? String(i.category).trim() : "";
+        return s === sectionName && c === categoryName;
+      });
+
+      const titlesMap = {};
+      matchingItems.forEach(item => {
+        const t = item.title ? String(item.title).trim() : (item.item ? String(item.item).trim() : "Заезд");
+        if (!titlesMap[t]) titlesMap[t] = { image: item.image, description: item.description, items: [] };
+        titlesMap[t].items.push(item);
+      });
+
+      const titles = Object.keys(titlesMap);
 
       async function reorderTitlesInDb(newTitlesOrder) {
         try {
@@ -3468,16 +3655,16 @@
             body: JSON.stringify({ category: categoryName, titles: newTitlesOrder })
           });
           await loadCatalogDatabase();
-          openCatalogCategory(categoryName);
+          openCatalogCategory(sectionName, categoryName, fromScreen);
         } catch (e) {}
       }
 
       titles.forEach((titleKey, idx) => {
-        const itemObj = catalogTree[categoryName][titleKey];
+        const itemObj = titlesMap[titleKey];
         const thumb = itemObj.image ? `<img class="menu-btn-thumb" src="${itemObj.image}">` : "";
         const btn = document.createElement("div");
         btn.className = "menu-btn";
-        btn.onclick = () => openCatalogDetails(titleKey);
+        btn.onclick = () => openCatalogDetails(sectionName, categoryName, titleKey, "titles");
 
         const content = document.createElement("div");
         content.className = "menu-btn-content";
@@ -3487,10 +3674,7 @@
         if (isAdmin) {
           const ctrls = document.createElement("div");
           ctrls.className = "archive-reorder-ctrls";
-          ctrls.innerHTML = `
-            <button class="archive-reorder-btn" title="Вверх">⬆</button>
-            <button class="archive-reorder-btn" title="Вниз">⬇</button>
-          `;
+          ctrls.innerHTML = `<button class="archive-reorder-btn">⬆</button><button class="archive-reorder-btn">⬇</button>`;
           const [upBtn, downBtn] = ctrls.querySelectorAll("button");
           upBtn.onclick = (e) => {
             e.stopPropagation();
@@ -3513,22 +3697,37 @@
 
         listEl.appendChild(btn);
       });
+
       openViewScreen("titles");
     }
 
-    function openCatalogDetails(titleKey) {
+    // Уровень 4: Открытие конкретного События / Гран-при (показывает Сессии)
+    function openCatalogDetails(sectionName, categoryName, titleKey, fromScreen = "titles") {
+      activeCatalogSection = sectionName;
+      activeCatalogCategory = categoryName;
       activeCatalogTitle = titleKey;
-      const data = catalogTree[activeCatalogCategory][titleKey];
+      detailsBackTargetScreen = fromScreen;
+
+      const matchingItems = allCatalogItems.filter(i => {
+        const s = i.section ? String(i.section).trim() : "";
+        const c = i.category ? String(i.category).trim() : "";
+        const t = i.title ? String(i.title).trim() : (i.item ? String(i.item).trim() : "Заезд");
+        return s === sectionName && c === categoryName && t === titleKey;
+      });
+
+      if (matchingItems.length === 0) return;
+
+      const firstItem = matchingItems[0];
       const header = document.getElementById("catalogItemHeader");
       const btnsBox = document.getElementById("catalogItemButtonsList");
 
       header.innerHTML = `
-        ${data.image ? `<img src="${data.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:18px; margin-bottom:12px;">` : ""}
+        ${firstItem.image ? `<img src="${firstItem.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:18px; margin-bottom:12px;">` : ""}
         <h2 style="margin:0 0 6px 0; font-weight:900; font-size:22px;">${titleKey}</h2>
-        ${data.description ? `<div style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">${data.description}</div>` : ""}
+        ${firstItem.description ? `<div style="color:var(--text-muted); font-size:14px; margin-bottom:16px;">${firstItem.description}</div>` : ""}
       `;
 
-      const items = [...data.items];
+      const items = [...matchingItems];
 
       async function reorderSessionsInDb(newItemsArray) {
         try {
@@ -3538,7 +3737,7 @@
             body: JSON.stringify({ itemIds: newItemsArray.map(x => x.id) })
           });
           await loadCatalogDatabase();
-          openCatalogDetails(titleKey);
+          openCatalogDetails(sectionName, categoryName, titleKey, fromScreen);
         } catch (e) {}
       }
 
@@ -3562,7 +3761,7 @@
         };
 
         const leftSpan = document.createElement("span");
-        leftSpan.innerText = it.item;
+        leftSpan.innerText = it.item ? it.item : "Смотреть запись";
         b.appendChild(leftSpan);
 
         const rightWrap = document.createElement("div");
@@ -3573,10 +3772,7 @@
         if (isAdmin) {
           const ctrls = document.createElement("div");
           ctrls.className = "archive-reorder-ctrls";
-          ctrls.innerHTML = `
-            <button class="archive-reorder-btn" title="Вверх">⬆</button>
-            <button class="archive-reorder-btn" title="Вниз">⬇</button>
-          `;
+          ctrls.innerHTML = `<button class="archive-reorder-btn">⬆</button><button class="archive-reorder-btn">⬇</button>`;
           const [upBtn, downBtn] = ctrls.querySelectorAll("button");
           upBtn.onclick = (e) => {
             e.stopPropagation();
@@ -3600,7 +3796,48 @@
     }
 
     function navigateBackFromTitles() {
-      openViewScreen("archive");
+      openViewScreen(titlesBackTargetScreen ? titlesBackTargetScreen : "archive");
+    }
+
+    function navigateBackFromDetails() {
+      openViewScreen(detailsBackTargetScreen ? detailsBackTargetScreen : "titles");
+    }
+
+    async function moveSectionOrderInline(secArray, idx, dir) {
+      const target = idx + dir;
+      if (target < 0 || target >= secArray.length) return;
+      const temp = secArray[idx];
+      secArray[idx] = secArray[target];
+      secArray[target] = temp;
+
+      const payloadSections = secArray.map((sec, order) => ({ section: sec, order }));
+      try {
+        await fetch(`${WORKER_URL}/api/catalog/reorder`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
+          body: JSON.stringify({ sections: payloadSections })
+        });
+        await loadCatalogDatabase();
+      } catch (e) {}
+    }
+
+    async function moveArchiveCategoryInline(catArray, idx, dir, callbackAfter = null) {
+      const target = idx + dir;
+      if (target < 0 || target >= catArray.length) return;
+      const temp = catArray[idx];
+      catArray[idx] = catArray[target];
+      catArray[target] = temp;
+
+      const payloadCategories = catArray.map((cat, order) => ({ category: cat, order }));
+      try {
+        await fetch(`${WORKER_URL}/api/catalog/reorder`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
+          body: JSON.stringify({ categories: payloadCategories })
+        });
+        await loadCatalogDatabase();
+        if (callbackAfter) callbackAfter();
+      } catch (e) {}
     }
 
     function handleSearch(queryText) {
@@ -3616,7 +3853,14 @@
       res.style.display = "block";
       res.innerHTML = "";
 
-      const matched = allCatalogItems.filter(e => e.title.toLowerCase().includes(query) ? true : e.item.toLowerCase().includes(query));
+      const matched = allCatalogItems.filter(e => {
+        const tMatch = (e.title ? e.title : "").toLowerCase().includes(query);
+        const iMatch = (e.item ? e.item : "").toLowerCase().includes(query);
+        const cMatch = (e.category ? e.category : "").toLowerCase().includes(query);
+        const sMatch = (e.section ? e.section : "").toLowerCase().includes(query);
+        return tMatch ? true : (iMatch ? true : (cMatch ? true : sMatch));
+      });
+
       if (!matched.length) {
         res.innerHTML = '<div style="text-align:center; padding:35px 0; color:var(--text-muted);">Ничего не найдено 🏎</div>';
         return;
@@ -3626,7 +3870,8 @@
         const b = document.createElement("div");
         b.className = "menu-btn";
         const badgeTxt = e.badge ? e.badge : "1080p";
-        b.innerHTML = `<span>${e.title} — ${e.item}</span><span class="badge">${badgeTxt}</span>`;
+        const prefix = e.section ? `${e.section} • ` : "";
+        b.innerHTML = `<span>${prefix}${e.title} — ${e.item}</span><span class="badge">${badgeTxt}</span>`;
         b.onclick = () => {
           const prevV = localStorage.getItem("f1_archive_views_count");
           let vCount = parseInt(prevV ? prevV : "0") + 1;
@@ -3639,6 +3884,9 @@
       });
     }
 
+    // =========================================================================
+    // АДМИН-ПАНЕЛЬ
+    // =========================================================================
     function openAdminDashboardScreen() {
       openViewScreen("admin");
       loadAdminLiveStats();
@@ -3655,8 +3903,13 @@
         const stats = await res.json();
         document.getElementById("statTotalUsers").innerText = stats.total_users ? stats.total_users : 0;
         document.getElementById("statActive24").innerText = stats.active_24h ? stats.active_24h : 0;
-        document.getElementById("statViewsToday").innerText = stats.views_today ? stats.views_today : 0;
+        document.getElementById("statPredictorsCount").innerText = stats.predictors_count ? stats.predictors_count : 0;
         document.getElementById("statVideoClicks").innerText = stats.video_clicks ? stats.video_clicks : 0;
+
+        if (stats.active_season) {
+          const sEl = document.getElementById("adminActiveSeasonText");
+          if (sEl) sEl.innerText = stats.active_season;
+        }
 
         const curVer = stats.current_version ? stats.current_version : "v1";
         document.getElementById("adminCurVerText").innerText = curVer.toUpperCase();
@@ -3664,6 +3917,40 @@
           ? "Откатить релиз до v1 для всех" 
           : "Выкатить v2 для всех пользователей";
       } catch (e) {}
+    }
+
+    async function runAdminSoftSeasonReset() {
+      if (!isAdmin) return;
+      const nextSeason = document.getElementById("adminNextSeasonInput").value.trim();
+      if (!nextSeason) {
+        alert("Укажите год нового сезона (например, 2027)!");
+        return;
+      }
+
+      const confirmMsg = `Вы уверены, что хотите завершить текущий сезон и выполнить Мягкий сброс на сезон ${nextSeason}?\n\n` +
+        `• Топ-3 лидеров текущего сезона навсегда сохранятся в Вечный Зал Славы.\n` +
+        `• Очки за прогнозы обнулятся для старта нового сезона ${nextSeason}.\n` +
+        `• Все открытые ачивки, звания и рекорды мини-игр останутся у игроков навсегда!`;
+
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const res = await fetch(`${WORKER_URL}/api/season/archive_and_reset`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
+          body: JSON.stringify({ new_season_year: nextSeason })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert(`👑 Сезон ${data.archivedSeason} успешно занесен в Вечный Зал Славы! Начат новый сезон ${data.newSeasonYear}.`);
+          loadAdminLiveStats();
+          loadPredictionLeaderboard();
+        } else {
+          alert("Ошибка: " + (data.error ? data.error : ""));
+        }
+      } catch (e) {
+        alert("Ошибка сети при архивации сезона");
+      }
     }
 
     async function toggleGlobalSystemVersion() {
@@ -3686,9 +3973,11 @@
     function handleAdminSearch(val) {
       const q = val.trim().toLowerCase();
       const filtered = allCatalogItems.filter(i => {
-        if (i.title.toLowerCase().includes(q)) return true;
-        if (i.item.toLowerCase().includes(q)) return true;
-        return i.code.toLowerCase().includes(q);
+        if ((i.section ? i.section : "").toLowerCase().includes(q)) return true;
+        if ((i.category ? i.category : "").toLowerCase().includes(q)) return true;
+        if ((i.title ? i.title : "").toLowerCase().includes(q)) return true;
+        if ((i.item ? i.item : "").toLowerCase().includes(q)) return true;
+        return (i.code ? i.code : "").toLowerCase().includes(q);
       });
       renderAdminCatalogList(filtered);
     }
@@ -3703,18 +3992,23 @@
         return;
       }
 
-      box.innerHTML = list.map(item => `
-        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:10px 14px; border-radius:12px; border:1px solid var(--border);">
-          <div style="font-size:13px; font-weight:700;">
-            ${item.title} — ${item.item}
-            <div style="font-size:11px; color:var(--text-muted);">Код: ${item.code} • Пост ID: ${item.post_id}</div>
+      box.innerHTML = list.map(item => {
+        const secBadge = item.section ? `[${item.section}] ` : "";
+        const catBadge = item.category ? `${item.category} • ` : "";
+        return `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--card-sub); padding:10px 14px; border-radius:12px; border:1px solid var(--border);">
+            <div style="font-size:13px; font-weight:700;">
+              <div style="font-size:10.5px; color:var(--accent); font-weight:800;">${secBadge}${catBadge}</div>
+              ${item.title} — ${item.item}
+              <div style="font-size:11px; color:var(--text-muted);">Код: ${item.code} • Пост ID: ${item.post_id}</div>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="editCatalogRecord(${item.id})">✏️</button>
+              <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px; color:var(--accent);" onclick="deleteCatalogRecord(${item.id})">🗑</button>
+            </div>
           </div>
-          <div style="display:flex; gap:6px;">
-            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px;" onclick="editCatalogRecord(${item.id})">✏️</button>
-            <button class="icon-circle-btn" style="width:32px; height:32px; font-size:13px; color:var(--accent);" onclick="deleteCatalogRecord(${item.id})">🗑</button>
-          </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     function handleImageFileUpload(e) {
@@ -3736,14 +4030,15 @@
       if (!record) return;
 
       document.getElementById("adminEditRecordId").value = record.id;
-      document.getElementById("admFormCat").value = record.category;
-      document.getElementById("admFormTitle").value = record.title;
+      document.getElementById("admFormSection").value = record.section ? record.section : "";
+      document.getElementById("admFormCat").value = record.category ? record.category : "";
+      document.getElementById("admFormTitle").value = record.title ? record.title : "";
       document.getElementById("admFormImg").value = record.image ? record.image : "";
       document.getElementById("admFormDesc").value = record.description ? record.description : "";
-      document.getElementById("admFormItem").value = record.item;
+      document.getElementById("admFormItem").value = record.item ? record.item : "";
       document.getElementById("admFormBadge").value = record.badge ? record.badge : "1080p";
-      document.getElementById("admFormCode").value = record.code;
-      document.getElementById("admFormPostId").value = record.post_id;
+      document.getElementById("admFormCode").value = record.code ? record.code : "";
+      document.getElementById("admFormPostId").value = record.post_id ? record.post_id : "";
 
       if (record.image) {
         document.getElementById("admImgPreviewEl").src = record.image;
@@ -3760,6 +4055,7 @@
 
     function cancelCatalogEditMode() {
       document.getElementById("adminEditRecordId").value = "";
+      document.getElementById("admFormSection").value = "";
       document.getElementById("admFormCat").value = "";
       document.getElementById("admFormTitle").value = "";
       document.getElementById("admFormImg").value = "";
@@ -3775,33 +4071,40 @@
       document.getElementById("adminCancelEditBtn").style.display = "none";
     }
 
+    // Гибкое сохранение: даже если не заполнены какие-то уровни папок, запись всегда корректно добавляется!
     async function submitCatalogRecordForm() {
       const editId = document.getElementById("adminEditRecordId").value;
-      const payload = {
-        category: document.getElementById("admFormCat").value,
-        title: document.getElementById("admFormTitle").value,
-        image: document.getElementById("admFormImg").value,
-        description: document.getElementById("admFormDesc").value,
-        item: document.getElementById("admFormItem").value,
-        badge: document.getElementById("admFormBadge").value,
-        code: document.getElementById("admFormCode").value,
-        post_id: document.getElementById("admFormPostId").value,
-      };
+      const rawSection = document.getElementById("admFormSection").value.trim();
+      const rawCat = document.getElementById("admFormCat").value.trim();
+      const rawTitle = document.getElementById("admFormTitle").value.trim();
+      const rawItem = document.getElementById("admFormItem").value.trim();
+      const rawCode = document.getElementById("admFormCode").value.trim();
+      const rawPostId = document.getElementById("admFormPostId").value.trim();
 
-      if (!payload.category || !payload.title || !payload.item || !payload.code || !payload.post_id) {
-        alert("Заполните все обязательные поля!");
+      if (!rawPostId && !rawCode) {
+        alert("Укажите хотя бы ID поста на канале-складе или код выдачи!");
         return;
       }
 
-      if (editId) {
-        await fetch(`${WORKER_URL}/api/catalog/delete`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
-          body: JSON.stringify({ id: editId })
-        });
-      }
+      const finalTitle = rawTitle ? rawTitle : (rawItem ? rawItem : (rawCat ? rawCat : "Заезд"));
+      const finalItem = rawItem ? rawItem : "Смотреть запись";
+      const finalCode = rawCode ? rawCode : `f1_${rawPostId ? rawPostId : Date.now()}`;
 
-      const res = await fetch(`${WORKER_URL}/api/catalog/add`, {
+      const payload = {
+        id: editId ? Number(editId) : undefined,
+        section: rawSection,
+        category: rawCat,
+        title: finalTitle,
+        image: document.getElementById("admFormImg").value.trim(),
+        description: document.getElementById("admFormDesc").value.trim(),
+        item: finalItem,
+        badge: document.getElementById("admFormBadge").value.trim() ? document.getElementById("admFormBadge").value.trim() : "1080p",
+        code: finalCode,
+        post_id: rawPostId ? Number(rawPostId) : 0,
+      };
+
+      const endpoint = editId ? `${WORKER_URL}/api/catalog/edit` : `${WORKER_URL}/api/catalog/add`;
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Admin-Id": ADMIN_ID },
         body: JSON.stringify(payload)
@@ -3811,6 +4114,8 @@
         alert(editId ? "✅ Запись успешно обновлена!" : "✅ Запись успешно создана в D1!");
         cancelCatalogEditMode();
         loadCatalogDatabase();
+      } else {
+        alert("Ошибка сохранения: " + (data.error ? data.error : ""));
       }
     }
 
@@ -3831,7 +4136,7 @@
       const box = document.getElementById("adminCategoriesOrderList");
       if (!box) return;
 
-      const categories = [...new Set(allCatalogItems.map(i => i.category))];
+      const categories = [...new Set(allCatalogItems.map(i => i.category ? String(i.category).trim() : "").filter(Boolean))];
       if (!categories.length) {
         box.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center;">Нет категорий</div>';
         return;
@@ -3849,7 +4154,7 @@
     }
 
     async function moveCategoryOrder(index, direction) {
-      const categories = [...new Set(allCatalogItems.map(i => i.category))];
+      const categories = [...new Set(allCatalogItems.map(i => i.category ? String(i.category).trim() : "").filter(Boolean))];
       const targetIndex = index + direction;
       if (targetIndex < 0 || targetIndex >= categories.length) return;
 
@@ -3857,7 +4162,6 @@
       categories[index] = categories[targetIndex];
       categories[targetIndex] = temp;
 
-      localStorage.setItem("f1_custom_cat_order", JSON.stringify(categories));
       const payloadCategories = categories.map((cat, order) => ({ category: cat, order }));
 
       try {
