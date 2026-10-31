@@ -612,6 +612,8 @@
       color: var(--text);
       outline: none;
       margin-bottom: 12px;
+      user-select: text;
+      -webkit-user-select: text;
     }
     .search-input:focus { border-color: var(--accent); }
     .menu-btn {
@@ -637,6 +639,70 @@
       font-weight: 800;
       padding: 4px 8px;
       border-radius: 6px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    /* ================= ВЫПАДАЮЩИЕ СПИСКИ СО СТРЕЛОЧКОЙ В АДМИНКЕ ================= */
+    .combo-field-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .combo-field-wrap .search-input {
+      margin-bottom: 0;
+      padding-right: 48px;
+    }
+    .combo-arrow-btn {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      bottom: 5px;
+      width: 38px;
+      border: none;
+      background: var(--card-sub);
+      color: var(--text-muted);
+      border-radius: 10px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+    }
+    .combo-arrow-btn:active {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .combo-dropdown-menu {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 4px);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 3000;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      -webkit-overflow-scrolling: touch;
+    }
+    .combo-dropdown-menu.open {
+      display: block;
+    }
+    .combo-option-item {
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .combo-option-item:last-child {
+      border-bottom: none;
+    }
+    .combo-option-item:active {
       background: var(--accent-soft);
       color: var(--accent);
     }
@@ -1068,7 +1134,7 @@
   <!-- Контейнер для дополнительных Live-патчей ИИ -->
   <div id="ai-live-patch-html"></div>
 
-  <!-- ШАПКА (БЕЗ PROMPT ВВОДА АДМИНСКОГО ID) -->
+  <!-- ШАПКА -->
   <div class="app-header">
     <div class="brand-wrap" id="topBrandLogo">
       <div class="brand-square"></div>
@@ -1283,7 +1349,6 @@
           </div>
         </div>
 
-        <!-- Вечный Зал Славы прошлых сезонов (показывается, когда есть архивные сезоны) -->
         <div id="hallOfFameSeasonsCard" class="pred-leaderboard-card" style="display:none;">
           <div style="font-size:15px; font-weight:900;">👑 Вечный Зал Славы (Чемпионы прошлых сезонов)</div>
           <div id="hallOfFameSeasonsList" style="display:flex; flex-direction:column; gap:10px;"></div>
@@ -1479,22 +1544,31 @@
       </div>
     </div>
 
-    <!-- ФОРМА ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ С ВЫПАДАЮЩИМИ СПИСКАМИ И 4-М УРОВНЕМ (СЭНДВИЧ-ПАПКАМИ) -->
-    <div class="hero-card">
+    <!-- ФОРМА ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ С КАСТОМНЫМИ ВЫПАДАЮЩИМИ СПИСКАМИ ПО СТРЕЛОЧКЕ -->
+    <div class="hero-card" style="overflow: visible;">
       <h3 id="adminFormHeaderTitle" style="margin:0 0 8px 0; font-size:17px; font-weight:900;">➕ Добавить запись в базу D1</h3>
       <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">
-        Нажми на поле, чтобы выбрать из уже существующих вариантов, или введи новое название. Любой уровень можно оставить пустым — запись всё равно корректно добавится!
+        Нажми слева на поле, чтобы ввести текст вручную, или нажми на стрелочку <b>▼</b> справа, чтобы выбрать готовый вариант из списка!
       </div>
       <input type="hidden" id="adminEditRecordId" value="">
 
-      <input class="search-input" id="admFormSection" list="existingSectionsDatalist" placeholder="1. Глобальный раздел (напр. 🏎️ Формула 1 — необязательно)">
-      <datalist id="existingSectionsDatalist"></datalist>
+      <div class="combo-field-wrap">
+        <input class="search-input" id="admFormSection" placeholder="1. Глобальный раздел (напр. 🏎️ Формула 1)">
+        <button type="button" class="combo-arrow-btn" onclick="toggleComboDropdown('admFormSection', 'dropSections', event)">▼</button>
+        <div class="combo-dropdown-menu" id="dropSections"></div>
+      </div>
 
-      <input class="search-input" id="admFormCat" list="existingCategoriesDatalist" placeholder="2. Категория / Сезон (напр. 🔴 Сезон 2026)">
-      <datalist id="existingCategoriesDatalist"></datalist>
+      <div class="combo-field-wrap">
+        <input class="search-input" id="admFormCat" placeholder="2. Категория / Сезон (напр. 🔴 Сезон 2026)">
+        <button type="button" class="combo-arrow-btn" onclick="toggleComboDropdown('admFormCat', 'dropCategories', event)">▼</button>
+        <div class="combo-dropdown-menu" id="dropCategories"></div>
+      </div>
 
-      <input class="search-input" id="admFormTitle" list="existingTitlesDatalist" placeholder="3. Событие / Этап (напр. Гран-при Бахрейна)">
-      <datalist id="existingTitlesDatalist"></datalist>
+      <div class="combo-field-wrap">
+        <input class="search-input" id="admFormTitle" placeholder="3. Событие / Этап (напр. Гран-при Бахрейна)">
+        <button type="button" class="combo-arrow-btn" onclick="toggleComboDropdown('admFormTitle', 'dropTitles', event)">▼</button>
+        <div class="combo-dropdown-menu" id="dropTitles"></div>
+      </div>
       
       <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
         <input class="search-input" id="admFormImg" placeholder="Ссылка на постер (необязательно)" style="margin-bottom:0;">
@@ -1509,8 +1583,11 @@
 
       <textarea class="search-input" id="admFormDesc" rows="2" placeholder="Описание заезда (необязательно)..."></textarea>
 
-      <input class="search-input" id="admFormItem" list="existingItemsDatalist" placeholder="4. Сессия (напр. Гонка, Квалификация, П1)">
-      <datalist id="existingItemsDatalist"></datalist>
+      <div class="combo-field-wrap">
+        <input class="search-input" id="admFormItem" placeholder="4. Сессия (напр. Гонка, Квалификация, П1)">
+        <button type="button" class="combo-arrow-btn" onclick="toggleComboDropdown('admFormItem', 'dropItems', event)">▼</button>
+        <div class="combo-dropdown-menu" id="dropItems"></div>
+      </div>
 
       <input class="search-input" id="admFormBadge" value="1080p" placeholder="Качество (1080p)">
       <input class="search-input" id="admFormCode" placeholder="Код выдачи в боте (напр. bahrain26_race)">
@@ -1661,7 +1738,6 @@
     const WORKER_URL = "https://dark-art-1fac.poiuyuiop132.workers.dev";
     const BOT_USERNAME = "race_weekend_f1_bot";
     const ADMIN_ID = "301211351";
-    const TESTER_ID = "8061233590";
 
     function cleanDriverName(rawName) {
       if (!rawName) return "";
@@ -1673,7 +1749,6 @@
         .trim();
     }
 
-    // Безопасное определение пользователя строго через Telegram WebApp (без возможности подмены через prompt)
     function resolveTelegramUser() {
       let uid = "";
       if (tg?.initDataUnsafe?.user?.id) uid = String(tg.initDataUnsafe.user.id);
@@ -1698,7 +1773,6 @@
 
     const currentUserId = resolveTelegramUser();
     const isAdmin = (currentUserId === ADMIN_ID);
-    const isTester = isAdmin ? true : (currentUserId === TESTER_ID);
 
     // =========================================================================
     // СЕРВЕРНАЯ СИНХРОНИЗАЦИЯ И ВАЛИДАЦИЯ ПРОФИЛЯ / АЧИВОК / HEARTBEAT
@@ -1757,7 +1831,6 @@
         const data = await res.json();
         if (data && data.success && data.profile) {
           const p = data.profile;
-          // Записываем строго подтвержденный сервером бонус (любая локальная накрутка перезаписывается честным числом с сервера!)
           localStorage.setItem(`f1_bonus_pts_${currentUserId}`, String(p.bonusPts ? p.bonusPts : 0));
           if (p.maxPtsEver) {
             localStorage.setItem(`f1_max_pts_ever_${currentUserId}`, String(p.maxPtsEver));
@@ -2011,7 +2084,6 @@
       p1Select.innerHTML = optionsHtml;
       flSelect.innerHTML = optionsHtml;
 
-      // Заполняем селекты админской панели расчета этапа (Раунд + P1 + P2 + P3 + FL)
       const simRound = document.getElementById("sim-round-select");
       const simP1 = document.getElementById("sim-p1-select");
       const simP2 = document.getElementById("sim-p2-select");
@@ -2978,7 +3050,6 @@
         avatarEl.innerText = realName.charAt(0).toUpperCase();
       }
 
-      // Получаем строго проверенный сервером профиль и бонус
       await syncCloudUserProfile();
 
       const savedBase = localStorage.getItem(`f1_user_base_points_${currentUserId}`);
@@ -3409,8 +3480,15 @@
     }
 
     // =========================================================================
-    // ЗАГРУЗКА КАТАЛОГА, АВТОЗАПОЛНЕНИЕ DATALIST И РЕНДЕР 4-УРОВНЕВЫХ СЭНДВИЧ-ПАПОК
+    // КАТАЛОГ, КАСТОМНЫЕ ВЫПАДАЮЩИЕ МЕНЮ ПО СТРЕЛОЧКЕ И ЗАКРЫТИЕ КЛАВИАТУРЫ
     // =========================================================================
+    window.adminComboOptions = {
+      dropSections: [],
+      dropCategories: [],
+      dropTitles: [],
+      dropItems: []
+    };
+
     async function loadCatalogDatabase() {
       try {
         const res = await fetch(`${WORKER_URL}/api/catalog`);
@@ -3429,7 +3507,7 @@
     }
 
     function populateAdminDatalists() {
-      const secSet = new Set();
+      const secSet = new Set(["🏎️ Формула 1"]);
       const catSet = new Set();
       const titleSet = new Set();
       const itemSet = new Set(["Гонка", "Квалификация", "Спринт", "Спринт-квалификация", "Практика 1", "Практика 2", "Практика 3"]);
@@ -3441,18 +3519,87 @@
         if (r.item && String(r.item).trim()) itemSet.add(String(r.item).trim());
       });
 
-      const secEl = document.getElementById("existingSectionsDatalist");
-      const catEl = document.getElementById("existingCategoriesDatalist");
-      const titleEl = document.getElementById("existingTitlesDatalist");
-      const itemEl = document.getElementById("existingItemsDatalist");
-
-      if (secEl) secEl.innerHTML = [...secSet].map(v => `<option value="${v.replace(/"/g, "&quot;")}">`).join("");
-      if (catEl) catEl.innerHTML = [...catSet].map(v => `<option value="${v.replace(/"/g, "&quot;")}">`).join("");
-      if (titleEl) titleEl.innerHTML = [...titleSet].map(v => `<option value="${v.replace(/"/g, "&quot;")}">`).join("");
-      if (itemEl) itemEl.innerHTML = [...itemSet].map(v => `<option value="${v.replace(/"/g, "&quot;")}">`).join("");
+      window.adminComboOptions.dropSections = [...secSet];
+      window.adminComboOptions.dropCategories = [...catSet];
+      window.adminComboOptions.dropTitles = [...titleSet];
+      window.adminComboOptions.dropItems = [...itemSet];
     }
 
-    // Уровень 1 (Корневой экран Архива): Показывает Глобальные Разделы (если есть) + Категории без раздела + События без категории
+    function toggleComboDropdown(inputId, menuId, evt) {
+      if (evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+      }
+      // Скрываем мобильную клавиатуру при нажатии на стрелочку, чтобы она не перекрывала список
+      if (document.activeElement && typeof document.activeElement.blur === "function") {
+        document.activeElement.blur();
+      }
+
+      const menuEl = document.getElementById(menuId);
+      if (!menuEl) return;
+
+      const isAlreadyOpen = menuEl.classList.contains("open");
+      document.querySelectorAll(".combo-dropdown-menu").forEach(m => m.classList.remove("open"));
+      if (isAlreadyOpen) return;
+
+      let list = window.adminComboOptions[menuId] ? window.adminComboOptions[menuId] : [];
+
+      if (menuId === "dropTitles") {
+        const chosenCat = document.getElementById("admFormCat")?.value.trim();
+        if (chosenCat) {
+          const filteredTitles = [...new Set(
+            allCatalogItems
+              .filter(r => String(r.category ? r.category : "").trim() === chosenCat)
+              .map(r => String(r.title ? r.title : "").trim())
+              .filter(Boolean)
+          )];
+          if (filteredTitles.length > 0) list = filteredTitles;
+        }
+      }
+
+      if (list.length === 0) {
+        menuEl.innerHTML = '<div class="combo-option-item" style="color:var(--text-muted);">Список пока пуст — введите вручную слева</div>';
+      } else {
+        menuEl.innerHTML = "";
+        list.forEach(val => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "combo-option-item";
+          itemDiv.innerText = val;
+          itemDiv.onclick = (e) => {
+            e.stopPropagation();
+            const inp = document.getElementById(inputId);
+            if (inp) inp.value = val;
+            menuEl.classList.remove("open");
+            if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+          };
+          menuEl.appendChild(itemDiv);
+        });
+      }
+
+      menuEl.classList.add("open");
+      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+    }
+
+    // Закрытие мобильной клавиатуры и выпадающих списков при касании любого места вне полей ввода
+    document.addEventListener("touchstart", (e) => {
+      const t = e.target;
+      if (!t.closest(".combo-field-wrap")) {
+        document.querySelectorAll(".combo-dropdown-menu").forEach(m => m.classList.remove("open"));
+      }
+      if (!t.closest("input, textarea, select, .combo-arrow-btn, .combo-dropdown-menu")) {
+        const active = document.activeElement;
+        if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) {
+          active.blur();
+        }
+      }
+    }, { passive: true });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".combo-field-wrap")) {
+        document.querySelectorAll(".combo-dropdown-menu").forEach(m => m.classList.remove("open"));
+      }
+    });
+
     function renderArchiveRootScreen() {
       const container = document.getElementById("catalogSectionsContainer");
       if (!container) return;
@@ -3475,14 +3622,12 @@
           if (!rootTitlesMap[title]) rootTitlesMap[title] = { image: item.image, description: item.description, items: [] };
           rootTitlesMap[title].items.push(item);
         } else {
-          // Даже если не заполнены ни раздел, ни категория, ни событие — выводим саму сессию
           const fallbackTitle = item.item ? String(item.item).trim() : "Заезд";
           if (!rootTitlesMap[fallbackTitle]) rootTitlesMap[fallbackTitle] = { image: item.image, description: item.description, items: [] };
           rootTitlesMap[fallbackTitle].items.push(item);
         }
       });
 
-      // 1. Отрисовываем Глобальные разделы (1-й уровень Сэндвича, напр. «Формула 1»)
       sectionsList.forEach((secName, idx) => {
         const btn = document.createElement("div");
         btn.className = "menu-btn";
@@ -3510,7 +3655,6 @@
         container.appendChild(btn);
       });
 
-      // 2. Отрисовываем Категории (Сезоны), у которых не задан глобальный раздел (полная обратная совместимость!)
       rootCategoriesList.forEach((catName, idx) => {
         const btn = document.createElement("div");
         btn.className = "menu-btn";
@@ -3538,7 +3682,6 @@
         container.appendChild(btn);
       });
 
-      // 3. Отрисовываем События, если у них не были заполнены ни раздел, ни категория
       Object.keys(rootTitlesMap).forEach(titleKey => {
         const itemObj = rootTitlesMap[titleKey];
         const thumb = itemObj.image ? `<img class="menu-btn-thumb" src="${itemObj.image}">` : "";
@@ -3550,7 +3693,6 @@
       });
     }
 
-    // Уровень 2: Открытие Глобального Раздела (показывает его Категории/Сезоны + События без категории)
     function openCatalogSection(sectionName) {
       activeCatalogSection = sectionName;
       const headerEl = document.getElementById("activeSectionHeaderTitle");
@@ -3620,7 +3762,6 @@
       openViewScreen("subcategories");
     }
 
-    // Уровень 3: Открытие Категории / Сезона (показывает События / Гран-при)
     function openCatalogCategory(sectionName, categoryName, fromScreen = "archive") {
       activeCatalogSection = sectionName;
       activeCatalogCategory = categoryName;
@@ -3701,7 +3842,6 @@
       openViewScreen("titles");
     }
 
-    // Уровень 4: Открытие конкретного События / Гран-при (показывает Сессии)
     function openCatalogDetails(sectionName, categoryName, titleKey, fromScreen = "titles") {
       activeCatalogSection = sectionName;
       activeCatalogCategory = categoryName;
@@ -4071,7 +4211,6 @@
       document.getElementById("adminCancelEditBtn").style.display = "none";
     }
 
-    // Гибкое сохранение: даже если не заполнены какие-то уровни папок, запись всегда корректно добавляется!
     async function submitCatalogRecordForm() {
       const editId = document.getElementById("adminEditRecordId").value;
       const rawSection = document.getElementById("admFormSection").value.trim();
@@ -4187,7 +4326,7 @@
         loadCatalogDatabase();
         syncCloudUserProfile();
 
-        const hasBetaAccess = isAdmin ? true : isTester;
+        const hasBetaAccess = isAdmin;
         let globalVersion = "v1";
         if (!hasBetaAccess) {
           try {
