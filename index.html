@@ -4736,38 +4736,31 @@
     async function fetchOpenF1LiveTelemetry() {
       if (!liveRadarState.active || !liveRadarState.running) return;
       const updLbl = document.getElementById("liveTowerUpdateLbl");
-      if (updLbl) updLbl.innerText = "Запрос к OpenF1...";
+      if (updLbl) updLbl.innerText = "Синхронизация с OpenF1...";
 
       try {
-        // Запрашиваем список последних сессий и берем самую актуальную по времени
-        const sRes = await fetch("https://api.openf1.org/v1/sessions");
+        // Используем ?session_key=latest, у которого корректно настроены CORS заголовки
+        const sRes = await fetch("https://api.openf1.org/v1/sessions?session_key=latest");
         const sData = await sRes.json();
-        
-        if (!Array.isArray(sData) || sData.length === 0) throw new Error("Сессии не найдены в OpenF1");
-        
-        // Сортируем по дате начала и берем самую свежую
-        sData.sort((a, b) => new Date(b.date_start) - new Date(a.date_start));
-        const latestSession = sData[0];
+        const latestSession = Array.isArray(sData) && sData.length > 0 ? sData[sData.length - 1] : null;
+
+        if (!latestSession) throw new Error("Сессия не найдена");
 
         liveRadarState.sessionKey = latestSession.session_key;
         const country = latestSession.country_name ? latestSession.country_name : "F1";
-        const sName = latestSession.session_name ? latestSession.session_name : "Session";
+        const sName = latestSession.session_name ? latestSession.session_name : "Race";
         
-        console.log("Активная сессия OpenF1:", country, sName, "Key:", liveRadarState.sessionKey);
-
         document.getElementById("liveSessionCountryLbl").innerText = `OPENF1 • ${country.toUpperCase()} (${sName.toUpperCase()})`;
         document.getElementById("liveSessionTitleLbl").innerText = `${latestSession.location ? latestSession.location : country} — ${sName}`;
 
-        const sk = liveRadarState.sessionKey;
-        const [drvRes, intRes, stintRes, rcRes, locRes] = await Promise.all([
-          fetch(`https://api.openf1.org/v1/drivers?session_key=${sk}`).catch(() => null),
-          fetch(`https://api.openf1.org/v1/intervals?session_key=${sk}`).catch(() => null),
-          fetch(`https://api.openf1.org/v1/stints?session_key=${sk}`).catch(() => null),
-          fetch(`https://api.openf1.org/v1/race_control?session_key=${sk}`).catch(() => null),
-          fetch(`https://api.openf1.org/v1/location?session_key=${sk}`).catch(() => null)
+        const [drvRes, intRes, stintRes, rcRes] = await Promise.all([
+          fetch("https://api.openf1.org/v1/drivers?session_key=latest").catch(() => null),
+          fetch("https://api.openf1.org/v1/intervals?session_key=latest").catch(() => null),
+          fetch("https://api.openf1.org/v1/stints?session_key=latest").catch(() => null),
+          fetch("https://api.openf1.org/v1/race_control?session_key=latest").catch(() => null)
         ]);
 
-        // Статус флагов
+        // Статус флагов на трассе
         if (rcRes && rcRes.ok) {
           const rcList = await rcRes.json();
           if (Array.isArray(rcList) && rcList.length > 0) {
@@ -4787,7 +4780,7 @@
           }
         }
 
-        // Шины
+        // Составы шин
         const stintsByDriver = {};
         if (stintRes && stintRes.ok) {
           const stints = await stintRes.json();
@@ -4802,7 +4795,7 @@
           }
         }
 
-        // Интервалы
+        // Отрывы
         const gapsByDriver = {};
         if (intRes && intRes.ok) {
           const ints = await intRes.json();
@@ -4815,20 +4808,7 @@
           }
         }
 
-        // Координаты X, Y
-        const coordsByDriver = {};
-        if (locRes && locRes.ok) {
-          const locs = await locRes.json();
-          if (Array.isArray(locs) && locs.length > 0) {
-            locs.slice(-60).forEach(l => {
-              if (l.driver_number && l.x !== undefined && l.y !== undefined) {
-                coordsByDriver[l.driver_number] = { x: l.x, y: l.y };
-              }
-            });
-          }
-        }
-
-        // Заполняем пилотов из сессии
+        // Список пилотов
         if (drvRes && drvRes.ok) {
           const drvList = await drvRes.json();
           if (Array.isArray(drvList) && drvList.length > 0) {
@@ -4846,7 +4826,6 @@
                 const dNum = d.driver_number;
                 const stInfo = stintsByDriver[dNum] ? stintsByDriver[dNum] : { letter: "M", laps: 1 };
                 const prev = liveRadarState.drivers.find(p => p.driverNumber === dNum);
-                const realCoord = coordsByDriver[dNum];
 
                 return {
                   driverNumber: dNum,
@@ -4863,44 +4842,22 @@
                   gear: prev ? prev.gear : 1,
                   throttle: prev ? prev.throttle : 0,
                   brake: prev ? prev.brake : 0,
-                  drs: prev ? prev.drs : false,
-                  realX: realCoord ? realCoord.x : null,
-                  realY: realCoord ? realCoord.y : null
+                  drs: prev ? prev.drs : false
                 };
               });
             }
           }
         }
 
-        // Телеметрия car_data для выбранного пилота
-        if (liveRadarState.selectedDriverNum) {
-          const sinceIso = new Date(Date.now() - 30000).toISOString();
-          const carRes = await fetch(`https://api.openf1.org/v1/car_data?session_key=${sk}&driver_number=${liveRadarState.selectedDriverNum}&date>=${sinceIso}`).catch(() => null);
-          if (carRes && carRes.ok) {
-            const carRows = await carRes.json();
-            if (Array.isArray(carRows) && carRows.length > 0) {
-              const latestCar = carRows[carRows.length - 1];
-              const targetDrv = liveRadarState.drivers.find(d => d.driverNumber === liveRadarState.selectedDriverNum);
-              if (targetDrv) {
-                targetDrv.speed = Number(latestCar.speed ? latestCar.speed : 0);
-                targetDrv.gear = Number(latestCar.n_gear ? latestCar.n_gear : 1);
-                targetDrv.throttle = Number(latestCar.throttle ? latestCar.throttle : 0);
-                targetDrv.brake = Number(latestCar.brake ? latestCar.brake : 0);
-                targetDrv.drs = Number(latestCar.drs ? latestCar.drs : 0) >= 10;
-              }
-            }
-          }
-        }
-
         const hintEl = document.getElementById("liveRadarStatusHint");
-        if (hintEl) hintEl.innerText = "🟢 Прямой эфир сессии подключен";
+        if (hintEl) hintEl.innerText = "🟢 Подключено к OpenF1 Live";
         if (updLbl) updLbl.innerText = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
 
         renderLiveTimingTower();
         updateSelectedDriverHud();
       } catch (err) {
-        console.error("Ошибка получения live-телеметрии:", err);
-        if (updLbl) updLbl.innerText = "Ожидание потока от OpenF1...";
+        console.error("Ошибка OpenF1:", err);
+        if (updLbl) updLbl.innerText = "Ожидание потока данных...";
         renderLiveTimingTower();
       }
     }
