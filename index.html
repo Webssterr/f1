@@ -1464,7 +1464,7 @@
               <span style="font-size:15px; font-weight:900;" id="hudDriverName">Kimi Antonelli</span>
               <span style="font-size:11px; color:#8c92a4; font-weight:700;" id="hudDriverTeam">Mercedes</span>
             </div>
-            <span class="hud-drs-badge" id="hudDrsBadge">DRS OFF</span>
+            <span class="hud-drs-badge" id="hudDrsBadge">SM OFF</span>
           </div>
           <div class="hud-metrics-grid">
             <div class="hud-metric-box">
@@ -4920,13 +4920,13 @@
       document.getElementById("hudThrottleBar").style.width = `${Math.min(100, Math.round(drv.throttle))}%`;
       document.getElementById("hudBrakeBar").style.width = `${Math.min(100, Math.round(drv.brake))}%`;
 
-      const drsEl = document.getElementById("hudDrsBadge");
+      const smEl = document.getElementById("hudDrsBadge");
       if (drv.drs) {
-        drsEl.className = "hud-drs-badge active";
-        drsEl.innerText = "DRS ACTIVE";
+        smEl.className = "hud-drs-badge active";
+        smEl.innerText = "SM ACTIVE";
       } else {
-        drsEl.className = "hud-drs-badge";
-        drsEl.innerText = "DRS OFF";
+        smEl.className = "hud-drs-badge";
+        smEl.innerText = "SM OFF";
       }
     }
 
