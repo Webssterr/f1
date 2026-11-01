@@ -4782,7 +4782,7 @@
             const drvJson = await driversRes.json();
             if (drvJson && typeof drvJson === 'object') {
               const rawArr = Array.isArray(drvJson) ? drvJson : Object.values(drvJson);
-              if (rawArr.length > 0 && rawArr[0].name !== "Driver (D1)") {
+              if (rawArr.length > 1) {
                 liveParsedDrivers = rawArr;
               }
             }
@@ -4792,7 +4792,7 @@
         const sourceDrivers = liveParsedDrivers.length > 0 ? liveParsedDrivers : baseDrivers;
 
         liveRadarState.drivers = sourceDrivers.slice(0, 22).map((d, idx) => {
-          const rawName = d.fullName || d.name || d.Driver || `Driver ${idx + 1}`;
+          const rawName = d.fullName || d.name || d.Driver || d.BroadcastName || `Driver ${idx + 1}`;
           const cleanName = cleanDriverName(rawName);
           const parts = cleanName.split(" ");
           const lastName = parts[parts.length - 1] ? parts[parts.length - 1] : cleanName;
