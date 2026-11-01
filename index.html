@@ -4736,42 +4736,45 @@
     async function fetchOpenF1LiveTelemetry() {
       if (!liveRadarState.active || !liveRadarState.running) return;
       const updLbl = document.getElementById("liveTowerUpdateLbl");
-      if (updLbl) updLbl.innerText = "Прямой эфир F1...";
+      if (updLbl) updLbl.innerText = "Синхронизация с F1 Standings...";
 
       try {
         const PROXY_URL = "https://f1-livetiming-api-wc6h.onrender.com";
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort5000);
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-        let driversRes = null, raceControlRes = null, weatherRes = null, sessionRes = null;
+        let standingsRes = null, raceControlRes = null, weatherRes = null, sessionRes = null, tyresRes = null;
         try {
-          [driversRes, raceControlRes, weatherRes, sessionRes] = await Promise.all([
-            fetch(`${PROXY_URL}/api/drivers`, { signal: controller.signal }).catch(() => null),
+          [standingsRes, raceControlRes, weatherRes, sessionRes, tyresRes] = await Promise.all([
+            fetch(`${PROXY_URL}/api/standings`, { signal: controller.signal }).catch(() => null),
             fetch(`${PROXY_URL}/api/race-control`, { signal: controller.signal }).catch(() => null),
             fetch(`${PROXY_URL}/api/weather`, { signal: controller.signal }).catch(() => null),
-            fetch(`${PROXY_URL}/api/session`, { signal: controller.signal }).catch(() => null)
+            fetch(`${PROXY_URL}/api/session`, { signal: controller.signal }).catch(() => null),
+            fetch(`${PROXY_URL}/api/tyres`, { signal: controller.signal }).catch(() => null)
           ]);
         } catch (e) {}
 
         clearTimeout(timeoutId);
 
-        // Сессия и погода
-        let sessionTitle = "Live Race";
+        // 1. Сессия
+        let sessionTitle = "Live Session";
         if (sessionRes && sessionRes.ok) {
           try {
             const sessData = await sessionRes.json();
-            sessionTitle = `${sessData.MeetingName || "GP"} — ${sessData.Name || "Race"}`;
+            const sInfo = sessData.Session || sessData;
+            sessionTitle = `${sInfo.Meeting?.Name || "GP"} — ${sInfo.Name || "Race"}[cite: 20]`;
           } catch (e) {}
         }
-        document.getElementById("liveSessionTitleLbl").innerText = sessionTitle;
+        const titleLbl = document.getElementById("liveSessionTitleLbl");
+        if (titleLbl) titleLbl.innerText = sessionTitle;
 
-        // Флаги (если рестарт, красный флаг сменяется)
+        // 2. Флаги / Race Control
         let isRedFlag = false;
         if (raceControlRes && raceControlRes.ok) {
           try {
-            const rcData = await raceControlRes.json();
-            const rcArr = Array.isArray(rcData) ? rcData : Object.values(rcData);
+            const rcJson = await raceControlRes.json();
+            const rcArr = rcJson.RaceControl ? rcJson.RaceControl : (Array.isArray(rcJson) ? rcJson : Object.values(rcJson));
             const lastEvent = rcArr[rcArr.length - 1];
             if (lastEvent) {
               const msg = (lastEvent.Message || lastEvent.Text || "").toUpperCase();
@@ -4784,13 +4787,14 @@
 
         const trackHint = document.getElementById("liveRadarStatusHint");
         if (trackHint) {
-          trackHint.innerText = isRedFlag ? "🔴 RED FLAG" : "🟢 ГОНКА ИДЕТ (РЕСТАРТ)";
+          trackHint.innerText = isRedFlag ? "🔴 RED FLAG — Сессия остановлена" : "🟢 Live Timing Active (Standings)";
         }
 
-        // Пилоты в реальном времени
-        if (driversRes && driversRes.ok) {
-          const drvJson = await driversRes.json();
-          const rawObj = drvJson.Drivers ? drvJson.Drivers : drvJson;
+        // 3. Главное: забираем реальные данные из /api/standings
+        if (standingsRes && standingsRes.ok) {
+          const stdJson = await standingsRes.json();
+          // Поддерживаем формат ответа эндпоинта standings
+          const rawObj = stdJson.Standings || stdJson.drivers || stdJson;
           const rawArr = Array.isArray(rawObj) ? rawObj : Object.values(rawObj);
 
           if (rawArr.length > 0) {
@@ -4804,25 +4808,25 @@
               if (isNaN(pos)) pos = idx + 1;
 
               return {
-                driverNumber: d.RacingNumber || (idx + 1),
+                driverNumber: d.RacingNumber || d.driverNumber || (idx + 1),
                 pos: pos,
-                code: (d.Tla || cleanName.substring(0, 3)).toUpperCase(),
+                code: (d.Tla || d.Code || cleanName.substring(0, 3)).toUpperCase(),
                 name: cleanName,
                 team: teamName,
                 color: teamColorHex || resolveLiveTeamColor(teamName),
-                tyre: d.Compound || "M",
-                tyreLaps: d.TireAge || 1,
-                gap: pos === 1 ? "LEADER" : (d.GapToLeader || "—"),
-                // Во время гонки машинки едут по позициям
-                trackProg: ((1 - (pos - 1) * 0.035 + Date.now() * 0.0001) % 1 + 1) % 1,
-                speed: isRedFlag ? 0 : (d.Speed || 250),
+                tyre: d.Compound || d.Tyre || "M",
+                tyreLaps: d.TireAge || d.StintLaps || 1,
+                gap: pos === 1 ? "LEADER" : (d.GapToLeader || d.Interval || "—"),
+                trackProg: isRedFlag ? 0 : ((1 - (pos - 1) * 0.035 + 1) % 1),
+                speed: isRedFlag ? 0 : (d.Speed || 240),
                 gear: isRedFlag ? 0 : (d.Gear || 6),
-                throttle: isRedFlag ? 0 : (d.Throttle || 90),
+                throttle: isRedFlag ? 0 : (d.Throttle || 85),
                 brake: isRedFlag ? 100 : (d.Brake || 0),
                 drs: d.Drs || false
               };
             });
 
+            // Сортируем по реальной позиции из Standings
             mappedDrivers.sort((a, b) => a.pos - b.pos);
             liveRadarState.drivers = mappedDrivers.slice(0, 22);
           }
@@ -4831,7 +4835,8 @@
         if (updLbl) updLbl.innerText = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
 
       } catch (err) {
-        console.error("Ошибка:", err);
+        console.error("Ошибка синхронизации Standings:", err);
+        if (updLbl) updLbl.innerText = "Ожидание данных...";
       } finally {
         try {
           renderLiveTimingTower();
