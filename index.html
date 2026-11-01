@@ -4753,35 +4753,35 @@
 
         if (driversRes && driversRes.ok) {
           const drvJson = await driversRes.json();
-          // 🔎 СМОТРИМ СЮДА В КОНСОЛЬ (F12) — здесь будет точный формат от твоего API
-          console.log("📊 ЧТО ПРИШЛО ОТ СЕРВЕРА /api/drivers:", drvJson);
-
-          const rawArr = Array.isArray(drvJson) ? drvJson : Object.values(drvJson);
           
+          // Сервер возвращает объект вида { "1": {FullName: "Lando Norris", ...}, "3": {...} }
+          const rawObj = drvJson.Drivers ? drvJson.Drivers : drvJson;
+          const rawArr = Array.isArray(rawObj) ? rawObj : Object.values(rawObj);
+
           if (rawArr.length > 0) {
             liveRadarState.drivers = rawArr.slice(0, 22).map((d, idx) => {
-              // Выводим первого пилота для примера, чтобы понять структуру ключей
-              if (idx === 0) console.log("🏎️ Пример полей первого пилота:", d);
-
-              const rawName = d.fullName || d.name || d.Driver || d.BroadcastName || `Driver ${idx + 1}`;
+              const rawName = d.FullName || d.BroadcastName || d.Name || `Driver ${idx + 1}`;
               const cleanName = cleanDriverName(rawName);
-              
+              const teamName = d.TeamName || "F1 Team";
+              // Превращаем HEX-цвет от сервера (например, "F47600") в CSS формат "#F47600"
+              const teamColorHex = d.TeamColour ? `#${d.TeamColour.replace('#', '')}` : null;
+
               return {
-                driverNumber: d.racingNumber || d.driverNumber || d.RacingNumber || (idx + 1),
-                pos: d.position || d.Position || (idx + 1),
-                code: (d.nameAcronym || d.code || cleanName.substring(0, 3)).toUpperCase(),
+                driverNumber: d.RacingNumber || (idx + 1),
+                pos: idx + 1,
+                code: (d.Tla || cleanName.substring(0, 3)).toUpperCase(),
                 name: cleanName,
-                team: d.teamName || d.team || d.TeamName || "F1 Team",
-                color: resolveLiveTeamColor(d.teamName || d.TeamName, d.teamColor || d.TeamColor),
-                tyre: d.compound || d.Compound || "M",
-                tyreLaps: d.tireAge || d.TireAge || 1,
-                gap: d.gapToLeader || d.GapToLeader || (idx === 0 ? "LEADER" : "—"),
+                team: teamName,
+                color: teamColorHex || resolveLiveTeamColor(teamName),
+                tyre: d.Compound || "M",
+                tyreLaps: d.TireAge || 1,
+                gap: idx === 0 ? "LEADER" : "—",
                 trackProg: (1 - idx * 0.035 + 1) % 1,
-                speed: d.speed || d.Speed || 0,
-                gear: d.gear || d.Gear || 1,
-                throttle: d.throttle || d.Throttle || 0,
-                brake: d.brake || d.Brake || 0,
-                drs: d.drs || d.Drs || false
+                speed: d.Speed || 0,
+                gear: d.Gear || 1,
+                throttle: d.Throttle || 0,
+                brake: d.Brake || 0,
+                drs: d.Drs || false
               };
             });
           }
