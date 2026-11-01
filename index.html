@@ -4736,19 +4736,17 @@
     async function fetchOpenF1LiveTelemetry() {
       if (!liveRadarState.active || !liveRadarState.running) return;
       const updLbl = document.getElementById("liveTowerUpdateLbl");
-      if (updLbl) updLbl.innerText = "Синхронизация со всеми API F1...";
+      if (updLbl) updLbl.innerText = "Прямой эфир F1...";
 
       try {
         const PROXY_URL = "https://f1-livetiming-api-wc6h.onrender.com";
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const timeoutId = setTimeout(() => controller.abort5000);
 
-        // Запрашиваем все 5 эндпоинтов одновременно
-        let statusRes = null, driversRes = null, raceControlRes = null, weatherRes = null, sessionRes = null;
+        let driversRes = null, raceControlRes = null, weatherRes = null, sessionRes = null;
         try {
-          [statusRes, driversRes, raceControlRes, weatherRes, sessionRes] = await Promise.all([
-            fetch(`${PROXY_URL}/api/status`, { signal: controller.signal }).catch(() => null),
+          [driversRes, raceControlRes, weatherRes, sessionRes] = await Promise.all([
             fetch(`${PROXY_URL}/api/drivers`, { signal: controller.signal }).catch(() => null),
             fetch(`${PROXY_URL}/api/race-control`, { signal: controller.signal }).catch(() => null),
             fetch(`${PROXY_URL}/api/weather`, { signal: controller.signal }).catch(() => null),
@@ -4758,56 +4756,18 @@
 
         clearTimeout(timeoutId);
 
-        // 1. Обрабатываем /api/session и /api/status (Название сессии, Гран-при)
-        let sessionTitle = "Live Session";
-        let meetingName = "F1 Grand Prix";
+        // Сессия и погода
+        let sessionTitle = "Live Race";
         if (sessionRes && sessionRes.ok) {
           try {
             const sessData = await sessionRes.json();
-            if (sessData.Name || sessData.SessionName) {
-              sessionName = sessData.Name || sessData.SessionName;
-            }
-            if (sessData.MeetingName || sessData.Meeting?.Name) {
-              meetingName = sessData.MeetingName || sessData.Meeting.Name;
-            }
-            sessionTitle = `${meetingName} — ${sessionName}`;
-          } catch (e) {}
-        } else if (statusRes && statusRes.ok) {
-          try {
-            const stData = await statusRes.json();
-            if (stData.meetingName || stData.sessionName) {
-              sessionTitle = `${stData.meetingName || "F1"} — ${stData.sessionName || "Live"} `;
-            }
+            sessionTitle = `${sessData.MeetingName || "GP"} — ${sessData.Name || "Race"}`;
           } catch (e) {}
         }
+        document.getElementById("liveSessionTitleLbl").innerText = sessionTitle;
 
-        const titleLbl = document.getElementById("liveSessionTitleLbl");
-        const countryLbl = document.getElementById("liveSessionCountryLbl");
-        if (titleLbl) titleLbl.innerText = sessionTitle;
-        if (countryLbl) countryLbl.innerText = meetingName;
-
-        // 2. Обрабатываем /api/weather (Погода на трассе: температура воздуха, трека, влажность)
-        let weatherInfo = "";
-        if (weatherRes && weatherRes.ok) {
-          try {
-            const wData = await weatherRes.json();
-            // Берем последние данные погоды если это объект или массив
-            const wObj = Array.isArray(wData) ? wData[wData.length - 1] : wData;
-            if (wObj) {
-              const airT = wObj.AirTemp || wObj.airTemp;
-              const trackT = wObj.TrackTemp || wObj.trackTemp;
-              const humidity = wObj.Humidity || wObj.humidity;
-              if (airT !== undefined && trackT !== undefined) {
-                weatherInfo = ` | Воздух: ${airT}°C, Трек: ${trackT}°C`;
-                if (humidity !== undefined) weatherInfo += `, Влажность: ${humidity}%`;
-              }
-            }
-          } catch (e) {}
-        }
-
-        // 3. Обрабатываем /api/race-control (Флаги: Red Flag, Yellow, Track Clear)
+        // Флаги (если рестарт, красный флаг сменяется)
         let isRedFlag = false;
-        let trackStatusText = "TRACK CLEAR";
         if (raceControlRes && raceControlRes.ok) {
           try {
             const rcData = await raceControlRes.json();
@@ -4815,11 +4775,8 @@
             const lastEvent = rcArr[rcArr.length - 1];
             if (lastEvent) {
               const msg = (lastEvent.Message || lastEvent.Text || "").toUpperCase();
-              if (msg.includes("RED") || lastEvent.Flag === "RED") {
+              if (msg.includes("RED") && !msg.includes("RESTART") && !msg.includes("GREEN")) {
                 isRedFlag = true;
-                trackStatusText = "RED FLAG";
-              } else if (msg.includes("YELLOW") || lastEvent.Flag === "YELLOW") {
-                trackStatusText = "YELLOW FLAG";
               }
             }
           } catch (e) {}
@@ -4827,12 +4784,10 @@
 
         const trackHint = document.getElementById("liveRadarStatusHint");
         if (trackHint) {
-          trackHint.innerText = isRedFlag 
-            ? "🔴 RED FLAG — Сессия остановлена" 
-            : `🟢 Live Timing Активен${weatherInfo}`;
+          trackHint.innerText = isRedFlag ? "🔴 RED FLAG" : "🟢 ГОНКА ИДЕТ (РЕСТАРТ)";
         }
 
-        // 4. Обрабатываем /api/drivers (Список пилотов, позиции, команды)
+        // Пилоты в реальном времени
         if (driversRes && driversRes.ok) {
           const drvJson = await driversRes.json();
           const rawObj = drvJson.Drivers ? drvJson.Drivers : drvJson;
@@ -4848,9 +4803,6 @@
               let pos = parseInt(d.Position || d.Line || (idx + 1), 10);
               if (isNaN(pos)) pos = idx + 1;
 
-              const speed = isRedFlag ? 0 : (d.Speed || 0);
-              const gear = isRedFlag ? 0 : (d.Gear || 1);
-
               return {
                 driverNumber: d.RacingNumber || (idx + 1),
                 pos: pos,
@@ -4861,12 +4813,13 @@
                 tyre: d.Compound || "M",
                 tyreLaps: d.TireAge || 1,
                 gap: pos === 1 ? "LEADER" : (d.GapToLeader || "—"),
-                trackProg: isRedFlag ? 0 : ((1 - (pos - 1) * 0.035 + 1) % 1),
-                speed: speed,
-                gear: gear,
-                throttle: isRedFlag ? 0 : (d.Throttle || 0),
+                // Во время гонки машинки едут по позициям
+                trackProg: ((1 - (pos - 1) * 0.035 + Date.now() * 0.0001) % 1 + 1) % 1,
+                speed: isRedFlag ? 0 : (d.Speed || 250),
+                gear: isRedFlag ? 0 : (d.Gear || 6),
+                throttle: isRedFlag ? 0 : (d.Throttle || 90),
                 brake: isRedFlag ? 100 : (d.Brake || 0),
-                drs: false
+                drs: d.Drs || false
               };
             });
 
@@ -4878,8 +4831,7 @@
         if (updLbl) updLbl.innerText = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
 
       } catch (err) {
-        console.error("Ошибка обновления данных F1:", err);
-        if (updLbl) updLbl.innerText = "Ожидание данных сервера...";
+        console.error("Ошибка:", err);
       } finally {
         try {
           renderLiveTimingTower();
