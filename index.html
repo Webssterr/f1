@@ -4744,79 +4744,48 @@
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-        let statusRes = null;
         let driversRes = null;
-
-        try {
-          statusRes = await fetch(`${PROXY_URL}/api/status`, { signal: controller.signal });
-        } catch (e) {}
-
         try {
           driversRes = await fetch(`${PROXY_URL}/api/drivers`, { signal: controller.signal });
         } catch (e) {}
 
         clearTimeout(timeoutId);
 
-        let sessionTitle = "Live Session";
-        if (statusRes && statusRes.ok) {
-          try {
-            const stData = await statusRes.json();
-            if (stData.meetingName || stData.sessionName) {
-              sessionTitle = `${stData.meetingName || "F1"} — ${stData.sessionName || "Race"}`;
-            }
-          } catch (e) {}
-        }
-
-        const countryLbl = document.getElementById("liveSessionCountryLbl");
-        const titleLbl = document.getElementById("liveSessionTitleLbl");
-        if (countryLbl) countryLbl.innerText = "F1 LIVE TIMING PROXY";
-        if (titleLbl) titleLbl.innerText = sessionTitle;
-
-        const baseDrivers = (window.currentLoadedDrivers && window.currentLoadedDrivers.length > 0)
-          ? window.currentLoadedDrivers
-          : DEFAULT_DRIVERS_DATA;
-
-        let liveParsedDrivers = [];
         if (driversRes && driversRes.ok) {
-          try {
-            const drvJson = await driversRes.json();
-            if (drvJson && typeof drvJson === 'object') {
-              const rawArr = Array.isArray(drvJson) ? drvJson : Object.values(drvJson);
-              if (rawArr.length > 1) {
-                liveParsedDrivers = rawArr;
-              }
-            }
-          } catch (e) {}
-        }
+          const drvJson = await driversRes.json();
+          // 🔎 СМОТРИМ СЮДА В КОНСОЛЬ (F12) — здесь будет точный формат от твоего API
+          console.log("📊 ЧТО ПРИШЛО ОТ СЕРВЕРА /api/drivers:", drvJson);
 
-        const sourceDrivers = liveParsedDrivers.length > 0 ? liveParsedDrivers : baseDrivers;
-
-        liveRadarState.drivers = sourceDrivers.slice(0, 22).map((d, idx) => {
-          const rawName = d.fullName || d.name || d.Driver || d.BroadcastName || `Driver ${idx + 1}`;
-          const cleanName = cleanDriverName(rawName);
-          const parts = cleanName.split(" ");
-          const lastName = parts[parts.length - 1] ? parts[parts.length - 1] : cleanName;
-          const code = (d.nameAcronym || d.code || lastName.substring(0, 3)).toUpperCase();
-          const teamName = d.teamName || d.team || "F1 Team";
+          const rawArr = Array.isArray(drvJson) ? drvJson : Object.values(drvJson);
           
-          return {
-            driverNumber: d.racingNumber || d.driverNumber || (idx + 1),
-            pos: d.position || (idx + 1),
-            code: code,
-            name: cleanName,
-            team: teamName,
-            color: resolveLiveTeamColor(teamName, d.teamColor),
-            tyre: d.compound || (idx % 2 === 0 ? "M" : "H"),
-            tyreLaps: d.tireAge || (5 + idx),
-            gap: d.gapToLeader || (idx === 0 ? "LEADER" : `+${(idx * 1.4).toFixed(3)}s`),
-            trackProg: (1 - idx * 0.035 + 1) % 1,
-            speed: d.speed || (220 + (idx * 5) % 80),
-            gear: d.gear || 6,
-            throttle: d.throttle || 85,
-            brake: d.brake || 0,
-            drs: d.drs || false
-          };
-        });
+          if (rawArr.length > 0) {
+            liveRadarState.drivers = rawArr.slice(0, 22).map((d, idx) => {
+              // Выводим первого пилота для примера, чтобы понять структуру ключей
+              if (idx === 0) console.log("🏎️ Пример полей первого пилота:", d);
+
+              const rawName = d.fullName || d.name || d.Driver || d.BroadcastName || `Driver ${idx + 1}`;
+              const cleanName = cleanDriverName(rawName);
+              
+              return {
+                driverNumber: d.racingNumber || d.driverNumber || d.RacingNumber || (idx + 1),
+                pos: d.position || d.Position || (idx + 1),
+                code: (d.nameAcronym || d.code || cleanName.substring(0, 3)).toUpperCase(),
+                name: cleanName,
+                team: d.teamName || d.team || d.TeamName || "F1 Team",
+                color: resolveLiveTeamColor(d.teamName || d.TeamName, d.teamColor || d.TeamColor),
+                tyre: d.compound || d.Compound || "M",
+                tyreLaps: d.tireAge || d.TireAge || 1,
+                gap: d.gapToLeader || d.GapToLeader || (idx === 0 ? "LEADER" : "—"),
+                trackProg: (1 - idx * 0.035 + 1) % 1,
+                speed: d.speed || d.Speed || 0,
+                gear: d.gear || d.Gear || 1,
+                throttle: d.throttle || d.Throttle || 0,
+                brake: d.brake || d.Brake || 0,
+                drs: d.drs || d.Drs || false
+              };
+            });
+          }
+        }
 
         const hintEl = document.getElementById("liveRadarStatusHint");
         if (hintEl) hintEl.innerText = "🟢 Данные F1 Live Timing активны";
