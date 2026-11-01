@@ -4736,7 +4736,7 @@
     async function fetchOpenF1LiveTelemetry() {
       if (!liveRadarState.active || !liveRadarState.running) return;
       const updLbl = document.getElementById("liveTowerUpdateLbl");
-      if (updLbl) updLbl.innerText = "Синхронизация с F1 Standings...";
+      if (updLbl) updLbl.innerText = "Синхронизация с F1 Leaderboard...";
 
       try {
         const PROXY_URL = "https://f1-livetiming-api-wc6h.onrender.com";
@@ -4744,20 +4744,19 @@
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-        let standingsRes = null, raceControlRes = null, weatherRes = null, sessionRes = null, tyresRes = null;
+        let leaderboardRes = null, raceControlRes = null, weatherRes = null, sessionRes = null;
         try {
-          [standingsRes, raceControlRes, weatherRes, sessionRes, tyresRes] = await Promise.all([
-            fetch(`${PROXY_URL}/api/standings`, { signal: controller.signal }).catch(() => null),
+          [leaderboardRes, raceControlRes, weatherRes, sessionRes] = await Promise.all([
+            fetch(`${PROXY_URL}/api/leaderboard`, { signal: controller.signal }).catch(() => null),
             fetch(`${PROXY_URL}/api/race-control`, { signal: controller.signal }).catch(() => null),
             fetch(`${PROXY_URL}/api/weather`, { signal: controller.signal }).catch(() => null),
-            fetch(`${PROXY_URL}/api/session`, { signal: controller.signal }).catch(() => null),
-            fetch(`${PROXY_URL}/api/tyres`, { signal: controller.signal }).catch(() => null)
+            fetch(`${PROXY_URL}/api/session`, { signal: controller.signal }).catch(() => null)
           ]);
         } catch (e) {}
 
         clearTimeout(timeoutId);
 
-        // 1. Сессия
+        // 1. Название сессии
         let sessionTitle = "Live Session";
         if (sessionRes && sessionRes.ok) {
           try {
@@ -4769,7 +4768,7 @@
         const titleLbl = document.getElementById("liveSessionTitleLbl");
         if (titleLbl) titleLbl.innerText = sessionTitle;
 
-        // 2. Флаги / Race Control
+        // 2. Флаги / Статус трассы
         let isRedFlag = false;
         if (raceControlRes && raceControlRes.ok) {
           try {
@@ -4787,57 +4786,69 @@
 
         const trackHint = document.getElementById("liveRadarStatusHint");
         if (trackHint) {
-          trackHint.innerText = isRedFlag ? "🔴 RED FLAG — Сессия остановлена" : "🟢 Live Timing Active (Standings)";
+          trackHint.innerText = isRedFlag ? "🔴 RED FLAG — Сессия остановлена" : "🟢 Live Timing Active (Leaderboard)";
         }
 
-        // 3. Обработка данных из /api/standings с логированием
-        if (standingsRes && standingsRes.ok) {
-          const stdJson = await standingsRes.json();
-          console.log("📊 ЧТО ПРИШЛО ОТ /api/standings:", stdJson);
+        // 3. Главный источник: /api/leaderboard отдаёт массив Leaderboard и объект Lines с телеметрией
+        if (leaderboardRes && leaderboardRes.ok) {
+          const lbJson = await leaderboardRes.json();
+          const lines = lbJson.Lines || {};
+          const order = lbJson.Leaderboard || Object.keys(lines);
 
-          const rawObj = stdJson.Standings || stdJson.drivers || stdJson.Lines || stdJson;
-          const rawArr = Array.isArray(rawObj) ? rawObj : Object.values(rawObj);
-
-          console.log("🏎️ Разобранный массив standings:", rawArr);
-
-          if (rawArr.length > 0) {
-            let mappedDrivers = rawArr.map((d, idx) => {
-              const rawName = d.FullName || d.BroadcastName || d.Name || `Driver ${idx + 1}`;
+          if (order.length > 0) {
+            let mappedDrivers = order.map((racingNum, idx) => {
+              const d = lines[racingNum] || {};
+              const rawName = d.FullName || d.BroadcastName || d.Name || `Driver ${racingNum}`;
               const cleanName = cleanDriverName(rawName);
               const teamName = d.TeamName || "F1 Team";
               const teamColorHex = d.TeamColour ? `#${d.TeamColour.replace('#', '')}` : null;
               
-              let pos = parseInt(d.Position || d.Line || (idx + 1), 10);
+              let pos = parseInt(d.Position || (idx + 1), 10);
               if (isNaN(pos)) pos = idx + 1;
 
+              // Реальная резина из TimingAppData (Stints / Compound)
+              const tyreComp = d.Compound || d.Tyre || "M";
+              const tyreAge = d.TireAge || d.StintLaps || 1;
+
+              // Настоящая телеметрия из CarData / TimingAppData
+              const speed = isRedFlag ? 0 : (d.Speed || 0);
+              const gear = isRedFlag ? 0 : (d.Gear || 1);
+              const throttle = isRedFlag ? 0 : (d.Throttle || 0);
+              const brake = isRedFlag ? 100 : (d.Brake || 0);
+
               return {
-                driverNumber: d.RacingNumber || d.driverNumber || (idx + 1),
+                driverNumber: racingNum,
                 pos: pos,
                 code: (d.Tla || d.Code || cleanName.substring(0, 3)).toUpperCase(),
                 name: cleanName,
                 team: teamName,
                 color: teamColorHex || resolveLiveTeamColor(teamName),
-                tyre: d.Compound || d.Tyre || "M",
-                tyreLaps: d.TireAge || d.StintLaps || 1,
+                tyre: tyreComp,
+                tyreLaps: tyreAge,
                 gap: pos === 1 ? "LEADER" : (d.GapToLeader || d.Interval || "—"),
-                trackProg: isRedFlag ? 0 : ((1 - (pos - 1) * 0.035 + 1) % 1),
-                speed: isRedFlag ? 0 : (d.Speed || 240),
-                gear: isRedFlag ? 0 : (d.Gear || 6),
-                throttle: isRedFlag ? 0 : (d.Throttle || 85),
-                brake: isRedFlag ? 100 : (d.Brake || 0),
+                trackProg: isRedFlag ? 0 : ((1 - (pos - 1) * 0.035 + (idx * 0.005)) % 1 + 1) % 1,
+                speed: speed,
+                gear: gear,
+                throttle: throttle,
+                brake: brake,
                 drs: d.Drs || false
               };
             });
 
             mappedDrivers.sort((a, b) => a.pos - b.pos);
             liveRadarState.drivers = mappedDrivers.slice(0, 22);
+
+            // Если гонщик не выбран, выбираем лидера
+            if (!liveRadarState.selectedDriver && liveRadarState.drivers.length > 0) {
+              liveRadarState.selectedDriver = liveRadarState.drivers[0].driverNumber;
+            }
           }
         }
 
         if (updLbl) updLbl.innerText = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
 
       } catch (err) {
-        console.error("Ошибка синхронизации Standings:", err);
+        console.error("Ошибка синхронизации Leaderboard:", err);
         if (updLbl) updLbl.innerText = "Ожидание данных...";
       } finally {
         try {
