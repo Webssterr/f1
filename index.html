@@ -4741,41 +4741,54 @@
       try {
         const PROXY_URL = "https://f1-livetiming-api-wc6h.onrender.com";
 
-        const [statusRes, driversRes, standingsRes] = await Promise.all([
-          fetch(`${PROXY_URL}/api/status`).catch(() => null),
-          fetch(`${PROXY_URL}/api/drivers`).catch(() => null),
-          fetch(`${PROXY_URL}/api/standings`).catch(() => null)
-        ]);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+        let statusRes = null;
+        let driversRes = null;
+
+        try {
+          statusRes = await fetch(`${PROXY_URL}/api/status`, { signal: controller.signal });
+        } catch (e) {}
+
+        try {
+          driversRes = await fetch(`${PROXY_URL}/api/drivers`, { signal: controller.signal });
+        } catch (e) {}
+
+        clearTimeout(timeoutId);
 
         let sessionTitle = "Live Session";
         if (statusRes && statusRes.ok) {
-          const stData = await statusRes.json();
-          if (stData.meetingName || stData.sessionName) {
-            sessionTitle = `${stData.meetingName || "F1"} — ${stData.sessionName || "Race"}`;
-          }
+          try {
+            const stData = await statusRes.json();
+            if (stData.meetingName || stData.sessionName) {
+              sessionTitle = `${stData.meetingName || "F1"} — ${stData.sessionName || "Race"}`;
+            }
+          } catch (e) {}
         }
 
-        document.getElementById("liveSessionCountryLbl").innerText = "F1 LIVE TIMING PROXY";
-        document.getElementById("liveSessionTitleLbl").innerText = sessionTitle;
+        const countryLbl = document.getElementById("liveSessionCountryLbl");
+        const titleLbl = document.getElementById("liveSessionTitleLbl");
+        if (countryLbl) countryLbl.innerText = "F1 LIVE TIMING PROXY";
+        if (titleLbl) titleLbl.innerText = sessionTitle;
 
-        // Берем актуальный базовый список пилотов сезона (чтобы не было заглушек D1)
         const baseDrivers = (window.currentLoadedDrivers && window.currentLoadedDrivers.length > 0)
           ? window.currentLoadedDrivers
           : DEFAULT_DRIVERS_DATA;
 
         let liveParsedDrivers = [];
         if (driversRes && driversRes.ok) {
-          const drvJson = await driversRes.json();
-          if (drvJson && typeof drvJson === 'object') {
-            // Превращаем объект/массив ответа прокси в удобный массив
-            const rawArr = Array.isArray(drvJson) ? drvJson : Object.values(drvJson);
-            if (rawArr.length > 0 && rawArr[0].name !== "Driver (D1)") {
-              liveParsedDrivers = rawArr;
+          try {
+            const drvJson = await driversRes.json();
+            if (drvJson && typeof drvJson === 'object') {
+              const rawArr = Array.isArray(drvJson) ? drvJson : Object.values(drvJson);
+              if (rawArr.length > 0 && rawArr[0].name !== "Driver (D1)") {
+                liveParsedDrivers = rawArr;
+              }
             }
-          }
+          } catch (e) {}
         }
 
-        // Если прокси пока не отдал пилотов, берем проверенный состав сезона, но оживляем его статус
         const sourceDrivers = liveParsedDrivers.length > 0 ? liveParsedDrivers : baseDrivers;
 
         liveRadarState.drivers = sourceDrivers.slice(0, 22).map((d, idx) => {
@@ -4809,12 +4822,14 @@
         if (hintEl) hintEl.innerText = "🟢 Данные F1 Live Timing активны";
         if (updLbl) updLbl.innerText = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
 
-        renderLiveTimingTower();
-        updateSelectedDriverHud();
       } catch (err) {
         console.error("Ошибка прокси F1:", err);
         if (updLbl) updLbl.innerText = "Ожидание данных...";
-        renderLiveTimingTower();
+      } finally {
+        try {
+          renderLiveTimingTower();
+          updateSelectedDriverHud();
+        } catch (e) {}
       }
     }
 
