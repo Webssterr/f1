@@ -4753,30 +4753,32 @@
 
         if (driversRes && driversRes.ok) {
           const drvJson = await driversRes.json();
-          
-          // Сервер возвращает объект вида { "1": {FullName: "Lando Norris", ...}, "3": {...} }
           const rawObj = drvJson.Drivers ? drvJson.Drivers : drvJson;
           const rawArr = Array.isArray(rawObj) ? rawObj : Object.values(rawObj);
 
           if (rawArr.length > 0) {
-            liveRadarState.drivers = rawArr.slice(0, 22).map((d, idx) => {
+            // Превращаем в массив объектов с нужными полями
+            let mappedDrivers = rawArr.map((d, idx) => {
               const rawName = d.FullName || d.BroadcastName || d.Name || `Driver ${idx + 1}`;
               const cleanName = cleanDriverName(rawName);
               const teamName = d.TeamName || "F1 Team";
-              // Превращаем HEX-цвет от сервера (например, "F47600") в CSS формат "#F47600"
               const teamColorHex = d.TeamColour ? `#${d.TeamColour.replace('#', '')}` : null;
+              
+              // Пытаемся вытащить реальную позицию из данных сервера
+              let pos = parseInt(d.Position || d.Line || (idx + 1), 10);
+              if (isNaN(pos)) pos = idx + 1;
 
               return {
                 driverNumber: d.RacingNumber || (idx + 1),
-                pos: idx + 1,
+                pos: pos,
                 code: (d.Tla || cleanName.substring(0, 3)).toUpperCase(),
                 name: cleanName,
                 team: teamName,
                 color: teamColorHex || resolveLiveTeamColor(teamName),
                 tyre: d.Compound || "M",
                 tyreLaps: d.TireAge || 1,
-                gap: idx === 0 ? "LEADER" : "—",
-                trackProg: (1 - idx * 0.035 + 1) % 1,
+                gap: pos === 1 ? "LEADER" : "—",
+                trackProg: (1 - (pos - 1) * 0.035 + 1) % 1,
                 speed: d.Speed || 0,
                 gear: d.Gear || 1,
                 throttle: d.Throttle || 0,
@@ -4784,6 +4786,11 @@
                 drs: d.Drs || false
               };
             });
+
+            // СТРОГО СОРТИРУЕМ ПО ПОЗИЦИИ (чтобы VER был первым, LEC вторым и т.д.)
+            mappedDrivers.sort((a, b) => a.pos - b.pos);
+
+            liveRadarState.drivers = mappedDrivers.slice(0, 22);
           }
         }
 
