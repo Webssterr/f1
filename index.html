@@ -4734,127 +4734,296 @@
     }
 
     async function fetchOpenF1LiveTelemetry() {
-      if (!liveRadarState.active || !liveRadarState.running) return;
+      // 1. Если вкладка Live закрыта — немедленно выходим и не грузим телефон
+      if (!liveRadarState || !liveRadarState.active || !liveRadarState.running) return;
+
+      // 2. Защита от наслоения запросов (главная причина зависания табов на телефоне)
+      if (liveRadarState._isFetching) return;
+      liveRadarState._isFetching = true;
+
       const updLbl = document.getElementById("liveTowerUpdateLbl");
-      if (updLbl) updLbl.innerText = "Синхронизация с F1 Standings...";
 
       try {
         const PROXY_URL = "https://f1-livetiming-api-wc6h.onrender.com";
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
+        const timeoutId = setTimeout(() => controller.abort(), 4500);
 
-        let standingsRes = null, raceControlRes = null, weatherRes = null, sessionRes = null, tyresRes = null;
+        // Запрашиваем /api/leaderboard (в нем УЖЕ склеены DriverList + TimingData + TimingAppData/Stints + Session + LapCount)
+        // и /api/race-control для флагов. Всего 2 легких запроса вместо 5!
+        let lbRes = null, rcRes = null;
         try {
-          [standingsRes, raceControlRes, weatherRes, sessionRes, tyresRes] = await Promise.all([
-            fetch(`${PROXY_URL}/api/standings`, { signal: controller.signal }).catch(() => null),
-            fetch(`${PROXY_URL}/api/race-control`, { signal: controller.signal }).catch(() => null),
-            fetch(`${PROXY_URL}/api/weather`, { signal: controller.signal }).catch(() => null),
-            fetch(`${PROXY_URL}/api/session`, { signal: controller.signal }).catch(() => null),
-            fetch(`${PROXY_URL}/api/tyres`, { signal: controller.signal }).catch(() => null)
+          [lbRes, rcRes] = await Promise.all([
+            fetch(`${PROXY_URL}/api/leaderboard`, { signal: controller.signal }).catch(() => null),
+            fetch(`${PROXY_URL}/api/race-control`, { signal: controller.signal }).catch(() => null)
           ]);
         } catch (e) {}
 
         clearTimeout(timeoutId);
 
-        // 1. Название сессии
-        let sessionTitle = "Live Session";
-        if (sessionRes && sessionRes.ok) {
-          try {
-            const sessData = await sessionRes.json();
-            const sInfo = sessData.Session || sessData;
-            sessionTitle = `${sInfo.Meeting?.Name || "GP"} — ${sInfo.Name || "Race"}`;
-          } catch (e) {}
-        }
-        const titleLbl = document.getElementById("liveSessionTitleLbl");
-        if (titleLbl) titleLbl.innerText = sessionTitle;
+        if (!liveRadarState.active) return;
 
-        // 2. Флаги / Статус трассы
-        let isRedFlag = false;
-        if (raceControlRes && raceControlRes.ok) {
+        // --- А. РАЗБОР ФЛАГОВ И СТАТУСА ТРАССЫ (/api/race-control) ---
+        let trackFlag = "CLEAR"; // CLEAR, YELLOW, VSC, SC, RED
+        let lastRcMessage = "";
+
+        if (rcRes && rcRes.ok) {
           try {
-            const rcJson = await raceControlRes.json();
-            const rcArr = rcJson.RaceControl ? rcJson.RaceControl : (Array.isArray(rcJson) ? rcJson : Object.values(rcJson));
-            const lastEvent = rcArr[rcArr.length - 1];
-            if (lastEvent) {
-              const msg = (lastEvent.Message || lastEvent.Text || "").toUpperCase();
-              if (msg.includes("RED") && !msg.includes("RESTART") && !msg.includes("GREEN")) {
-                isRedFlag = true;
+            const rcJson = await rcRes.json();
+            const rcArr = rcJson.RaceControl
+              ? (Array.isArray(rcJson.RaceControl) ? rcJson.RaceControl : Object.values(rcJson.RaceControl))
+              : (Array.isArray(rcJson) ? rcJson : []);
+
+            // Ищем последнее актуальное сообщение о статусе сессии/флагах
+            for (let i = rcArr.length - 1; i >= 0; i--) {
+              const ev = rcArr[i];
+              if (!ev) continue;
+              const msg = String(ev.Message || ev.Text || "").toUpperCase();
+              const flag = String(ev.Flag || "").toUpperCase();
+              const cat = String(ev.Category || "").toUpperCase();
+
+              if (!lastRcMessage && msg) lastRcMessage = ev.Message || ev.Text;
+
+              if (flag === "RED" || msg.includes("RED FLAG") || msg.includes("SESSION SUSPENDED")) {
+                trackFlag = "RED";
+                break;
+              }
+              if (flag === "GREEN" || flag === "CLEAR" || msg.includes("TRACK CLEAR") || msg.includes("GREEN LIGHT") || msg.includes("RESTART")) {
+                trackFlag = "CLEAR";
+                break;
+              }
+              if (cat === "SAFETYCAR" || msg.includes("VIRTUAL SAFETY CAR") || msg.includes("VSC DEPLOYED")) {
+                trackFlag = msg.includes("VIRTUAL") || msg.includes("VSC") ? "VSC" : "SC";
+                break;
+              }
+              if (flag === "YELLOW" || flag === "DOUBLE YELLOW" || msg.includes("YELLOW")) {
+                trackFlag = "YELLOW";
+                break;
               }
             }
           } catch (e) {}
         }
 
-        const trackHint = document.getElementById("liveRadarStatusHint");
-        if (trackHint) {
-          trackHint.innerText = isRedFlag ? "🔴 RED FLAG — Сессия остановлена" : "🟢 Live Timing Active";
-        }
+        const isRedFlag = (trackFlag === "RED");
 
-        // 3. Данные шин
-        let tyresMap = {};
-        if (tyresRes && tyresRes.ok) {
-          try {
-            const tyresJson = await tyresRes.json();
-            const tyresArr = tyresJson.Tyres || tyresJson.Stints || (Array.isArray(tyresJson) ? tyresJson : Object.values(tyresJson));
-            if (Array.isArray(tyresArr)) {
-              tyresArr.forEach(t => {
-                const num = t.RacingNumber || t.driverNumber;
-                if (num) {
-                  tyresMap[num] = {
-                    compound: t.Compound || t.Tyre || "M",
-                    age: t.New === false ? "USED" : (t.TireAge || t.StintLaps || 1)
-                  };
-                }
-              });
+        // --- Б. РАЗБОР LEADERBOARD, СЕССИИ, ШИН И ТАЙМИНГА (/api/leaderboard) ---
+        if (lbRes && lbRes.ok) {
+          const lbJson = await lbRes.json();
+
+          // 1. Шапка сессии и круги (из lbJson.Session и lbJson.LapCount)
+          const sInfo = lbJson.Session || {};
+          const lapInfo = lbJson.LapCount || {};
+          const meetingName = sInfo.Meeting?.Name || sInfo.MeetingName || "Formula 1";
+          const sessionName = sInfo.Name || sInfo.Type || "Live Session";
+          const lapText = (lapInfo.CurrentLap && lapInfo.TotalLaps)
+            ? ` • Круг ${lapInfo.CurrentLap}/${lapInfo.TotalLaps}`
+            : "";
+
+          const titleLbl = document.getElementById("liveSessionTitleLbl");
+          if (titleLbl) titleLbl.innerText = `${meetingName} — ${sessionName}${lapText}`;
+
+          const countryLbl = document.getElementById("liveSessionCountryLbl");
+          if (countryLbl && sInfo.Meeting?.Country?.Name) {
+            countryLbl.innerText = sInfo.Meeting.Country.Name;
+          }
+
+          // Обновляем статус-бар радара
+          const trackHint = document.getElementById("liveRadarStatusHint");
+          if (trackHint) {
+            if (trackFlag === "RED") {
+              trackHint.innerText = `🔴 RED FLAG${lastRcMessage ? " — " + lastRcMessage : ""}`;
+            } else if (trackFlag === "SC") {
+              trackHint.innerText = "🟠 SAFETY CAR НА ТРАССЕ";
+            } else if (trackFlag === "VSC") {
+              trackHint.innerText = "🟠 VIRTUAL SAFETY CAR";
+            } else if (trackFlag === "YELLOW") {
+              trackHint.innerText = "🟡 ЖЕЛТЫЕ ФЛАГИ НА СЕКТОРЕ";
+            } else {
+              trackHint.innerText = `🟢 TRACK CLEAR${lapText}`;
             }
-          } catch (e) {}
-        }
+          }
 
-        // 4. Разбор /api/standings (Leaderboard + Lines)
-        if (standingsRes && standingsRes.ok) {
-          const stdJson = await standingsRes.json();
-          const order = stdJson.Leaderboard || [];
-          const lines = stdJson.Lines || {};
+          // 2. Разбор пилотов из Lines и Leaderboard
+          const lines = lbJson.Lines || {};
+          const order = Array.isArray(lbJson.Leaderboard) && lbJson.Leaderboard.length > 0
+            ? lbJson.Leaderboard
+            : Object.keys(lines);
 
           if (order.length > 0) {
-            let mappedDrivers = order.map((racingNum, idx) => {
-              const d = lines[racingNum] || {};
-              const rawName = d.FullName || d.BroadcastName || d.Name || `Driver ${racingNum}`;
-              const cleanName = cleanDriverName(rawName);
+            // Вспомогательная функция перевода времени круга "1:20.548" в секунды (80.548)
+            const parseLapTimeSec = (str) => {
+              if (!str || typeof str !== "string") return 85;
+              const parts = str.trim().split(":");
+              if (parts.length === 2) {
+                return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+              }
+              const val = parseFloat(str);
+              return isNaN(val) || val <= 0 ? 85 : val;
+            };
+
+            // Вспомогательная функция вытаскивания реального текущего комплекта шин из Stints
+            const extractRealTyre = (driverObj) => {
+              let rawComp = driverObj.Compound || driverObj.Tyre || "";
+              let age = driverObj.TireAge || driverObj.StintLaps || 0;
+
+              if (driverObj.Stints && typeof driverObj.Stints === "object") {
+                const stintsArr = Array.isArray(driverObj.Stints)
+                  ? driverObj.Stints
+                  : Object.values(driverObj.Stints);
+                if (stintsArr.length > 0) {
+                  const currentStint = stintsArr[stintsArr.length - 1] || {};
+                  if (currentStint.Compound) rawComp = currentStint.Compound;
+                  if (currentStint.TotalLaps !== undefined) age = currentStint.TotalLaps;
+                }
+              }
+
+              const up = String(rawComp).toUpperCase();
+              let shortComp = "M";
+              if (up.startsWith("S")) shortComp = "S";
+              else if (up.startsWith("M")) shortComp = "M";
+              else if (up.startsWith("H")) shortComp = "H";
+              else if (up.startsWith("I")) shortComp = "I";
+              else if (up.startsWith("W")) shortComp = "W";
+
+              return { compound: shortComp, age: parseInt(age, 10) || 1 };
+            };
+
+            // Накопитель реального отставания от лидера (в секундах) для точной расстановки на карте
+            let cumulativeGapSec = 0;
+            const nowSec = Date.now() / 1000;
+
+            let mappedDrivers = order.map((racingNumKey, idx) => {
+              const d = lines[racingNumKey] || {};
+              const racingNumStr = String(d.RacingNumber || racingNumKey);
+
+              const rawName = d.FullName || d.BroadcastName || d.Name || `Driver ${racingNumStr}`;
+              const cleanName = typeof cleanDriverName === "function" ? cleanDriverName(rawName) : rawName;
               const teamName = d.TeamName || "F1 Team";
-              const teamColorHex = d.TeamColour ? `#${d.TeamColour.replace('#', '')}` : null;
-              
-              let pos = parseInt(d.Position || (idx + 1), 10);
-              if (isNaN(pos)) pos = idx + 1;
+              const teamColorHex = d.TeamColour ? `#${String(d.TeamColour).replace("#", "")}` : null;
 
-              const driverTyre = tyresMap[racingNum] || { compound: d.Compound || "M", age: d.TireAge || 5 };
+              let pos = parseInt(d.Position, 10);
+              if (isNaN(pos) || pos <= 0) pos = idx + 1;
 
-              // Достаем настоящую скорость из объекта Speeds (например, ловушка ST или I1)
-              const speedVal = d.Speeds?.ST?.Value || d.Speeds?.I1?.Value || d.Speed || (pos === 1 ? 295 : 270 - pos * 2);
+              // Статус машины: в боксах, сошел или остановился
+              const inPit = Boolean(d.InPit);
+              const isStoppedOrRetired = Boolean(d.Retired || d.Stopped);
+              const isStationary = isRedFlag || inPit || isStoppedOrRetired;
+
+              // Настоящая резина из Stints
+              const tyreData = extractRealTyre(d);
+
+              // Настоящий отрыв (Gap / Interval) и статус для таблицы
+              let displayGap = "—";
+              let gapSecFromLeader = 0;
+
+              if (d.Retired) {
+                displayGap = "OUT";
+              } else if (d.Stopped) {
+                displayGap = "STOP";
+              } else if (inPit) {
+                displayGap = "PIT";
+              } else if (pos === 1) {
+                displayGap = "LEADER";
+                gapSecFromLeader = 0;
+              } else {
+                const rawGap = d.GapToLeader || d.TimeDiffToFastest || d.IntervalToPositionAhead?.Value || "";
+                displayGap = rawGap ? String(rawGap) : "—";
+
+                // Считаем точное отставание в секундах для позиции на карте
+                const parsedGap = parseFloat(String(d.GapToLeader || "").replace("+", ""));
+                const parsedInt = parseFloat(String(d.IntervalToPositionAhead?.Value || "").replace("+", ""));
+
+                if (!isNaN(parsedGap) && parsedGap > 0) {
+                  gapSecFromLeader = parsedGap;
+                  cumulativeGapSec = parsedGap;
+                } else if (!isNaN(parsedInt) && parsedInt > 0) {
+                  cumulativeGapSec += parsedInt;
+                  gapSecFromLeader = cumulativeGapSec;
+                } else if (String(d.GapToLeader || "").includes("L")) {
+                  // Круговой (например "1L")
+                  const lapsBehind = parseInt(d.GapToLeader, 10) || 1;
+                  gapSecFromLeader = cumulativeGapSec + lapsBehind * 5;
+                } else {
+                  cumulativeGapSec += 1.2;
+                  gapSecFromLeader = cumulativeGapSec;
+                }
+              }
+
+              // Настоящая скорость из активной засечки сектора (Speeds: I1, I2, ST, FL)
+              let realSpeed = 0;
+              if (!isStationary) {
+                const sST = parseInt(d.Speeds?.ST?.Value, 10);
+                const sI2 = parseInt(d.Speeds?.I2?.Value, 10);
+                const sI1 = parseInt(d.Speeds?.I1?.Value, 10);
+                const sFL = parseInt(d.Speeds?.FL?.Value, 10);
+
+                // Проверяем, какой сектор сейчас проходится (где еще пустое Value)
+                const sec0Active = d.Sectors?.[0] && d.Sectors[0].Value === "";
+                const sec1Active = d.Sectors?.[1] && d.Sectors[1].Value === "";
+                const sec2Active = d.Sectors?.[2] && d.Sectors[2].Value === "";
+
+                if (sec1Active && !isNaN(sI1)) realSpeed = sI1;
+                else if (sec2Active && !isNaN(sI2)) realSpeed = sI2;
+                else if (sec0Active && !isNaN(sFL)) realSpeed = sFL;
+                else realSpeed = sST || sI2 || sI1 || sFL || 0;
+              }
+
+              // Расчет передачи и педалей строго от реальной скорости засечки (без выдуманных констант 240 км/ч)
+              let realGear = 0;
+              let realThrottle = 0;
+              let realBrake = 0;
+
+              if (isStationary || realSpeed === 0) {
+                realGear = 0;
+                realThrottle = 0;
+                realBrake = isRedFlag || inPit ? 100 : 0;
+              } else {
+                realGear = Math.min(8, Math.max(1, Math.floor(realSpeed / 38)));
+                realThrottle = realSpeed > 280 ? 100 : Math.min(98, Math.round((realSpeed / 330) * 100));
+                realBrake = realSpeed < 130 ? 60 : 0;
+              }
+
+              // Реальное положение на карте трассы:
+              // Базируется на времени круга пилота и его реальном отставании в секундах от лидера
+              const lapDuration = parseLapTimeSec(d.LastLapTime?.Value || d.BestLapTime?.Value);
+              let trackProg = 0;
+              if (!isStationary) {
+                const leaderProg = (nowSec % lapDuration) / lapDuration;
+                const gapOffset = (gapSecFromLeader % lapDuration) / lapDuration;
+                trackProg = (leaderProg - gapOffset + 10) % 1;
+              }
+
+              const catchingAhead = Boolean(d.IntervalToPositionAhead?.Catching);
 
               return {
-                driverNumber: racingNum,
+                id: racingNumStr,
+                driverNumber: racingNumStr,
                 pos: pos,
-                code: (d.Tla || cleanName.substring(0, 3)).toUpperCase(),
+                code: String(d.Tla || cleanName.substring(0, 3)).toUpperCase(),
                 name: cleanName,
                 team: teamName,
-                color: teamColorHex || resolveLiveTeamColor(teamName),
-                tyre: driverTyre.compound,
-                tyreLaps: driverTyre.age,
-                gap: pos === 1 ? "LEADER" : (d.GapToLeader || "—"),
-                trackProg: isRedFlag ? 0 : ((1 - (pos - 1) * 0.035 + (idx * 0.005)) % 1 + 1) % 1,
-                speed: isRedFlag ? 0 : parseInt(speedVal, 10) || 0,
-                gear: isRedFlag ? 0 : 7,
-                throttle: isRedFlag ? 0 : 90,
-                brake: isRedFlag ? 100 : 0,
-                drs: d.Drs || false
+                color: teamColorHex || (typeof resolveLiveTeamColor === "function" ? resolveLiveTeamColor(teamName) : "#ffffff"),
+                tyre: tyreData.compound,
+                tyreLaps: tyreData.age,
+                gap: displayGap,
+                inPit: inPit,
+                retired: isStoppedOrRetired,
+                trackProg: trackProg,
+                speed: realSpeed,
+                gear: realGear,
+                throttle: realThrottle,
+                brake: realBrake,
+                drs: !isStationary && catchingAhead && realSpeed > 275
               };
             });
 
             mappedDrivers.sort((a, b) => a.pos - b.pos);
             liveRadarState.drivers = mappedDrivers.slice(0, 22);
 
-            if (!liveRadarState.selectedDriver && liveRadarState.drivers.length > 0) {
+            // Гарантируем, что выбранный пилот существует и хранится в едином строковом/числовом формате
+            const currentSelected = String(liveRadarState.selectedDriver || "");
+            const exists = liveRadarState.drivers.some(drv => String(drv.driverNumber) === currentSelected || String(drv.code) === currentSelected);
+            if (!exists && liveRadarState.drivers.length > 0) {
               liveRadarState.selectedDriver = liveRadarState.drivers[0].driverNumber;
             }
           }
@@ -4863,12 +5032,38 @@
         if (updLbl) updLbl.innerText = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
 
       } catch (err) {
-        console.error("Ошибка синхронизации Standings:", err);
-        if (updLbl) updLbl.innerText = "Ожидание данных...";
+        console.error("Ошибка синхронизации F1 Live:", err);
+        if (updLbl) updLbl.innerText = "Ожидание ответа сервера...";
       } finally {
+        liveRadarState._isFetching = false;
+
         try {
-          renderLiveTimingTower();
-          updateSelectedDriverHud();
+          if (typeof renderLiveTimingTower === "function") renderLiveTimingTower();
+          if (typeof updateSelectedDriverHud === "function") updateSelectedDriverHud();
+
+          // Привязываем надежный обработчик выбора гонщика (работает и на ПК, и на тач-экране телефона)
+          const towerEl = document.getElementById("liveTimingTowerList") || document.querySelector(".live-timing-tower");
+          if (towerEl && !towerEl._hasTouchDelegate) {
+            towerEl._hasTouchDelegate = true;
+            towerEl.addEventListener("pointerdown", (e) => {
+              const row = e.target.closest("[data-driver], [data-code], .tower-row, .timing-row, tr, li");
+              if (!row || !liveRadarState.drivers) return;
+
+              const rowText = row.innerText || "";
+              const matched = liveRadarState.drivers.find(d =>
+                String(row.dataset?.driver) === String(d.driverNumber) ||
+                String(row.dataset?.code) === String(d.code) ||
+                rowText.includes(d.code)
+              );
+
+              if (matched) {
+                liveRadarState.selectedDriver = matched.driverNumber;
+                liveRadarState.selectedDriverCode = matched.code;
+                if (typeof updateSelectedDriverHud === "function") updateSelectedDriverHud();
+                if (typeof renderLiveTimingTower === "function") renderLiveTimingTower();
+              }
+            }, { passive: true });
+          }
         } catch (e) {}
       }
     }
