@@ -4736,127 +4736,68 @@
     async function fetchOpenF1LiveTelemetry() {
       if (!liveRadarState.active || !liveRadarState.running) return;
       const updLbl = document.getElementById("liveTowerUpdateLbl");
-      if (updLbl) updLbl.innerText = "Синхронизация с OpenF1...";
+      if (updLbl) updLbl.innerText = "Синхронизация с сервером F1...";
 
       try {
-        const sRes = await fetch("https://api.openf1.org/v1/sessions?session_key=latest");
-        const sData = await sRes.json();
-        const latestSession = Array.isArray(sData) && sData.length > 0 ? sData[sData.length - 1] : null;
+        const PROXY_URL = "https://f1-livetiming-api-wc6h.onrender.com";
 
-        if (!latestSession) throw new Error("Сессия не найдена");
-
-        liveRadarState.sessionKey = latestSession.session_key;
-        const country = latestSession.country_name ? latestSession.country_name : "F1";
-        const sName = latestSession.session_name ? latestSession.session_name : "Race";
-        
-        document.getElementById("liveSessionCountryLbl").innerText = `OPENF1 • ${country.toUpperCase()} (${sName.toUpperCase()})`;
-        document.getElementById("liveSessionTitleLbl").innerText = `${latestSession.location ? latestSession.location : country} — ${sName}`;
-
-        const [drvRes, intRes, stintRes, rcRes] = await Promise.all([
-          fetch("https://api.openf1.org/v1/drivers?session_key=latest").catch(() => null),
-          fetch("https://api.openf1.org/v1/intervals?session_key=latest").catch(() => null),
-          fetch("https://api.openf1.org/v1/stints?session_key=latest").catch(() => null),
-          fetch("https://api.openf1.org/v1/race_control?session_key=latest").catch(() => null)
+        // Параллельно забираем статус, пилотов и положение на трассе с твоего сервера
+        const [statusRes, driversRes, standingsRes] = await Promise.all([
+          fetch(`${PROXY_URL}/api/status`).catch(() => null),
+          fetch(`${PROXY_URL}/api/drivers`).catch(() => null),
+          fetch(`${PROXY_URL}/api/standings`).catch(() => null)
         ]);
 
-        // Статус флагов на трассе
-        if (rcRes && rcRes.ok) {
-          const rcList = await rcRes.json();
-          if (Array.isArray(rcList) && rcList.length > 0) {
-            const lastRc = rcList[rcList.length - 1];
-            const flagEl = document.getElementById("liveTrackFlagBadge");
-            const msgUpper = String(lastRc.message ? lastRc.message : "").toUpperCase();
-            if (msgUpper.includes("RED FLAG")) {
-              flagEl.className = "live-flag-pill red";
-              flagEl.innerText = "🔴 RED FLAG";
-            } else if (msgUpper.includes("SAFETY CAR") || msgUpper.includes("YELLOW")) {
-              flagEl.className = "live-flag-pill yellow";
-              flagEl.innerText = msgUpper.includes("SAFETY CAR") ? "🟡 SAFETY CAR" : "🟡 YELLOW FLAG";
-            } else {
-              flagEl.className = "live-flag-pill";
-              flagEl.innerText = "🟢 TRACK CLEAR";
-            }
+        let sessionTitle = "Live Session";
+        if (statusRes && statusRes.ok) {
+          const stData = await statusRes.json();
+          if (stData.meetingName || stData.sessionName) {
+            sessionTitle = `${stData.meetingName || "F1"} — ${stData.sessionName || "Race"}`;
           }
         }
 
-        // Составы шин
-        const stintsByDriver = {};
-        if (stintRes && stintRes.ok) {
-          const stints = await stintRes.json();
-          if (Array.isArray(stints)) {
-            stints.forEach(st => {
-              const comp = String(st.compound ? st.compound : "MEDIUM").toUpperCase();
-              stintsByDriver[st.driver_number] = {
-                letter: comp.charAt(0) ? comp.charAt(0) : "M",
-                laps: st.tyre_age_at_start ? Number(st.tyre_age_at_start) : 1
-              };
-            });
-          }
-        }
+        document.getElementById("liveSessionCountryLbl").innerText = "F1 LIVE TIMING PROXY";
+        document.getElementById("liveSessionTitleLbl").innerText = sessionTitle;
 
-        // Отрывы
-        const gapsByDriver = {};
-        if (intRes && intRes.ok) {
-          const ints = await intRes.json();
-          if (Array.isArray(ints)) {
-            ints.slice(-80).forEach(it => {
-              if (it.driver_number && it.gap_to_leader !== undefined && it.gap_to_leader !== null) {
-                gapsByDriver[it.driver_number] = it.gap_to_leader === 0 ? "LEADER" : `+${it.gap_to_leader}s`;
-              }
-            });
-          }
-        }
-
-        // Список пилотов
-        if (drvRes && drvRes.ok) {
-          const drvList = await drvRes.json();
-          if (Array.isArray(drvList) && drvList.length > 0) {
-            const seen = new Set();
-            const uniqueDrivers = [];
-            drvList.forEach(d => {
-              if (d.driver_number && !seen.has(d.driver_number)) {
-                seen.add(d.driver_number);
-                uniqueDrivers.push(d);
-              }
-            });
-
-            if (uniqueDrivers.length > 0) {
-              liveRadarState.drivers = uniqueDrivers.slice(0, 22).map((d, idx) => {
-                const dNum = d.driver_number;
-                const stInfo = stintsByDriver[dNum] ? stintsByDriver[dNum] : { letter: "M", laps: 1 };
-                const prev = liveRadarState.drivers.find(p => p.driverNumber === dNum);
-
-                return {
-                  driverNumber: dNum,
-                  pos: idx + 1,
-                  code: d.name_acronym ? d.name_acronym : `D${dNum}`,
-                  name: cleanDriverName(d.full_name ? d.full_name : d.broadcast_name),
-                  team: d.team_name ? d.team_name : "F1 Team",
-                  color: resolveLiveTeamColor(d.team_name, d.team_colour),
-                  tyre: stInfo.letter,
-                  tyreLaps: stInfo.laps,
-                  gap: gapsByDriver[dNum] ? gapsByDriver[dNum] : (idx === 0 ? "LEADER" : `+${(idx * 1.2).toFixed(3)}s`),
-                  trackProg: prev ? prev.trackProg : ((1 - idx * 0.035 + 1) % 1),
-                  speed: prev ? prev.speed : 0,
-                  gear: prev ? prev.gear : 1,
-                  throttle: prev ? prev.throttle : 0,
-                  brake: prev ? prev.brake : 0,
-                  drs: prev ? prev.drs : false
-                };
-              });
+        // Обрабатываем реальный список пилотов и их позиции
+        if (driversRes && driversRes.ok) {
+          const drvJson = await driversRes.json();
+          // Преобразуем формат под нашу структуру тайминга
+          if (Array.isArray(drvJson) || typeof drvJson === 'object') {
+            // Если сервер возвращает объект или массив пилотов, мапим их
+            const drvArray = Array.isArray(drvJson) ? drvJson : Object.values(drvJson);
+            
+            if (drvArray.length > 0) {
+              liveRadarState.drivers = drvArray.map((d, idx) => ({
+                driverNumber: d.racingNumber || d.driverNumber || (idx + 1),
+                pos: d.position || (idx + 1),
+                code: d.nameAcronym || d.code || `D${idx + 1}`,
+                name: cleanDriverName(d.fullName || d.name || "Driver"),
+                team: d.teamName || d.team || "F1 Team",
+                color: resolveLiveTeamColor(d.teamName, d.teamColor),
+                tyre: d.compound || "M",
+                tyreLaps: d.tireAge || 1,
+                gap: d.gapToLeader || (idx === 0 ? "LEADER" : `+${(idx * 1.5).toFixed(3)}s`),
+                trackProg: (1 - idx * 0.035 + 1) % 1,
+                speed: d.speed || 0,
+                gear: d.gear || 1,
+                throttle: d.throttle || 0,
+                brake: d.brake || 0,
+                drs: d.drs || false
+              }));
             }
           }
         }
 
         const hintEl = document.getElementById("liveRadarStatusHint");
-        if (hintEl) hintEl.innerText = "🟢 Подключено к OpenF1 Live";
+        if (hintEl) hintEl.innerText = "🟢 Данные F1 Live Timing подключены";
         if (updLbl) updLbl.innerText = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
 
         renderLiveTimingTower();
         updateSelectedDriverHud();
       } catch (err) {
-        console.error("Ошибка OpenF1:", err);
-        if (updLbl) updLbl.innerText = "Ожидание потока данных...";
+        console.error("Ошибка прокси F1:", err);
+        if (updLbl) updLbl.innerText = "Ожидание сессии на сервере...";
         renderLiveTimingTower();
       }
     }
