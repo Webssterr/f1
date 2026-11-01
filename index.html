@@ -4934,9 +4934,15 @@
       const listEl = document.getElementById("liveTimingTowerList");
       if (!listEl) return;
 
+      // Проверяем, есть ли реальные данные интервалов от OpenF1
+      const hasRealData = liveRadarState.drivers.some(d => d.gap !== "LEADER" && !d.gap.startsWith("+0."));
+
       listEl.innerHTML = liveRadarState.drivers.map((d, i) => {
         const isSel = d.driverNumber === liveRadarState.selectedDriverNum;
-        const tyreCls = ["S", "M", "H", "I", "W"].includes(d.tyre) ? `tyre-${d.tyre}` : "tyre-M";
+        const tyreCls = ["S", "M", "H", "I", "W"].includes(d.tyre) ? `tyre-${d.tyre}` : "";
+        const displayGap = hasRealData ? d.gap : "—";
+        const displayTyre = hasRealData ? d.tyre : "";
+
         return `
           <div class="tower-row ${isSel ? "selected" : ""}" onclick="selectLiveDriver(${d.driverNumber})">
             <div style="display:flex; align-items:center; gap:10px; min-width:0;">
@@ -4948,8 +4954,8 @@
               </div>
             </div>
             <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-              <span class="tyre-badge ${tyreCls}" title="Шины: ${d.tyre}">${d.tyre}</span>
-              <span style="font-size:12.5px; font-weight:800; min-width:68px; text-align:right; color:var(--text); font-variant-numeric:tabular-nums;">${d.gap}</span>
+              ${displayTyre ? `<span class="tyre-badge ${tyreCls}" title="Шины: ${displayTyre}">${displayTyre}</span>` : `<span style="font-size:11px; color:var(--text-muted);">—</span>`}
+              <span style="font-size:12.5px; font-weight:800; min-width:68px; text-align:right; color:var(--text); font-variant-numeric:tabular-nums;">${displayGap}</span>
             </div>
           </div>
         `;
