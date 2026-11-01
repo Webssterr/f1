@@ -1437,6 +1437,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
             <span class="live-flag-pill" id="liveTrackFlagBadge">🟢 TRACK CLEAR</span>
+            <button class="live-mode-btn active" id="btnToggleStreamState" onclick="toggleLiveTelemetryStream()" style="background:var(--accent); color:#fff; margin-left:6px;">⏸️ Пауза</button>
             <div class="live-mode-switch">
               <button class="live-mode-btn active" id="btnLiveModeReal" onclick="setLiveRadarMode('live')">🔴 Эфир</button>
               <button class="live-mode-btn" id="btnLiveModeSim" onclick="setLiveRadarMode('replay')">🎬 Демо-гонка</button>
@@ -4575,17 +4576,16 @@
     }
 
     // =========================================================================
-    // ДВИЖОК OPENF1 LIVE RADAR & TELEMETRY TOWER (REAL-TIME + 60FPS REPLAY)
+    // ДВИЖОК OPENF1 LIVE RADAR & TELEMETRY TOWER (22 БОЛИДА + КНОПКА ВКЛ/ВЫКЛ)
     // =========================================================================
     let liveRadarState = {
       active: false,
-      mode: "live", // 'live' (OpenF1 API) или 'replay' (живая симуляция по трассе)
+      running: false, // Статус ручного запуска (пользователем)
       sessionKey: null,
-      selectedDriverNum: 12,
+      selectedDriverNum: 1,
       pollTimer: null,
       animFrame: null,
-      drivers: [],
-      bounds: { minX: -5000, maxX: 5000, minY: -5000, maxY: 5000 }
+      drivers: []
     };
 
     const LIVE_TEAM_COLORS = {
@@ -4600,7 +4600,8 @@
       "rb": "#6692FF",
       "haas": "#B6BABD",
       "sauber": "#52E252",
-      "audi": "#52E252"
+      "audi": "#52E252",
+      "cadillac": "#333333"
     };
 
     function resolveLiveTeamColor(teamName, hexFromApi) {
@@ -4628,13 +4629,19 @@
       }
     }
 
-    function buildInitialLiveDriversRoster() {
+    function buildInitial22DriversRoster() {
       const baseList = (window.currentLoadedDrivers && window.currentLoadedDrivers.length > 0)
         ? window.currentLoadedDrivers
         : DEFAULT_DRIVERS_DATA;
 
-      const tyresPool = ["M", "H", "S", "M", "H"];
-      liveRadarState.drivers = baseList.slice(0, 20).map((d, idx) => {
+      const tyresPool = ["M", "H", "S", "M", "H", "S"];
+      // Расширяем до 22 гонщиков
+      let expandedList = [...baseList];
+      while (expandedList.length < 22) {
+        expandedList.push({ name: `Driver ${expandedList.length + 1}`, team: "F1 Team" });
+      }
+
+      liveRadarState.drivers = expandedList.slice(0, 22).map((d, idx) => {
         const clean = cleanDriverName(d.name);
         const parts = clean.split(" ");
         const last = parts[parts.length - 1] ? parts[parts.length - 1] : clean;
@@ -4645,56 +4652,69 @@
           pos: idx + 1,
           code,
           name: clean,
-          team: d.team,
+          team: d.team ? d.team : "F1 Team",
           color: resolveLiveTeamColor(d.team, null),
           tyre: tyresPool[idx % tyresPool.length],
-          tyreLaps: 6 + (idx * 2) % 18,
-          gap: idx === 0 ? "LEADER" : `+${(idx * 1.35 + 0.4).toFixed(3)}s`,
-          trackProg: (1 - idx * 0.038 + 1) % 1,
-          speed: 285,
-          gear: 7,
-          throttle: 95,
+          tyreLaps: 5 + (idx * 2) % 15,
+          gap: idx === 0 ? "LEADER" : `+${(idx * 1.2).toFixed(3)}s`,
+          trackProg: (1 - idx * 0.03 + 1) % 1,
+          speed: 0,
+          gear: 1,
+          throttle: 0,
           brake: 0,
           drs: false,
-          x: null,
-          y: null
+          posX: 80 + (idx * 10),
+          posY: 155
         };
       });
+
       if (!liveRadarState.selectedDriverNum && liveRadarState.drivers[0]) {
         liveRadarState.selectedDriverNum = liveRadarState.drivers[0].driverNumber;
       }
     }
 
-    function setLiveRadarMode(newMode) {
-      liveRadarState.mode = newMode;
-      document.getElementById("btnLiveModeReal")?.classList.toggle("active", newMode === "live");
-      document.getElementById("btnLiveModeSim")?.classList.toggle("active", newMode === "replay");
+    // Кнопка включения/выключения потока телеметрии пользователем
+    function toggleLiveTelemetryStream() {
+      liveRadarState.running = !liveRadarState.running;
+      const btn = document.getElementById("btnToggleStreamState");
+      if (btn) {
+        btn.innerText = liveRadarState.running ? "⏸️ Пауза" : "▶️ Запустить Live-телеметрию";
+        btn.style.background = liveRadarState.running ? "var(--accent)" : "#34c759";
+      }
 
-      if (newMode === "live") {
+      if (liveRadarState.running) {
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
         fetchOpenF1LiveTelemetry();
       } else {
-        document.getElementById("liveSessionCountryLbl").innerText = "СИМУЛЯЦИЯ ТЕЛЕМЕТРИИ • 60 FPS";
-        document.getElementById("liveSessionTitleLbl").innerText = window.activeRaceName ? window.activeRaceName : "Гран-при Формулы 1";
-        document.getElementById("liveRadarStatusHint").innerText = "Режим Демо-гонки активен (кликни на болид)";
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+        const hint = document.getElementById("liveRadarStatusHint");
+        if (hint) hint.innerText = "Телеметрия поставлена на паузу пользователем.";
       }
     }
 
     function startLiveRadarPolling() {
       syncLiveRadarTrackSvg();
       if (liveRadarState.drivers.length === 0) {
-        buildInitialLiveDriversRoster();
+        buildInitial22DriversRoster();
       }
       liveRadarState.active = true;
+      liveRadarState.running = true; // Автоматически запускаем при входе на вкладку
+
+      const btn = document.getElementById("btnToggleStreamState");
+      if (btn) {
+        btn.innerText = "⏸️ Пауза";
+        btn.style.background = "var(--accent)";
+      }
 
       renderLiveTimingTower();
       fetchOpenF1LiveTelemetry();
 
       if (liveRadarState.pollTimer) clearInterval(liveRadarState.pollTimer);
       liveRadarState.pollTimer = setInterval(() => {
-        if (liveRadarState.active && liveRadarState.mode === "live") {
+        if (liveRadarState.active && liveRadarState.running) {
           fetchOpenF1LiveTelemetry();
         }
-      }, 4500);
+      }, 4000);
 
       if (liveRadarState.animFrame) cancelAnimationFrame(liveRadarState.animFrame);
       runLiveRadarAnimationLoop();
@@ -4702,6 +4722,7 @@
 
     function stopLiveRadarPolling() {
       liveRadarState.active = false;
+      liveRadarState.running = false;
       if (liveRadarState.pollTimer) {
         clearInterval(liveRadarState.pollTimer);
         liveRadarState.pollTimer = null;
@@ -4713,12 +4734,11 @@
     }
 
     async function fetchOpenF1LiveTelemetry() {
-      if (!liveRadarState.active) return;
+      if (!liveRadarState.active || !liveRadarState.running) return;
       const updLbl = document.getElementById("liveTowerUpdateLbl");
-      if (updLbl) updLbl.innerText = "Синхронизация с OpenF1...";
+      if (updLbl) updLbl.innerText = "Запрос к OpenF1...";
 
       try {
-        // 1. Получаем последнюю сессию из OpenF1
         const sRes = await fetch("https://api.openf1.org/v1/sessions?session_key=latest");
         const sData = await sRes.json();
         const latestSession = Array.isArray(sData) && sData.length > 0 ? sData[sData.length - 1] : null;
@@ -4731,20 +4751,15 @@
         document.getElementById("liveSessionCountryLbl").innerText = `OPENF1 • ${country.toUpperCase()} (${sName.toUpperCase()})`;
         document.getElementById("liveSessionTitleLbl").innerText = `${latestSession.location ? latestSession.location : country} — ${sName}`;
 
-        // Проверяем, идет ли сессия прямо сейчас (или завершилась недавно)
-        const nowTs = Date.now();
-        const endTs = latestSession.date_end ? new Date(latestSession.date_end).getTime() : 0;
-        const isCurrentlyLive = (endTs === 0) ? true : (nowTs <= endTs + 1800000);
-
-        // 2. Запрашиваем параллельно пилотов, интервалы, шины и Race Control
-        const [drvRes, intRes, stintRes, rcRes] = await Promise.all([
+        const [drvRes, intRes, stintRes, rcRes, locRes] = await Promise.all([
           fetch("https://api.openf1.org/v1/drivers?session_key=latest").catch(() => null),
           fetch("https://api.openf1.org/v1/intervals?session_key=latest").catch(() => null),
           fetch("https://api.openf1.org/v1/stints?session_key=latest").catch(() => null),
-          fetch("https://api.openf1.org/v1/race_control?session_key=latest").catch(() => null)
+          fetch("https://api.openf1.org/v1/race_control?session_key=latest").catch(() => null),
+          fetch("https://api.openf1.org/v1/location?session_key=latest").catch(() => null)
         ]);
 
-        // Обновляем статус флагов на трассе
+        // Статус флагов
         if (rcRes && rcRes.ok) {
           const rcList = await rcRes.json();
           if (Array.isArray(rcList) && rcList.length > 0) {
@@ -4764,7 +4779,7 @@
           }
         }
 
-        // Собираем карту шин из stints
+        // Шины
         const stintsByDriver = {};
         if (stintRes && stintRes.ok) {
           const stints = await stintRes.json();
@@ -4779,12 +4794,12 @@
           }
         }
 
-        // Собираем отрывы из intervals
+        // Интервалы
         const gapsByDriver = {};
         if (intRes && intRes.ok) {
           const ints = await intRes.json();
           if (Array.isArray(ints)) {
-            ints.slice(-60).forEach(it => {
+            ints.slice(-80).forEach(it => {
               if (it.driver_number && it.gap_to_leader !== undefined && it.gap_to_leader !== null) {
                 gapsByDriver[it.driver_number] = it.gap_to_leader === 0 ? "LEADER" : `+${it.gap_to_leader}s`;
               }
@@ -4792,7 +4807,20 @@
           }
         }
 
-        // Обновляем список пилотов реальными номерами и цветами из OpenF1
+        // Координаты X, Y из OpenF1 (если сессия идет в реальном времени)
+        const coordsByDriver = {};
+        if (locRes && locRes.ok) {
+          const locs = await locRes.json();
+          if (Array.isArray(locs) && locs.length > 0) {
+            locs.slice(-44).forEach(l => {
+              if (l.driver_number && l.x !== undefined && l.y !== undefined) {
+                coordsByDriver[l.driver_number] = { x: l.x, y: l.y };
+              }
+            });
+          }
+        }
+
+        // Заполняем 22 пилота
         if (drvRes && drvRes.ok) {
           const drvList = await drvRes.json();
           if (Array.isArray(drvList) && drvList.length > 0) {
@@ -4805,11 +4833,13 @@
               }
             });
 
-            if (uniqueDrivers.length >= 10) {
-              liveRadarState.drivers = uniqueDrivers.slice(0, 20).map((d, idx) => {
+            if (uniqueDrivers.length > 0) {
+              liveRadarState.drivers = uniqueDrivers.slice(0, 22).map((d, idx) => {
                 const dNum = d.driver_number;
-                const stInfo = stintsByDriver[dNum] ? stintsByDriver[dNum] : { letter: "M", laps: 8 };
+                const stInfo = stintsByDriver[dNum] ? stintsByDriver[dNum] : { letter: "M", laps: 5 };
                 const prev = liveRadarState.drivers.find(p => p.driverNumber === dNum);
+                const realCoord = coordsByDriver[dNum];
+
                 return {
                   driverNumber: dNum,
                   pos: idx + 1,
@@ -4819,21 +4849,23 @@
                   color: resolveLiveTeamColor(d.team_name, d.team_colour),
                   tyre: stInfo.letter,
                   tyreLaps: stInfo.laps,
-                  gap: gapsByDriver[dNum] ? gapsByDriver[dNum] : (idx === 0 ? "LEADER" : `+${(idx * 1.4).toFixed(3)}s`),
-                  trackProg: prev ? prev.trackProg : ((1 - idx * 0.042 + 1) % 1),
-                  speed: prev ? prev.speed : 290,
-                  gear: prev ? prev.gear : 7,
-                  throttle: prev ? prev.throttle : 100,
+                  gap: gapsByDriver[dNum] ? gapsByDriver[dNum] : (idx === 0 ? "LEADER" : `+${(idx * 1.3).toFixed(3)}s`),
+                  trackProg: prev ? prev.trackProg : ((1 - idx * 0.035 + 1) % 1),
+                  speed: prev ? prev.speed : 0,
+                  gear: prev ? prev.gear : 1,
+                  throttle: prev ? prev.throttle : 0,
                   brake: prev ? prev.brake : 0,
-                  drs: prev ? prev.drs : false
+                  drs: prev ? prev.drs : false,
+                  realX: realCoord ? realCoord.x : null,
+                  realY: realCoord ? realCoord.y : null
                 };
               });
             }
           }
         }
 
-        // 3. Если выбран пилот и сессия живая — подтягиваем его свежую телеметрию car_data
-        if (isCurrentlyLive && liveRadarState.selectedDriverNum) {
+        // Подтягиваем car_data для выбранного пилота
+        if (liveRadarState.selectedDriverNum) {
           const sinceIso = new Date(Date.now() - 15000).toISOString();
           const carRes = await fetch(`https://api.openf1.org/v1/car_data?session_key=latest&driver_number=${liveRadarState.selectedDriverNum}&date>=${sinceIso}`).catch(() => null);
           if (carRes && carRes.ok) {
@@ -4853,19 +4885,13 @@
         }
 
         const hintEl = document.getElementById("liveRadarStatusHint");
-        if (hintEl) {
-          hintEl.innerText = isCurrentlyLive
-            ? "🟢 Прямой эфир OpenF1 активен"
-            : "🏁 Сессия завершена • Показана интерактивная реконструкция круга";
-        }
-        if (updLbl) {
-          updLbl.innerText = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
-        }
+        if (hintEl) hintEl.innerText = "🟢 Данные OpenF1 синхронизированы";
+        if (updLbl) updLbl.innerText = `Обновлено: ${new Date().toLocaleTimeString("ru-RU")}`;
 
         renderLiveTimingTower();
         updateSelectedDriverHud();
       } catch (err) {
-        if (updLbl) updLbl.innerText = "Режим автономной телеметрии";
+        if (updLbl) updLbl.innerText = "Ожидание старта сессии...";
         renderLiveTimingTower();
       }
     }
@@ -4930,7 +4956,7 @@
       }).join("");
     }
 
-    // Плавная 60 FPS отрисовка 20 болидов на SVG-трассе и живой телеметрии на прямых/поворотах
+    // Плавная анимация 22 болидов по трассе
     function runLiveRadarAnimationLoop() {
       if (!liveRadarState.active) return;
 
@@ -4939,70 +4965,38 @@
       const mainGroupTransform = document.getElementById("liveRadarTrackGroup")?.getAttribute("transform");
 
       if (pathEl && carsLayer) {
-        if (mainGroupTransform) {
-          carsLayer.setAttribute("transform", mainGroupTransform);
-        }
+        if (mainGroupTransform) carsLayer.setAttribute("transform", mainGroupTransform);
 
         let totalLen = 1000;
         try { totalLen = pathEl.getTotalLength(); } catch (e) {}
 
         let svgContent = "";
         liveRadarState.drivers.forEach((d, idx) => {
-          // Скорость болида чуть выше у лидеров
-          const paceFactor = 0.00115 - (idx * 0.000008);
-          d.trackProg = (d.trackProg + paceFactor) % 1;
+          // Спокойная, реалистичная скорость движения точек по кругу (без резких рывков)
+          if (liveRadarState.running) {
+            d.trackProg = (d.trackProg + 0.00065 - (idx * 0.000003)) % 1;
+          }
 
           const dist = d.trackProg * totalLen;
-          const aheadDist = ((d.trackProg + 0.018) % 1) * totalLen;
-
           let pt = { x: 80, y: 155 };
-          let ptAhead = { x: 90, y: 155 };
           try {
             pt = pathEl.getPointAtLength(dist);
-            ptAhead = pathEl.getPointAtLength(aheadDist);
           } catch (e) {}
 
-          // Вычисляем кривизну участка трассы для реалистичной телеметрии (прямая vs торможение в поворот)
-          const dx = ptAhead.x - pt.x;
-          const dy = ptAhead.y - pt.y;
-          const segAngle = Math.atan2(dy, dx);
-          const prevAngle = d._lastAngle !== undefined ? d._lastAngle : segAngle;
-          let angleDiff = Math.abs(segAngle - prevAngle);
-          if (angleDiff > Math.PI) angleDiff = 2 * Math.PI - angleDiff;
-          d._lastAngle = segAngle;
-
-          if (angleDiff > 0.045) {
-            // Болид проходит крутой поворот — торможение и понижение передачи
-            d.SpeedTarget = 145 + Math.round(Math.random() * 45);
-            d.gear = Math.max(3, Math.min(5, Math.round(d.speed / 42)));
-            d.throttle = 35 + Math.round(Math.random() * 25);
-            d.brake = 75 + Math.round(Math.random() * 25);
-            d.drs = false;
-          } else {
-            // Болид разгоняется на прямой
-            d.SpeedTarget = 308 + Math.round(Math.random() * 24) - idx;
-            d.gear = Math.min(8, Math.max(6, Math.round(d.speed / 39)));
-            d.throttle = 98 + Math.round(Math.random() * 2);
-            d.brake = 0;
-            d.drs = d.speed > 296;
-          }
-          d.speed = d.speed + (d.SpeedTarget - d.speed) * 0.15;
-
           const isSelected = d.driverNumber === liveRadarState.selectedDriverNum;
-          const radius = isSelected ? 9 : 6;
-          const strokeW = isSelected ? 3 : 1.5;
+          const radius = isSelected ? 8 : 5.5;
+          const strokeW = isSelected ? 2.5 : 1;
 
           svgContent += `
             <g style="cursor:pointer;" onclick="selectLiveDriver(${d.driverNumber})">
-              ${isSelected ? `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="15" fill="none" stroke="${d.color}" stroke-width="2" opacity="0.65"/>` : ""}
+              ${isSelected ? `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="13" fill="none" stroke="${d.color}" stroke-width="1.5" opacity="0.7"/>` : ""}
               <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${radius}" fill="${d.color}" stroke="#ffffff" stroke-width="${strokeW}"/>
-              <text x="${(pt.x + 8).toFixed(1)}" y="${(pt.y + 3).toFixed(1)}" fill="#ffffff" font-size="${isSelected ? "11" : "8.5"}" font-weight="900" style="text-shadow: 0 1px 4px #000;">${d.code}</text>
+              <text x="${(pt.x + 7).toFixed(1)}" y="${(pt.y + 3).toFixed(1)}" fill="#ffffff" font-size="${isSelected ? "10" : "8"}" font-weight="900" style="text-shadow: 0 1px 3px #000;">${d.code}</text>
             </g>
           `;
         });
 
         carsLayer.innerHTML = svgContent;
-        updateSelectedDriverHud();
       }
 
       liveRadarState.animFrame = requestAnimationFrame(runLiveRadarAnimationLoop);
