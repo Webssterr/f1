@@ -4763,7 +4763,7 @@
           try {
             const sessData = await sessionRes.json();
             const sInfo = sessData.Session || sessData;
-            sessionTitle = `${sInfo.Meeting?.Name || "GP"} — ${sInfo.Name || "Race"}[cite: 20]`;
+            sessionTitle = `${sInfo.Meeting?.Name || "GP"} — ${sInfo.Name || "Race"}`;
           } catch (e) {}
         }
         const titleLbl = document.getElementById("liveSessionTitleLbl");
@@ -4790,12 +4790,15 @@
           trackHint.innerText = isRedFlag ? "🔴 RED FLAG — Сессия остановлена" : "🟢 Live Timing Active (Standings)";
         }
 
-        // 3. Главное: забираем реальные данные из /api/standings
+        // 3. Обработка данных из /api/standings с логированием
         if (standingsRes && standingsRes.ok) {
           const stdJson = await standingsRes.json();
-          // Поддерживаем формат ответа эндпоинта standings
-          const rawObj = stdJson.Standings || stdJson.drivers || stdJson;
+          console.log("📊 ЧТО ПРИШЛО ОТ /api/standings:", stdJson);
+
+          const rawObj = stdJson.Standings || stdJson.drivers || stdJson.Lines || stdJson;
           const rawArr = Array.isArray(rawObj) ? rawObj : Object.values(rawObj);
+
+          console.log("🏎️ Разобранный массив standings:", rawArr);
 
           if (rawArr.length > 0) {
             let mappedDrivers = rawArr.map((d, idx) => {
@@ -4826,7 +4829,6 @@
               };
             });
 
-            // Сортируем по реальной позиции из Standings
             mappedDrivers.sort((a, b) => a.pos - b.pos);
             liveRadarState.drivers = mappedDrivers.slice(0, 22);
           }
