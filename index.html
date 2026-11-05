@@ -3106,31 +3106,51 @@
       else modal.classList.remove("active");
     }
 
-    function switchMainTab(tabName, btnEl) {
-      if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
-      if (tabName !== "season" && typeof stopLiveRadarPolling === "function") {
-        stopLiveRadarPolling();
+        function switchMainTab(tabName, btnEl) {
+      try {
+        if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      } catch (e) {}
+
+      if (tabName !== "season") {
+        if (typeof stopLiveRadarPolling === "function") stopLiveRadarPolling();
+        const liveBlock = document.getElementById("seasonSubLive");
+        if (liveBlock) liveBlock.style.display = "none";
       }
+
       document.querySelectorAll(".bottom-nav .nav-btn").forEach(b => b.classList.remove("active"));
       if (btnEl) btnEl.classList.add("active");
 
-      document.querySelectorAll(".view-screen").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".view-screen").forEach(s => {
+        s.classList.remove("active");
+        s.style.display = "none";
+      });
+
       const target = document.getElementById("view-" + tabName);
-      if (target) target.classList.add("active");
+      if (target) {
+        target.style.display = "block";
+        target.classList.add("active");
+      }
       window.scrollTo(0, 0);
 
       markVisitedMainTab(tabName);
 
       if (tabName === "season") {
         localStorage.setItem("f1_viewed_drivers_tab", "true");
+        const activeSub = document.querySelector("#view-season .sub-tab-btn.active");
+        if (activeSub && activeSub.innerText.includes("Live")) {
+          const liveBlock = document.getElementById("seasonSubLive");
+          if (liveBlock) liveBlock.style.display = "block";
+          startLiveRadarPolling();
+        }
         setTimeout(scrollToCurrentCalendarStage, 250);
       }
-      
+
       if (tabName === "garage") {
         localStorage.setItem("f1_got_first_rank", "true");
         renderGarageProfileData();
       }
     }
+
 
     // =========================================================================
     // ЛОГИКА ЭКРАНА "ГАРАЖ" (ПРОГРЕСС РАНГОВ, МОДАЛКА КАРЬЕРЫ, 28 ДОСТИЖЕНИЙ)
@@ -3432,12 +3452,24 @@
       }).join("");
     }
 
-    function openViewScreen(screenName) {
-      document.querySelectorAll(".view-screen").forEach(s => s.classList.remove("active"));
+        function openViewScreen(screenName) {
+      if (screenName !== "season") {
+        if (typeof stopLiveRadarPolling === "function") stopLiveRadarPolling();
+        const liveBlock = document.getElementById("seasonSubLive");
+        if (liveBlock) liveBlock.style.display = "none";
+      }
+      document.querySelectorAll(".view-screen").forEach(s => {
+        s.classList.remove("active");
+        s.style.display = "none";
+      });
       const screen = document.getElementById("view-" + screenName);
-      if (screen) screen.classList.add("active");
+      if (screen) {
+        screen.style.display = "block";
+        screen.classList.add("active");
+      }
       window.scrollTo(0, 0);
     }
+
 
     function switchSeasonSubTab(subTab, btn) {
       document.querySelectorAll(".sub-tab-btn").forEach(b => b.classList.remove("active"));
@@ -4546,8 +4578,8 @@
       }
     }
 
-    // =========================================================================
-    // ДВИЖОК LIVE RADAR & TIMING TOWER (БЕЗ ФЕЙКОВОЙ ТЕЛЕМЕТРИИ И ЛАГОВ)
+        // =========================================================================
+    // ДВИЖОК LIVE RADAR & TIMING TOWER (ОПТИМИЗИРОВАНО ДЛЯ ТЕЛЕФОНА И ПК)
     // =========================================================================
     let liveRadarState = {
       active: false,
@@ -4556,7 +4588,7 @@
       isRedFlag: false,
       selectedDriverNum: "1",
       pollTimer: null,
-      animFrame: null,
+      animTimer: null,
       _isFetching: false,
       drivers: []
     };
@@ -4659,6 +4691,10 @@
     }
 
     function startLiveRadarPolling() {
+      // Прячем блок педалей/передач, если он остался в HTML
+      const hudBox = document.querySelector("#seasonSubLive .telemetry-hud");
+      if (hudBox) hudBox.style.display = "none";
+
       syncLiveRadarTrackSvg();
       if (liveRadarState.drivers.length === 0) {
         buildInitial22DriversRoster();
@@ -4673,6 +4709,7 @@
       }
 
       renderLiveTimingTower();
+      renderRadarCarsSvgStep();
       fetchOpenF1LiveTelemetry();
 
       if (liveRadarState.pollTimer) clearInterval(liveRadarState.pollTimer);
@@ -4682,8 +4719,9 @@
         }
       }, 4000);
 
-      if (liveRadarState.animFrame) cancelAnimationFrame(liveRadarState.animFrame);
-      runLiveRadarAnimationLoop();
+      if (liveRadarState.animTimer) clearInterval(liveRadarState.animTimer);
+      // 12 кадров в секунду вместо 60: плавно для глаза и 0% нагрузки на телефон!
+      liveRadarState.animTimer = setInterval(renderRadarCarsSvgStep, 85);
     }
 
     function stopLiveRadarPolling() {
@@ -4693,9 +4731,9 @@
         clearInterval(liveRadarState.pollTimer);
         liveRadarState.pollTimer = null;
       }
-      if (liveRadarState.animFrame) {
-        cancelAnimationFrame(liveRadarState.animFrame);
-        liveRadarState.animFrame = null;
+      if (liveRadarState.animTimer) {
+        clearInterval(liveRadarState.animTimer);
+        liveRadarState.animTimer = null;
       }
     }
 
@@ -4781,7 +4819,6 @@
             ? lbJson.Leaderboard
             : Object.keys(lines);
 
-          // Проверяем, завершилась ли гонка по статусу сессии или числу кругов лидера
           const sessionStatusStr = String(sInfo.Status || sInfo.SessionStatus || sInfo.ArchiveStatus?.Status || "").toUpperCase();
           const leaderObj = order.length > 0 ? (lines[order[0]] || {}) : {};
           const leaderLaps = parseInt(leaderObj.NumberOfLaps, 10) || 0;
@@ -4791,8 +4828,9 @@
             sessionStatusStr.includes("FINAL") ||
             sessionStatusStr.includes("END") ||
             sessionStatusStr.includes("FINISH") ||
-            (totalLaps > 0 && currentLap >= totalLaps && (leaderObj.Stopped || stoppedCount >= 10)) ||
-            (totalLaps > 0 && leaderLaps >= totalLaps && (leaderObj.Stopped || stoppedCount >= 10))
+            (totalLaps > 0 && currentLap >= totalLaps && (leaderObj.Stopped || stoppedCount >= 8)) ||
+            (totalLaps > 0 && leaderLaps >= totalLaps && (leaderObj.Stopped || stoppedCount >= 8)) ||
+            stoppedCount >= 14
           ) {
             trackFlag = "FINISHED";
           }
@@ -4816,7 +4854,6 @@
             countryLbl.innerText = sInfo.Meeting.Country.Name.toUpperCase();
           }
 
-          // Обновляем верхний бейдж статуса (id="liveTrackFlagBadge")
           const badgeEl = document.getElementById("liveTrackFlagBadge");
           if (badgeEl) {
             if (isFinished) {
@@ -4834,15 +4871,14 @@
             }
           }
 
-          // Обновляем подпись в правом нижнем углу радара
           const trackHint = document.getElementById("liveRadarStatusHint");
           if (trackHint) {
             if (isFinished) {
-              trackHint.innerText = `🏁 Гонка завершена (${totalLaps || leaderLaps || ""} кр.)`;
+              trackHint.innerText = `🏁 Гонка завершена (${totalLaps || leaderLaps || "Финиш"})`;
             } else if (isRedFlag) {
-              trackHint.innerText = `🔴 КРАСНЫЙ ФЛАГ — Сессия остановлена`;
+              trackHint.innerText = "🔴 КРАСНЫЙ ФЛАГ — Сессия остановлена";
             } else if (trackFlag === "SC") {
-              trackHint.innerText = "🟠 На трассе машина безопасности (SC)";
+              trackHint.innerText = "🟠 На трассе Safety Car";
             } else if (trackFlag === "VSC") {
               trackHint.innerText = "🟠 Виртуальный Safety Car (VSC)";
             } else if (trackFlag === "YELLOW") {
@@ -4924,7 +4960,7 @@
               } else if (!isFinished && inPit) {
                 displayGap = "PIT";
               } else {
-                displayGap = rawGap ? String(rawGap) : "—";
+                displayGap = rawGap ? String(rawGap) : (isFinished ? "FIN" : "—");
               }
 
               const parsedGap = parseFloat(String(d.GapToLeader || "").replace("+", ""));
@@ -4946,7 +4982,6 @@
               const lapDuration = parseLapTimeSec(d.LastLapTime?.Value || d.BestLapTime?.Value);
               let trackProg = 0;
               if (isFinished || isRedFlag) {
-                // После финиша или при красном флаге выстраиваем болиды на стартовой решетке по их позициям
                 trackProg = ((1 - (pos - 1) * 0.025) % 1 + 1) % 1;
               } else if (inPit || isRetired || isStoppedOnTrack) {
                 trackProg = 0;
@@ -4995,14 +5030,18 @@
         liveRadarState._isFetching = false;
         if (liveRadarState.active) {
           renderLiveTimingTower();
+          renderRadarCarsSvgStep();
         }
       }
     }
 
     function selectLiveDriver(driverNum) {
       liveRadarState.selectedDriverNum = String(driverNum);
-      if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      try {
+        if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+      } catch (e) {}
       renderLiveTimingTower();
+      renderRadarCarsSvgStep();
     }
 
     function renderLiveTimingTower() {
@@ -5034,55 +5073,53 @@
       }).join("");
     }
 
-    function runLiveRadarAnimationLoop() {
+    function renderRadarCarsSvgStep() {
       if (!liveRadarState.active) return;
 
       const pathEl = document.getElementById("liveRadarTrackCenter");
       const carsLayer = document.getElementById("liveRadarCarsLayer");
       const mainGroupTransform = document.getElementById("liveRadarTrackGroup")?.getAttribute("transform");
 
-      if (pathEl && carsLayer) {
-        if (mainGroupTransform) carsLayer.setAttribute("transform", mainGroupTransform);
-
-        let totalLen = 1000;
-        try { totalLen = pathEl.getTotalLength(); } catch (e) {}
-
-        let svgContent = "";
-        liveRadarState.drivers.forEach((d, idx) => {
-          // Болиды двигаются только тогда, когда гонка идет и пилот не стоит в боксах / не сошел
-          if (liveRadarState.running && !liveRadarState.isFinished && !liveRadarState.isRedFlag && !d.stationary) {
-            d.trackProg = (d.trackProg + 0.00045 - (idx * 0.000002)) % 1;
-          }
-
-          const dist = d.trackProg * totalLen;
-          let pt = { x: 80, y: 155 };
-          try {
-            pt = pathEl.getPointAtLength(dist);
-          } catch (e) {}
-
-          const isSelected = String(d.driverNumber) === String(liveRadarState.selectedDriverNum);
-          const radius = isSelected ? 8 : 5.5;
-          const strokeW = isSelected ? 2.5 : 1;
-
-          svgContent += `
-            <g style="cursor:pointer;" onclick="selectLiveDriver('${d.driverNumber}')">
-              ${isSelected ? `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="13" fill="none" stroke="${d.color}" stroke-width="1.5" opacity="0.8"/>` : ""}
-              <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${radius}" fill="${d.color}" stroke="#ffffff" stroke-width="${strokeW}"/>
-              <text x="${(pt.x + 7).toFixed(1)}" y="${(pt.y + 3).toFixed(1)}" fill="#ffffff" font-size="${isSelected ? "10" : "8"}" font-weight="900" style="text-shadow: 0 1px 3px #000;">${d.code}</text>
-            </g>
-          `;
-        });
-
-        carsLayer.innerHTML = svgContent;
+      if (!pathEl || !carsLayer) return;
+      if (mainGroupTransform && carsLayer.getAttribute("transform") !== mainGroupTransform) {
+        carsLayer.setAttribute("transform", mainGroupTransform);
       }
 
-      liveRadarState.animFrame = requestAnimationFrame(runLiveRadarAnimationLoop);
+      let totalLen = 1000;
+      try { totalLen = pathEl.getTotalLength(); } catch (e) {}
+
+      let svgContent = "";
+      liveRadarState.drivers.forEach((d, idx) => {
+        if (liveRadarState.running && !liveRadarState.isFinished && !liveRadarState.isRedFlag && !d.stationary) {
+          d.trackProg = (d.trackProg + 0.0022 - (idx * 0.00001)) % 1;
+        }
+
+        const dist = d.trackProg * totalLen;
+        let pt = { x: 80, y: 155 };
+        try {
+          pt = pathEl.getPointAtLength(dist);
+        } catch (e) {}
+
+        const isSelected = String(d.driverNumber) === String(liveRadarState.selectedDriverNum);
+        const radius = isSelected ? 8 : 5.5;
+        const strokeW = isSelected ? 2.5 : 1;
+
+        svgContent += `
+          <g style="cursor:pointer;" onclick="selectLiveDriver('${d.driverNumber}')">
+            ${isSelected ? `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="13" fill="none" stroke="${d.color}" stroke-width="1.5" opacity="0.8"/>` : ""}
+            <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${radius}" fill="${d.color}" stroke="#ffffff" stroke-width="${strokeW}"/>
+            <text x="${(pt.x + 7).toFixed(1)}" y="${(pt.y + 3).toFixed(1)}" fill="#ffffff" font-size="${isSelected ? "10" : "8"}" font-weight="900" style="text-shadow: 0 1px 3px #000;">${d.code}</text>
+          </g>
+        `;
+      });
+
+      carsLayer.innerHTML = svgContent;
     }
-    
+
     async function initAppRouting() {
       try {
         initThemeAndPreferences();
-        loadAndApplyAiPatches();
+        // ВАЖНО: loadAndApplyAiPatches() отключен при старте, чтобы старый патч из БД не ломал верстку на телефоне!
         loadCatalogDatabase();
         syncCloudUserProfile();
 
@@ -5116,6 +5153,7 @@
     }
 
     initAppRouting();
+
   </script>
 </body>
 </html>
